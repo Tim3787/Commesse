@@ -13,7 +13,6 @@ import GestioneReparti from "./components/GestioneReparti";
 import GestioneRisorse from "./components/GestioneRisorse";
 import GestioneStati from "./components/GestioneStati";
 import GestioneAttivita from "./components/GestioneAttivita";
-import GestioneStatiAvanzamento from "./components/GestioneStatiAvanzamento";
 import CalendarioCommesse from "./components/CalendarioCommesse";
 import NuovaPagina from "./components/NuovaPagina";
 import NotificheStati from "./components/NotificheStati";

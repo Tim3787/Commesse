@@ -12,7 +12,6 @@ function NuovaPagina() {
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
-  const [filteredCommesse, setFilteredCommesse] = useState([]);
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
@@ -100,12 +99,6 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   const handleSelectTipoMacchina = (tipoMacchina) => {
     setTipoMacchinaFilter(tipoMacchina);
     setShowTipoMacchinaSuggestions(false);
-  };
-
-  const closeSuggestions = () => {
-    setShowClienteSuggestions(false);
-    setShowTipoMacchinaSuggestions(false);
-    setShowCommessaSuggestions(false);
   };
 
   // Trova la commessa attualmente selezionata

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+
 import "./Dashboard.css";
 import axios from "axios";
 
-function Dashboard({ role }) {
+function Dashboard({}) {
     const [attivita, setAttivita] = useState([]);
-    const risorsaId = localStorage.getItem("risorsa_id");
   
     useEffect(() => {
       const fetchData = async () => {

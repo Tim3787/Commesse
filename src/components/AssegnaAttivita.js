@@ -36,7 +36,7 @@ function AssegnaAttivita() {
     applyFilters();
   }, [filters, attivitaProgrammate, sortOrder]);
 
-  const [isLoading, setIsLoading] = useState(false);
+
 
 const fetchOptions = async () => {
   setIsLoading(true);
@@ -116,27 +116,6 @@ const fetchOptions = async () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
-  const getFilteredOptions = (key, items, matchKey) => {
-    let options = items;
-
-    if (filters.reparto_id && key === "risorsa_id") {
-      options = options.filter((item) => item.reparto_id === parseInt(filters.reparto_id));
-    }
-
-    if (filters.risorsa_id && key === "commessa_id") {
-      options = options.filter((item) =>
-        attivitaProgrammate.some(
-          (att) => att.commessa_id === item.id && att.risorsa_id === parseInt(filters.risorsa_id)
-        )
-      );
-    }
-
-    if (filters.reparto_id && key === "attivita_id") {
-      options = options.filter((item) => item.reparto_id === parseInt(filters.reparto_id));
-    }
-
-    return options;
-  };
 
   const handleEdit = (attivita) => {
     console.log("Attività da modificare:", attivita);

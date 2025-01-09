@@ -4,7 +4,6 @@ import "./style.css";
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState(""); // Nuovo stato per il filtro Commessa
