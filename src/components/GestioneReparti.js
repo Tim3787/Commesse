@@ -14,7 +14,7 @@ function GestioneReparti() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/reparti");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -30,8 +30,8 @@ function GestioneReparti() {
     e.preventDefault();
     try {
       const url = isEditing
-        ? `http://localhost:5000/api/reparti/${editId}`
-        : "http://localhost:5000/api/reparti";
+        ? `http://server-commesseun.onrender.com/api/reparti/${editId}`
+        : "http://server-commesseun.onrender.com/api/reparti";
       const method = isEditing ? "put" : "post";
       await axios[method](url, { nome: formData.nome });
       alert(isEditing ? "Reparto aggiornato con successo!" : "Reparto aggiunto con successo!");
@@ -52,7 +52,7 @@ function GestioneReparti() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/reparti/${id}`);
+      await axios.delete(`http://server-commesseun.onrender.com/api/reparti/${id}`);
       alert("Reparto eliminato con successo!");
       fetchReparti();
     } catch (error) {

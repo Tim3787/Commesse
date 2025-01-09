@@ -10,12 +10,12 @@ function CommesseKanban() {
 
   useEffect(() => {
     const fetchReparti = async () => {
-      const response = await axios.get("http://localhost:5000/api/reparti");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
       setReparti(response.data);
     };
 
     const fetchStatiAvanzamento = async () => {
-      const response = await axios.get("http://localhost:5000/api/stati-avanzamento");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/stati-avanzamento");
       setStatiAvanzamento(response.data);
     };
 
@@ -27,7 +27,7 @@ function CommesseKanban() {
     if (repartoSelezionato) {
       const fetchCommesse = async () => {
         const response = await axios.get(
-          `http://localhost:5000/api/commessa-stati/reparto/${repartoSelezionato}`
+          `http://server-commesseun.onrender.com/api/commessa-stati/reparto/${repartoSelezionato}`
         );
         setCommesse(response.data);
       };
@@ -45,7 +45,7 @@ function CommesseKanban() {
     const statoAvanzamentoId = parseInt(destination.droppableId, 10);
 
     try {
-      await axios.put(`http://localhost:5000/api/commessa-stati/${draggableId}`, {
+      await axios.put(`http://server-commesseun.onrender.com/api/commessa-stati/${draggableId}`, {
         stato_avanzamento_id: statoAvanzamentoId,
       });
 

@@ -21,7 +21,7 @@ function VisualizzazioneCommesse() {
   useEffect(() => {
     const fetchCommesse = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/commesse");
+        const response = await axios.get("http://server-commesseun.onrender.com/api/commesse");
         setCommesse(response.data);
         setFilteredCommesse(response.data); // inizializza con tutte le commesse
       } catch (error) {

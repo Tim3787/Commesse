@@ -9,7 +9,7 @@ const NotificheStati = () => {
   useEffect(() => {
     const fetchNotifiche = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/notifiche");
+        const response = await axios.get("http://server-commesseun.onrender.com/api/notifiche");
         setNotifiche(response.data.notifiche || []);
         setLoading(false);
       } catch (error) {

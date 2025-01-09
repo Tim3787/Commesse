@@ -24,7 +24,7 @@ function VisualizzazioneAttivita() {
   // Funzione per recuperare le attività assegnate
   const fetchAttivita = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/attivita_commessa", {
+      const response = await axios.get("http://server-commesseun.onrender.com/api/attivita_commessa", {
         params: filters,
       });
       const filteredData = response.data.filter((attivita) => attivita.risorsa_id !== null);
@@ -39,12 +39,12 @@ function VisualizzazioneAttivita() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const commesseResponse = await axios.get("http://localhost:5000/api/commesse");
+        const commesseResponse = await axios.get("http://server-commesseun.onrender.com/api/commesse");
         const uniqueCommesse = removeDuplicates(commesseResponse.data, 'id');
         console.log("Commesse uniche:", uniqueCommesse);
         setCommesse(uniqueCommesse);
     
-        const risorseResponse = await axios.get("http://localhost:5000/api/risorse");
+        const risorseResponse = await axios.get("http://server-commesseun.onrender.com/api/risorse");
         const uniqueRisorse = removeDuplicates(risorseResponse.data, 'id');
         console.log("Risorse uniche:", uniqueRisorse);
         setRisorse(uniqueRisorse);

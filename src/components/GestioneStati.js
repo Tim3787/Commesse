@@ -19,7 +19,7 @@ function GestioneStati() {
 
   const fetchStatiAvanzamento = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/stati-avanzamento");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/stati-avanzamento");
       setStatiAvanzamento(response.data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati di avanzamento:", error);
@@ -28,7 +28,7 @@ function GestioneStati() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/reparti");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -48,8 +48,8 @@ function GestioneStati() {
     }
     try {
       const endpoint = isEditing
-        ? `http://localhost:5000/api/stati-avanzamento/${editId}`
-        : "http://localhost:5000/api/stati-avanzamento";
+        ? `http://server-commesseun.onrender.com/api/stati-avanzamento/${editId}`
+        : "http://server-commesseun.onrender.com/api/stati-avanzamento";
 
       const method = isEditing ? "put" : "post";
 
@@ -80,7 +80,7 @@ function GestioneStati() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/stati-avanzamento/${id}`);
+      await axios.delete(`http://server-commesseun.onrender.com/api/stati-avanzamento/${id}`);
       alert("Stato di avanzamento eliminato con successo!");
       fetchStatiAvanzamento();
     } catch (error) {

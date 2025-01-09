@@ -42,7 +42,7 @@ function GestioneCommesse() {
 
   const fetchCommesse = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/commesse");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/commesse");
       setCommesse(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle commesse:", error);
@@ -51,7 +51,7 @@ function GestioneCommesse() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/reparti");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
       setReparti(response.data);
       const inizializzaSelezioni = {};
       response.data.forEach((reparto) => {
@@ -65,7 +65,7 @@ function GestioneCommesse() {
 
   const fetchAttivita = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/attivita");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/attivita");
       setAttivita(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
@@ -102,13 +102,13 @@ function GestioneCommesse() {
   
       if (isEditing) {
         // Aggiorna la commessa
-        const response = await axios.put(`http://localhost:5000/api/commesse/${editId}`, formData);
+        const response = await axios.put(`http://server-commesseun.onrender.com/api/commesse/${editId}`, formData);
         console.log("Risposta backend per aggiornamento commessa:", response.data);
         commessaId = editId;
         alert("Commessa aggiornata con successo!");
       } else {
         // Crea una nuova commessa
-        const response = await axios.post("http://localhost:5000/api/commesse", formData);
+        const response = await axios.post("http://server-commesseun.onrender.com/api/commesse", formData);
         console.log("Risposta backend per nuova commessa:", response.data);
   
         // Assicurati che il backend restituisca l'ID della nuova commessa
@@ -135,7 +135,7 @@ function GestioneCommesse() {
   
       // Invia le attività selezionate al backend
       if (attivitaDaAggiungere.length > 0) {
-        await axios.post("http://localhost:5000/api/commesse/assegna-attivita-predefinite", attivitaDaAggiungere, {
+        await axios.post("http://server-commesseun.onrender.com/api/commesse/assegna-attivita-predefinite", attivitaDaAggiungere, {
           headers: { "Content-Type": "application/json" }
         });
       }
@@ -170,7 +170,7 @@ const handleDelete = async (commessaId) => {
     }
     
     // Modifica la query di eliminazione per usare il nome corretto della colonna (id)
-    await axios.delete(`http://localhost:5000/api/commesse/${commessaId}`);
+    await axios.delete(`http://server-commesseun.onrender.com/api/commesse/${commessaId}`);
     alert("Commessa eliminata con successo!");
      // Ricarica l'elenco delle commesse dal backend
      fetchCommesse(); // Chiamata per ricaricare la lista delle commesse

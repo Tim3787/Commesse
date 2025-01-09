@@ -43,11 +43,11 @@ const fetchOptions = async () => {
   try {
     const [commesseResponse, risorseResponse, repartiResponse, attivitaDefiniteResponse, attivitaProgrammateResponse] =
       await Promise.all([
-        axios.get("http://localhost:5000/api/commesse"),
-        axios.get("http://localhost:5000/api/risorse"),
-        axios.get("http://localhost:5000/api/reparti"),
-        axios.get("http://localhost:5000/api/attivita"),
-        axios.get("http://localhost:5000/api/attivita_commessa"),
+        axios.get("http://server-commesseun.onrender.com/api/commesse"),
+        axios.get("http://server-commesseun.onrender.com/api/risorse"),
+        axios.get("http://server-commesseun.onrender.com/api/reparti"),
+        axios.get("http://server-commesseun.onrender.com/api/attivita"),
+        axios.get("http://server-commesseun.onrender.com/api/attivita_commessa"),
       ]);
 
     setCommesse(commesseResponse.data);
@@ -142,7 +142,7 @@ const fetchOptions = async () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/attivita_commessa/${id}`);
+      await axios.delete(`http://server-commesseun.onrender.com/api/attivita_commessa/${id}`);
       alert("Attività eliminata con successo!");
       fetchOptions();
     } catch (error) {
@@ -162,10 +162,10 @@ const fetchOptions = async () => {
   
     try {
       if (isEditing) {
-        await axios.put(`http://localhost:5000/api/attivita_commessa/${editId}`, formData);
+        await axios.put(`http://server-commesseun.onrender.com/api/attivita_commessa/${editId}`, formData);
         alert("Attività aggiornata con successo!");
       } else {
-        await axios.post("http://localhost:5000/api/attivita_commessa", formData);
+        await axios.post("http://server-commesseun.onrender.com/api/attivita_commessa", formData);
         alert("Attività aggiunta con successo!");
       }
   

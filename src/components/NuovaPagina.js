@@ -20,7 +20,7 @@ function NuovaPagina() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/commesse");
+        const response = await axios.get("http://server-commesseun.onrender.com/api/commesse");
         console.log("Commesse caricate:", response.data);
         setCommesse(response.data);
         // Imposta la prima commessa come selezionata
@@ -173,7 +173,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       const isActive = statoSelezionato?.isActive === undefined ? false : statoSelezionato.isActive;
   
       // Chiamata PUT per aggiornare il backend
-      await axios.put(`http://localhost:5000/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await axios.put(`http://server-commesseun.onrender.com/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: newStatoId,
         is_active: isActive, // Imposta isActive in base allo stato selezionato
       });
@@ -207,7 +207,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await axios.put(`http://server-commesseun.onrender.com/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: statoId,
         [field]: null, // Rimuove la data
       });
@@ -250,7 +250,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
 
     try {
       const formattedDate = new Date(newValue).toISOString();
-      await axios.put(`http://localhost:5000/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await axios.put(`http://server-commesseun.onrender.com/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: statoId,
         [field]: formattedDate,
       });

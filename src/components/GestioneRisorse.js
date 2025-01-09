@@ -20,7 +20,7 @@ function GestioneRisorse() {
 
   const fetchRisorse = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/risorse");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/risorse");
       setRisorse(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle risorse:", error);
@@ -29,7 +29,7 @@ function GestioneRisorse() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/reparti");
+      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -49,8 +49,8 @@ function GestioneRisorse() {
     }
     try {
       const endpoint = isEditing
-        ? `http://localhost:5000/api/risorse/${editId}`
-        : "http://localhost:5000/api/risorse";
+        ? `http://server-commesseun.onrender.com/api/risorse/${editId}`
+        : "http://server-commesseun.onrender.com/api/risorse";
 
       const method = isEditing ? "put" : "post";
 
@@ -78,7 +78,7 @@ function GestioneRisorse() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/risorse/${id}`);
+      await axios.delete(`http://server-commesseun.onrender.com/api/risorse/${id}`);
       alert("Risorsa eliminata con successo!");
       fetchRisorse();
     } catch (error) {

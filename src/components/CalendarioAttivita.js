@@ -12,7 +12,7 @@ const CalendarioAttivita = () => {
     const fetchDati = async () => {
       try {
         // Recupera eventi
-        const responseEventi = await fetch("http://localhost:5000/api/attivita_commessa");
+        const responseEventi = await fetch("http://server-commesseun.onrender.com/api/attivita_commessa");
         const dataEventi = await responseEventi.json();
 
         const eventiTrasformati = dataEventi.map((att) => ({
@@ -33,10 +33,10 @@ const CalendarioAttivita = () => {
         setEventi(eventiTrasformati);
 
         // Recupera risorse
-        const responseReparti = await fetch("http://localhost:5000/api/reparti");
+        const responseReparti = await fetch("http://server-commesseun.onrender.com/api/reparti");
         const dataReparti = await responseReparti.json();
 
-        const responseAttivita = await fetch("http://localhost:5000/api/attivita");
+        const responseAttivita = await fetch("http://server-commesseun.onrender.com/api/attivita");
         const dataAttivita = await responseAttivita.json();
 
         const risorseTrasformate = dataReparti.map((reparto) => ({
@@ -77,7 +77,7 @@ const CalendarioAttivita = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/attivita_commessa/${info.event.id}`, {
+      const response = await fetch(`http://server-commesseun.onrender.com/api/attivita_commessa/${info.event.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ const CalendarioAttivita = () => {
     console.log("Dati evento aggiornato:", eventoAggiornato);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/attivita_commessa/${info.event.id}`, {
+      const response = await fetch(`http://server-commesseun.onrender.com/api/attivita_commessa/${info.event.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -29,7 +29,7 @@ function LoginRegister({ onLogin }) {
         endpoint = "/api/users/forgot-password";
       }
   
-      const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
+      const response = await axios.post(`http://server-commesseun.onrender.com${endpoint}`, formData);
   
       if (formType === "login") {
         console.log("Login Response:", response.data); // Debug del token e ruolo
