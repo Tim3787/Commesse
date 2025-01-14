@@ -2,7 +2,7 @@ import React from "react";
 import "./GestioneStatiAvanzamento.css";
 import "./style.css";
 
-function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUpdateDate, handleRemoveDate, formatDate }) {
+function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUpdateDate, handleRemoveDate,  formatDate, handleStatoChange, statiCommessa }) {
   // Aggiungi un controllo per verificare se la commessa è valida
   if (!commessa || !commessa.stati_avanzamento) {
     return <p>Seleziona una commessa per gestire gli stati avanzamento.</p>;
@@ -11,11 +11,30 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
   console.log("Commessa:", commessa);
   console.log("commessa.id:", commessa.id);
   console.log("commessa.commessa_id:", commessa.commessa_id);
+  console.log("commessa.stato:", commessa.stato);
 
   return (
     <div className="commessa-container">
       <h2>Commessa: {commessa.numero_commessa}</h2>
       <p>Tipo Macchina: {commessa.tipo_macchina}</p>
+      
+<div>
+  <label>Seleziona Stato della Commessa:</label>
+  <select
+  value={commessa.stato} // Il valore selezionato è lo stato aggiornato
+  onChange={(e) =>
+    handleStatoChange(commessa.commessa_id, Number(e.target.value)) // Invio dell'ID dello stato
+  }
+>
+  <option value="">Seleziona Stato</option>
+  {statiCommessa.map((stato) => (
+    <option key={stato.id} value={stato.id}>
+      {stato.nome_stato}
+    </option>
+  ))}
+</select>
+</div>
+
       {commessa.stati_avanzamento.map((reparto) => (
         <div key={`stato-${commessa.commessa_id}-${reparto.reparto_id}`} className="reparto-container">
           <h3>Reparto: {reparto.reparto_nome}</h3>

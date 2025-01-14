@@ -15,15 +15,18 @@ nav {
 }
 
 .user-navbar {
-  background-color: #e0f7fa;
+  padding: 10px;
+  background-color: #afe1fd;
 }
 
 .manager-navbar {
-  background-color: #ffe082;
+  background-color: #afe1fd;
+  padding: 10px;
 }
 
 .admin-navbar {
-  background-color: #ffccbc;
+  background-color: #afe1fd;
+  padding: 10px;
 }
 
 .logout-navbar {

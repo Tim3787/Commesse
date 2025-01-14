@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./style.css";
+import "../style.css";
 
 function GestioneUtenti() {
   const [utenti, setUtenti] = useState([]);
@@ -13,9 +13,9 @@ function GestioneUtenti() {
     const fetchData = async () => {
       try {
         const [utentiResponse, ruoliResponse, risorseResponse] = await Promise.all([
-          axios.get("http://server-commesseun.onrender.com/api/users"),
-          axios.get("http://server-commesseun.onrender.com/api/users/roles"),
-          axios.get("http://server-commesseun.onrender.com/api/risorse"),
+          axios.get (`${process.env.REACT_APP_API_URL}/api/users`),
+          axios.get (`${process.env.REACT_APP_API_URL}/api/users/roles`),
+          axios.get (`${process.env.REACT_APP_API_URL}/api/risorse`),
         ]);
 
         setUtenti(utentiResponse.data);
@@ -42,7 +42,7 @@ function GestioneUtenti() {
         risorsa_id: currentUser.risorsa_id, // Mantieni la risorsa attuale
       };
   
-      await axios.put(`http://server-commesseun.onrender.com/api/users/${userId}`, payload);
+      await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}`, payload);
       alert("Ruolo aggiornato con successo!");
   
       setUtenti((prevUtenti) =>
@@ -69,7 +69,7 @@ function GestioneUtenti() {
         risorsa_id: currentUser.risorsa_id, // Mantieni la risorsa attuale
       };
   
-      await axios.put(`http://server-commesseun.onrender.com/api/users/${userId}`, payload);
+      await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}`, payload);
       alert("Nome utente aggiornato con successo!");
   
       setUtenti((prevUtenti) =>
@@ -86,7 +86,7 @@ function GestioneUtenti() {
   // Assegna una risorsa a un utente
   const handleAssignResource = async (userId, risorsaId) => {
     try {
-      await axios.put(`http://server-commesseun.onrender.com/api/users/${userId}/assign-resource`, { risorsa_id: risorsaId });
+      await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}/assign-resource`, { risorsa_id: risorsaId });
       alert("Risorsa assegnata con successo!");
 
       setUtenti((prevUtenti) =>
@@ -102,7 +102,7 @@ function GestioneUtenti() {
     // Elimina utente
     const handleDeleteUser = async (userId) => {
       try {
-        await axios.delete(`http://server-commesseun.onrender.com/api/users/${userId}`);
+        await axios.delete (`${process.env.REACT_APP_API_URL}/api/users/${userId}`);
         alert("Utente eliminato con successo!");
         setUtenti((prevUtenti) => prevUtenti.filter((utente) => utente.id !== userId));
       } catch (error) {

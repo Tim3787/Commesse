@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 import interactionPlugin from "@fullcalendar/interaction";
-import "./style.css";
+import "../style.css";
 
 const CalendarioCommesse = () => {
   const [eventi, setEventi] = useState([]);
@@ -11,7 +11,7 @@ const CalendarioCommesse = () => {
   useEffect(() => {
     const fetchDati = async () => {
       try {
-        const responseCommesse = await fetch("http://server-commesseun.onrender.com/api/commesse");
+        const responseCommesse = await fetch (`${process.env.REACT_APP_API_URL}/api/commesse`);
         const dataCommesse = await responseCommesse.json();
 
         // Organizza le risorse
@@ -66,7 +66,7 @@ const CalendarioCommesse = () => {
     try {
       // Esegui la chiamata al nuovo endpoint
       const response = await fetch(
-        `http://server-commesseun.onrender.com/api/commesse/${info.event.extendedProps.commessa_id}/stati-avanzamento/${info.event.extendedProps.stato_id}`,
+        `${process.env.REACT_APP_API_URL}/api/commesse/${info.event.extendedProps.commessa_id}/stati-avanzamento/${info.event.extendedProps.stato_id}`,
         {
           method: "PUT",
           headers: {

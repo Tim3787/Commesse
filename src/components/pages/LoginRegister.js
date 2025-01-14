@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+import "../style.css";
 
 function LoginRegister({ onLogin }) {
   const [formType, setFormType] = useState("login"); // "login", "register" o "recover"
@@ -29,7 +29,7 @@ function LoginRegister({ onLogin }) {
         endpoint = "/api/users/forgot-password";
       }
   
-      const response = await axios.post(`http://server-commesseun.onrender.com${endpoint}`, formData);
+      const response = await axios.post (`${process.env.REACT_APP_API_URL}${endpoint}`, formData);
   
       if (formType === "login") {
         console.log("Login Response:", response.data); // Debug del token e ruolo

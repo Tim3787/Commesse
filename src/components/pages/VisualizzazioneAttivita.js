@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import "./style.css";
+import "../style.css";
 
 const removeDuplicates = (array, key) => {
   return array.filter((item, index, self) => 
@@ -8,23 +8,22 @@ const removeDuplicates = (array, key) => {
   );
 };
 
-
 function VisualizzazioneAttivita() {
   const [attivitaList, setAttivitaList] = useState([]);
   const [commesse, setCommesse] = useState([]);
   const [risorse, setRisorse] = useState([]);
+  const [reparti, setReparti] = useState([]);
   const [filters, setFilters] = useState({
     commessa_id: "",
     risorsa_id: "",
-    reparto: "",
+    reparto_id: "", // Aggiunto filtro per reparto
     settimana: "",
   });
-
 
   // Funzione per recuperare le attività assegnate
   const fetchAttivita = useCallback(async () => {
     try {
-      const response = await axios.get("http://server-commesseun.onrender.com/api/attivita_commessa", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, {
         params: filters,
       });
       const filteredData = response.data.filter((attivita) => attivita.risorsa_id !== null);
@@ -39,15 +38,20 @@ function VisualizzazioneAttivita() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const commesseResponse = await axios.get("http://server-commesseun.onrender.com/api/commesse");
+        const commesseResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
         const uniqueCommesse = removeDuplicates(commesseResponse.data, 'id');
         console.log("Commesse uniche:", uniqueCommesse);
         setCommesse(uniqueCommesse);
     
-        const risorseResponse = await axios.get("http://server-commesseun.onrender.com/api/risorse");
+        const risorseResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`);
         const uniqueRisorse = removeDuplicates(risorseResponse.data, 'id');
         console.log("Risorse uniche:", uniqueRisorse);
         setRisorse(uniqueRisorse);
+
+        const repartiResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
+        const uniqueReparti = removeDuplicates(repartiResponse.data, 'id');
+        console.log("Reparti unici:", uniqueReparti);
+        setReparti(uniqueReparti); // Imposta i reparti unici
     
         fetchAttivita();
       } catch (error) {
@@ -69,14 +73,21 @@ function VisualizzazioneAttivita() {
     fetchAttivita();
   };
 
+  // Filtraggio dinamico delle risorse in base al reparto selezionato
+  const getFilteredRisorse = () => {
+    if (filters.reparto_id) {
+      return risorse.filter((risorsa) => risorsa.reparto_id === parseInt(filters.reparto_id));
+    }
+    return risorse;
+  };
+
   return (
     <div className="container">
       <h1>Visualizza le attività assegnate</h1>
       <form onSubmit={handleApplyFilters}>
         <div>
-          <label>Commessa:</label>
           <select name="commessa_id" value={filters.commessa_id} onChange={handleFilterChange}>
-            <option value="">Tutte</option>
+            <option value="">Filtra commesse</option>
             {commesse.map((commessa) => (
               <option key={commessa.id} value={commessa.id}>
                 {commessa.numero_commessa}
@@ -84,25 +95,31 @@ function VisualizzazioneAttivita() {
             ))}
           </select>
         </div>
+
+        {/* Selezione del Reparto (prima di Risorsa) */}
         <div>
-          <label>Risorsa:</label>
+          <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange}>
+            <option value="">Filtra reparto</option>
+            {reparti.map((reparto) => (
+              <option key={reparto.id} value={reparto.id}>
+                {reparto.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Selezione della Risorsa in base al reparto */}
+        <div>
           <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
-            <option value="">Tutte</option>
-            {risorse.map((risorsa) => (
+            <option value="">Filtra risorse</option>
+            {getFilteredRisorse().map((risorsa) => (
               <option key={risorsa.id} value={risorsa.id}>
                 {risorsa.nome}
               </option>
             ))}
           </select>
         </div>
-        <div>
-          <label>Reparto:</label>
-          <select name="reparto" value={filters.reparto} onChange={handleFilterChange}>
-            <option value="">Tutti</option>
-            <option value="Software">Software</option>
-            <option value="Elettrico">Elettrico</option>
-          </select>
-        </div>
+
         <div>
           <label>Settimana:</label>
           <input
