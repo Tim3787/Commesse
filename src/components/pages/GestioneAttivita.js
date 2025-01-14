@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./style.css";
+import "../style.css";
 
 function GestioneAttivita() {
   const [attivita, setAttivita] = useState([]);
@@ -17,7 +17,7 @@ function GestioneAttivita() {
 
   const fetchAttivita = async () => {
     try {
-      const response = await axios.get("http://server-commesseun.onrender.com/api/attivita");
+      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/attivita`);
       console.log("Dati attività ricevuti:", response.data);
       setAttivita(response.data);
     } catch (error) {
@@ -27,7 +27,7 @@ function GestioneAttivita() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
+      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/reparti`);
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -51,8 +51,8 @@ function GestioneAttivita() {
     try {
       console.log("Dati inviati al server:", formData);
       const endpoint = isEditing
-        ? `http://server-commesseun.onrender.com/api/attivita/${editId}`
-        : "http://server-commesseun.onrender.com/api/attivita";
+         ? `${process.env.REACT_APP_API_URL}/api/attivita/${editId}`
+          : `${process.env.REACT_APP_API_URL}/api/attivita`; 
   
       const method = isEditing ? "put" : "post";
   
@@ -80,7 +80,7 @@ function GestioneAttivita() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://server-commesseun.onrender.com/api/attivita/${id}`);
+      await axios.delete (`${process.env.REACT_APP_API_URL}/api/attivita/${id}`);
       alert("Attività eliminata con successo!");
       fetchAttivita();
     } catch (error) {

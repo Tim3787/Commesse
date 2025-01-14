@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./style.css";
+import "../style.css";
 
 const NotificheStati = () => {
   const [notifiche, setNotifiche] = useState([]);
@@ -9,7 +9,7 @@ const NotificheStati = () => {
   useEffect(() => {
     const fetchNotifiche = async () => {
       try {
-        const response = await axios.get("http://server-commesseun.onrender.com/api/notifiche");
+        const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/notifiche`);
         setNotifiche(response.data.notifiche || []);
         setLoading(false);
       } catch (error) {

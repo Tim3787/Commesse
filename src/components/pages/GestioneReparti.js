@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./style.css";
+import "../style.css";
 
 function GestioneReparti() {
   const [reparti, setReparti] = useState([]);
@@ -14,7 +14,7 @@ function GestioneReparti() {
 
   const fetchReparti = async () => {
     try {
-      const response = await axios.get("http://server-commesseun.onrender.com/api/reparti");
+      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/reparti`);
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -30,8 +30,8 @@ function GestioneReparti() {
     e.preventDefault();
     try {
       const url = isEditing
-        ? `http://server-commesseun.onrender.com/api/reparti/${editId}`
-        : "http://server-commesseun.onrender.com/api/reparti";
+        ? `${process.env.REACT_APP_API_URL}/api/reparti/${editId}`  // Correzione della sintassi
+        : `${process.env.REACT_APP_API_URL}/api/reparti`;
       const method = isEditing ? "put" : "post";
       await axios[method](url, { nome: formData.nome });
       alert(isEditing ? "Reparto aggiornato con successo!" : "Reparto aggiunto con successo!");
@@ -43,6 +43,7 @@ function GestioneReparti() {
       console.error("Errore durante la gestione del reparto:", error);
     }
   };
+  
 
   const handleEdit = (reparto) => {
     setFormData({ nome: reparto.nome });
@@ -52,7 +53,7 @@ function GestioneReparti() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://server-commesseun.onrender.com/api/reparti/${id}`);
+      await axios.delete (`${process.env.REACT_APP_API_URL}/api/reparti/${id}`);
       alert("Reparto eliminato con successo!");
       fetchReparti();
     } catch (error) {

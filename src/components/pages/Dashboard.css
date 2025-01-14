@@ -41,4 +41,41 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     background-color: #0056b3;
   }
+  .calendar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
   
+  .calendar-day {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
+  }
+  
+  .day-header {
+    font-weight: bold;
+  }
+  
+  .activities {
+    margin-top: 10px;
+  }
+  
+  .activity {
+    margin-bottom: 5px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+  
+  .calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .today {
+    background-color: #90d7ec;
+    font-weight: bold;
+  }
