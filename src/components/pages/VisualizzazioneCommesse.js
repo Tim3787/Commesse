@@ -19,8 +19,8 @@ function VisualizzazioneCommesse() {
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
-  const [reparti, setReparti] = useState([])
-  const [statiAvanzamento, setStatiAvanzamento] = useState([]);
+
+
   const [statoFilter, setStatoFilter] = useState(""); // NUOVO FILTRO STATO
   const [statiCommessa, setStatiCommessa] = useState([]);  // NUOVO STATO
   
@@ -75,19 +75,38 @@ function VisualizzazioneCommesse() {
   }, [statoFilter]);
   
 
-  const applyFilters = (commesse) => {
-    console.log("Filtro stato:", statoFilter);  // Verifica che statoFilter venga aggiornato
-    return commesse.filter((commessa) => {
-      const statoCommessa = commessa.stato;
-      console.log("Stato commessa:", statoCommessa); // Verifica il valore di statoCommessa
+  useEffect(() => {
+    // Filtriamo le commesse in base ai filtri applicati
+    const filtered = commesse.filter((commessa) => {
       return (
         commessa.numero_commessa.toString().includes(commessaFilter) &&
         commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase()) &&
-        commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase()) &&
-        (statoFilter === "" || statoCommessa === parseInt(statoFilter)) // Condizione per filtro stato
+        commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
       );
     });
-  };
+  
+    // Suggerimenti per Cliente, Tipo Macchina e Commessa
+    const clienteSuggestions = commesse
+      .map((commessa) => commessa.cliente)
+      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
+  
+    const tipoMacchinaSuggestions = commesse
+      .map((commessa) => commessa.tipo_macchina)
+      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
+  
+    const commessaSuggestions = commesse
+      .map((commessa) => commessa.numero_commessa)
+      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
+  
+    // Imposta i suggerimenti per ogni filtro
+    setSuggestionsCliente(clienteSuggestions);
+    setSuggestionsTipoMacchina(tipoMacchinaSuggestions);
+    setSuggestionsCommessa(commessaSuggestions);
+  
+    // Imposta le commesse filtrate
+    setFilteredCommesse(filtered);
+  
+  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, commesse]);
   
 
   // Funzione per applicare l'ordinamento
@@ -107,7 +126,16 @@ function VisualizzazioneCommesse() {
       return 0;
     });
   };
-
+  // Funzione per applicare i filtri
+  const applyFilters = () => {
+    return commesse.filter((commessa) => {
+      return (
+        commessa.numero_commessa.toString().includes(commessaFilter) &&
+        commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase()) &&
+        commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
+      );
+    });
+  };
   // Funzione per gestire l'aggiornamento dei dati filtrati e ordinati
   const updateFilteredCommesse = () => {
     let filtered = applyFilters(commesse);
@@ -119,6 +147,8 @@ function VisualizzazioneCommesse() {
     updateFilteredCommesse();
   }, [commessaFilter, clienteFilter, tipoMacchinaFilter, commesse, sortOrder, sortDirection, dateSortDirection]);
 
+
+  
   // Funzioni di selezione per i filtri
   const handleCommessaChange = (event) => {
     setCommessaFilter(event.target.value);
@@ -135,9 +165,6 @@ function VisualizzazioneCommesse() {
     setShowTipoMacchinaSuggestions(true);
   };
 
-  const handleStatoChange = (event) => {
-    setStatoFilter(event.target.value); // Aggiorna il filtro stato
-  };
 
 
   const handleSelectCommessa = (commessa) => {
@@ -155,6 +182,9 @@ function VisualizzazioneCommesse() {
     setShowTipoMacchinaSuggestions(false);
   };
 
+  const handleStatoChange = (event) => {
+    setStatoFilter(event.target.value); // Aggiorna il filtro stato
+  };
 
 
   const closeSuggestions = (e) => {
@@ -187,46 +217,9 @@ function VisualizzazioneCommesse() {
     setSelectedCommessa(null);
   };
 
-  
-  // Funzione per ottenere il nome del reparto per reparto_id
-  const getRepartoNome = (repartoId) => {
-    const reparto = reparti.find(r => r.id === repartoId);
-    return reparto ? reparto.nome : "Sconosciuto"; 
-  };
 
-// Funzione per ottenere gli stati raggruppati per reparto
-const getStatiPerReparto = () => {
-  const gruppiPerReparto = statiAvanzamento.reduce((acc, stato) => {
-    const nomeReparto = getRepartoNome(stato.reparto_id); 
-    if (!acc[nomeReparto]) {
-      acc[nomeReparto] = { reparto: nomeReparto, stati: [] };
-    }
-    acc[nomeReparto].stati.push(stato); 
-    return acc;
-    
-  }, {});
 
-  // Ordiniamo i gruppi per reparto
-  const repartiOrdinati = Object.keys(gruppiPerReparto).sort();
 
-  return repartiOrdinati.map((nomeReparto) => ({
-    reparto: nomeReparto,
-    stati: gruppiPerReparto[nomeReparto].stati,
-  }));
-};
-
-// Funzione per ottenere gli stati attivi per ogni reparto di una commessa
-const getStatiAttiviPerCommessa = (commessa) => {
-  return commessa.stati_avanzamento.map((reparto) => {
-    // Filtriamo per trovare lo stato attivo per ogni reparto
-    const statoAttivo = reparto.stati_disponibili.find((stato) => stato.isActive);
-    // Se c'è uno stato attivo, ritorna il reparto con lo stato attivo
-    return {
-      reparto_nome: reparto.reparto_nome,
-      stato: statoAttivo || "Nessun stato attivo" 
-    };
-  });
-};
 
 // Funzione per ottenere il nome dello stato della commessa
 const getStatoNome = (id) => {

@@ -6,7 +6,6 @@ function AttivitaCrea({
   formData,
   setFormData,
   isEditing,
-  setIsEditing,
   editId,
   fetchAttivita,
   setShowPopup,
