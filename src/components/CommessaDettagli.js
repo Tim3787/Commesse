@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 import "./style.css";
 
-function CommessaDettagli({ commessa, onClose, reparti, statiAvanzamento }) {
 
-  // Funzione per ottenere il nome del reparto per reparto_id
-  const getRepartoNome = (repartoId) => {
-    const reparto = reparti.find(r => r.id === repartoId);
-    return reparto ? reparto.nome : "Sconosciuto"; // Restituisce il nome del reparto o "Sconosciuto" se non trovato
-  };
+function CommessaDettagli({ commessa, onClose }) {
 
   // Funzione per ottenere gli stati attivi per ogni reparto di una commessa
   const getStatiAttiviPerCommessa = (commessa) => {

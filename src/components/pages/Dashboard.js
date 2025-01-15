@@ -3,13 +3,11 @@ import axios from "axios";
 import "./Dashboard.css";
 
 function Dashboard() {
-  const [attivita, setAttivita] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Data corrente
   const [monthlyActivities, setMonthlyActivities] = useState([]);
 
   // Funzione per calcolare tutti i giorni del mese corrente
   const getDaysInMonth = (date) => {
-    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
     const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     
     const days = [];
