@@ -4,47 +4,33 @@ import { useNavigate } from "react-router-dom";
 import "../style.css";
 
 function LoginRegister({ onLogin }) {
-  const [formType, setFormType] = useState("login"); // "login", "register" o "recover"
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-
+  const handleLogin = async () => {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, formData);
+    sessionStorage.setItem("authToken", response.data.token);
+    sessionStorage.setItem("role", response.data.role_id);
+    onLogin(response.data.token, response.data.role_id);
+    navigate("/dashboard");
+  };
+  
+  const handleRegister = async () => {
+    await axios.post(`${process.env.REACT_APP_API_URL}/api/users/register`, formData);
+    setMessage("Registrazione completata! Ora puoi accedere.");
+    setFormType("login");
+  };
+  
+  const handleRecover = async () => {
+    await axios.post(`${process.env.REACT_APP_API_URL}/api/users/forgot-password`, formData);
+    setMessage("Se l'email esiste, riceverai un'email con il link per resettare la password.");
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setMessage("");
-  
     try {
-      let endpoint;
-      if (formType === "login") {
-        endpoint = "/api/users/login";
-      } else if (formType === "register") {
-        endpoint = "/api/users/register";
-      } else if (formType === "recover") {
-        endpoint = "/api/users/forgot-password";
-      }
-  
-      const response = await axios.post (`${process.env.REACT_APP_API_URL}${endpoint}`, formData);
-  
-      if (formType === "login") {
-        console.log("Login Response:", response.data); // Debug del token e ruolo
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.role_id);
-        onLogin(response.data.token, response.data.role_id);
-        navigate("/dashboard");
-      } else if (formType === "register") {
-        setMessage("Registrazione completata! Ora puoi accedere.");
-        setFormType("login");
-      } else if (formType === "recover") {
-        setMessage(
-          "Se l'email esiste, riceverai un'email con il link per resettare la password."
-        );
-      }
+      if (formType === "login") await handleLogin();
+      if (formType === "register") await handleRegister();
+      if (formType === "recover") await handleRecover();
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       setError(error.response?.data || "Errore durante l'operazione");

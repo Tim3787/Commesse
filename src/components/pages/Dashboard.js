@@ -22,7 +22,7 @@ function Dashboard() {
   const fetchActivities = async (monthStartDate) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
         params: { startDate: monthStartDate.toISOString() }, // Passa il primo giorno del mese
       });
       setMonthlyActivities(response.data);
