@@ -25,24 +25,45 @@ function App() {
 
   // Gestione login
   const handleLogin = (token, role) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
+    sessionStorage.setItem("authToken", token);
+    sessionStorage.setItem("role", role);
     setIsAuthenticated(true);
-    setUserRole(parseInt(role, 10)); // Converti in numero
+    setUserRole(parseInt(role, 10));
+  
+    // Timer per logout automatico (es. 4 ore)
+    setTimeout(() => {
+      handleLogout();
+      alert("Sessione scaduta. Effettua nuovamente il login.");
+    }, 4 * 60 * 60 * 1000); // 4 ore in millisecondi
   };
 
   // Gestione logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
     setIsAuthenticated(false);
     setUserRole(null);
   };
 
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        // Rimuovi il token da localStorage
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("role");
+  
+        // Reindirizza alla pagina di login
+        window.location.href = "/LoginRegister";
+      }
+      return Promise.reject(error);
+    }
+  );
+
   // Carica token e ruolo da localStorage all'avvio dell'app
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = sessionStorage.getItem("token");
+    const role = sessionStorage.getItem("role");
     if (token && role) {
       setIsAuthenticated(true);
       setUserRole(parseInt(role, 10)); // Converti in numero
