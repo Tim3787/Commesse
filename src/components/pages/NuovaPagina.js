@@ -15,7 +15,6 @@ function NuovaPagina() {
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
-  const [filteredCommesse, setFilteredCommesse] = useState([]);
   const [statiCommessa, setStatiCommessa] = useState([]);
 
 
@@ -59,7 +58,6 @@ function NuovaPagina() {
       );
     });
 
-    setFilteredCommesse(filtered);
 
 // Imposta currentCommessaId su una commessa valida tra quelle filtrate
 if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === currentCommessaId)) {

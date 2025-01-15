@@ -10,8 +10,6 @@ function AssegnaAttivita() {
   const [risorse, setRisorse] = useState([]);
   const [reparti, setReparti] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-    const [selectedCommessa, setSelectedCommessa] = useState(null); // Stato per commessa selezionata
   const [filters, setFilters] = useState({
     
     reparto_id: "",
@@ -41,7 +39,6 @@ function AssegnaAttivita() {
   }, [filters, attivitaProgrammate]);
 
   const fetchOptions = async () => {
-    setIsLoading(true);
     try {
       const [commesseResponse, risorseResponse, repartiResponse, attivitaDefiniteResponse, attivitaProgrammateResponse] =
         await Promise.all([
@@ -63,7 +60,6 @@ function AssegnaAttivita() {
     } catch (error) {
       console.error("Errore durante il recupero delle opzioni:", error);
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -121,7 +117,11 @@ function AssegnaAttivita() {
   };
     
     
-
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+  
 
 
   const handleAddNew = () => {
@@ -155,6 +155,43 @@ function AssegnaAttivita() {
       <button onClick={handleAddNew} className="btn btn-primary">
         Aggiungi Attività
       </button>
+      <div className="filters">
+  <label>
+    Reparto:
+    <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange}>
+      <option value="">Tutti</option>
+      {reparti.map((reparto) => (
+        <option key={reparto.id} value={reparto.id}>
+          {reparto.nome}
+        </option>
+      ))}
+    </select>
+  </label>
+
+  <label>
+    Commessa:
+    <select name="commessa_id" value={filters.commessa_id} onChange={handleFilterChange}>
+      <option value="">Tutti</option>
+      {commesse.map((commessa) => (
+        <option key={commessa.id} value={commessa.id}>
+          {commessa.numero_commessa}
+        </option>
+      ))}
+    </select>
+  </label>
+
+  <label>
+    Risorsa:
+    <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
+      <option value="">Tutte</option>
+      {risorse.map((risorsa) => (
+        <option key={risorsa.id} value={risorsa.id}>
+          {risorsa.nome}
+        </option>
+      ))}
+    </select>
+  </label>
+</div>
 
       {/* Lista delle attività programmate */}
       <table>

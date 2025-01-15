@@ -83,6 +83,7 @@ const formatDate = (dateString) => {
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
           formData
         );
+        console.log("Risposta PUT:", response.data); // Puoi anche usarlo per aggiornare lo stato, se necessario
         commessaId = editId;
         alert("Commessa aggiornata con successo!");
       } else {
@@ -90,6 +91,7 @@ const formatDate = (dateString) => {
           `${process.env.REACT_APP_API_URL}/api/commesse`,
           formData
         );
+        console.log("Risposta POST:", response.data);
         commessaId = response.data.commessaId;
         alert("Commessa aggiunta con successo!");
       }
