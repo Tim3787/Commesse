@@ -23,9 +23,15 @@ function VisualizzazioneAttivita() {
   // Funzione per recuperare le attività assegnate
   const fetchAttivita = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, {
-        params: filters,
-      });
+      const params = {};
+  
+      // Aggiungi solo i filtri non vuoti
+      if (filters.commessa_id) params.commessa_id = filters.commessa_id;
+      if (filters.risorsa_id) params.risorsa_id = filters.risorsa_id;
+      if (filters.reparto_id) params.reparto_id = filters.reparto_id;
+      if (filters.settimana) params.settimana = filters.settimana;
+  
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, { params });
       const filteredData = response.data.filter((attivita) => attivita.risorsa_id !== null);
       console.log("Dati ricevuti e filtrati:", filteredData);
       setAttivitaList(filteredData);
@@ -34,32 +40,29 @@ function VisualizzazioneAttivita() {
     }
   }, [filters]);
 
+
   // Recupera i dati iniziali
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const commesseResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-        const uniqueCommesse = removeDuplicates(commesseResponse.data, 'id');
-        console.log("Commesse uniche:", uniqueCommesse);
-        setCommesse(uniqueCommesse);
-    
-        const risorseResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`);
-        const uniqueRisorse = removeDuplicates(risorseResponse.data, 'id');
-        console.log("Risorse uniche:", uniqueRisorse);
-        setRisorse(uniqueRisorse);
+  const fetchInitialData = async () => {
+    try {
+      const [commesseResponse, risorseResponse, repartiResponse] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`),
+      ]);
 
-        const repartiResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
-        const uniqueReparti = removeDuplicates(repartiResponse.data, 'id');
-        console.log("Reparti unici:", uniqueReparti);
-        setReparti(uniqueReparti); // Imposta i reparti unici
-    
-        fetchAttivita();
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati iniziali:", error);
-      }
-    };
-    fetchInitialData();
-  }, [fetchAttivita]);
+      setCommesse(removeDuplicates(commesseResponse.data, 'id'));
+      setRisorse(removeDuplicates(risorseResponse.data, 'id'));
+      setReparti(removeDuplicates(repartiResponse.data, 'id'));
+
+      fetchAttivita(); // Recupera le attività con i dati aggiornati
+    } catch (error) {
+      console.error("Errore durante il recupero dei dati iniziali:", error);
+    }
+  };
+
+  fetchInitialData();
+}, [fetchAttivita]);
 
   // Gestione del cambio nei filtri
   const handleFilterChange = (e) => {
@@ -110,25 +113,25 @@ function VisualizzazioneAttivita() {
 
         {/* Selezione della Risorsa in base al reparto */}
         <div>
-          <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
-            <option value="">Filtra risorse</option>
-            {getFilteredRisorse().map((risorsa) => (
-              <option key={risorsa.id} value={risorsa.id}>
-                {risorsa.nome}
-              </option>
-            ))}
-          </select>
+        <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
+  <option value="">Filtra risorse</option>
+  {getFilteredRisorse().map((risorsa) => (
+    <option key={risorsa.id} value={risorsa.id}>
+      {risorsa.nome}
+    </option>
+  ))}
+</select>
         </div>
 
         <div>
-          <label>Settimana:</label>
-          <input
-            type="date"
-            name="settimana"
-            value={filters.settimana}
-            onChange={handleFilterChange}
-          />
-        </div>
+  <label>Settimana:</label>
+  <input
+    type="week"
+    name="settimana"
+    value={filters.settimana}
+    onChange={handleFilterChange}
+  />
+</div>
         <button type="submit">Applica Filtri</button>
       </form>
 

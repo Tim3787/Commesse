@@ -17,24 +17,31 @@ import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NuovaPagina from "./components/pages/NuovaPagina";
 import NotificheStati from "./components/pages/NotificheStati";
-
+import api from "./axiosConfig"; // Importa il file di configurazione Axios
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const response = await api.get("/status");
+        console.log("Server status:", response.data);
+      } catch (error) {
+        console.error("Errore durante la chiamata API:", error);
+      }
+    };
+
+    checkServer();
+  }, []);
+  
   // Gestione login
   const handleLogin = (token, role) => {
-    sessionStorage.setItem("authToken", token);
+    sessionStorage.setItem("token", token);
     sessionStorage.setItem("role", role);
     setIsAuthenticated(true);
     setUserRole(parseInt(role, 10));
-  
-    // Timer per logout automatico (es. 4 ore)
-    setTimeout(() => {
-      handleLogout();
-      alert("Sessione scaduta. Effettua nuovamente il login.");
-    }, 4 * 60 * 60 * 1000); // 4 ore in millisecondi
   };
 
   // Gestione logout
@@ -45,22 +52,21 @@ function App() {
     setUserRole(null);
   };
 
-  axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        // Rimuovi il token da localStorage
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("role");
-  
-        // Reindirizza alla pagina di login
-        window.location.href = "/LoginRegister";
-      }
-      return Promise.reject(error);
-    }
-  );
+  // Timer per logout automatico
+  useEffect(() => {
+    let logoutTimer;
 
-  // Carica token e ruolo da localStorage all'avvio dell'app
+    if (isAuthenticated) {
+      logoutTimer = setTimeout(() => {
+        handleLogout();
+        alert("Sessione scaduta. Effettua nuovamente il login.");
+      }, 4 * 60 * 60 * 1000); // 4 ore
+    }
+
+    return () => clearTimeout(logoutTimer); // Cleanup del timer
+  }, [isAuthenticated]);
+
+  // Carica token e ruolo da sessionStorage all'avvio dell'app
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     const role = sessionStorage.getItem("role");
