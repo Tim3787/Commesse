@@ -17,7 +17,7 @@ import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NuovaPagina from "./components/pages/NuovaPagina";
 import NotificheStati from "./components/pages/NotificheStati";
-import api from "./axiosConfig"; // Importa il file di configurazione Axios
+import api from "./axiosConfig"; 
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,8 +26,7 @@ function App() {
   useEffect(() => {
     const checkServer = async () => {
       try {
-        const response = await api.get("/status");
-        console.log("Server status:", response.data);
+        await api.get("/status"); 
       } catch (error) {
         console.error("Errore durante la chiamata API:", error);
       }
@@ -35,7 +34,7 @@ function App() {
 
     checkServer();
   }, []);
-  
+
   // Gestione login
   const handleLogin = (token, role) => {
     sessionStorage.setItem("token", token);
@@ -63,7 +62,7 @@ function App() {
       }, 4 * 60 * 60 * 1000); // 4 ore
     }
 
-    return () => clearTimeout(logoutTimer); // Cleanup del timer
+    return () => clearTimeout(logoutTimer); 
   }, [isAuthenticated]);
 
   // Carica token e ruolo da sessionStorage all'avvio dell'app
@@ -72,8 +71,7 @@ function App() {
     const role = sessionStorage.getItem("role");
     if (token && role) {
       setIsAuthenticated(true);
-      setUserRole(parseInt(role, 10)); // Converti in numero
-    } else {
+      setUserRole(parseInt(role, 10)); 
       setIsAuthenticated(false);
     }
   }, []);
@@ -143,7 +141,7 @@ function App() {
             path="/stati"
             element={isAuthenticated && userRole === 1 ? <GestioneStati /> : <Navigate to="/login" />}
           />
-                    <Route
+          <Route
             path="/statiCommessa"
             element={isAuthenticated && userRole === 1 ? <GestioneStatiCommessa /> : <Navigate to="/login" />}
           />

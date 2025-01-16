@@ -7,21 +7,23 @@ import "../style.css";
 const CalendarioAttivita = () => {
   const [eventi, setEventi] = useState([]);
   const [risorse, setRisorse] = useState([]);
+   const [loading, setLoading] = useState(false);
+   const [slotDuration, setSlotDuration] = useState("01:00:00");
 
   useEffect(() => {
     const fetchDati = async () => {
       try {
+        setLoading(true);
         // Recupera eventi
         const responseEventi = await fetch (`${process.env.REACT_APP_API_URL}/api/attivita_commessa`);
         const dataEventi = await responseEventi.json();
 
         const eventiTrasformati = dataEventi.map((att) => ({
-          id: att.id,
           title: `${att.risorsa} - ${att.numero_commessa}`,
           start: att.data_inizio,
           end: new Date(
-            new Date(att.data_inizio).setDate(new Date(att.data_inizio).getDate() + att.durata)
-          ).toISOString(),
+            new Date(att.data_inizio).setDate(new Date(att.data_inizio).getDate() + att.durata - 1)
+          ).toISOString(), // Riduci di 1 giorno per correggere il problema
           resourceId: `${att.reparto}-${att.nome_attivita}`,
           extendedProps: {
             commessa_id: att.commessa_id,
@@ -29,6 +31,7 @@ const CalendarioAttivita = () => {
             attivita_id: att.attivita_id,
           },
         }));
+        
 
         setEventi(eventiTrasformati);
 
@@ -53,6 +56,8 @@ const CalendarioAttivita = () => {
         setRisorse(risorseTrasformate);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -68,11 +73,10 @@ const CalendarioAttivita = () => {
       durata: Math.ceil((info.event.end - info.event.start) / (1000 * 60 * 60 * 24)),
     };
 
-    console.log("Dati evento aggiornato:", eventoAggiornato);
 
     if (!eventoAggiornato.commessa_id || !eventoAggiornato.risorsa_id || !eventoAggiornato.attivita_id) {
       console.error("Dati incompleti, aggiornamento annullato.");
-      info.revert(); // Reverti la modifica nel frontend in caso di errore
+      info.revert(); 
       return;
     }
 
@@ -93,7 +97,7 @@ const CalendarioAttivita = () => {
       alert("Evento aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'evento:", error);
-      info.revert(); // Reverti la modifica nel frontend in caso di errore
+      info.revert(); 
     }
   };
 
@@ -106,8 +110,8 @@ const CalendarioAttivita = () => {
       durata: Math.ceil((info.event.end - info.event.start) / (1000 * 60 * 60 * 24)),
     };
 
-    console.log("Dati evento aggiornato:", eventoAggiornato);
 
+    
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/attivita_commessa/${info.event.id}`, {
         method: "PUT",
@@ -125,47 +129,70 @@ const CalendarioAttivita = () => {
       alert("Evento aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'evento:", error);
-      info.revert(); // Reverti la modifica nel frontend in caso di errore
+      info.revert(); 
     }
   };
 
+  const handleZoomChange = (zoomLevel) => {
+    setSlotDuration(zoomLevel);
+  };
+  
   return (
-    <div className="calendar-container">
+    <div className="testCont ">
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <h1>Calendario attività</h1>
-
+      <div>
+        <button onClick={() => handleZoomChange("24:00:00")}>Zoom In</button>
+        <button onClick={() => handleZoomChange("12:00:00")}>Zoom Out</button>
+      </div>
       <FullCalendar
-        plugins={[resourceTimelinePlugin, interactionPlugin]}
-        initialView="resourceTimelineWeek"
-        views={{
-          resourceTimelineWeek: {
-            type: "resourceTimeline",
-            duration: { weeks: 1 },
-            slotLabelFormat: [{ weekday: "short" }],
-          },
-          resourceTimelineMonth: {
-            type: "resourceTimeline",
-            duration: { months: 1 },
-            slotLabelFormat: [{ day: "numeric" }],
-          },
-          resourceTimelineYear: {
-            type: "resourceTimeline",
-            duration: { years: 1 },
-            slotLabelFormat: [{ month: "short" }],
-          },
-        }}
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "resourceTimelineWeek,resourceTimelineMonth,resourceTimelineYear",
-        }}
-        resources={risorse}
-        events={eventi}
-        editable={true}
-        droppable={true}
-        resourceAreaHeaderContent="Reparti e Tipi di Attività"
-        eventDrop={handleEventDrop}
-        eventResize={handleEventResize}
-      />
+  plugins={[resourceTimelinePlugin, interactionPlugin]}
+  initialView="resourceTimelineMonth"
+  views={{
+    resourceTimelineWeek: {
+      type: "resourceTimeline",
+      duration: { weeks: 1 },
+      slotLabelFormat: [{ weekday: "short", day: "numeric" }], // Mostra giorno e numero
+      slotDuration, // Utilizzo di slotDuration per impostare la durata dinamicamente
+      slotMinWidth: 100,
+      
+      
+    },
+    resourceTimelineMonth: {
+      type: "resourceTimeline",
+      duration: { months: 1 },
+      slotLabelFormat: [{ day: "numeric" }], // Mostra il giorno del mese
+      slotDuration: "1 day", // Un giorno per slot
+      slotMinWidth: 200
+    },
+    resourceTimelineYear: {
+      type: "resourceTimeline",
+      duration: { years: 1 },
+      slotLabelFormat: [{ month: "short" }], // Mostra mese abbreviato
+      slotMinWidth: 200
+     
+    },
+  }}
+  headerToolbar={{
+    left: "prev,next today",
+    center: "title",
+    right: "resourceTimelineWeek,resourceTimelineMonth,resourceTimelineYear",
+  }}
+  resources={risorse}
+  events={eventi}
+  editable={true}
+  droppable={true}
+  resourceAreaHeaderContent="Reparti e Tipi di Attività"
+  eventDrop={handleEventDrop}
+  eventResize={handleEventResize}
+
+  contentHeight="auto" // Adatta l'altezza al contenuto
+/>
+
     </div>
   );
 };

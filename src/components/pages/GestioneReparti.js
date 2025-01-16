@@ -30,7 +30,7 @@ function GestioneReparti() {
     e.preventDefault();
     try {
       const url = isEditing
-        ? `${process.env.REACT_APP_API_URL}/api/reparti/${editId}`  // Correzione della sintassi
+        ? `${process.env.REACT_APP_API_URL}/api/reparti/${editId}`  
         : `${process.env.REACT_APP_API_URL}/api/reparti`;
       const method = isEditing ? "put" : "post";
       await axios[method](url, { nome: formData.nome });

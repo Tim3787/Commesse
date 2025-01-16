@@ -138,7 +138,7 @@ function GestioneUtenti() {
                   <div className="input-group">
                     <input
                       type="text"
-                      className="form-control"
+                      className="input-field"
                       value={editedUsernames[utente.id] ?? utente.username}
                       onChange={(e) =>
                         setEditedUsernames({

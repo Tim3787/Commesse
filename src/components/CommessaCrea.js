@@ -26,12 +26,11 @@ function CommessaCrea({
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toISOString().split('T')[0];  // Converte la data in formato 'YYYY-MM-DD'
+  return date.toISOString().split('T')[0];  
 };
 
   useEffect(() => {
-    console.log("useEffect CommessaCrea:", { commessa, isEditing, selezioniAttivita });
-  
+
     if (isEditing && commessa) {
       setFormData({
         numero_commessa: commessa.numero_commessa,
@@ -52,10 +51,8 @@ const formatDate = (dateString) => {
           }
           attivitaSelezionate[attivita.reparto_id].push(attivita.id);
         });
-        setSelezioniAttivita(attivitaSelezionate); // Imposta le selezioni esistenti
-        console.log("Attività selezionate:", attivitaSelezionate);
+        setSelezioniAttivita(attivitaSelezionate); 
       } else {
-        console.log("Nessuna attività trovata per la commessa.");
       }
     } else {
       setFormData({
@@ -67,40 +64,36 @@ const formatDate = (dateString) => {
         cliente: "",
       });
   
-      setSelezioniAttivita({}); // Resetta le selezioni
+      setSelezioniAttivita({}); 
     }
   }, [isEditing, commessa, setSelezioniAttivita]);
   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("handleSubmit: invio dati della commessa", formData);
     try {
       let commessaId;
-
+  
       if (isEditing) {
-        const response = await axios.put(
+        await axios.put(
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
           formData
         );
-        console.log("Risposta PUT:", response.data); // Puoi anche usarlo per aggiornare lo stato, se necessario
         commessaId = editId;
         alert("Commessa aggiornata con successo!");
       } else {
-        const response = await axios.post(
+        const { data } = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse`,
           formData
         );
-        console.log("Risposta POST:", response.data);
-        commessaId = response.data.commessaId;
+        commessaId = data.commessaId;
         alert("Commessa aggiunta con successo!");
       }
-
+  
       const attivitaDaAggiungere = [];
       Object.keys(selezioniAttivita).forEach((repartoId) => {
         const attivitaIds = selezioniAttivita[repartoId];
-        console.log("attivitaIds per reparto", repartoId, attivitaIds);
-
+  
         if (attivitaIds) {
           attivitaIds.forEach((attivitaId) => {
             attivitaDaAggiungere.push({
@@ -109,13 +102,9 @@ const formatDate = (dateString) => {
               attivita_id: attivitaId,
             });
           });
-        } else {
-          console.log(`Nessuna attività selezionata per reparto con ID: ${repartoId}`);
         }
       });
-
-      console.log("Dati attività da inviare:", attivitaDaAggiungere);
-
+  
       if (attivitaDaAggiungere.length > 0) {
         await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse/assegna-attivita-predefinite`,
@@ -125,7 +114,7 @@ const formatDate = (dateString) => {
           }
         );
       }
-
+  
       setFormData({
         numero_commessa: "",
         tipo_macchina: "",
@@ -135,13 +124,14 @@ const formatDate = (dateString) => {
         cliente: "",
       });
       setSelezioniAttivita({});
-      fetchCommesse(); // Ricarica la lista delle commesse
-      onClose(); // Chiudi il pop-up
+      fetchCommesse(); 
+      onClose(); 
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       alert("Errore durante l'operazione.");
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -224,7 +214,7 @@ const formatDate = (dateString) => {
       <div className="reparto-title">{reparto.nome}</div>
       <div className="attivita-list">
         {attivita
-          .filter((attivita) => attivita.reparto_id === reparto.id) // Filtro in base al reparto
+          .filter((attivita) => attivita.reparto_id === reparto.id) 
           .map((attivita) => (
             <label key={attivita.id} className="attivita-item">
               <input

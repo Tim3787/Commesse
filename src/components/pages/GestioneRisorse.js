@@ -11,7 +11,7 @@ function GestioneRisorse() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [reparti, setReparti] = useState([]);
-  const [selectedReparto, setSelectedReparto] = useState(""); // Per il filtro reparto
+  const [selectedReparto, setSelectedReparto] = useState(""); 
 
   useEffect(() => {
     fetchRisorse();

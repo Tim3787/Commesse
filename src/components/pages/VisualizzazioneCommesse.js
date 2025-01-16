@@ -19,19 +19,22 @@ function VisualizzazioneCommesse() {
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-
-  const [statoFilter, setStatoFilter] = useState(""); // NUOVO FILTRO STATO
-  const [statiCommessa, setStatiCommessa] = useState([]);  // NUOVO STATO
+  const [statoFilter, setStatoFilter] = useState(""); 
+  const [statiCommessa, setStatiCommessa] = useState([]); 
   
   useEffect(() => {
     const fetchCommesse = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
         setCommesse(response.data); 
         setFilteredCommesse(response.data); 
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
+      }finally {
+        setLoading(false);
       }
     };
     fetchCommesse();
@@ -57,7 +60,6 @@ function VisualizzazioneCommesse() {
     const fetchStatiCommessa = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-        console.log("Stati commessa ricevuti:", response.data); // Aggiungi questo log
         setStatiCommessa(response.data);
       } catch (error) {
         console.error("Errore durante il recupero degli stati della commessa:", error);
@@ -88,15 +90,14 @@ function VisualizzazioneCommesse() {
     // Suggerimenti per Cliente, Tipo Macchina e Commessa
     const clienteSuggestions = commesse
       .map((commessa) => commessa.cliente)
-      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
+      .filter((value, index, self) => self.indexOf(value) === index); 
   
     const tipoMacchinaSuggestions = commesse
       .map((commessa) => commessa.tipo_macchina)
-      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
-  
+      .filter((value, index, self) => self.indexOf(value) === index); 
     const commessaSuggestions = commesse
       .map((commessa) => commessa.numero_commessa)
-      .filter((value, index, self) => self.indexOf(value) === index); // Rimuove duplicati
+      .filter((value, index, self) => self.indexOf(value) === index); 
   
     // Imposta i suggerimenti per ogni filtro
     setSuggestionsCliente(clienteSuggestions);
@@ -183,7 +184,7 @@ function VisualizzazioneCommesse() {
   };
 
   const handleStatoChange = (event) => {
-    setStatoFilter(event.target.value); // Aggiorna il filtro stato
+    setStatoFilter(event.target.value);
   };
 
 
@@ -230,15 +231,23 @@ const getStatoNome = (id) => {
 
   return (
     <div className="container" onClick={closeSuggestions}>
-      <h1>Visualizza le commesse</h1>
-
-      <div>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
+      <div className="header">
+      <h1>Filtra le commesse</h1>
+      </div>
+      <div className="filters">
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Cerca per Numero Commessa"
           value={commessaFilter}
           onChange={handleCommessaChange}
           onClick={(e) => e.stopPropagation()}
+          className="input-field"
         />
         {showCommessaSuggestions && (
           <ul className="suggestions-list">
@@ -253,13 +262,14 @@ const getStatoNome = (id) => {
         )}
       </div>
 
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Cliente"
           value={clienteFilter}
           onChange={handleClienteChange}
           onClick={(e) => e.stopPropagation()}
+          className="input-field"
         />
         {showClienteSuggestions && (
           <ul className="suggestions-list">
@@ -273,14 +283,14 @@ const getStatoNome = (id) => {
           </ul>
         )}
       </div>
-
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Tipo Macchina"
           value={tipoMacchinaFilter}
           onChange={handleTipoMacchinaChange}
           onClick={(e) => e.stopPropagation()}
+          className="input-field"
         />
         {showTipoMacchinaSuggestions && (
           <ul className="suggestions-list">
@@ -294,8 +304,7 @@ const getStatoNome = (id) => {
           </ul>
         )}
       </div>
-      {/* Filtro per stato */}
-      <div>
+      <div className="filter-group">
         <select onChange={handleStatoChange} value={statoFilter}>
           <option value="">Filtra per Stato</option>
           {statiCommessa.map((stato) => (
@@ -305,26 +314,29 @@ const getStatoNome = (id) => {
           ))}
         </select>
       </div>
-      <div>
+      </div>
+      <h2>Ordina le commesse</h2>
+      <div className="filters">
+      <div className="filter-group">
         <select onChange={handleSortChange} value={sortOrder}>
           <option value="numero_commessa">Ordina per: Numero Commessa</option>
           <option value="desc">Ordina per: Data Consegna</option>
         </select>
       </div>
-      <div>
-
+      <div className="filter-group">
         <select onChange={handleSortChange} value={sortDirection}>
           <option value="asc">Numero commessa crescente</option>
           <option value="desc">Numero commessa decrescente</option>
         </select>
       </div>
-      <div>
+      <div className="filter-group">
         <select onChange={handleDateSortChange} value={dateSortDirection}>
           <option value="crescente">Data di consegna crescente</option>
           <option value="decrescente">Data di consegna decrescente</option>
         </select>
       </div>
-
+      </div>
+      <h2>Visualizza le commesse</h2>
       <table>
         <thead>
           <tr>

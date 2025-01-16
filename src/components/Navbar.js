@@ -3,9 +3,32 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
-  console.log("Ruolo caricato per navbar:", userRole); // Debug
-  console.log("autenticato:", isAuthenticated); // Debug
-  console.log("logout:", handleLogout); // Debug
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const navLinks = {
+    user: [
+      { to: "/Dashboard", label: "Bacheca" },
+      { to: "/visualizzazione-commesse", label: "Visualizza le commesse" },
+      { to: "/visualizzazione-attivita", label: "Visualizza le attività" },
+      { to: "/calendario-attivita", label: "Calendario delle attività" },
+    ],
+    manager: [
+      { to: "/gestione-commesse", label: "Crea o modifica commessa" },
+      { to: "/assegna-attivita", label: "Assegna un'attività" },
+      { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
+      { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
+    ],
+    admin: [
+      { to: "/utenti", label: "Gestione utenti" },
+      { to: "/reparti", label: "Gestione reparti" },
+      { to: "/risorse", label: "Gestione risorse" },
+      { to: "/statiCommessa", label: "Gestione stati commessa" },
+      { to: "/stati", label: "Gestione stati avanzamento" },
+      { to: "/attivita", label: "Gestione attività" },
+    ],
+  };
 
   if (userRole === null) {
     return (
@@ -15,53 +38,32 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     );
   }
  
+  const renderLinks = (links) =>
+    links.map((link, index) => (
+      <li key={index}>
+        <Link to={link.to}>{link.label}</Link>
+      </li>
+    ));
+
   return (
     <nav>
-    {/* Navbar per tutti gli utenti */}
-    {isAuthenticated && (
       <div className="navbar-row user-navbar">
-        <ul>
-        <li><Link to="/Dashboard">Bacheca</Link></li>
-          <li><Link to="/visualizzazione-commesse">Visualizza le commesse</Link></li>
-          <li><Link to="/visualizzazione-attivita">Visualizza le attività</Link></li>
-          <li><Link to="/calendario-attivita">Calendario delle attività</Link></li>
-        </ul>
+        <ul>{renderLinks(navLinks.user)}</ul>
       </div>
-    )}
-
-    {/* Navbar per Manager */}
-    {isAuthenticated && (userRole === 2 || userRole === 1) && (
-      <div className="navbar-row manager-navbar">
-        <ul>
-          <li><Link to="/gestione-commesse">Crea o modifica commessa</Link></li>
-          <li><Link to="/assegna-attivita">Assegna un'attività</Link></li>
-          <li><Link to="/gestione-stati-avanzamento">Aggiorna stati avanzamento</Link>  </li>  
-          <li><Link to="/CalendarioCommesse">Calendario stati commesse</Link>  </li>  
-        </ul>
-      </div>
-    )}
-
-    {/* Navbar per Admin */}
-    {isAuthenticated && userRole === 1 && (
-      <div className="navbar-row admin-navbar">
-        <ul>
-          <li><Link to="/utenti">Gestione utenti</Link></li>
-          <li><Link to="/reparti">Gestione reparti</Link></li>
-          <li><Link to="/risorse">Gestione risorse</Link></li>
-          <li><Link to="/statiCommessa">Gestione stati commessa</Link></li>         
-          <li><Link to="/stati">Gestione stati avanzamento</Link></li>
-          <li><Link to="/attivita">Gestione attività</Link></li>
-        </ul>
-      </div>
-    )}
-
-    {/* Logout */}
-    {isAuthenticated && (
+      {userRole <= 2 && (
+        <div className="navbar-row manager-navbar">
+          <ul>{renderLinks(navLinks.manager)}</ul>
+        </div>
+      )}
+      {userRole === 1 && (
+        <div className="navbar-row admin-navbar">
+          <ul>{renderLinks(navLinks.admin)}</ul>
+        </div>
+      )}
       <div className="navbar-row logout-navbar">
         <button onClick={handleLogout}>Logout</button>
       </div>
-    )}
-  </nav>
+    </nav>
   );
 }
 

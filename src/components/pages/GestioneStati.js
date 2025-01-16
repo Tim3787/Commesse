@@ -10,7 +10,7 @@ function GestioneStati() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [selectedReparto, setSelectedReparto] = useState(""); // Stato per il filtro reparto
+  const [selectedReparto, setSelectedReparto] = useState(""); 
 
   useEffect(() => {
     fetchStatiAvanzamento();
