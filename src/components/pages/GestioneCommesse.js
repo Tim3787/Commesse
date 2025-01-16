@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
-import CommessaCrea from "../CommessaCrea"; // Importa il pop-up
+import CommessaCrea from "../CommessaCrea"; 
 
 function GestioneCommesse() {
   const [commesse, setCommesse] = useState([]);
   const [reparti, setReparti] = useState([]);
   const [attivita, setAttivita] = useState([]);
-  const [selectedCommessa, setSelectedCommessa] = useState(null); // Stato per commessa selezionata
-  const [isEditing, setIsEditing] = useState(false); // Stato per determinare se siamo in modalità editing
-  const [showPopup, setShowPopup] = useState(false); // Stato per gestire la visibilità del pop-up
+  const [selectedCommessa, setSelectedCommessa] = useState(null); 
+  const [isEditing, setIsEditing] = useState(false); 
+  const [showPopup, setShowPopup] = useState(false); 
   const [selezioniAttivita, setSelezioniAttivita] = useState({});
   const [editId, setEditId] = useState(null);
-  
+   const [loading, setLoading] = useState(false);
   // Stati per i filtri
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
@@ -29,21 +29,20 @@ function GestioneCommesse() {
   }, []);
 
   const fetchCommesse = async () => {
-    console.log("fetchCommesse: recupero commesse...");
     try {
+      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-      console.log("Commesse recuperate:", response.data);
       setCommesse(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle commesse:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
   const fetchReparti = async () => {
-    console.log("fetchReparti: recupero reparti...");
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
-      console.log("Reparti recuperati:", response.data);
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
@@ -51,10 +50,8 @@ function GestioneCommesse() {
   };
 
   const fetchAttivita = async () => {
-    console.log("fetchAttivita: recupero attività...");
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/attivita`);
-      console.log("Attività recuperate:", response.data);
       setAttivita(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
@@ -63,31 +60,28 @@ function GestioneCommesse() {
 
   // Funzione per aprire il pop-up in modalità creazione
   const handleCreateNewCommessa = () => {
-    setIsEditing(false); // Modalità creazione
-    console.log("handleCreateNewCommessa: apertura pop-up per creare nuova commessa");
-    console.log("Dati ricevuti per reparti:", reparti);
-    console.log("Dati ricevuti per attività:", attivita);
-    setSelectedCommessa(null); // Nessuna commessa selezionata
-    setShowPopup(true); // Mostra il pop-up
+    setIsEditing(false); 
+    setSelectedCommessa(null); 
+    setShowPopup(true); 
   };
 
   // Funzione per aprire il pop-up in modalità modifica
   const handleEditCommessa = (commessa) => {
-    setIsEditing(true); // Modalità modifica
-    setSelectedCommessa(commessa); // Seleziona la commessa da modificare
-    setEditId(commessa.commessa_id); // Imposta l'ID della commessa da modificare
-    setShowPopup(true); // Mostra il pop-up
+    setIsEditing(true); 
+    setSelectedCommessa(commessa); 
+    setEditId(commessa.commessa_id); 
+    setShowPopup(true); 
   };
 
   // Funzione per chiudere il pop-up
   const handleClosePopup = () => {
-    setShowPopup(false); // Nascondi il pop-up
-    setSelectedCommessa(null); // Resetta la commessa selezionata
+    setShowPopup(false); 
+    setSelectedCommessa(null); 
   };
 
   // Funzione per eliminare una commessa
 const handleDelete = async (commessaId) => {
-  console.log("Comessa ID da eliminare:", commessaId);  // Verifica che l'ID sia corretto
+  console.log("Comessa ID da eliminare:", commessaId);  
   try {
     // Aggiungi un controllo per vedere se l'ID è valido
     if (!commessaId) {
@@ -99,7 +93,7 @@ const handleDelete = async (commessaId) => {
     await axios.delete (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}`);
     alert("Commessa eliminata con successo!");
      // Ricarica l'elenco delle commesse dal backend
-     fetchCommesse(); // Chiamata per ricaricare la lista delle commesse
+     fetchCommesse(); 
   } catch (error) {
     console.error("Errore durante l'eliminazione della commessa:", error);
     alert("Errore durante l'eliminazione della commessa.");
@@ -143,19 +137,25 @@ const handleDelete = async (commessaId) => {
 
   return (
     <div className="container" onClick={closeSuggestions}>
-      
-      <h1>Gestione Commesse</h1>
-            {/* Pulsante per creare nuova commessa */}
-            <button onClick={handleCreateNewCommessa} className="btn-new-comm">
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
+      <div className="header">
+      <h1>Filtra le commesse</h1>
+            <button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
         Crea Nuova Commessa
       </button>
-
-      <div>
+      </div>
+      <div className="filters">
+        <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Numero Commessa"
           value={commessaFilter}
           onChange={handleCommessaChange}
+           className="input-field"
         />
         {showCommessaSuggestions && (
           <ul className="suggestions-list">
@@ -170,12 +170,13 @@ const handleDelete = async (commessaId) => {
         )}
       </div>
 
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Cliente"
           value={clienteFilter}
           onChange={handleClienteChange}
+          className="input-field"
         />
         {showClienteSuggestions && (
           <ul className="suggestions-list">
@@ -191,12 +192,13 @@ const handleDelete = async (commessaId) => {
         )}
       </div>
 
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Tipo Macchina"
           value={tipoMacchinaFilter}
           onChange={handleTipoMacchinaChange}
+          className="input-field"
         />
         {showTipoMacchinaSuggestions && (
           <ul className="suggestions-list">
@@ -211,7 +213,8 @@ const handleDelete = async (commessaId) => {
           </ul>
         )}
       </div>
-      {/* Lista delle commesse con opzioni di modifica */}
+      </div>
+      <h2>Visualizza le commesse</h2>
       <table>
         <thead>
           <tr>

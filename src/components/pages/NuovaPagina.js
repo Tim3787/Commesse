@@ -6,9 +6,9 @@ import "../style.css";
 function NuovaPagina() {
   const [commesse, setCommesse] = useState([]);
   const [currentCommessaId, setCurrentCommessaId] = useState(null);
-  const [commessaFilter, setCommessaFilter] = useState(""); // Filtro per Numero Commessa
-  const [clienteFilter, setClienteFilter] = useState(""); // Filtro per Cliente
-  const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState(""); // Filtro per Tipo Macchina
+  const [commessaFilter, setCommessaFilter] = useState(""); 
+  const [clienteFilter, setClienteFilter] = useState(""); 
+  const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState(""); 
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
@@ -16,18 +16,17 @@ function NuovaPagina() {
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
   const [statiCommessa, setStatiCommessa] = useState([]);
-
+  const [loading, setLoading] = useState(false);
 
   // Carica tutte le commesse
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/commesse`);
-        console.log("Commesse caricate:", response.data);
         setCommesse(response.data);
-        // Imposta la prima commessa come selezionata
         if (response.data.length > 0) {
-          setCurrentCommessaId(response.data[0].commessa_id); // Usa commessa_id
+          setCurrentCommessaId(response.data[0].commessa_id); 
         }
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
@@ -37,10 +36,11 @@ function NuovaPagina() {
     const fetchStatiCommessa = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-        console.log("Stati caricati:", response.data);
         setStatiCommessa(response.data);
       } catch (error) {
         console.error("Errore durante il recupero degli stati della commessa:", error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -61,7 +61,7 @@ function NuovaPagina() {
 
 // Imposta currentCommessaId su una commessa valida tra quelle filtrate
 if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === currentCommessaId)) {
-    setCurrentCommessaId(filtered[0].commessa_id); // Se la commessa selezionata non esiste, seleziona la prima commessa
+    setCurrentCommessaId(filtered[0].commessa_id); 
   }
 
     // Suggerimenti per Cliente, Tipo Macchina e Commessa
@@ -115,13 +115,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
 
   // Trova la commessa attualmente selezionata
   const currentCommessa = commesse.find((commessa) => commessa.commessa_id === currentCommessaId);
-  console.log("Current Commessa:", currentCommessa); // Verifica se viene trovata la commessa
 
   // Funzione di navigazione
   const handleNavigation = (direction) => {
-    console.log("Navigazione attivata:", direction);
     const currentIndex = commesse.findIndex((commessa) => commessa.commessa_id === currentCommessaId);
-    console.log("currentIndex:", currentIndex);
   
     if (commesse.length === 0 || currentIndex === -1) {
       return;
@@ -129,11 +126,9 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   
     if (direction === "next" && currentIndex < commesse.length - 1) {
       const nextCommessaId = commesse[currentIndex + 1].commessa_id;
-      console.log("Next commessa ID:", nextCommessaId);  // Log per verificare
       setCurrentCommessaId(nextCommessaId);
     } else if (direction === "prev" && currentIndex > 0) {
       const prevCommessaId = commesse[currentIndex - 1].commessa_id;
-      console.log("Previous commessa ID:", prevCommessaId);  // Log per verificare
       setCurrentCommessaId(prevCommessaId);
     }
   };
@@ -159,8 +154,8 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
                       ...reparto,
                       stati_disponibili: reparto.stati_disponibili.map((stato) =>
                         stato.stato_id === newStatoId
-                          ? { ...stato, isActive: true } // Imposta come attivo lo stato selezionato
-                          : { ...stato, isActive: false } // Disabilita gli altri stati
+                          ? { ...stato, isActive: true } 
+                          : { ...stato, isActive: false } 
                       ),
                     }
                   : reparto
@@ -187,7 +182,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       // Chiamata PUT per aggiornare il backend
       await axios.put (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: newStatoId,
-        is_active: isActive, // Imposta isActive in base allo stato selezionato
+        is_active: isActive, 
       });
   
       alert("Stato attuale aggiornato!");
@@ -204,8 +199,8 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   
   //Testare la navigazione separatamente
   const testNavigation = () => {
-    setCurrentCommessaId(commesse[1].commessa_id);  // Imposta direttamente il secondo ID per testare la navigazione
-    handleNavigation("next");  // Usa "next" per verificare il passaggio tra le commesse
+    setCurrentCommessaId(commesse[1].commessa_id); 
+    handleNavigation("next"); 
   };
   
   <button onClick={testNavigation}>Test Navigazione</button>
@@ -221,7 +216,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     try {
       await axios.put (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: statoId,
-        [field]: null, // Rimuove la data
+        [field]: null, 
       });
 
       setCommesse((prevCommesse) =>
@@ -235,7 +230,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
                         ...reparto,
                         stati_disponibili: reparto.stati_disponibili.map((stato) =>
                           stato.stato_id === statoId
-                            ? { ...stato, [field]: null } // Aggiorna il campo rimosso
+                            ? { ...stato, [field]: null } 
                             : stato
                         ),
                       }
@@ -257,7 +252,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   const handleUpdateDate = async (commessaId, repartoId, statoId, field, newValue) => {
     if (!commessaId) {
       console.error("Errore: commessaId non definito.");
-      return; // Esci se l'ID della commessa è undefined
+      return; 
     }
 
     try {
@@ -302,14 +297,14 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     try {
       // Invio dell'ID dello stato al backend
       await axios.put(`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/stato`, {
-        stato_commessa: newStato,  // Imposta lo stato selezionato (ID dello stato)
+        stato_commessa: newStato,  
       });
   
       // Aggiornamento dello stato locale
       setCommesse((prevCommesse) =>
         prevCommesse.map((commessa) =>
           commessa.commessa_id === commessaId
-            ? { ...commessa, stato_commessa: newStato }  // Aggiorna lo stato della commessa
+            ? { ...commessa, stato_commessa: newStato }  
             : commessa
         )
       );
@@ -322,18 +317,34 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   };
 
 
+  const closeSuggestions = (e) => {
+    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
+      setShowClienteSuggestions(false);
+      setShowTipoMacchinaSuggestions(false);
+      setShowCommessaSuggestions(false);
+    }
+  };
+
 
   return (
-    <div className="container">
+    <div className="container" onClick={closeSuggestions}>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
+           <div className="header">
       <h1>Aggiorna stati avanzamento</h1>
-{/* Filtro Commessa */}
-<div>
+      </div>
+      <div className="filters">
+         <div className="filter-group">
         <input
           type="text"
           placeholder="Cerca per Numero Commessa"
           value={commessaFilter}
           onChange={handleCommessaChange}
-          onClick={(e) => e.stopPropagation()} // Evita che il click chiuda la tendina
+          onClick={(e) => e.stopPropagation()} 
+          className="input-field"
         />
         {showCommessaSuggestions && (
           <ul className="suggestions-list">
@@ -349,13 +360,14 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       </div>
 
       {/* Filtro Cliente */}
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Cliente"
           value={clienteFilter}
           onChange={handleClienteChange}
-          onClick={(e) => e.stopPropagation()} // Evita che il click chiuda la tendina
+          onClick={(e) => e.stopPropagation()} 
+          className="input-field"
         />
         {showClienteSuggestions && (
           <ul className="suggestions-list">
@@ -370,14 +382,14 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )}
       </div>
 
-      {/* Filtro Tipo Macchina */}
-      <div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Tipo Macchina"
           value={tipoMacchinaFilter}
           onChange={handleTipoMacchinaChange}
-          onClick={(e) => e.stopPropagation()} // Evita che il click chiuda la tendina
+          onClick={(e) => e.stopPropagation()} 
+          className="input-field"
         />
         {showTipoMacchinaSuggestions && (
           <ul className="suggestions-list">
@@ -391,16 +403,6 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
           </ul>
         )}
       </div>
-      {/* Visualizza tutte le commesse */}
-      <div className="commesse-list">
-        {commesse.length === 0 ? (
-          <p>Nessuna commessa disponibile.</p>
-        ) : (
-          <div>
-            <h2>Commessa Selezionata: {currentCommessa?.numero_commessa}</h2>
-            <p>Tipo Macchina: {currentCommessa?.tipo_macchina}</p>
-          </div>
-        )}
       </div>
 
       {/* Navigazione */}
@@ -412,7 +414,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
           Successiva &gt;
         </button>
       </div>
-
+      <div className="commesse-list">
       {/* Dettagli Commessa Selezionata */}
       {currentCommessa ? (
         <GestioneStatiAvanzamento
@@ -427,6 +429,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       ) : (
         <p>Nessuna commessa selezionata.</p>
       )}
+    </div>
     </div>
   );
 }

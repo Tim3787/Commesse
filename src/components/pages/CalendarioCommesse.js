@@ -84,7 +84,7 @@ const CalendarioCommesse = () => {
       alert("Stato avanzamento aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'evento:", error);
-      info.revert(); // Reverti la modifica nel frontend in caso di errore
+      info.revert(); 
     }
   };
 

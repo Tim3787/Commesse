@@ -22,7 +22,6 @@ function NuovaPagina() {
     const fetchData = async () => {
       try {
         const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/commesse`);
-        console.log("Commesse caricate:", response.data);
         setCommesse(response.data);
         // Imposta la prima commessa come selezionata
         if (response.data.length > 0) {
@@ -104,25 +103,20 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
 
   // Trova la commessa attualmente selezionata
   const currentCommessa = commesse.find((commessa) => commessa.commessa_id === currentCommessaId);
-  console.log("Current Commessa:", currentCommessa); // Verifica se viene trovata la commessa
 
   // Funzione di navigazione
   const handleNavigation = (direction) => {
-    console.log("Navigazione attivata:", direction);
     const currentIndex = commesse.findIndex((commessa) => commessa.commessa_id === currentCommessaId);
-    console.log("currentIndex:", currentIndex);
-  
+
     if (commesse.length === 0 || currentIndex === -1) {
       return;
     }
   
     if (direction === "next" && currentIndex < commesse.length - 1) {
       const nextCommessaId = commesse[currentIndex + 1].commessa_id;
-      console.log("Next commessa ID:", nextCommessaId);  // Log per verificare
       setCurrentCommessaId(nextCommessaId);
     } else if (direction === "prev" && currentIndex > 0) {
       const prevCommessaId = commesse[currentIndex - 1].commessa_id;
-      console.log("Previous commessa ID:", prevCommessaId);  // Log per verificare
       setCurrentCommessaId(prevCommessaId);
     }
   };
@@ -360,7 +354,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         ) : (
           <div>
             <h2>Commessa Selezionata: {currentCommessa?.numero_commessa}</h2>
-            <p>Tipo Macchina: {currentCommessa?.tipo_macchina}</p>
+            <h2>Tipo Macchina: {currentCommessa?.tipo_macchina}</h2>
           </div>
         )}
       </div>

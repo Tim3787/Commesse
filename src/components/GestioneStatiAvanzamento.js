@@ -8,18 +8,16 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
     return <p>Seleziona una commessa per gestire gli stati avanzamento.</p>;
   }
 
-  console.log("Commessa:", commessa);
-  console.log("commessa.id:", commessa.id);
-  console.log("commessa.commessa_id:", commessa.commessa_id);
-  console.log("commessa.stato:", commessa.stato);
 
   return (
     <div className="commessa-container">
       <h2>Commessa: {commessa.numero_commessa}</h2>
-      <p>Tipo Macchina: {commessa.tipo_macchina}</p>
+      <h2>Tipo Macchina: {commessa.tipo_macchina}</h2>
+      <h2>Cliente: {commessa.cliente}</h2>
+      <h2>Consegna:  {new Date(commessa.data_consegna).toLocaleDateString()}</h2>
       
-<div>
-  <label>Seleziona Stato della Commessa:</label>
+      <div className="commessa-container">
+      <h2>Stato generale della Commessa:</h2>
   <select
   value={commessa.stato} // Il valore selezionato è lo stato aggiornato
   onChange={(e) =>
@@ -33,7 +31,7 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
     </option>
   ))}
 </select>
-</div>
+
 
       {commessa.stati_avanzamento.map((reparto) => (
         <div key={`stato-${commessa.commessa_id}-${reparto.reparto_id}`} className="reparto-container">
@@ -113,7 +111,7 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
                       <button
                         onClick={() =>
                           handleRemoveDate(
-                            commessa.commessa_id,  // Usa commessa.commessa_id
+                            commessa.commessa_id,  
                             reparto.reparto_id,
                             stato.stato_id,
                             "data_fine"
@@ -130,6 +128,7 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
           </table>
         </div>
       ))}
+    </div>
     </div>
   );
 }

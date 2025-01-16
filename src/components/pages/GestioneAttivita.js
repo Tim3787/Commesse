@@ -8,7 +8,7 @@ function GestioneAttivita() {
   const [formData, setFormData] = useState({ nome_attivita: "", reparto_id: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [selectedReparto, setSelectedReparto] = useState(""); // Stato per il filtro reparto
+  const [selectedReparto, setSelectedReparto] = useState(""); 
 
   useEffect(() => {
     fetchAttivita();
@@ -18,7 +18,6 @@ function GestioneAttivita() {
   const fetchAttivita = async () => {
     try {
       const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/attivita`);
-      console.log("Dati attività ricevuti:", response.data);
       setAttivita(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
@@ -49,7 +48,6 @@ function GestioneAttivita() {
     }
   
     try {
-      console.log("Dati inviati al server:", formData);
       const endpoint = isEditing
          ? `${process.env.REACT_APP_API_URL}/api/attivita/${editId}`
           : `${process.env.REACT_APP_API_URL}/api/attivita`; 

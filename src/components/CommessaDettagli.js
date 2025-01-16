@@ -12,13 +12,12 @@ function CommessaDettagli({ commessa, onClose }) {
       // Se c'è uno stato attivo, ritorna il reparto con lo stato attivo
       return {
         reparto_nome: reparto.reparto_nome,
-        stato: statoAttivo || null // Se non c'è stato attivo, restituiamo null
+        stato: statoAttivo || null 
       };
-    }).filter((reparto) => reparto.stato !== null); // Filtra per mostrare solo i reparti con stato attivo
+    }).filter((reparto) => reparto.stato !== null); 
   };
 
-  const statiAttivi = getStatiAttiviPerCommessa(commessa); // Otteniamo gli stati attivi
-
+  const statiAttivi = getStatiAttiviPerCommessa(commessa); 
   return (
     <div className="popup">
       <div className="popup-content">

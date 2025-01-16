@@ -9,14 +9,14 @@ function AttivitaCrea({
   editId,
   fetchAttivita,
   setShowPopup,
-  commesse, // Tutte le commesse ricevute come props
+  commesse, 
   reparti,
   risorse,
   attivitaDefinite,
 }) {
-  const [commessaSearch, setCommessaSearch] = useState(""); // Stato per la ricerca della commessa
-  const [suggestedCommesse, setSuggestedCommesse] = useState([]); // Stato per i suggerimenti delle commesse
-  const suggestionsRef = useRef(null); // Riferimento per il contenitore dei suggerimenti
+  const [commessaSearch, setCommessaSearch] = useState(""); 
+  const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
+  const suggestionsRef = useRef(null); 
   // Gestione del cambiamento dei campi di input
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,28 +29,22 @@ function AttivitaCrea({
     setCommessaSearch(searchText);
     // Filtriamo le commesse in base al testo inserito
     const filteredCommesse = commesse.filter((commessa) =>
-      commessa.numero_commessa.toLowerCase().includes(searchText.toLowerCase()) // Cerca per numero commessa
+      commessa.numero_commessa.toLowerCase().includes(searchText.toLowerCase()) 
     );
     setSuggestedCommesse(filteredCommesse);
   };
 
   // Gestione della selezione della commessa
   const handleSelectCommessa = (commessa) => {
-    setCommessaSearch(commessa.numero_commessa); // Aggiorniamo il testo nel campo di input
-    console.log("Commessa selezionata:", commessa); // Aggiungi un log per verificare la commessa
+    setCommessaSearch(commessa.numero_commessa); 
     setFormData((prevState) => {
-      console.log("Form Data prima dell'aggiornamento:", prevState); // Log prima di aggiornare
-      console.log("Commessa ID:", commessa.commessa_id); // Log della commessa_id corretta
-      console.log("Risorse:", risorse); // Log della commessa_id corretta
-      console.log("Reparti:", reparti); // Log della commessa_id corretta
       const updatedFormData = {
         ...prevState,
-        commessa_id: commessa.commessa_id || "", // Usa commessa.commessa_id
+        commessa_id: commessa.commessa_id || "", 
       };
-      console.log("Form Data dopo l'aggiornamento:", updatedFormData); // Log dopo aggiornamento
       return updatedFormData;
     });
-    setSuggestedCommesse([]); // Nascondiamo i suggerimenti
+    setSuggestedCommesse([]); 
   };
   
   
@@ -59,7 +53,6 @@ function AttivitaCrea({
     e.preventDefault();
 
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-    console.log("Commessa:", { commessa_id, reparto_id, risorsa_id});
     if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
       alert("Tutti i campi sono obbligatori.");
       return;
@@ -75,8 +68,8 @@ function AttivitaCrea({
       await axios[method](endpoint, formData);
       alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
 
-      fetchAttivita(); // Ricarica le attività
-      setShowPopup(false); // Chiudi il pop-up
+      fetchAttivita(); 
+      setShowPopup(false); 
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
     }
@@ -85,7 +78,7 @@ function AttivitaCrea({
   // Funzione per chiudere i suggerimenti quando clicchi fuori
   const closeSuggestions = (e) => {
     if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
-      setSuggestedCommesse([]); // Nasconde la lista dei suggerimenti
+      setSuggestedCommesse([]);
     }
   };
 
@@ -93,7 +86,7 @@ function AttivitaCrea({
   useEffect(() => {
     document.addEventListener("click", closeSuggestions);
     return () => {
-      document.removeEventListener("click", closeSuggestions); // Pulizia dell'evento quando il componente viene smontato
+      document.removeEventListener("click", closeSuggestions); 
     };
   }, []);
 
@@ -102,18 +95,16 @@ function AttivitaCrea({
       <div className="popup-content">
         <h2>{isEditing ? "Modifica Attività" : "Aggiungi Attività"}</h2>
         <form onSubmit={handleSubmit}>
-          {/* Input per cercare la commessa */}
           <div className="form-group">
             <label>Commessa:</label>
             <input
   type="text"
   name="commessa_id"
-  value={commessaSearch || ""}  // Visualizza il numero della commessa, non l'id
+  value={commessaSearch || ""}  
   onChange={handleSearchCommessa}
   placeholder="Cerca per numero commessa"
   className="form-control"
 />
-            {/* Mostriamo i suggerimenti delle commesse */}
             {suggestedCommesse.length > 0 && (
               <ul className="suggestions-list" ref={suggestionsRef}>
                 {suggestedCommesse.map((commessa) => (
