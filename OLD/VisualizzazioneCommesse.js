@@ -240,7 +240,7 @@ const getStatoNome = (id) => {
       <h1>Filtra le commesse</h1>
       </div>
       <div className="filters">
-        <div className="filter-group">
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Cerca per Numero Commessa"
@@ -260,9 +260,9 @@ const getStatoNome = (id) => {
               ))}
           </ul>
         )}
-        </div>
+      </div>
 
-        <div className="filter-group">
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Cliente"
@@ -282,8 +282,8 @@ const getStatoNome = (id) => {
               ))}
           </ul>
         )}
-        </div>
-        <div className="filter-group">
+      </div>
+      <div className="filter-group">
         <input
           type="text"
           placeholder="Filtra per Tipo Macchina"
@@ -303,8 +303,8 @@ const getStatoNome = (id) => {
               ))}
           </ul>
         )}
-        </div>
-        <div className="filter-group">
+      </div>
+      <div className="filter-group">
         <select onChange={handleStatoChange} value={statoFilter}>
           <option value="">Filtra per Stato</option>
           {statiCommessa.map((stato) => (
@@ -313,8 +313,8 @@ const getStatoNome = (id) => {
             </option>
           ))}
         </select>
-        </div>
-  </div>
+      </div>
+      </div>
       <h2>Ordina le commesse</h2>
       <div className="filters">
       <div className="filter-group">

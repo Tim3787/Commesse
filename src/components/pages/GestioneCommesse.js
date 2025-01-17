@@ -142,11 +142,12 @@ const handleDelete = async (commessaId) => {
           <div className="spinner"></div>
         </div>
       )}
-      <div className="header">
-      <h1>Filtra le commesse</h1>
-            <button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
+<button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
         Crea Nuova Commessa
       </button>
+      <div className="header">
+      <h1>Filtra le commesse</h1>
+            
       </div>
       <div className="filters">
         <div className="filter-group">
