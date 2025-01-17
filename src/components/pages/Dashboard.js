@@ -63,11 +63,15 @@ function Dashboard() {
   
 
   const getActivitiesForDay = (day) => {
-    return monthlyActivities.filter(
-      (activity) =>
-        new Date(activity.data_inizio).toLocaleDateString() === day.toLocaleDateString()
-    );
+    return monthlyActivities.filter((activity) => {
+      const startDate = new Date(activity.data_inizio);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + (activity.durata - 1)); // Calcola l'ultimo giorno dell'attività
+  
+      return day >= startDate && day <= endDate; // Verifica se il giorno è nell'intervallo
+    });
   };
+  
 
   useEffect(() => {
     const monthStartDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -99,54 +103,67 @@ function Dashboard() {
           </div>
         )}
         <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth}>← Mese Precedente</button>
-          <button onClick={goToNextMonth}>Mese Successivo →</button>
+          <button onClick={goToPreviousMonth}className="btn-Nav"> ← Mese Precedente</button>
+          <button onClick={goToNextMonth}className="btn-Nav"> Mese Successivo →</button>
         </div>
 
         <h2>Attività Assegnate</h2>
 
         <div className="calendar">
-          {daysInMonth.map((day, index) => (
-            <div key={index} className={`calendar-day ${day.toLocaleDateString() === today ? "today" : ""}`}>
-              <div className="day-header">
-                <strong>{day.toLocaleDateString()}</strong>
-              </div>
-              <div className="activities">
-                {getActivitiesForDay(day).length > 0 ? (
-                  getActivitiesForDay(day).map((activity) => (
-                    <div key={activity.id} className="activity">
-                      <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
-                      <strong>Attività:</strong> {activity.nome_attivita}
-                      <div className="activity-actions">
-  {activity.stato === 1 && (
-    <>
-      <span className="status-label">Iniziata</span>
-      <button className="btn btn-complete" onClick={() => updateActivityStatus(activity.id, 2)}>
-        Completa
-      </button>
-    </>
-  )}
-  {activity.stato === 2 && <span className="status-label">Completata</span>}
-  {activity.stato === 0 && (
-    <>
-      <button className="btn btn-start" onClick={() => updateActivityStatus(activity.id, 1)}>
-        Inizia
-      </button>
-      <button className="btn btn-complete" onClick={() => updateActivityStatus(activity.id, 2)}>
-        Completa
-      </button>
-    </>
-  )}
-</div>
-                    </div>
-                  ))
-                ) : (
-                  <div>No activities</div>
+  {daysInMonth.map((day, index) => (
+    <div
+      key={index}
+      className={`calendar-day ${day.toLocaleDateString() === today ? "today" : ""}`}
+    >
+      <div className="day-header">
+        <strong>{day.toLocaleDateString()}</strong>
+      </div>
+      <div className="activities">
+        {getActivitiesForDay(day).length > 0 ? (
+          getActivitiesForDay(day).map((activity) => (
+            <div key={activity.id} className="activity">
+              <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
+              <strong>Attività:</strong> {activity.nome_attivita}
+              <div className="activity-actions">
+                {activity.stato === 1 && (
+                  <>
+                    <span className="status-label">Iniziata</span>
+                    <button
+                      className="btn btn-complete"
+                      onClick={() => updateActivityStatus(activity.id, 2)}
+                    >
+                      Completa
+                    </button>
+                  </>
+                )}
+                {activity.stato === 2 && <span className="status-label">Completata</span>}
+                {activity.stato === 0 && (
+                  <>
+                    <button
+                      className="btn btn-start"
+                      onClick={() => updateActivityStatus(activity.id, 1)}
+                    >
+                      Inizia
+                    </button>
+                    <button
+                      className="btn btn-complete"
+                      onClick={() => updateActivityStatus(activity.id, 2)}
+                    >
+                      Completa
+                    </button>
+                  </>
                 )}
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div>No activities</div>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
+
       </div>
     </div>
   );

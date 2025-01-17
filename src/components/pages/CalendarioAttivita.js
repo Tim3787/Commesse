@@ -5,6 +5,7 @@ const CalendarioAttivita = () => {
   const [eventi, setEventi] = useState([]);
   const [risorse, setRisorse] = useState([]);
   const giorniVisualizzati = 30;
+  const dataInizio = new Date();
 
   useEffect(() => {
     const fetchDati = async () => {

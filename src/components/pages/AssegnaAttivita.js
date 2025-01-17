@@ -13,6 +13,7 @@ function AssegnaAttivita() {
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     reparto_id: "",
     commessa_id: "",
@@ -225,6 +226,12 @@ function AssegnaAttivita() {
     }
   };
 
+
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
+
+
   return (
     <div className="container" onClick={closeSuggestions}>
       {loading && (
@@ -232,12 +239,17 @@ function AssegnaAttivita() {
           <div className="spinner"></div>
         </div>
       )}
+
+      <div className="header">
+      <h1>Attività</h1>
+      </div>
       <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
           Aggiungi Attività
         </button>
-      <div className="header">
-      </div>
-      <h2>Filtra attività</h2>
+      <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>
+        {showFilters && (
       <div className="filters">
         <div className="filter-group">
           <input
@@ -294,8 +306,7 @@ function AssegnaAttivita() {
           </select>
         </div>
       </div>
-  
-      <h2>Elenco Attività Assegnate</h2>
+    )}
       {loading ? (
         <p>Caricamento in corso...</p>
       ) : (

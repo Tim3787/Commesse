@@ -17,8 +17,9 @@ function NuovaPagina() {
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
   const [statiCommessa, setStatiCommessa] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Carica tutte le commesse
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -113,10 +114,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     setShowTipoMacchinaSuggestions(false);
   };
 
-  // Trova la commessa attualmente selezionata
+
   const currentCommessa = commesse.find((commessa) => commessa.commessa_id === currentCommessaId);
 
-  // Funzione di navigazione
+
   const handleNavigation = (direction) => {
     const currentIndex = commesse.findIndex((commessa) => commessa.commessa_id === currentCommessaId);
   
@@ -140,10 +141,9 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     return parsedDate.toISOString().split("T")[0];
   };
 
-  // Funzione per aggiornare lo stato attuale di una commessa
+
   const handleStatoAttualeChange = async (commessaId, repartoId, newStatoId) => {
     try {
-      // Trova la commessa selezionata
       const updatedCommesse = commesse.map((commessa) =>
         commessa.commessa_id === commessaId
           ? {
@@ -194,10 +194,11 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   
   
   
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
+
   
-  
-  
-  //Testare la navigazione separatamente
   const testNavigation = () => {
     setCurrentCommessaId(commesse[1].commessa_id); 
     handleNavigation("next"); 
@@ -334,8 +335,12 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         </div>
       )}
            <div className="header">
-      <h1>Aggiorna stati avanzamento</h1>
+      <h1>Stati avanzamento</h1>
       </div>
+      <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>
+        {showFilters && (
       <div className="filters">
          <div className="filter-group">
         <input
@@ -404,13 +409,13 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )}
       </div>
       </div>
-
+  )}
       {/* Navigazione */}
       <div className="navigation">
-        <button onClick={() => handleNavigation("prev")}>
+        <button onClick={() => handleNavigation("prev")} className="btn-Nav">
           &lt; Precedente
         </button>
-        <button onClick={() => handleNavigation("next")}>
+        <button onClick={() => handleNavigation("next")}  className="btn-Nav">
           Successiva &gt;
         </button>
       </div>

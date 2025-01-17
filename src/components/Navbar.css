@@ -5,6 +5,7 @@ nav {
   background-color: #f5f5f5;
   border: 1px solid #ddd;
   padding: 10px;
+  flex-wrap: wrap
 }
 
 .navbar-row {
@@ -37,11 +38,13 @@ nav {
 .navbar-row ul {
   list-style: none;
   padding: 0;
+  flex-wrap: wrap
 }
 
 .navbar-row ul li {
   display: inline-block;
   margin: 0 10px;
+  flex-wrap: wrap
 }
 
 .navbar-row ul li a {

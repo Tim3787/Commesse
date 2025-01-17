@@ -13,7 +13,7 @@ function GestioneCommesse() {
   const [selezioniAttivita, setSelezioniAttivita] = useState({});
   const [editId, setEditId] = useState(null);
    const [loading, setLoading] = useState(false);
-  // Stati per i filtri
+  const [showFilters, setShowFilters] = useState(false);
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState("");
@@ -134,6 +134,9 @@ const handleDelete = async (commessaId) => {
     setShowCommessaSuggestions(false);
   };
 
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
 
   return (
     <div className="container" onClick={closeSuggestions}>
@@ -142,13 +145,17 @@ const handleDelete = async (commessaId) => {
           <div className="spinner"></div>
         </div>
       )}
-<button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
+
+      <div className="header">
+      <h1>Commesse</h1>
+      </div>
+      <button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
         Crea Nuova Commessa
       </button>
-      <div className="header">
-      <h1>Filtra le commesse</h1>
-            
-      </div>
+        <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>     
+        {showFilters && (
       <div className="filters">
         <div className="filter-group">
         <input
@@ -215,7 +222,7 @@ const handleDelete = async (commessaId) => {
         )}
       </div>
       </div>
-      <h2>Visualizza le commesse</h2>
+          )}
       <table>
         <thead>
           <tr>

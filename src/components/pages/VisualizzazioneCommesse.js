@@ -20,7 +20,8 @@ function VisualizzazioneCommesse() {
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [showFilters, setShowFilters] = useState(false);
+  const [showOrder, setShowOrder] = useState(false);
   const [statoFilter, setStatoFilter] = useState(""); 
   const [statiCommessa, setStatiCommessa] = useState([]); 
   
@@ -220,9 +221,15 @@ function VisualizzazioneCommesse() {
 
 
 
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
+
+  const toggleOrder = () => {
+    setShowOrder((prev) => !prev);
+  };
 
 
-// Funzione per ottenere il nome dello stato della commessa
 const getStatoNome = (id) => {
   const stato = statiCommessa.find(stato => stato.id === id);
   return stato ? stato.nome_stato : "Non assegnato"; 
@@ -237,8 +244,13 @@ const getStatoNome = (id) => {
         </div>
       )}
       <div className="header">
-      <h1>Filtra le commesse</h1>
+      <h1>Commesse</h1>
       </div>
+      <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>
+
+      {showFilters && (
       <div className="filters">
         <div className="filter-group">
         <input
@@ -315,7 +327,11 @@ const getStatoNome = (id) => {
         </select>
         </div>
   </div>
-      <h2>Ordina le commesse</h2>
+          )}
+      <button onClick={toggleOrder} className="btn btn-filter">
+          {showOrder ? "Nascondi Ordine" : "Mostra Ordine"}
+        </button>
+        {showOrder && (
       <div className="filters">
       <div className="filter-group">
         <select onChange={handleSortChange} value={sortOrder}>
@@ -336,7 +352,7 @@ const getStatoNome = (id) => {
         </select>
       </div>
       </div>
-      <h2>Visualizza le commesse</h2>
+              )}
       <table>
         <thead>
           <tr>

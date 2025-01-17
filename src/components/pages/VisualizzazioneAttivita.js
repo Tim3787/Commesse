@@ -11,12 +11,14 @@ function VisualizzazioneAttivita() {
   const [attivitaDefinite, setAttivitaDefinite] = useState([]);
   const [filteredRisorse, setFilteredRisorse] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     commessa_id: "",
     risorsa_id: "",
     reparto_id: "",
     attivita_id: "",
     settimana: "",
+    stato: "",
   });
   const [commessaSuggestions, setCommessaSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -95,6 +97,11 @@ function VisualizzazioneAttivita() {
       filtered = filtered.filter((att) => att.nome_attivita === filters.attivita_id);
     }
 
+    if (filters.stato) {
+      filtered = filtered.filter((att) => att.stato === parseInt(filters.stato, 10));
+    }
+
+
     setFilteredAttivita(filtered);
   };
 
@@ -143,6 +150,10 @@ function VisualizzazioneAttivita() {
     }
   };
 
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
+
   return (
     <div className="container" onClick={closeSuggestions}>
       {loading && (
@@ -151,8 +162,13 @@ function VisualizzazioneAttivita() {
         </div>
       )}
       <div className="header">
-      <h1>Filtra le attività assegnate</h1>
+      <h1>Attività</h1>
       </div>
+      <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>
+
+      {showFilters && (
       <div className="filters">
 
           <div className="filter-group">
@@ -177,35 +193,43 @@ function VisualizzazioneAttivita() {
           )}
             </div>
          <div className="filter-group">
-          <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange}>
-            <option value="">Seleziona reparto</option>
-            {reparti.map((reparto) => (
-              <option key={reparto.id} value={reparto.id}>
-                {reparto.nome}
-              </option>
-            ))}
-          </select>
+           <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange}>
+             <option value="">Seleziona reparto</option>
+             {reparti.map((reparto) => (
+               <option key={reparto.id} value={reparto.id}>
+                 {reparto.nome}
+               </option>
+             ))}
+           </select>
           </div>
           <div className="filter-group">
-          <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
-            <option value="">Seleziona risorsa</option>
-            {filteredRisorse.map((risorsa) => (
-              <option key={risorsa.id} value={risorsa.id}>
-                {risorsa.nome}
-              </option>
-            ))}
-          </select>
+           <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
+             <option value="">Seleziona risorsa</option>
+             {filteredRisorse.map((risorsa) => (
+               <option key={risorsa.id} value={risorsa.id}>
+                 {risorsa.nome}
+               </option>
+             ))}
+           </select>
           </div>
           <div className="filter-group">
-          <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
-  <option value="">Seleziona attività</option>
-  {filteredActivities.map((attivita) => (
-    <option key={attivita.nome} value={attivita.nome}>
-      {attivita.nome}
-    </option>
-  ))}
-</select>
-          </div>
+            <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
+             <option value="">Seleziona attività</option>
+             {filteredActivities.map((attivita) => (
+               <option key={attivita.nome} value={attivita.nome}>
+                {attivita.nome}
+               </option>
+          ))}
+             </select>
+             </div>
+        <div className="filter-group">
+          <select name="stato" value={filters.stato} onChange={handleFilterChange}>
+            <option value="">Seleziona stato</option>
+            <option value="0">Non iniziata</option>
+            <option value="1">Iniziata</option>
+            <option value="2">Completata</option>
+          </select>
+        </div>
           <div className="filter-group">
           <input
             type="week"
@@ -215,10 +239,8 @@ function VisualizzazioneAttivita() {
              className="input-field"
           />
            </div>
-        </div>
-
-
-      <h2>Elenco Attività Assegnate</h2>
+           </div>
+  )}
       {loading ? (
         <p>Caricamento in corso...</p>
       ) : (
@@ -231,6 +253,7 @@ function VisualizzazioneAttivita() {
               <th>Attività</th>
               <th>Data Inizio</th>
               <th>Durata</th>
+              <th>Stato</th>
             </tr>
           </thead>
           <tbody>
@@ -243,11 +266,16 @@ function VisualizzazioneAttivita() {
                   <td>{attivita.nome_attivita}</td>
                   <td>{new Date(attivita.data_inizio).toLocaleDateString()}</td>
                   <td>{attivita.durata} giorni</td>
+                  <td>
+                    {attivita.stato === 0 && "Non iniziata"}
+                    {attivita.stato === 1 && "Iniziata"}
+                    {attivita.stato === 2 && "Completata"}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6">Nessuna attività trovata.</td>
+                <td colSpan="7">Nessuna attività trovata.</td>
               </tr>
             )}
           </tbody>
