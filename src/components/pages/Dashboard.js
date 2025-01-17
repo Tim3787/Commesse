@@ -66,7 +66,7 @@ function Dashboard() {
     return monthlyActivities.filter((activity) => {
       const startDate = new Date(activity.data_inizio);
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + (activity.durata - 1)); // Calcola l'ultimo giorno dell'attività
+      endDate.setDate(startDate.getDate() + (activity.durata )); // Calcola l'ultimo giorno dell'attività
   
       return day >= startDate && day <= endDate; // Verifica se il giorno è nell'intervallo
     });
