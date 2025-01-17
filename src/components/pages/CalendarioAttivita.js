@@ -19,6 +19,7 @@ const CalendarioAttivita = () => {
         const dataEventi = await responseEventi.json();
 
         const eventiTrasformati = dataEventi.map((att) => ({
+          id: att.id,
           title: `${att.risorsa} - ${att.numero_commessa}`,
           start: att.data_inizio,
           end: new Date(
@@ -30,6 +31,7 @@ const CalendarioAttivita = () => {
             risorsa_id: att.risorsa_id,
             attivita_id: att.attivita_id,
           },
+          
         }));
         
 
@@ -98,6 +100,7 @@ const CalendarioAttivita = () => {
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'evento:", error);
       info.revert(); 
+      
     }
   };
 
@@ -138,6 +141,7 @@ const CalendarioAttivita = () => {
   };
   
   return (
+
     <div className="testCont ">
       {loading && (
         <div className="loading-overlay">

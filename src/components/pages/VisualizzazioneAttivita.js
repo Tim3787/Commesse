@@ -198,13 +198,13 @@ function VisualizzazioneAttivita() {
           </div>
           <div className="filter-group">
           <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
-            <option value="">Seleziona attivita</option>
-            {filteredActivities.map((attivita) => (
-              <option key={attivita.nome} value={attivita.nome}>
-                {attivita.nome}
-              </option>
-            ))}
-          </select>
+  <option value="">Seleziona attività</option>
+  {filteredActivities.map((attivita) => (
+    <option key={attivita.nome} value={attivita.nome}>
+      {attivita.nome}
+    </option>
+  ))}
+</select>
           </div>
           <div className="filter-group">
           <input

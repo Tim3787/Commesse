@@ -50,7 +50,7 @@ function AssegnaAttivita() {
   const fetchOptions = async () => {
     try {
       setLoading(true);
-      const [commesseResponse, risorseResponse, repartiResponse, attivitaDefiniteResponse, attivitaProgrammateResponse] =
+      const [commesseResponse, risorseResponse, repartiResponse, attivitaResponse, attivitaProgrammateResponse] =
         await Promise.all([
           axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`),
           axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`),
@@ -62,25 +62,52 @@ function AssegnaAttivita() {
       setCommesse(commesseResponse.data);
       setRisorse(risorseResponse.data);
       setReparti(repartiResponse.data);
-      setAttivitaDefinite(attivitaDefiniteResponse.data);
+      setAttivitaDefinite(attivitaResponse.data);
       setAttivitaProgrammate(attivitaProgrammateResponse.data);
       setAttivitaFiltrate(attivitaProgrammateResponse.data);
       setFilteredRisorse(risorseResponse.data);
-      setEditId(attivita.id);
-  
-      // Mantieni le attività uniche con id e nome_attivita
-      const uniqueActivities = Array.from(
-        new Set(attivitaDefiniteResponse.data.map((att) => att.id))
-      ).map((id) => attivitaDefiniteResponse.data.find((att) => att.id === id));
-      setFilteredActivities(uniqueActivities);
-    } catch (error) {
-      console.error("Errore durante il recupero delle opzioni:", error);
-    }finally {
-      setLoading(false);
+      // Imposta un ID di modifica iniziale se necessario
+    if (attivitaProgrammateResponse.data.length > 0) {
+      setEditId(attivitaProgrammateResponse.data[0].id); // Prendi il primo elemento
     }
-  };
+  
+    // Simuliamo attività definite
+    const uniqueActivities = Array.from(
+      new Set(attivitaResponse.data.map((att) => att.nome_attivita))
+    ).map((nome) => ({ nome }));
+    setAttivitaDefinite(uniqueActivities);
+    setFilteredActivities(uniqueActivities);
+  } catch (error) {
+    console.error("Errore durante il caricamento dei dati iniziali:", error);
+  } finally {
+    setLoading(false);
+  }
+};
   
 
+    // Funzione per aprire il pop-up in modalità modifica
+    const handleEdit = (attivita) => {
+
+  
+      // Controlla se `data_inizio` è una data valida
+      const dataInizio = attivita.data_inizio && attivita.data_inizio !== "Non specificata"
+        ? new Date(attivita.data_inizio).toISOString().split("T")[0]
+        : ""; // Usa una stringa vuota se non è valida
+    
+      setFormData({
+        commessa_id: attivita.commessa_id || "",
+        reparto_id: reparti.find((reparto) => reparto.nome === attivita.reparto)?.id || "",
+        risorsa_id: risorse.find((risorsa) => risorsa.nome === attivita.risorsa)?.id || "",
+        attivita_id: attivita.attivita_id || "",
+        data_inizio: dataInizio,
+        durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", // Usa stringa vuota se `durata` non è valida
+      });
+    
+      setIsEditing(true);
+      setEditId(attivita.id);
+      setShowPopup(true);
+    };
+      
   const applyFilters = () => {
     let filtered = attivitaProgrammate;
 
@@ -199,11 +226,10 @@ function AssegnaAttivita() {
           <div className="spinner"></div>
         </div>
       )}
-      <div className="header">
-        <h1>Assegna Attività</h1>
-        <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+      <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
           Aggiungi Attività
         </button>
+      <div className="header">
       </div>
       <h2>Filtra attività</h2>
       <div className="filters">
@@ -252,10 +278,10 @@ function AssegnaAttivita() {
         </div>
   
         <div className="filter-group">
-          <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange} className="input-field">
-            <option value="">Seleziona attività</option>
+          <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
+            <option value="">Seleziona attivita</option>
             {filteredActivities.map((attivita) => (
-              <option key={attivita.id} value={attivita.nome}>
+              <option key={attivita.nome} value={attivita.nome}>
                 {attivita.nome}
               </option>
             ))}
