@@ -12,8 +12,9 @@ function AttivitaCrea({
   commesse, 
   reparti,
   risorse,
-  attivitaDefinite,
+  attivitaConReparto,
 }) {
+
   const [commessaSearch, setCommessaSearch] = useState(""); 
   const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
   const suggestionsRef = useRef(null); 
@@ -23,19 +24,28 @@ function AttivitaCrea({
     setFormData({ ...formData, [name]: value });
   };
 
-  // Funzione di ricerca delle commesse
+
   const handleSearchCommessa = (e) => {
-    const searchText = e.target.value;
+    const searchText = e.target.value.trim().toLowerCase(); // Normalizza l'input
     setCommessaSearch(searchText);
-    // Filtriamo le commesse in base al testo inserito
+  
+    if (!searchText) {
+      setSuggestedCommesse([]); // Nessun input, nessun suggerimento
+      return;
+    }
+  
     const filteredCommesse = commesse.filter((commessa) =>
-      commessa.numero_commessa.toLowerCase().includes(searchText.toLowerCase()) 
+      String(commessa.numero_commessa || "").toLowerCase().includes(searchText)
     );
+
+
+
     setSuggestedCommesse(filteredCommesse);
   };
 
   // Gestione della selezione della commessa
   const handleSelectCommessa = (commessa) => {
+    console.log("Commessa selezionata:", commessa);
     setCommessaSearch(commessa.numero_commessa); 
     setFormData((prevState) => {
       const updatedFormData = {
@@ -43,7 +53,9 @@ function AttivitaCrea({
         commessa_id: commessa.commessa_id || "", 
       };
       return updatedFormData;
+
     });
+
     setSuggestedCommesse([]); 
   };
   
@@ -53,6 +65,12 @@ function AttivitaCrea({
     e.preventDefault();
 
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
+    console.log("reparto_id", reparto_id);
+    console.log("commessa_id", commessa_id);
+    console.log("risorsa_id", risorsa_id);
+    console.log("attivita_id", attivita_id);
+    console.log("data_inizio", data_inizio);
+
     if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
       alert("Tutti i campi sono obbligatori.");
       return;
@@ -90,6 +108,19 @@ function AttivitaCrea({
     };
   }, []);
 
+
+  useEffect(() => {
+    if (isEditing && formData.commessa_id) {
+      const commessa = commesse.find(
+        (c) => c.commessa_id === parseInt(formData.commessa_id, 10)
+      );
+      if (commessa) {
+        setCommessaSearch(commessa.numero_commessa);
+      }
+    }
+  }, [isEditing, formData.commessa_id, commesse]);
+  
+
   return (
     <div className="popup">
       <div className="popup-content">
@@ -103,20 +134,19 @@ function AttivitaCrea({
   value={commessaSearch || ""}  
   onChange={handleSearchCommessa}
   placeholder="Cerca per numero commessa"
-  className="form-control"
+  className="input-field"
 />
-            {suggestedCommesse.length > 0 && (
-              <ul className="suggestions-list" ref={suggestionsRef}>
-                {suggestedCommesse.map((commessa) => (
-                  <li
-                    key={commessa.id}
-                    onClick={() => handleSelectCommessa(commessa)}
-                  >
-                    {commessa.numero_commessa}
-                  </li>
-                ))}
-              </ul>
-            )}
+{suggestedCommesse.length > 0 && (
+  <ul className="suggestions-list" ref={suggestionsRef}>
+    {suggestedCommesse.map((commessa) => {
+      return (
+        <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
+          {commessa.numero_commessa}
+        </li>
+      );
+    })}
+  </ul>
+)}
           </div>
 
           {/* Reparto */}
@@ -132,6 +162,7 @@ function AttivitaCrea({
               {reparti.map((reparto) => (
                 <option key={reparto.id} value={reparto.id}>
                   {reparto.nome}
+                  
                 </option>
               ))}
             </select>
@@ -159,23 +190,24 @@ function AttivitaCrea({
 
           {/* Attività */}
           <div className="form-group">
-            <label>Attività:</label>
-            <select
-              name="attivita_id"
-              value={formData.attivita_id}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seleziona un'attività</option>
-              {attivitaDefinite
-                .filter((attivita) => attivita.reparto_id === parseInt(formData.reparto_id))
-                .map((attivita) => (
-                  <option key={attivita.id} value={attivita.id}>
-                    {attivita.nome_attivita}
-                  </option>
-                ))}
-            </select>
-          </div>
+  <label>Attività:</label>
+  <select
+    name="attivita_id"
+    value={formData.attivita_id}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Seleziona un'attività</option>
+    {attivitaConReparto
+      .filter((attivita) => attivita.reparto_id === parseInt(formData.reparto_id, 10))
+      .map((attivita) => (
+        <option key={attivita.id} value={attivita.id}>
+          {attivita.nome_attivita}
+        </option>
+      ))}
+  </select>
+</div>
+
 
           {/* Data Inizio */}
           <div className="form-group">

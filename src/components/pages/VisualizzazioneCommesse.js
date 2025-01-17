@@ -130,24 +130,24 @@ function VisualizzazioneCommesse() {
   // Funzione per applicare i filtri
   const applyFilters = () => {
     return commesse.filter((commessa) => {
-      return (
-        commessa.numero_commessa.toString().includes(commessaFilter) &&
-        commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase()) &&
-        commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
-      );
+      const matchesCommessa = commessa.numero_commessa.toString().includes(commessaFilter);
+      const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
+      const matchesTipoMacchina = commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
+      const matchesStato = !statoFilter || commessa.stato === parseInt(statoFilter, 10); 
+  
+      return matchesCommessa && matchesCliente && matchesTipoMacchina && matchesStato;
     });
   };
   // Funzione per gestire l'aggiornamento dei dati filtrati e ordinati
   const updateFilteredCommesse = () => {
-    let filtered = applyFilters(commesse);
+    let filtered = applyFilters(); 
     let sorted = sortCommesse(filtered);
     setFilteredCommesse(sorted);
   };
-
   useEffect(() => {
     updateFilteredCommesse();
-  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, commesse, sortOrder, sortDirection, dateSortDirection]);
-
+  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection]);
+  
 
   
   // Funzioni di selezione per i filtri

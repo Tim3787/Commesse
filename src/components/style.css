@@ -718,3 +718,6 @@ cursor: pointer;
 .suggestions-list li:hover {
 background-color: #f0f0f0;
 }
+.form-group {
+  position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
+}

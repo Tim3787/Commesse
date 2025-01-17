@@ -1,69 +1,96 @@
-.calendar-container {
-  max-width: 100%;
-
-  margin: 20px auto;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.calendario-container {
+  padding: 20px;
 }
 
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
-  }
-  
-  .view-selector {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .view-selector label {
-    margin-right: 10px;
-    font-size: 16px;
-    color: #555;
-  }
-  
-  .view-selector select {
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  .calendar-wrapper {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
-  .fc {
-    background-color: white;
-    border-radius: 10px;
-    padding: 10px;
-  }
-  
-  .fc-toolbar-title {
-    font-size: 18px !important;
-  }
-  
-  .fc-view-harness {
-    height: 70vh; /* Altezza del calendario */
-  }
-  .filter-container {
-    margin-bottom: 10px;
-  }
-  
-  .filter-container label {
-    font-weight: bold;
-    margin-right: 10px;
-  }
-  
-  .filter-container select {
-    padding: 5px;
-    border-radius: 4px;
-  }
+.calendario {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+}
+
+.calendario-header,
+.calendario-riga {
+  display: grid;
+  grid-template-columns: 150px repeat(30, 1fr); /* Colonne dinamiche */
+}
+
+.calendario-cell {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: center;
+}
+
+.risorsa-header {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.giorno-header {
+  background-color: #e9e9e9;
+  font-weight: bold;
+}
+
+.risorsa {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.giorno {
+  position: relative;
+}
+
+.evento {
+  background-color: #007bff;
+  color: white;
+  padding: 2px;
+  font-size: 12px;
+  border-radius: 4px;
+  text-align: center;
+}
+.reparto {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.attivita-nome {
+  background-color: #f9f9f9;
+  font-style: italic;
+  padding-left: 10px;
+}
+
+.calendario-cell {
+  border: 1px solid #ddd;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.evento {
+  background-color: #007bff;
+  color: white;
+  padding: 2px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: grab;
+}
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  cursor: se-resize;
+}
+
+.evento {
+  position: relative;
+  background-color: #007bff;
+  color: white;
+  padding: 5px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: grab;
+}
