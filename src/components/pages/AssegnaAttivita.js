@@ -11,6 +11,7 @@ function AssegnaAttivita() {
   const [reparti, setReparti] = useState([]);
   const [filteredRisorse, setFilteredRisorse] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
+  const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
   const [filters, setFilters] = useState({
     reparto_id: "",
@@ -38,7 +39,6 @@ function AssegnaAttivita() {
 
   useEffect(() => {
     if (isEditing && editId) {
-      console.log("Modificando attività con ID:", editId);
     }
   }, [isEditing, editId]);
 
@@ -71,6 +71,14 @@ function AssegnaAttivita() {
       setEditId(attivitaProgrammateResponse.data[0].id); // Prendi il primo elemento
     }
   
+    // Trasforma le attività per includere reparto_id
+    const attivitaConReparto = attivitaResponse.data.map((attivita) => ({
+      id: attivita.id,
+      nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
+      reparto_id: attivita.reparto_id,
+    }));
+    
+    setattivitaConReparto(attivitaConReparto);
     // Simuliamo attività definite
     const uniqueActivities = Array.from(
       new Set(attivitaResponse.data.map((att) => att.nome_attivita))
@@ -99,10 +107,10 @@ function AssegnaAttivita() {
         reparto_id: reparti.find((reparto) => reparto.nome === attivita.reparto)?.id || "",
         risorsa_id: risorse.find((risorsa) => risorsa.nome === attivita.risorsa)?.id || "",
         attivita_id: attivita.attivita_id || "",
+        
         data_inizio: dataInizio,
         durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", // Usa stringa vuota se `durata` non è valida
       });
-    
       setIsEditing(true);
       setEditId(attivita.id);
       setShowPopup(true);
@@ -145,8 +153,7 @@ function AssegnaAttivita() {
       const repartoId = parseInt(value, 10);
   
       if (repartoId) {
-        console.log("Reparto selezionato (ID):", repartoId);
-  
+
         // Filtra risorse in base al reparto
         const filteredRisorse = risorse.filter((risorsa) => risorsa.reparto_id === repartoId);
         console.log("Risorse filtrate:", filteredRisorse);
@@ -158,7 +165,6 @@ function AssegnaAttivita() {
           const filteredActivities = attivitaDefinite.filter(
             (attivita) => attivita.reparto_id === repartoId
           );
-          console.log("Attività filtrate per reparto:", filteredActivities);
           setFilteredActivities(filteredActivities);
         }
       } else {
@@ -341,6 +347,7 @@ function AssegnaAttivita() {
         reparti={reparti}
         risorse={risorse}
         attivitaDefinite={attivitaDefinite}
+        attivitaConReparto={attivitaConReparto}
       />
     )}
   </div>
