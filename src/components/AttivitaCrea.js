@@ -26,11 +26,11 @@ function AttivitaCrea({
 
 
   const handleSearchCommessa = (e) => {
-    const searchText = e.target.value.trim().toLowerCase(); // Normalizza l'input
+    const searchText = e.target.value.trim().toLowerCase(); 
     setCommessaSearch(searchText);
   
     if (!searchText) {
-      setSuggestedCommesse([]); // Nessun input, nessun suggerimento
+      setSuggestedCommesse([]);
       return;
     }
   

@@ -329,9 +329,10 @@ nav ul li a:hover {
 
 .navigation {
   display: flex;
-  justify-content: space-between;
+  justify-content:center;
   align-items: center;
   margin-bottom: 20px;
+  margin-top:20px ;
 }
 
 .commessa-container {
@@ -632,6 +633,14 @@ background-color: #0056b3;
 .btn-new-comm:hover {
   background-color: #b30068;
 }
+.btn-Nav{
+  background-color:#007bff;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
+}
 
     /* ==============================
      input
@@ -661,6 +670,7 @@ background-color: #0056b3;
   padding: 5px;
   border: 1px solid #ced4da;
   border-radius: 4px;
+  flex-wrap: wrap
 }
 
 .filter-label {
