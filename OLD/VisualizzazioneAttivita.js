@@ -18,7 +18,7 @@ function VisualizzazioneAttivita() {
     commessa_id: "",
     risorsa_id: "",
     reparto_id: "",
-    attivita_id: "",
+    attivita_id: [], // MULTISEL
     settimana: "",
     stati: [], // MULTISEL
   });
@@ -96,13 +96,13 @@ function VisualizzazioneAttivita() {
       });
     }
 
-    if (filters.attivita_id) {
-      filtered = filtered.filter((att) => att.nome_attivita === filters.attivita_id);
+    if (filters.attivita_id.length > 0) {
+      filtered = filtered.filter((att) => filters.attivita_id.includes(att.nome_attivita));
     }
 
     if (filters.stati.length > 0) {
       filtered = filtered.filter((att) => filters.stati.includes(att.stato.toString()));
-    }  // MULTISEL
+    }  
 
 filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
 
@@ -112,38 +112,43 @@ filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
   
-    // Gestione dei checkbox per il filtro degli stati (selezione multipla)
-    if (type === "checkbox" && name === "stati") {
+    if (type === "checkbox" && name === "attivita_id") {
+      setFilters((prev) => ({
+        ...prev,
+        attivita_id: checked
+          ? [...prev.attivita_id, value] // Aggiungi l'attività selezionata
+          : prev.attivita_id.filter((id) => id !== value), // Rimuovi l'attività deselezionata
+      }));
+    } else if (type === "checkbox" && name === "stati") {
       setFilters((prev) => ({
         ...prev,
         stati: checked
-          ? [...prev.stati, value] // Aggiunge lo stato selezionato
-          : prev.stati.filter((stato) => stato !== value), // Rimuove lo stato deselezionato
+          ? [...prev.stati, value] // Aggiungi lo stato selezionato
+          : prev.stati.filter((stato) => stato !== value), // Rimuovi lo stato deselezionato
       }));
-    } 
-    // Gestione della selezione singola per reparto_id
-    else if (name === "reparto_id") {
+    } else if (name === "reparto_id") {
       const repartoId = parseInt(value, 10);
   
       if (repartoId) {
-        // Filtra le risorse in base al reparto selezionato
-        const filtered = risorse.filter((risorsa) => risorsa.reparto_id === repartoId);
-        setFilteredRisorse(filtered);
+        const filteredRisorse = risorse.filter((risorsa) => risorsa.reparto_id === repartoId);
+        setFilteredRisorse(filteredRisorse);
+  
+        const filteredActivities = attivitaDefinite.filter(
+          (attivita) => attivita.reparto_id === repartoId
+        );
+        setFilteredActivities(filteredActivities);
       } else {
-        // Se il reparto non è selezionato, mostra tutte le risorse
         setFilteredRisorse(risorse);
+        setFilteredActivities(attivitaDefinite);
       }
   
-      // Aggiorna il filtro reparto_id e resetta risorsa_id e attivita_id
       setFilters((prev) => ({
         ...prev,
-        reparto_id: value, // Aggiorna il reparto selezionato
-        risorsa_id: "",    // Resetta la risorsa
-        attivita_id: "",   // Resetta l'attività
+        reparto_id: value,
+        risorsa_id: "",
+        attivita_id: [],
       }));
-    } 
-    // Gestione generale per altri tipi di input (selezione singola, testo, ecc.)
-    else {
+    } else {
       setFilters((prev) => ({
         ...prev,
         [name]: value,
@@ -178,8 +183,11 @@ filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
   const toggleFilters = () => {
     setShowFilters((prev) => !prev);
   };
-
- 
+  const handleOutsideClick = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setShowDropdown(false);
+    }
+  };
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -255,16 +263,27 @@ filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
              ))}
            </select>
           </div>
-          <div className="filter-group">
-            <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
-             <option value="">Seleziona attività</option>
-             {filteredActivities.map((attivita) => (
-               <option key={attivita.nome} value={attivita.nome}>
-                {attivita.nome}
-               </option>
-          ))}
-             </select>
-             </div>
+          <div className="filter-group" ref={dropdownRef}>
+  <label onClick={toggleDropdown} className="dropdown-label">
+    Seleziona attività
+  </label>
+  {showDropdown && (
+    <div className="dropdown-menu">
+      {filteredActivities.map((attivita) => (
+        <label key={attivita.nome}>
+          <input
+            type="checkbox"
+            name="attivita_id"
+            value={attivita.nome}
+            checked={filters.attivita_id.includes(attivita.nome)}
+            onChange={handleFilterChange}
+          />
+          {attivita.nome}
+        </label>
+      ))}
+    </div>
+  )}
+</div>
              <div className="filter-group" ref={dropdownRef}>
             <label className="dropdown-label" onClick={() => setShowDropdown((prev) => !prev)}>
               Seleziona stato

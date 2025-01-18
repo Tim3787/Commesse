@@ -15,16 +15,12 @@ function AssegnaAttivita() {
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-   const [showStateDropdown, setShowStateDropdown] = useState(false); // MULTISEL
-   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
-   const activityDropdownRef = useRef(null);
-const stateDropdownRef = useRef(null);
-
+   const [showDropdown, setShowDropdown] = useState(false); // MULTISEL
   const [filters, setFilters] = useState({
     reparto_id: "",
     commessa_id: "",
     risorsa_id: "",
-    attivita_id: [], // MULTISEL
+    attivita_id: "",
     stati: [], // MULTISEL
   });
   const [commessaSuggestions, setCommessaSuggestions] = useState([]);
@@ -147,8 +143,8 @@ const stateDropdownRef = useRef(null);
       filtered = filtered.filter((att) => att.risorsa_id === parseInt(filters.risorsa_id));
     }
 
-    if (filters.attivita_id.length > 0) {
-      filtered = filtered.filter((att) => filters.attivita_id.includes(att.nome_attivita));
+    if (filters.attivita_id) {
+      filtered = filtered.filter((att) => att.nome_attivita === filters.attivita_id);
     }
     if (filters.stati.length > 0) {
       filtered = filtered.filter((att) => filters.stati.includes(att.stato.toString()));
@@ -159,19 +155,12 @@ const stateDropdownRef = useRef(null);
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
   
-    if (type === "checkbox" && name === "attivita_id") {
-      setFilters((prev) => ({
-        ...prev,
-        attivita_id: checked
-          ? [...prev.attivita_id, value] // Aggiungi l'attività selezionata
-          : prev.attivita_id.filter((id) => id !== value), // Rimuovi l'attività deselezionata
-      }));
-    } else if (type === "checkbox" && name === "stati") {
+    if (type === "checkbox" && name === "stati") {
       setFilters((prev) => ({
         ...prev,
         stati: checked
-          ? [...prev.stati, value] // Aggiungi lo stato selezionato
-          : prev.stati.filter((stato) => stato !== value), // Rimuovi lo stato deselezionato
+          ? [...prev.stati, value] // Aggiungi il valore se il checkbox è selezionato
+          : prev.stati.filter((stato) => stato !== value), // Rimuovi il valore se deselezionato
       }));
     } else if (name === "reparto_id") {
       const repartoId = parseInt(value, 10);
@@ -193,7 +182,7 @@ const stateDropdownRef = useRef(null);
         ...prev,
         reparto_id: value,
         risorsa_id: "",
-        attivita_id: [],
+        attivita_id: "",
       }));
     } else {
       setFilters((prev) => ({
@@ -202,7 +191,6 @@ const stateDropdownRef = useRef(null);
       }));
     }
   };
-  
   
   
   
@@ -257,39 +245,30 @@ const stateDropdownRef = useRef(null);
     setShowFilters((prev) => !prev);
   };
 
-  const toggleStateDropdown = () => {
-    setShowStateDropdown((prev) => !prev);
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev);
+  };// MULTISEL
+  const handleOutsideClick = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setShowDropdown(false);
+    }
   };// MULTISEL
 
-  const toggleActivityDropdown = () => {
-    setShowActivityDropdown((prev) => !prev);
+  const dropdownRef = useRef(null);
+
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setShowDropdown(false);
+    }
   };
 
+  document.addEventListener("click", handleClickOutside);
 
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        activityDropdownRef.current &&
-        !activityDropdownRef.current.contains(e.target)
-      ) {
-        setShowActivityDropdown(false); // Chiude il dropdown attività
-      }
-      if (
-        stateDropdownRef.current &&
-        !stateDropdownRef.current.contains(e.target)
-      ) {
-        setShowStateDropdown(false); // Chiude il dropdown stati
-      }
-    };
-  
-    document.addEventListener("click", handleClickOutside);
-  
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
-  
+  return () => {
+    document.removeEventListener("click", handleClickOutside);
+  };
+}, []);
 
   return (
     <div className="container" onClick={closeSuggestions}>
@@ -354,33 +333,21 @@ const stateDropdownRef = useRef(null);
           </select>
         </div>
   
-        <div className="filter-group" ref={activityDropdownRef}>
-  <label onClick={toggleActivityDropdown} className="dropdown-label">
-    Seleziona attività
-  </label>
-  {showActivityDropdown && (
-    <div className="dropdown-menu">
-      {filteredActivities.map((attivita) => (
-        <label key={attivita.nome}>
-          <input
-            type="checkbox"
-            name="attivita_id"
-            value={attivita.nome}
-            checked={filters.attivita_id.includes(attivita.nome)}
-            onChange={handleFilterChange}
-          />
-          {attivita.nome}
-        </label>
-      ))}
-    </div>
-  )}
-</div>
-
-        <div className="filter-group" ref={stateDropdownRef}>
-  <label onClick={toggleStateDropdown} className="dropdown-label">
+        <div className="filter-group">
+          <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
+            <option value="">Seleziona attivita</option>
+            {filteredActivities.map((attivita) => (
+              <option key={attivita.nome} value={attivita.nome}>
+                {attivita.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="filter-group" ref={dropdownRef}>
+  <label onClick={toggleDropdown} className="dropdown-label">
     Seleziona stato
   </label>
-  {showStateDropdown && (
+  {showDropdown && (
     <div className="dropdown-menu">
       {["0", "1", "2"].map((value) => (
         <label key={value}>
