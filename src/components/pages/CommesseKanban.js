@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
+import logo from"../assets/unitech-packaging.png";
 
 function CommesseKanban() {
   const [reparti, setReparti] = useState([]);

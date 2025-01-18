@@ -3,17 +3,20 @@ import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 import interactionPlugin from "@fullcalendar/interaction";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 const CalendarioCommesse = () => {
   const [eventi, setEventi] = useState([]);
   const [risorse, setRisorse] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     const fetchDati = async () => {
       try {
-        const responseCommesse = await fetch (`${process.env.REACT_APP_API_URL}/api/commesse`);
+        const responseCommesse = await fetch(`${process.env.REACT_APP_API_URL}/api/commesse`);
         const dataCommesse = await responseCommesse.json();
-
+  
         // Organizza le risorse
         const risorseTrasformate = dataCommesse.map((commessa) => ({
           id: `commessa-${commessa.id}`,
@@ -27,9 +30,9 @@ const CalendarioCommesse = () => {
             })),
           })),
         }));
-
+  
         setRisorse(risorseTrasformate);
-
+  
         // Organizza gli eventi
         const eventiTrasformati = dataCommesse.flatMap((commessa) =>
           commessa.stati_avanzamento.flatMap((reparto) =>
@@ -47,16 +50,17 @@ const CalendarioCommesse = () => {
             }))
           )
         );
-
+  
         setEventi(eventiTrasformati);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+      } finally {
+        setLoading(false); // Chiusura corretta del `finally`
       }
     };
-
     fetchDati();
   }, []);
-
+  
   const handleEventUpdate = async (info) => {
     const eventoAggiornato = {
       data_inizio: info.event.start.toISOString(),
@@ -90,6 +94,11 @@ const CalendarioCommesse = () => {
 
   return (
     <div className="calendar-container">
+       {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Calendario Stati Avanzamento</h1>
       <FullCalendar
         plugins={[resourceTimelinePlugin, interactionPlugin]}

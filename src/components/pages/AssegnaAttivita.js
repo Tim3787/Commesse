@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
 import AttivitaCrea from "../AttivitaCrea";
+import logo from"../assets/unitech-packaging.png";
 
 function AssegnaAttivita() {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
@@ -13,7 +14,7 @@ function AssegnaAttivita() {
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
-    const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     reparto_id: "",
     commessa_id: "",
@@ -236,7 +237,7 @@ function AssegnaAttivita() {
     <div className="container" onClick={closeSuggestions}>
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
 

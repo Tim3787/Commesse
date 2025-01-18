@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
 import CommessaCrea from "../CommessaCrea"; 
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneCommesse() {
   const [commesse, setCommesse] = useState([]);
@@ -142,7 +143,7 @@ const handleDelete = async (commessaId) => {
     <div className="container" onClick={closeSuggestions}>
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
 

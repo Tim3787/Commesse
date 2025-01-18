@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneReparti() {
   const [reparti, setReparti] = useState([]);
   const [formData, setFormData] = useState({ nome: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchReparti();
   }, []);
 
   const fetchReparti = async () => {
+    setLoading(true);
     try {
       const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/reparti`);
       setReparti(response.data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -63,6 +67,11 @@ function GestioneReparti() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
   <h1>Crea o modifica i reparti</h1>
   <form onSubmit={handleSubmit}>
     <div className="form-group">

@@ -145,7 +145,7 @@ const CalendarioAttivita = () => {
     <div className="testCont ">
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
       <h1>Calendario attività</h1>

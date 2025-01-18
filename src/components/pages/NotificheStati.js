@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 const NotificheStati = () => {
   const [notifiche, setNotifiche] = useState([]);
@@ -8,6 +9,7 @@ const NotificheStati = () => {
 
   useEffect(() => {
     const fetchNotifiche = async () => {
+      setLoading(true);
       try {
         const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/notifiche`);
         setNotifiche(response.data.notifiche || []);
@@ -27,6 +29,11 @@ const NotificheStati = () => {
 
   return (
     <div className="notifiche-container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Notifiche Stati Avanzamento</h1>
       {notifiche.length === 0 ? (
         <p style={{ color: "green" }}>Nessuna anomalia rilevata!</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneAttivita() {
   const [attivita, setAttivita] = useState([]);
@@ -9,6 +10,7 @@ function GestioneAttivita() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [selectedReparto, setSelectedReparto] = useState(""); 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAttivita();
@@ -16,11 +18,14 @@ function GestioneAttivita() {
   }, []);
 
   const fetchAttivita = async () => {
+    setLoading(true);
     try {
       const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/attivita`);
       setAttivita(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -92,6 +97,11 @@ function GestioneAttivita() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Crea o modifica le attività</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

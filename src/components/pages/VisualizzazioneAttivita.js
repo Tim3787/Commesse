@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function VisualizzazioneAttivita() {
   const [attivitaList, setAttivitaList] = useState([]);
@@ -101,6 +102,7 @@ function VisualizzazioneAttivita() {
       filtered = filtered.filter((att) => att.stato === parseInt(filters.stato, 10));
     }
 
+filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
 
     setFilteredAttivita(filtered);
   };
@@ -158,7 +160,7 @@ function VisualizzazioneAttivita() {
     <div className="container" onClick={closeSuggestions}>
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
       <div className="header">
