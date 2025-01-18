@@ -672,7 +672,7 @@ background-color: #0056b3;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
-  width: 100%;
+
   }
   
   .input-group {
@@ -761,7 +761,42 @@ background-color: #f0f0f0;
   position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
 }
 
+.dropdown-label {
+  cursor: pointer;
+  display: block;
+  padding: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #000000;
+}
 
+.dropdown-menu {
+  position: absolute; /* Posizionamento assoluto rispetto al contenitore padre */
+  top: 100%; /* Appare subito sotto l'elemento padre */
+  background-color: white;
+  border: 1px solid #050505;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  width: 90%; /* Si adatta alla larghezza dell'elemento padre */
+  padding: 8px 12px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.dropdown-menu label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  
+}
+
+.dropdown-menu input[type="checkbox"] {
+  margin-right: 8px;
+}
 
 /* ==============================
 Responsive Design
@@ -807,6 +842,20 @@ Responsive Design
     align-items: stretch;
     font-size: 12px;
   }
+
+  /* Aggiungi spaziatura uniforme tra gli elementi */
+  .filters > *:not(:last-child),
+  .tabs > *:not(:last-child),
+  .form-group > *:not(:last-child) {
+    margin-bottom: 10px; /* Spaziatura uniforme */
+  }
+
+  /* Rimuovi margini aggiuntivi dall'ultimo elemento */
+  .filters > *:last-child,
+  .tabs > *:last-child,
+  .form-group > *:last-child {
+    margin-bottom: 0;
+  }
   th, td {
     padding: 6px;
     font-size: 16px;
@@ -822,6 +871,21 @@ Responsive Design
     font-size: 12px;
   }
   
+  
+.dropdown-label {
+  font-size: 12px;
+  padding: 10px;
+}
+
+.dropdown-menu {
+  font-size: 12px;
+}
+
+.dropdown-menu label {
+  font-size: 12px;
+  
+}
+
   .popup-content {
     width: 90%; /* Occupa quasi tutta la larghezza dello schermo */
     padding: 15px; /* Riduce il padding per schermi più piccoli */
