@@ -46,6 +46,7 @@
   width: 100%;
   padding: 10px 0;
   color: white;
+  
 }
 
 .menu.open {
@@ -59,6 +60,8 @@
   margin: 0;
   flex-direction: column;
   color: white;
+
+
 }
 
 .menu-list li {
@@ -69,7 +72,7 @@
   text-decoration: none;
   color: #333;
   display: block;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .menu-list li a:hover {
@@ -87,4 +90,14 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@media (max-width: 768px) {
+
+.menu-list li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  font-size: 14px;
+}
 }

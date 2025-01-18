@@ -28,7 +28,6 @@ Header
   align-items: center; /* Allinea gli elementi verticalmente */
   background-color: #fff; /* Sfondo del header */
   padding: 10px 20px; /* Spaziatura interna */
-  position: sticky; /* Rimane visibile durante lo scroll */
   top: 0;
   z-index: 1000; /* Porta l'header sopra altri elementi */
   flex-wrap: wrap; /* Permette di andare a capo quando necessario */
@@ -410,42 +409,46 @@ tr:nth-child(even) {
      pop up
      ============================== */
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 80%;
-  max-width: 600px;
-  overflow-y: auto;
-}
-
-.popup button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.popup button:hover {
-  background-color: #0056b3;
-}
-
+     .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      overflow: hidden; /* Nasconde eventuali overflow */
+    }
+    
+    .popup-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      max-height: 90%; /* Limita l'altezza massima */
+      overflow-y: auto; /* Scorrimento verticale per contenuti lunghi */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Migliora l'aspetto con un'ombra */
+    }
+    
+    .popup button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .popup button:hover {
+      background-color: #0056b3;
+    }
+    
 
 
     /* ==============================
@@ -790,7 +793,11 @@ Responsive Design
     color: #34495e;
     margin-bottom: 10px;
   }
-  
+  h3 {
+    font-size: 16px;
+    color: #34495e;
+    margin-bottom: 10px;
+  }
   .header nav.active {
     display: flex;
     flex-direction: column;
@@ -798,11 +805,48 @@ Responsive Design
   .filters, .tabs, .form-group {
     flex-direction: column;
     align-items: stretch;
+    font-size: 12px;
   }
   th, td {
     padding: 6px;
-    font-size: 14px;
+    font-size: 16px;
   }
+  
+  .filter-label {
+    font-size: 12px;
+  }
+  .container select{
+    font-size: 12px;
+  }
+  .input-field {
+    font-size: 12px;
+  }
+  
+  .popup-content {
+    width: 90%; /* Occupa quasi tutta la larghezza dello schermo */
+    padding: 15px; /* Riduce il padding per schermi più piccoli */
+    border-radius: 8px; /* Bordi leggermente meno arrotondati */
+  }
+
+  .popup button {
+    width: 100%; /* I pulsanti occupano tutta la larghezza */
+    padding: 12px; /* Spaziatura maggiore per rendere più semplice il clic */
+    font-size: 16px; /* Aumenta il font per una migliore leggibilità */
+  }
+}
+
+@media (max-width: 480px) {
+  .popup-content {
+    width: 95%; /* Ulteriore adattamento per schermi molto piccoli */
+    padding: 10px; /* Riduce ulteriormente il padding */
+    max-height: 80%; /* Riduce l'altezza massima per evitare overflow */
+  }
+
+  .popup button {
+    font-size: 14px; /* Adatta il font per spazi ristretti */
+    padding: 10px; /* Riduce il padding dei pulsanti */
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -834,7 +878,7 @@ Responsive Design
   }
   th, td {
     padding: 6px;
-    font-size: 10px;
+    font-size: 14px;
   }
   .filters, .tabs, .form-group {
     padding: 5px;
@@ -845,6 +889,7 @@ Responsive Design
     margin: 5px auto;
     padding: 10px;
   }
+
 }
 
 
