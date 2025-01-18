@@ -23,7 +23,6 @@ body {
 Header
 ============================== */
 .header {
-  display: flex;
   justify-content: space-between; /* Spaziatura uniforme */
   align-items: center; /* Allinea gli elementi verticalmente */
   background-color: #fff; /* Sfondo del header */
@@ -90,7 +89,6 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  display: block;
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -302,7 +300,7 @@ tr:nth-child(even) {
 }
 
 .container {
-  max-width: 80%;
+  max-width: 99%;
   margin: 10px auto;
   padding: 20px;
   background-color: #fff;
@@ -841,6 +839,10 @@ Responsive Design
     flex-direction: column;
     align-items: stretch;
     font-size: 12px;
+  }
+  table {
+
+    display: block;
   }
 
   /* Aggiungi spaziatura uniforme tra gli elementi */

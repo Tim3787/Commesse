@@ -4,6 +4,7 @@ import "../style.css";
 import CommessaCrea from "../CommessaCrea"; 
 import logo from"../assets/unitech-packaging.png";
 
+
 function GestioneCommesse() {
   const [commesse, setCommesse] = useState([]);
   const [reparti, setReparti] = useState([]);
@@ -231,6 +232,7 @@ const handleDelete = async (commessaId) => {
             <th>Tipo Macchina</th>
             <th>Cliente</th>
             <th>Data Consegna</th>
+            <th>Data FAT</th>
             <th>Azioni</th>
           </tr>
         </thead>
@@ -241,6 +243,7 @@ const handleDelete = async (commessaId) => {
               <td>{commessa.tipo_macchina}</td>
               <td>{commessa.cliente}</td>
               <td>{new Date(commessa.data_consegna).toLocaleDateString()}</td>
+              <td> {commessa.data_FAT? new Date(commessa.data_FAT).toLocaleDateString(): "Non specificata"}</td>
               <td>
                 <button
                   className="btn btn-warning"

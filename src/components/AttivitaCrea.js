@@ -45,7 +45,7 @@ function AttivitaCrea({
 
   // Gestione della selezione della commessa
   const handleSelectCommessa = (commessa) => {
-    console.log("Commessa selezionata:", commessa);
+
     setCommessaSearch(commessa.numero_commessa); 
     setFormData((prevState) => {
       const updatedFormData = {
@@ -65,11 +65,7 @@ function AttivitaCrea({
     e.preventDefault();
 
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-    console.log("reparto_id", reparto_id);
-    console.log("commessa_id", commessa_id);
-    console.log("risorsa_id", risorsa_id);
-    console.log("attivita_id", attivita_id);
-    console.log("data_inizio", data_inizio);
+
 
     if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
       alert("Tutti i campi sono obbligatori.");

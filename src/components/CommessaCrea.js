@@ -18,6 +18,7 @@ function CommessaCrea({
     tipo_macchina: "",
     descrizione: "",
     data_consegna: "",
+    data_FAT: "",
     altri_particolari: "",
     cliente: "",
   });
@@ -37,8 +38,10 @@ const formatDate = (dateString) => {
         tipo_macchina: commessa.tipo_macchina,
         descrizione: commessa.descrizione,
         data_consegna: formatDate(commessa.data_consegna),
+        data_FAT: formatDate(commessa.data_FAT),
         altri_particolari: commessa.altri_particolari,
         cliente: commessa.cliente,
+        
       });
   
       // Controlla che commessa.attivita sia definito
@@ -60,6 +63,7 @@ const formatDate = (dateString) => {
         tipo_macchina: "",
         descrizione: "",
         data_consegna: "",
+        data_FAT: "",
         altri_particolari: "",
         cliente: "",
       });
@@ -71,6 +75,12 @@ const formatDate = (dateString) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.data_FAT && new Date(formData.data_FAT) > new Date(formData.data_consegna)) {
+      alert("La data FAT deve essere antecedente alla data di consegna.");
+      return;
+    }
+  
     try {
       let commessaId;
   
@@ -120,6 +130,7 @@ const formatDate = (dateString) => {
         tipo_macchina: "",
         descrizione: "",
         data_consegna: "",
+        data_FAT: "",
         altri_particolari: "",
         cliente: "",
       });
@@ -198,6 +209,14 @@ const formatDate = (dateString) => {
               value={formData.data_consegna}
               onChange={handleChange}
               required
+            />
+            <label>Data FAT:</label>
+            <input
+              type="date"
+              name="data_FAT"
+              value={formData.data_FAT}
+              onChange={handleChange}
+             
             />
             <label>Altri Particolari:</label>
             <textarea

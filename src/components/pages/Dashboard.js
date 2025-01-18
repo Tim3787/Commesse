@@ -10,7 +10,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("Utente");
   const token = sessionStorage.getItem("token");
-
+  const [allFATDates, setAllFATDates] = useState([]);
   const getDaysInMonth = (date) => {
     const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const days = [];
@@ -34,6 +34,28 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
+
+  // Funzione per recuperare le commesse con data_FAT
+  const fetchAllFATDates = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Filtra solo le commesse con data_FAT definita
+      const commesseConFAT = response.data.filter((commessa) => commessa.data_FAT);
+      setAllFATDates(commesseConFAT);
+    } catch (error) {
+      console.error("Errore durante il recupero delle commesse con FAT:", error);
+    }
+  };
+  
+  // Richiama la funzione quando il componente viene montato
+  useEffect(() => {
+    fetchAllFATDates();
+  }, []);
+
+
 
     useEffect(() => {
     const fetchUserName = async () => {
@@ -68,7 +90,7 @@ function Dashboard() {
   useEffect(() => {
     const monthStartDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     fetchActivities(monthStartDate);
-  }, [currentMonth]);
+  }, [currentMonth, token]);
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -82,10 +104,11 @@ function Dashboard() {
     const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
     return monthlyActivities.filter((activity) => {
       const startDate = new Date(activity.data_inizio);
+      startDate.setDate(startDate.getDate() - 1);
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata - 1);
+      endDate.setDate(startDate.getDate() + activity.durata );
       return startOfDay >= startDate && startOfDay <= endDate;
-    });
+    });  
   };
 
   const daysInMonth = getDaysInMonth(currentMonth);
@@ -109,62 +132,77 @@ function Dashboard() {
           </button>
         </div>
 
-        <h2>Attività Assegnate</h2>
-
         <div className="calendar">
-          {daysInMonth.map((day, index) => (
-            <div
-              key={index}
-              className={`calendar-day ${day.toLocaleDateString() === today ? "today" : ""}`}
-            >
-              <div className="day-header">
-                <strong>{day.toLocaleDateString()}</strong>
-              </div>
-              <div className="activities">
-                {getActivitiesForDay(day).length > 0 ? (
-                  getActivitiesForDay(day).map((activity) => (
-                    <div key={activity.id} className="activity">
-                      <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
-                      <strong>Attività:</strong> {activity.nome_attivita}
-                      <div className="activity-actions">
-                        {activity.stato === 1 && (
-                          <>
-                            <span className="status-label">Iniziata</span>
-                            <button
-                              className="btn btn-complete"
-                              onClick={() => updateActivityStatus(activity.id, 2)}
-                            >
-                              Completa
-                            </button>
-                          </>
-                        )}
-                        {activity.stato === 2 && <span className="status-label">Completata</span>}
-                        {activity.stato === 0 && (
-                          <>
-                            <button
-                              className="btn btn-start"
-                              onClick={() => updateActivityStatus(activity.id, 1)}
-                            >
-                              Inizia
-                            </button>
-                            <button
-                              className="btn btn-complete"
-                              onClick={() => updateActivityStatus(activity.id, 2)}
-                            >
-                              Completa
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div></div>
+  {daysInMonth.map((day, index) => (
+    <div
+      key={index}
+      className={`calendar-day ${day.toLocaleDateString() === today ? "today" : ""}`}
+    >
+      <div className="day-header">
+        <strong>{day.toLocaleDateString()}</strong>
+      </div>
+
+      {/* Mostra le attività assegnate per il giorno */}
+      <div className="activities">
+        {getActivitiesForDay(day).length > 0 ? (
+          getActivitiesForDay(day).map((activity) => (
+            <div key={activity.id} className="activity">
+              <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
+              <strong>Attività:</strong> {activity.nome_attivita}
+              <div className="activity-actions">
+                {activity.stato === 1 && (
+                  <>
+                    <span className="status-label">Iniziata</span>
+                    <button
+                      className="btn btn-complete"
+                      onClick={() => updateActivityStatus(activity.id, 2)}
+                    >
+                      Completa
+                    </button>
+                  </>
+                )}
+                {activity.stato === 2 && <span className="status-label">Completata</span>}
+                {activity.stato === 0 && (
+                  <>
+                    <button
+                      className="btn btn-start"
+                      onClick={() => updateActivityStatus(activity.id, 1)}
+                    >
+                      Inizia
+                    </button>
+                    <button
+                      className="btn btn-complete"
+                      onClick={() => updateActivityStatus(activity.id, 2)}
+                    >
+                      Completa
+                    </button>
+                  </>
                 )}
               </div>
             </div>
+          ))
+        ) : (
+          <div></div>
+        )}
+      </div>
+
+      {/* Mostra le commesse con FAT per il giorno */}
+      <div className="fat-dates">
+        {allFATDates
+          .filter((commessa) => {
+            const fatDate = new Date(commessa.data_FAT).toLocaleDateString();
+            return fatDate === day.toLocaleDateString();
+          })
+          .map((commessa) => (
+            <div key={commessa.commessa_id} className="fat">
+              <strong>FAT commessa:</strong> {commessa.numero_commessa} {" "}
+            </div>
           ))}
-        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
       </div>
     </div>
   );
