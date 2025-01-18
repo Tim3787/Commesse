@@ -1,40 +1,37 @@
 
-    /* ==============================
-     generale
-     ============================== */
-     
-     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #f5f5f5; /* Colore di sfondo */
-      color: #333; /* Colore del testo */
-      font-family: Arial, sans-serif; /* Font generale */
-    }
-    
-    body {
-      display: flex;
-      flex-direction: column; /* Permette di organizzare i contenuti verticalmente */
-      justify-content: space-between; /* Allinea gli elementi in modo uniforme */
-      box-sizing: border-box; /* Include padding e border nelle dimensioni */
-    }
-    
-
-.header {
-
-  justify-content: space-between;
-  align-items: center;
+/* ==============================
+Generale
+============================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5; /* Colore di sfondo */
+  color: #333; /* Colore del testo */
+  font-family: Arial, sans-serif; /* Font generale */
+  box-sizing: border-box; /* Include padding e border nelle dimensioni */
 }
 
+body {
+  display: flex;
+  flex-direction: column; /* Disposizione verticale */
+  justify-content: flex-start; /* Inizia in alto */
+}
 
-.container {
-  max-width: 80%;
-  margin: 10px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* ==============================
+Header
+============================== */
+.header {
+  display: flex;
+  justify-content: space-between; /* Spaziatura uniforme */
+  align-items: center; /* Allinea gli elementi verticalmente */
+  background-color: #fff; /* Sfondo del header */
+  padding: 10px 20px; /* Spaziatura interna */
+  position: sticky; /* Rimane visibile durante lo scroll */
+  top: 0;
+  z-index: 1000; /* Porta l'header sopra altri elementi */
+  flex-wrap: wrap; /* Permette di andare a capo quando necessario */
 }
 
 
@@ -50,7 +47,9 @@ h2 {
   margin-bottom: 10px;
 }
 
-/* Modulo */
+/* ==============================
+Form
+============================== */
 form {
   margin-bottom: 20px;
 }
@@ -85,17 +84,23 @@ form button:hover {
   background-color: #2980b9;
 }
 
-/* Tabella */
+/* ==============================
+Table
+============================== */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 th, td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;
+
 }
 
 th {
@@ -115,56 +120,11 @@ tr:nth-child(even) {
   justify-content: center;
 }
 
-    /* ==============================
-     Navbar
-     ============================== */
-nav {
-  background-color: #3498db;
-  padding: 10px;
-}
-
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-  justify-content: center;
-}
-
-nav ul li {
-  display: inline;
-}
-
-nav ul li a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-nav ul li a:hover {
-  background-color: #2980b9;
-}
-
-
 
 .container.gestione-utenti {
   margin-top: 20px;
 }
 
-.table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.table th,
-.table td {
-  text-align: left;
-  padding: 8px;
-}
 
 
 .reparto-container {
@@ -340,6 +300,16 @@ nav ul li a:hover {
   padding: 20px;
   border-radius: 5px;
   text-align: center;
+}
+
+.container {
+  max-width: 80%;
+  margin: 10px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
 }
 
 
@@ -545,6 +515,15 @@ border-radius: 50%;
 animation: spin 1s linear infinite;
 }
 
+.logo-spinner{
+  width: 100px; /* Regola la dimensione del logo */
+  height: 100px;
+   /*animation: spin 2s linear infinite; */
+  animation:pulse 1s ease-in-out infinite;
+}
+    /* ==============================
+     Animations
+     ============================== */
 @keyframes spin {
 0% {
   transform: rotate(0deg);
@@ -552,6 +531,43 @@ animation: spin 1s linear infinite;
 100% {
   transform: rotate(360deg);
 }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1); /* Dimensione normale */
+    opacity: 1; /* Completamente visibile */
+  }
+  50% {
+    transform: scale(1.5); /* Leggermente più grande */
+    opacity: 0.5; /* Leggermente trasparente */
+  }
+}
+
+.login-logo {
+  display: block;
+  margin: 20px auto 0;
+  width: 150px;
+  height: auto;
+}
+
+.login-logo.pulsing {
+  animation: pulse2 1s infinite;
+}
+
+@keyframes pulse2 {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
     /* ==============================
      buttons
@@ -566,7 +582,10 @@ animation: spin 1s linear infinite;
       cursor: pointer;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-    
+    button:hover, a:hover {
+      background-color: #0056b3;
+      color: #fff;
+    }
 .create-activity-btn {
 background-color: #007bff;
 color: white;
@@ -657,7 +676,11 @@ background-color: #0056b3;
     display: flex;
     align-items: center;
   }
-
+  input:focus {
+    border-color: #80bdff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+  }
     /* ==============================
      filters
      ============================== */
@@ -702,7 +725,10 @@ padding-right: 20px;
 position: relative;
 }
 
-
+.filters.active {
+  display: flex;
+  flex-wrap: wrap;
+}
 .suggestions-list {
   padding: 0;
   margin: 0;
@@ -731,3 +757,95 @@ background-color: #f0f0f0;
 .form-group {
   position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
 }
+
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .container {
+    max-width: 95%; /* Adatta alla larghezza dello schermo */
+    padding: 15px;  /* Riduci il padding per schermi piccoli */
+  }
+  .menu-toggle {
+    display: block; /* Mostra il pulsante toggle */
+  }
+
+  .header nav {
+    display: none;
+  }
+  .header {
+    flex-wrap: wrap; /* Permette di andare a capo quando necessario */
+  }
+
+  h1 {
+    font-size: 16px;
+    color: #2c3e50;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 14px;
+    color: #34495e;
+    margin-bottom: 10px;
+  }
+  
+  .header nav.active {
+    display: flex;
+    flex-direction: column;
+  }
+  .filters, .tabs, .form-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  th, td {
+    padding: 6px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    max-width: 100%; /* Occupa tutta la larghezza */
+    padding: 10px;   /* Ulteriore riduzione del padding */
+    box-shadow: none; /* Rimuovi l'ombra per un design più piatto */
+    border-radius: 0; /* Rimuovi i bordi arrotondati */
+  }
+
+  
+  .header nav {
+    display: none; /* Nasconde il menu su schermi piccoli */
+    flex-direction: column; /* Disposizione verticale per il menu */
+    width: 100%; /* Occupare tutta la larghezza */
+    background-color: #fff; /* Sfondo bianco per il menu */
+    padding: 10px 0;
+  }
+  
+  .header nav.active {
+    display: flex; /* Mostra il menu quando è attivo */
+  }
+  
+  .header .menu-toggle {
+    display: block; /* Mostra il pulsante toggle su dispositivi mobili */
+  }
+  .sidebar {
+    display: none;
+  }
+  th, td {
+    padding: 6px;
+    font-size: 10px;
+  }
+  .filters, .tabs, .form-group {
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+
+  .container {
+    margin: 5px auto;
+    padding: 10px;
+  }
+}
+
+
+

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneRisorse() {
   const [risorse, setRisorse] = useState([]);
@@ -12,18 +13,21 @@ function GestioneRisorse() {
   const [editId, setEditId] = useState(null);
   const [reparti, setReparti] = useState([]);
   const [selectedReparto, setSelectedReparto] = useState(""); 
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchRisorse();
     fetchReparti();
   }, []);
 
   const fetchRisorse = async () => {
+    setLoading(true);
     try {
       const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/risorse`);
       setRisorse(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle risorse:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -92,6 +96,11 @@ function GestioneRisorse() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Crea o Modifica le Risorse</h1>
       <form onSubmit={handleSubmit}>
         <h2>{isEditing ? "Modifica Risorsa" : "Aggiungi Risorsa"}</h2>

@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneStatiCommessa() {
   const [statiCommessa, setStatiCommessa] = useState([]);
   const [formData, setFormData] = useState({ nome_stato: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchStatiCommessa();
   }, []);
 
   const fetchStatiCommessa = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
       setStatiCommessa(response.data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati della commessa:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +70,11 @@ function GestioneStatiCommessa() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Crea o modifica stato della commessa</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

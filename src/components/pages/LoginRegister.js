@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
+import logo from "../assets/unitech-packaging.png";
 
 function LoginRegister({ onLogin }) {
   const [formType, setFormType] = useState("login");
@@ -23,6 +24,7 @@ function LoginRegister({ onLogin }) {
   };
 
   const makeRequest = async (endpoint, successMessage) => {
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}${endpoint}`,
@@ -39,6 +41,8 @@ function LoginRegister({ onLogin }) {
       }
     } catch (error) {
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -147,6 +151,11 @@ function LoginRegister({ onLogin }) {
       {formType === "recover" && (
         <button onClick={() => setFormType("login")}>Torna al Login</button>
       )}
+      <img
+        src={logo}
+        alt="Logo"
+        className={`login-logo ${isLoading ? "pulsing" : ""}`}
+      />
     </div>
   );
 }

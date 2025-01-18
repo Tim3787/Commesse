@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneStati() {
   const [statiAvanzamento, setStatiAvanzamento] = useState([]);
@@ -11,18 +12,21 @@ function GestioneStati() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [selectedReparto, setSelectedReparto] = useState(""); 
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchStatiAvanzamento();
     fetchReparti();
   }, []);
 
   const fetchStatiAvanzamento = async () => {
+    setLoading(true);
     try {
       const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/stati-avanzamento`);
       setStatiAvanzamento(response.data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati di avanzamento:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -94,6 +98,11 @@ function GestioneStati() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Crea o modifica gli stati avanzamento</h1>
       <form onSubmit={handleSubmit}>
         <h2>{isEditing ? "Modifica Stato di Avanzamento" : "Aggiungi Stato di Avanzamento"}</h2>

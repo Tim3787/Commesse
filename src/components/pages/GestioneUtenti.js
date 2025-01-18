@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function GestioneUtenti() {
   const [utenti, setUtenti] = useState([]);
   const [ruoli, setRuoli] = useState([]);
   const [risorse, setRisorse] = useState([]);
   const [editedUsernames, setEditedUsernames] = useState({});
-
+  const [loading, setLoading] = useState(false);
   // Carica utenti, ruoli e risorse al caricamento del componente
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [utentiResponse, ruoliResponse, risorseResponse] = await Promise.all([
           axios.get (`${process.env.REACT_APP_API_URL}/api/users`),
@@ -23,6 +25,8 @@ function GestioneUtenti() {
         setRisorse(risorseResponse.data);
       } catch (error) {
         console.error("Errore nel caricamento dati:", error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -118,6 +122,11 @@ function GestioneUtenti() {
     
     return (
       <div className="container">
+        {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
         <h1>Crea o modifica gli tuenti</h1>
         <table className="table table-striped table-hover">
           <thead className="table-dark">

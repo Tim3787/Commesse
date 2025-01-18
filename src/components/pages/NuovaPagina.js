@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GestioneStatiAvanzamento from "../GestioneStatiAvanzamento";
 import "../style.css";
+import logo from"../assets/unitech-packaging.png";
 
 function NuovaPagina() {
   const [commesse, setCommesse] = useState([]);
@@ -331,7 +332,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     <div className="container" onClick={closeSuggestions}>
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
            <div className="header">

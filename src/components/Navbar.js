@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   if (!isAuthenticated) {
     return null;
   }
@@ -30,14 +32,6 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     ],
   };
 
-  if (userRole === null) {
-    return (
-      <nav>
-        <p>Caricamento...</p>
-      </nav>
-    );
-  }
- 
   const renderLinks = (links) =>
     links.map((link, index) => (
       <li key={index}>
@@ -46,25 +40,25 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     ));
 
   return (
-    <nav>
-      <div className="navbar-row user-navbar">
-        <ul>{renderLinks(navLinks.user)}</ul>
+    <nav className="navbar">
+      <div className="navbar-header">
+        <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          ☰ Menu
+        </button>
+        <button className="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
-      {userRole <= 2 && (
-        <div className="navbar-row manager-navbar">
-          <ul>{renderLinks(navLinks.manager)}</ul>
-        </div>
-      )}
-      {userRole === 1 && (
-        <div className="navbar-row admin-navbar">
-          <ul>{renderLinks(navLinks.admin)}</ul>
-        </div>
-      )}
-      <div className="navbar-row logout-navbar">
-        <button onClick={handleLogout}>Logout</button>
+      <div className={`menu ${isMenuOpen ? "open" : ""}`}>
+        <ul className="menu-list">
+          {renderLinks(navLinks.user)}
+          {userRole <= 2 && renderLinks(navLinks.manager)}
+          {userRole === 1 && renderLinks(navLinks.admin)}
+        </ul>
       </div>
     </nav>
   );
 }
 
 export default Navbar;
+

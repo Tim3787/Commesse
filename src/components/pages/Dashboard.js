@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Dashboard.css";
+import logo from"../assets/unitech-packaging.png";
+
 
 function Dashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -99,7 +101,7 @@ function Dashboard() {
       <div className="container">
         {loading && (
           <div className="loading-overlay">
-            <div className="spinner"></div>
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
           </div>
         )}
         <div className="calendar-navigation">
@@ -157,7 +159,7 @@ function Dashboard() {
             </div>
           ))
         ) : (
-          <div>No activities</div>
+          <div></div>
         )}
       </div>
     </div>

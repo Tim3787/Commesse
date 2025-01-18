@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./CalendarioAttivita.css";
+import logo from"../assets/unitech-packaging.png";
 
 const CalendarioAttivita = () => {
   const [eventi, setEventi] = useState([]);
   const [risorse, setRisorse] = useState([]);
   const giorniVisualizzati = 30;
   const dataInizio = new Date();
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchDati = async () => {
+      setLoading(true);
       try {
         const responseRisorse = await fetch(`${process.env.REACT_APP_API_URL}/api/reparti`);
         const dataRisorse = await responseRisorse.json();
@@ -36,6 +38,8 @@ const CalendarioAttivita = () => {
         );
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+      }finally {
+        setLoading(false);
       }
     };
 
@@ -135,6 +139,11 @@ const CalendarioAttivita = () => {
   
   return (
     <div className="calendario-container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
       <h1>Calendario Attività</h1>
       <div className="calendario">
         <div className="calendario-header">
