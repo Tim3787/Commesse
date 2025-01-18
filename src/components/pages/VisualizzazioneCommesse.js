@@ -360,6 +360,7 @@ const getStatoNome = (id) => {
             <th>Numero Commessa</th>
             <th>Cliente</th>
             <th>Tipo Macchina</th>
+            <th>Data FAT</th>
             <th>Data Consegna</th>
             <th>Stato</th>
           </tr>
@@ -370,6 +371,7 @@ const getStatoNome = (id) => {
               <td>{commessa.numero_commessa}</td>
               <td>{commessa.cliente}</td>
               <td>{commessa.tipo_macchina}</td>
+              <td> {commessa.data_FAT? new Date(commessa.data_FAT).toLocaleDateString(): "Non specificata"}</td>
               <td>{commessa.data_consegna ? new Date(commessa.data_consegna).toLocaleDateString() : "N/A"}</td>
               <td>{getStatoNome(commessa.stato)}</td> 
             </tr>

@@ -1,9 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
+import axios from "axios";
 
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const token = sessionStorage.getItem("token");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUnreadNotifications();
+    }
+  }, [isAuthenticated]);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifications/unread`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotifications(response.data);
+      setUnreadCount(response.data.length);
+    } catch (error) {
+      console.error("Errore durante il recupero delle notifiche:", error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const promises = notifications.map((notification) =>
+        axios.put(`${process.env.REACT_APP_API_URL}/api/notifications/${notification.id}/read`, null, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      );
+      await Promise.all(promises);
+      setUnreadCount(0);
+      fetchUnreadNotifications(); // Aggiorna le notifiche
+    } catch (error) {
+      console.error("Errore durante il contrassegno delle notifiche come lette:", error);
+    }
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -45,6 +83,10 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           ☰ Menu
         </button>
+        <div className="notification-icon" onClick={() => setIsNotificationOpen(!isNotificationOpen)}>
+          🔔
+          {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        </div>
         <button className="logout-button" onClick={handleLogout}>
           Logout
         </button>
@@ -56,9 +98,28 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           {userRole === 1 && renderLinks(navLinks.admin)}
         </ul>
       </div>
+      {isNotificationOpen && (
+        <div className="notification-dropdown">
+          <h4>Notifiche</h4>
+          <ul>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <li key={notification.id}>
+                  {notification.message}
+                  <small>{new Date(notification.created_at).toLocaleDateString()}</small>
+                </li>
+              ))
+            ) : (
+              <p>Nessuna notifica</p>
+            )}
+          </ul>
+          {notifications.length > 0 && (
+            <button onClick={markAllAsRead}>Segna tutte come lette</button>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
 
 export default Navbar;
-
