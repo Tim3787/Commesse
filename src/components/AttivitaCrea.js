@@ -18,10 +18,13 @@ function AttivitaCrea({
   const [commessaSearch, setCommessaSearch] = useState(""); 
   const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
   const suggestionsRef = useRef(null); 
+
+
   // Gestione del cambiamento dei campi di input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+   
   };
 
 
@@ -65,8 +68,8 @@ function AttivitaCrea({
     e.preventDefault();
 
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-
-
+    console.log("Risorsa_ID:", risorsa_id);  
+     console.log("Attivita_ID", attivita_id);
     if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
       alert("Tutti i campi sono obbligatori.");
       return;
@@ -81,7 +84,7 @@ function AttivitaCrea({
 
       await axios[method](endpoint, formData);
       alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-
+    
       fetchAttivita(); 
       setShowPopup(false); 
     } catch (error) {
