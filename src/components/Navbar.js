@@ -88,6 +88,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/gestione-commesse", label: "Crea o modifica commessa" },
       { to: "/assegna-attivita", label: "Assegna un'attività" },
       { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
+      { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
     ],
     admin: [
@@ -123,7 +124,8 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
           onClick={() => toggleMenu("user")}
         >
-          ☰ 
+          ☰ Menu
+
         </button>
         {userRole <= 2 && (
           <button

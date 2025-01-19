@@ -83,7 +83,7 @@ function AttivitaCrea({
       const method = isEditing ? "put" : "post";
 
       await axios[method](endpoint, formData);
-      alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+      //alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
     
       fetchAttivita(); 
       setShowPopup(false); 

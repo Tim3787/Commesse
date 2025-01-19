@@ -47,7 +47,7 @@ function GestioneUtenti() {
       };
   
       await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}`, payload);
-      alert("Ruolo aggiornato con successo!");
+      //alert("Ruolo aggiornato con successo!");
   
       setUtenti((prevUtenti) =>
         prevUtenti.map((utente) =>
@@ -74,7 +74,7 @@ function GestioneUtenti() {
       };
   
       await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}`, payload);
-      alert("Nome utente aggiornato con successo!");
+      //alert("Nome utente aggiornato con successo!");
   
       setUtenti((prevUtenti) =>
         prevUtenti.map((utente) =>
@@ -91,7 +91,7 @@ function GestioneUtenti() {
   const handleAssignResource = async (userId, risorsaId) => {
     try {
       await axios.put (`${process.env.REACT_APP_API_URL}/api/users/${userId}/assign-resource`, { risorsa_id: risorsaId });
-      alert("Risorsa assegnata con successo!");
+      //alert("Risorsa assegnata con successo!");
 
       setUtenti((prevUtenti) =>
         prevUtenti.map((utente) =>
@@ -107,7 +107,7 @@ function GestioneUtenti() {
     const handleDeleteUser = async (userId) => {
       try {
         await axios.delete (`${process.env.REACT_APP_API_URL}/api/users/${userId}`);
-        alert("Utente eliminato con successo!");
+       // alert("Utente eliminato con successo!");
         setUtenti((prevUtenti) => prevUtenti.filter((utente) => utente.id !== userId));
       } catch (error) {
         if (error.response?.status === 404) {

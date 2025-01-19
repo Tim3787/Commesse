@@ -83,7 +83,7 @@ function GestioneRisorse() {
   const handleDelete = async (id) => {
     try {
       await axios.delete (`${process.env.REACT_APP_API_URL}/api/risorse/${id}`);
-      alert("Risorsa eliminata con successo!");
+      //alert("Risorsa eliminata con successo!");
       fetchRisorse();
     } catch (error) {
       console.error("Errore durante l'eliminazione della risorsa:", error);

@@ -85,7 +85,7 @@ function GestioneStati() {
   const handleDelete = async (id) => {
     try {
       await axios.delete (`${process.env.REACT_APP_API_URL}/api/stati-avanzamento/${id}`);
-      alert("Stato di avanzamento eliminato con successo!");
+      //alert("Stato di avanzamento eliminato con successo!");
       fetchStatiAvanzamento();
     } catch (error) {
       console.error("Errore durante l'eliminazione dello stato di avanzamento:", error);
