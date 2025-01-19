@@ -4,14 +4,11 @@ import "./Navbar.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-
-
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const token = sessionStorage.getItem("token");
-  const [activeMenu, setActiveMenu] = useState(null);
 
   // Decodifica il token e ottieni l'ID utente
   const decodeToken = (token) => {
@@ -107,73 +104,74 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       </li>
     ));
 
-
-  const toggleMenu = (menu) => {
-    setActiveMenu((prevMenu) => (prevMenu === menu ? null : menu));
-  };
-
-  if (!isAuthenticated) {
-    return null;
-  }
-  return (
-    <>
-      {/* Navbar Header */}
-      <header className="navbar-header">
-        <button
-          className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
-          onClick={() => toggleMenu("user")}
-        >
-          ☰ 
-        </button>
-        {userRole <= 2 && (
+    return (
+      <nav className="navbar">
+        <div className="navbar-header">
+          {/* Pulsante per il menu utente */}
           <button
-            className={`menu-toggle ${activeMenu === "manager" ? "active" : ""}`}
-            onClick={() => toggleMenu("manager")}
+            className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
+            onClick={() => toggleMenu("user")}
           >
-            ☰ Manager
+            ☰ 
           </button>
-        )}
-        {userRole === 1 && (
-          <button
-            className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
-            onClick={() => toggleMenu("admin")}
-          >
-            ☰ Admin
-          </button>
-        )}
-                  {/* Icona notifiche */}
-                  <div
+          {activeMenu === "user" && (
+            <div className="dropdown-menu">
+              <ul>{renderLinks(navLinks.user)}</ul>
+            </div>
+          )}
+    
+          {/* Pulsante per il menu manager */}
+          {userRole <= 2 && (
+            <>
+              <button
+                className={`menu-toggle ${activeMenu === "manager" ? "active" : ""}`}
+                onClick={() => toggleMenu("manager")}
+              >
+                ☰ Manager
+              </button>
+              {activeMenu === "manager" && (
+                <div className="dropdown-menu">
+                  <ul>{renderLinks(navLinks.manager)}</ul>
+                </div>
+              )}
+            </>
+          )}
+    
+          {/* Pulsante per il menu admin */}
+          {userRole === 1 && (
+            <>
+              <button
+                className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+                onClick={() => toggleMenu("admin")}
+              >
+                ☰ Admin
+              </button>
+              {activeMenu === "admin" && (
+                <div className="dropdown-menu">
+                  <ul>{renderLinks(navLinks.admin)}</ul>
+                </div>
+              )}
+            </>
+          )}
+    
+          {/* Icona notifiche */}
+          <div
             className="notification-icon"
             onClick={() => setIsNotificationOpen(!isNotificationOpen)}
           >
             🔔
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </div>
-        <button className="logout-button" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
-
-      {/* Dropdown Menus */}
-      <div className="dropdown-container-nav ">
-        {activeMenu === "user" && (
-          <div className="dropdown-menu-nav ">
-            <ul>{renderLinks(navLinks.user)}</ul>
-          </div>
-        )}
-        {activeMenu === "manager" && (
-          <div className="dropdown-menu-nav ">
-            <ul>{renderLinks(navLinks.manager)}</ul>
-          </div>
-        )}
-        {activeMenu === "admin" && (
-          <div className="dropdown-menu-nav ">
-            <ul>{renderLinks(navLinks.admin)}</ul>
-          </div>
-        )}
+    
+          {/* Logout */}
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+    
         {/* Dropdown notifiche */}
         {isNotificationOpen && (
-          <div className="dropdown-menu-nav ">
+          <div className="notification-dropdown">
             <h4>Notifiche</h4>
             <ul>
               {notifications.length > 0 ? (
@@ -192,10 +190,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             )}
           </div>
         )}
-      </div>
-    </>
-  );
+      </nav>
+    );
+    
 }
 
 export default Navbar;
-
