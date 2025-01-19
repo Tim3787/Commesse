@@ -15,6 +15,7 @@ import GestioneStati from "./components/pages/GestioneStati";
 import GestioneAttivita from "./components/pages/GestioneAttivita";
 import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
 import GestioneStatiAvanzamento from "./components/pages/NuovaPagina";
+import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NotificheStati from "./components/pages/NotificheStati";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -113,6 +114,7 @@ function App() {
     { path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
     { path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
     { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
+    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 1 },
   ];
 
   return (

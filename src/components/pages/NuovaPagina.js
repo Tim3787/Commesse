@@ -186,7 +186,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         is_active: isActive, 
       });
   
-      alert("Stato attuale aggiornato!");
+      //alert("Stato attuale aggiornato!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato attuale:", error);
       alert("Errore durante l'aggiornamento dello stato.");
@@ -243,7 +243,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )
       );
 
-      alert("Data rimossa con successo!");
+      //alert("Data rimossa con successo!");
     } catch (error) {
       console.error("Errore durante la rimozione della data:", error);
       alert("Errore durante la rimozione della data.");
@@ -286,7 +286,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )
       );
 
-      alert("Data aggiornata con successo!");
+      //alert("Data aggiornata con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento della data:", error);
       alert("Errore durante l'aggiornamento della data.");
@@ -311,7 +311,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )
       );
       
-      alert("Stato aggiornato con successo!");
+      //alert("Stato aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato della commessa:", error);
       alert("Errore durante l'aggiornamento dello stato.");

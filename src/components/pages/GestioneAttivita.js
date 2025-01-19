@@ -64,7 +64,7 @@ function GestioneAttivita() {
         reparto_id: formData.reparto_id,
       });
   
-      alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+      //alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
       setFormData({ nome: "", reparto_id: "" });
       setIsEditing(false);
       setEditId(null);
@@ -84,7 +84,7 @@ function GestioneAttivita() {
   const handleDelete = async (id) => {
     try {
       await axios.delete (`${process.env.REACT_APP_API_URL}/api/attivita/${id}`);
-      alert("Attività eliminata con successo!");
+      //alert("Attività eliminata con successo!");
       fetchAttivita();
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);

@@ -90,14 +90,14 @@ const formatDate = (dateString) => {
           formData
         );
         commessaId = editId;
-        alert("Commessa aggiornata con successo!");
+        //alert("Commessa aggiornata con successo!");
       } else {
         const { data } = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse`,
           formData
         );
         commessaId = data.commessaId;
-        alert("Commessa aggiunta con successo!");
+       // alert("Commessa aggiunta con successo!");
       }
   
       const attivitaDaAggiungere = [];

@@ -84,8 +84,6 @@ const CalendarioCommesse = () => {
         const errorText = await response.text();
         throw new Error(`Errore durante l'aggiornamento dell'evento: ${errorText}`);
       }
-  
-      alert("Stato avanzamento aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'evento:", error);
       info.revert(); 

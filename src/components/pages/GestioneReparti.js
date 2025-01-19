@@ -38,7 +38,6 @@ function GestioneReparti() {
         : `${process.env.REACT_APP_API_URL}/api/reparti`;
       const method = isEditing ? "put" : "post";
       await axios[method](url, { nome: formData.nome });
-      alert(isEditing ? "Reparto aggiornato con successo!" : "Reparto aggiunto con successo!");
       setFormData({ nome: "" });
       setIsEditing(false);
       setEditId(null);
@@ -58,7 +57,6 @@ function GestioneReparti() {
   const handleDelete = async (id) => {
     try {
       await axios.delete (`${process.env.REACT_APP_API_URL}/api/reparti/${id}`);
-      alert("Reparto eliminato con successo!");
       fetchReparti();
     } catch (error) {
       console.error("Errore durante l'eliminazione del reparto:", error);

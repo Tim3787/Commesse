@@ -93,12 +93,12 @@ const handleDelete = async (commessaId) => {
     
     // Modifica la query di eliminazione per usare il nome corretto della colonna (id)
     await axios.delete (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}`);
-    alert("Commessa eliminata con successo!");
+    //alert("Commessa eliminata con successo!");
      // Ricarica l'elenco delle commesse dal backend
      fetchCommesse(); 
   } catch (error) {
     console.error("Errore durante l'eliminazione della commessa:", error);
-    alert("Errore durante l'eliminazione della commessa.");
+    //alert("Errore durante l'eliminazione della commessa.");
   }
 };
 

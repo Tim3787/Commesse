@@ -238,7 +238,7 @@ const stateDropdownRef = useRef(null);
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/attivita_commessa/${id}`);
-      alert("Attività eliminata con successo!");
+      //alert("Attività eliminata con successo!");
       fetchOptions();
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);

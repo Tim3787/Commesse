@@ -42,7 +42,7 @@ function GestioneStatiCommessa() {
         : `${process.env.REACT_APP_API_URL}/api/stato-commessa`;
       const method = isEditing ? "put" : "post";
       await axios[method](url, { nome_stato: formData.nome_stato });
-      alert(isEditing ? "Stato commessa aggiornato con successo!" : "Stato commessa aggiunto con successo!");
+      //alert(isEditing ? "Stato commessa aggiornato con successo!" : "Stato commessa aggiunto con successo!");
       setFormData({ nome_stato: "" });
       setIsEditing(false);
       setEditId(null);
