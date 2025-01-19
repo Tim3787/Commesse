@@ -1,64 +1,53 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const token = sessionStorage.getItem("token");
 
-  // Funzione per recuperare tutte le notifiche
+
   const fetchNotifications = async () => {
-  try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifiche`, {
-      headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
-    });
-    setNotifications(response.data); // Aggiorna lo stato con le notifiche ricevute
-  } catch (error) {
-    console.error("Errore nel recupero delle notifiche:", error);
-  }
-};
-
-useEffect(() => {
-  const interval = setInterval(() => {
-    fetchNotifications();
-  }, 10000); // Ogni 10 secondi
-
-  return () => clearInterval(interval);
-}, []);
-
-  // Funzione per recuperare solo notifiche non lette
-  const fetchUnreadNotifications = async () => {
+    setLoading(true);
+    setError("");
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifiche/unread`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifiche`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUnreadNotifications(response.data);
+      setNotifications(response.data);
+      setUnreadNotifications(response.data.filter((n) => !n.is_read));
     } catch (error) {
-      console.error("Errore nel recupero delle notifiche non lette:", error);
+      console.error("Errore nel recupero delle notifiche:", error);
+      setError("Impossibile recuperare le notifiche.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Funzione per contrassegnare una notifica come letta
   const markAsRead = async (id) => {
     try {
       await axios.put(`${process.env.REACT_APP_API_URL}/api/notifiche/${id}/read`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchNotifications(); // Aggiorna l'elenco delle notifiche
-      fetchUnreadNotifications(); // Aggiorna le notifiche non lette
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      setUnreadNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
       console.error("Errore durante il contrassegno come letto:", error);
     }
   };
 
-  // Funzione per eliminare una notifica
   const deleteNotification = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/notifiche/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchNotifications(); // Aggiorna l'elenco delle notifiche
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      setUnreadNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
       console.error("Errore durante l'eliminazione della notifica:", error);
     }
@@ -66,33 +55,33 @@ useEffect(() => {
 
   useEffect(() => {
     fetchNotifications();
-    fetchUnreadNotifications();
-  }, []);
+
+    const interval = setInterval(fetchNotifications, 30000); // Ogni 30 secondi
+    return () => clearInterval(interval);
+  }, [token]);
 
   return (
     <div className="notifications-container">
       <h2>Notifiche</h2>
-      {loading ? (
-        <p>Caricamento in corso...</p>
-      ) : (
-        <ul>
-          {notifications.map((notification) => (
-            <li
-              key={notification.id}
-              className={`notification-item ${notification.is_read ? "read" : "unread"}`}
-            >
-              <p>{notification.message}</p>
-              <small>Creato il: {new Date(notification.created_at).toLocaleDateString()}</small>
-              <div className="notification-actions">
-                {!notification.is_read && (
-                  <button onClick={() => markAsRead(notification.id)}>Segna come letto</button>
-                )}
-                <button onClick={() => deleteNotification(notification.id)}>Elimina</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {loading && <p>Caricamento in corso...</p>}
+      {error && <p className="error">{error}</p>}
+      <ul>
+        {notifications.map((notification) => (
+          <li
+            key={notification.id}
+            className={`notification-item ${notification.is_read ? "read" : "unread"}`}
+          >
+            <p>{notification.message}</p>
+            <small>Creato il: {new Date(notification.created_at).toLocaleDateString()}</small>
+            <div className="notification-actions">
+              {!notification.is_read && (
+                <button onClick={() => markAsRead(notification.id)}>Segna come letto</button>
+              )}
+              <button onClick={() => deleteNotification(notification.id)}>Elimina</button>
+            </div>
+          </li>
+        ))}
+      </ul>
       <h3>Non lette: {unreadNotifications.length}</h3>
     </div>
   );

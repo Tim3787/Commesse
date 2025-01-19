@@ -83,7 +83,7 @@ function GestioneCommesse() {
 
   // Funzione per eliminare una commessa
 const handleDelete = async (commessaId) => {
-  console.log("Comessa ID da eliminare:", commessaId);  
+
   try {
     // Aggiungi un controllo per vedere se l'ID è valido
     if (!commessaId) {

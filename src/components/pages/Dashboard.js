@@ -116,8 +116,9 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>Bacheca {userName}</h1>
+
       <div className="container">
+      <h1>Bacheca {userName}</h1>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
