@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../style.css";
 import logo from"../assets/unitech-packaging.png";
@@ -23,7 +23,21 @@ function StatoAvanzamentoSoftware() {
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
-  
+  const dropdownRef = useRef(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filters, setFilters] = useState({
+    commessa_id: "",
+    risorsa_id: "",
+    reparto_id: "",
+    attivita_id: "",
+    settimana: "",
+    stati: [], // Assicurati che sia inizializzato come array vuoto
+  });
+
+  filters.stati
+  .filter((stato) => stato !== undefined && stato !== null) // Filtra elementi non validi
+  .map((stato) => stato.toString());
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,36 +69,30 @@ function StatoAvanzamentoSoftware() {
 
   
   useEffect(() => {
-    // Filtriamo le commesse in base ai filtri applicati
-    const filtered = commesse.filter((commessa) => {
+    // Applica i filtri, inclusi gli stati multipli
+    let filtered = commesse.filter((commessa) => {
+      // Filtra per stati selezionati
+      if (filters.stati.length > 0) {
+        return commessa.stati_avanzamento.some((reparto) =>
+          reparto.stati_disponibili.some(
+            (stato) => filters.stati.includes(stato.stato_id.toString()) && stato.isActive
+          )
+        );
+      }
+      return true;
+    });
+
+    // Filtra per altri criteri
+    filtered = filtered.filter((commessa) => {
       return (
         commessa.numero_commessa.toString().includes(commessaFilter) &&
         commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase()) &&
         commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
       );
     });
-  
-    // Suggerimenti per Cliente, Tipo Macchina e Commessa
-    const clienteSuggestions = commesse
-      .map((commessa) => commessa.cliente)
-      .filter((value, index, self) => self.indexOf(value) === index); 
-  
-    const tipoMacchinaSuggestions = commesse
-      .map((commessa) => commessa.tipo_macchina)
-      .filter((value, index, self) => self.indexOf(value) === index); 
-    const commessaSuggestions = commesse
-      .map((commessa) => commessa.numero_commessa)
-      .filter((value, index, self) => self.indexOf(value) === index); 
-  
-    // Imposta i suggerimenti per ogni filtro
-    setSuggestionsCliente(clienteSuggestions);
-    setSuggestionsTipoMacchina(tipoMacchinaSuggestions);
-    setSuggestionsCommessa(commessaSuggestions);
-  
-    // Imposta le commesse filtrate
+
     setFilteredCommesse(filtered);
-  
-  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, commesse]);
+  }, [filters, commessaFilter, clienteFilter, tipoMacchinaFilter, commesse]);
   
 
   // Funzione per applicare l'ordinamento
@@ -126,6 +134,26 @@ function StatoAvanzamentoSoftware() {
   }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection]);
   
 
+  const handleFilterChange = (e) => {
+  const { name, value, type, checked } = e.target;
+
+  if (type === "checkbox" && name === "stati") {
+    setFilters((prev) => {
+      const newStati = checked
+        ? [...prev.stati, value] // Aggiungi lo stato selezionato
+        : prev.stati.filter((stato) => stato !== value); // Rimuovi lo stato deselezionato
+      return {
+        ...prev,
+        stati: newStati,
+      };
+    });
+  } else {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+};
 
   const handleCommessaChange = (e) => setCommessaFilter(e.target.value);
   const handleClienteChange = (e) => setClienteFilter(e.target.value);
@@ -181,15 +209,13 @@ function StatoAvanzamentoSoftware() {
     setShowOrder((prev) => !prev);
   };
 
+  const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   const closeSuggestions = (e) => {
-    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
-      setShowClienteSuggestions(false);
-      setShowTipoMacchinaSuggestions(false);
-      setShowCommessaSuggestions(false);
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setShowDropdown(false);
     }
   };
-
   const handleSelectCliente = (cliente) => {
     setClienteFilter(cliente);
     setShowClienteSuggestions(false);
@@ -197,6 +223,9 @@ function StatoAvanzamentoSoftware() {
   const handleDateSortChange = (e) => {
     setDateSortDirection(e.target.value);
   };
+  useEffect(() => {
+    console.log("Stati selezionati:", filters.stati);
+  }, [filters.stati]);
 
   return (
     <div className="container" onClick={closeSuggestions}>
@@ -278,6 +307,28 @@ function StatoAvanzamentoSoftware() {
           </ul>
         )}
         </div>
+        <div className="filter-group" ref={dropdownRef}>
+            <label onClick={toggleDropdown} className="dropdown-label">
+              Filtra per Stati
+            </label>
+            {showDropdown && (
+              <div className="dropdown-menu">
+                {statiSoftware?.map((stato) => (
+  <label key={stato?.stato_id}>
+    <input
+      type="checkbox"
+      name="stati"
+      value={stato?.stato_id?.toString()} // Usa sempre stato_id come stringa
+      checked={filters.stati.includes(stato?.stato_id?.toString())} // Controlla inclusione corretta
+      onChange={handleFilterChange} // Gestione del cambiamento
+    />
+    {stato?.nome_stato || "Sconosciuto"}
+  </label>
+))}
+              </div>
+            )}
+          </div>
+        
         </div>
      )}
 <button onClick={toggleOrder} className="btn btn-filter">
