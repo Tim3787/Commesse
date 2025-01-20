@@ -22,12 +22,13 @@ function GestioneCommesse() {
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
-
+  const [statiCommessa, setStatiCommessa] = useState([]); 
 
   useEffect(() => {
     fetchCommesse();
     fetchReparti();
     fetchAttivita();
+    fetchStatiCommessa();
   }, []);
 
   const fetchCommesse = async () => {
@@ -41,7 +42,14 @@ function GestioneCommesse() {
       setLoading(false);
     }
   };
-
+  const fetchStatiCommessa = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
+      setStatiCommessa(response.data);
+    } catch (error) {
+      console.error("Errore durante il recupero degli stati della commessa:", error);
+    }
+  };
   const fetchReparti = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
@@ -140,6 +148,12 @@ const handleDelete = async (commessaId) => {
     setShowFilters((prev) => !prev);
   };
 
+  const getStatoNome = (id) => {
+    const stato = statiCommessa.find(stato => stato.id === id);
+    return stato ? stato.nome_stato : "Non assegnato"; 
+  };
+
+  
   return (
     <div className="container" onClick={closeSuggestions}>
       {loading && (
@@ -233,6 +247,7 @@ const handleDelete = async (commessaId) => {
             <th>Cliente</th>
             <th>Data Consegna</th>
             <th>Data FAT</th>
+            <th>Stato</th>
             <th>Azioni</th>
           </tr>
         </thead>
@@ -244,6 +259,7 @@ const handleDelete = async (commessaId) => {
               <td>{commessa.cliente}</td>
               <td>{new Date(commessa.data_consegna).toLocaleDateString()}</td>
               <td> {commessa.data_FAT? new Date(commessa.data_FAT).toLocaleDateString(): "Non specificata"}</td>
+              <td>{getStatoNome(commessa.stato)}</td> 
               <td>
                 <button
                   className="btn btn-warning"
@@ -275,6 +291,7 @@ const handleDelete = async (commessaId) => {
         setSelezioniAttivita={setSelezioniAttivita}
         fetchCommesse={fetchCommesse}
         editId={editId}
+        stato={statiCommessa}
         />
       )}
     </div>
