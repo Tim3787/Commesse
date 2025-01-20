@@ -20,6 +20,7 @@ function Dashboard() {
     return days;
   };
 
+  
   const fetchActivities = async (monthStartDate) => {
     try {
       setLoading(true);
@@ -63,7 +64,7 @@ function Dashboard() {
         try {
           const decoded = jwtDecode(token); // Decodifica il token
           const userId = decoded.id; // Ottieni l'ID utente
-
+          console.log("Token decodificato:", decoded);
           // Recupera la lista di utenti
           const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -114,6 +115,55 @@ function Dashboard() {
   const daysInMonth = getDaysInMonth(currentMonth);
   const today = new Date().toLocaleDateString();
 
+  const [loadingActivities, setLoadingActivities] = useState({});
+
+  const updateActivityStatus = async (activityId, newStatus) => {
+ setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+    console.log("Token usato:", token);
+    console.log("Header di autorizzazione:", { Authorization: `Bearer ${token}` });
+    console.log("Nuovo stato richiesto:", newStatus);
+    try {
+      const token = sessionStorage.getItem("token"); // Assicurati che il token sia recuperato correttamente
+
+      const payload = { stato: newStatus };
+      const headers = { Authorization: `Bearer ${token}` };
+  
+      console.log("Request PUT:", {
+        url: `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
+        payload,
+        headers,
+      });
+  
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
+        payload,
+        { headers }
+      );
+  
+      console.log("Risposta del server:", response.data);
+  
+      setMonthlyActivities((prev) =>
+        prev.map((activity) =>
+          activity.id === activityId ? { ...activity, stato: newStatus } : activity
+        )
+        
+      );
+      console.log("ID attività passato:", activity.id);
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
+  
+      if (error.response) {
+        console.error("Dettagli errore:", error.response.data);
+      }
+  
+      alert("Si è verificato un errore durante l'aggiornamento dello stato.");
+    }finally {
+      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
+    }
+  };
+  
+  
+  
   return (
     <div>
 
@@ -168,14 +218,16 @@ function Dashboard() {
                     <button
                       className="btn btn-start"
                       onClick={() => updateActivityStatus(activity.id, 1)}
-                    >
-                      Inizia
+                      disabled={loadingActivities[activity.id]}
+                      >
+  {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
                     </button>
                     <button
                       className="btn btn-complete"
                       onClick={() => updateActivityStatus(activity.id, 2)}
-                    >
-                      Completa
+                      disabled={loadingActivities[activity.id]}
+                      >
+  {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
                     </button>
                   </>
                 )}
