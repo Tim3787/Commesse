@@ -118,10 +118,21 @@ function Dashboard() {
   const [loadingActivities, setLoadingActivities] = useState({});
 
   const updateActivityStatus = async (activityId, newStatus) => {
-    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+ setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+    console.log("Token usato:", token);
+    console.log("Header di autorizzazione:", { Authorization: `Bearer ${token}` });
+    console.log("Nuovo stato richiesto:", newStatus);
     try {
+      const token = sessionStorage.getItem("token"); // Assicurati che il token sia recuperato correttamente
+
       const payload = { stato: newStatus };
       const headers = { Authorization: `Bearer ${token}` };
+  
+      console.log("Request PUT:", {
+        url: `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
+        payload,
+        headers,
+      });
   
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
@@ -129,11 +140,15 @@ function Dashboard() {
         { headers }
       );
   
+      console.log("Risposta del server:", response.data);
+  
       setMonthlyActivities((prev) =>
         prev.map((activity) =>
           activity.id === activityId ? { ...activity, stato: newStatus } : activity
         )
+        
       );
+      console.log("ID attività passato:", activity.id);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
   
@@ -142,7 +157,7 @@ function Dashboard() {
       }
   
       alert("Si è verificato un errore durante l'aggiornamento dello stato.");
-    } finally {
+    }finally {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
