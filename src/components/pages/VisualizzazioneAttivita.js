@@ -335,12 +335,12 @@ filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
             {filteredAttivita.length > 0 ? (
               filteredAttivita.map((attivita) => (
                 <tr key={attivita.id}>
-                  <td>{attivita.numero_commessa}</td>
-                  <td>{attivita.risorsa}</td>
-                  <td>{attivita.reparto}</td>
-                  <td>{attivita.nome_attivita}</td>
-                  <td>{new Date(attivita.data_inizio).toLocaleDateString()}</td>
-                  <td>{attivita.durata} giorni</td>
+                  <td>{attivita.numero_commessa || "Non definita"}</td>
+        <td>{attivita.risorsa || "Non definita"}</td>
+        <td>{attivita.reparto || "Non definito"}</td>
+        <td>{attivita.nome_attivita || "Non definita"}</td>
+        <td>{attivita.data_inizio ? new Date(attivita.data_inizio).toLocaleDateString() : "Non definita"}</td>
+        <td>{attivita.durata ? `${attivita.durata} giorni` : "Non definita"}</td>
                   <td>
                     {attivita.stato === 0 && "Non iniziata"}
                     {attivita.stato === 1 && "Iniziata"}

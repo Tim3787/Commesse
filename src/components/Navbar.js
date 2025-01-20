@@ -28,7 +28,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const decodedToken = decodeToken(token);
 
   if (decodedToken) {
-    console.log("ID utente decodificato:", decodedToken.id); // Log dell'ID utente
+
   } else {
     console.error("Token non valido o scaduto.");
   }

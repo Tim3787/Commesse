@@ -119,3 +119,49 @@
   .activity-actions {
     margin-top: 5px;
   }
+
+  .highlight {
+    background-color: rgba(0, 255, 0, 0.2); /* Verde chiaro */
+    transition: background-color 0.3s;
+  }
+
+  .weekend {
+    background-color: #f5f5f5; /* Colore di sfondo per i weekend */
+  }
+  
+  .weekend td {
+    color: #d9534f; /* Colore del testo per sabato e domenica */
+    font-weight: bold; /* Facoltativo, rende il testo più evidente */
+  }
+  .today {
+    background-color: #ffffcc; /* Colore di sfondo per la data di oggi */
+  }
+  
+  .today td {
+    color: #1c0796; /* Colore del testo per la data di oggi */
+    font-weight: bold; /* Evidenzia il testo */
+  }
+
+  .activity {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #000000;
+  }
+  
+
+  
+  .activity-started {
+    background-color: #f0ad4e; /* Arancione per attività iniziate */
+  }
+  
+  .activity-completed {
+    background-color: #5cb85c; /* Verde per attività completate */
+  }
+  
+  .activity:hover {
+    transform: scale(1.02);
+    transition: 0.2s;
+  }
+  
