@@ -221,7 +221,7 @@ function StatoAvanzamentoSoftware() {
     setDateSortDirection(e.target.value);
   };
   useEffect(() => {
-    console.log("Stati selezionati:", filters.stati);
+
   }, [filters.stati]);
 
   return (
