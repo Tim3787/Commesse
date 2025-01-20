@@ -98,7 +98,7 @@ function CommessaCrea({
       };
 
       if (isEditing) {
-        const response = await axios.put(
+        await axios.put(
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
           payload
         );
