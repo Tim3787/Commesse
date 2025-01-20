@@ -14,13 +14,7 @@ function StatoAvanzamentoSoftware() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortOrder, setSortOrder] = useState("numero_commessa");
   const [sortDirection, setSortDirection] = useState("asc");
-  const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
-  const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
-  const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
   const [statoFilter, setStatoFilter] = useState(""); 
-  const [suggestionsCliente, setSuggestionsCliente] = useState([]);
-  const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
-  const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
   const [showOrder, setShowOrder] = useState(false);
   const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const dropdownRef = useRef(null);
@@ -118,7 +112,11 @@ function StatoAvanzamentoSoftware() {
       const matchesCommessa = commessa.numero_commessa.toString().includes(commessaFilter);
       const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
       const matchesTipoMacchina = commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
-      const matchesStato = !statoFilter || commessa.stato === parseInt(statoFilter, 10); 
+      const matchesStato = filters.stati.length === 0 || commessa.stati_avanzamento.some((reparto) =>
+        reparto.stati_disponibili.some(
+          (stato) => filters.stati.includes(stato.stato_id.toString()) && stato.isActive
+        )
+      );
   
       return matchesCommessa && matchesCliente && matchesTipoMacchina && matchesStato;
     });
@@ -190,12 +188,13 @@ function StatoAvanzamentoSoftware() {
       });
   
       setCommesse(updatedCommesse);
+      setStatoFilter(event.target.value);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
       alert("Errore durante l'aggiornamento dello stato.");
     }
   };
-  
+
   const toggleFilters = () => setShowFilters((prev) => !prev);
   const handleSortChange = (e) => {
     const { value } = e.target;
@@ -217,10 +216,7 @@ function StatoAvanzamentoSoftware() {
       setShowDropdown(false);
     }
   };
-  const handleSelectCliente = (cliente) => {
-    setClienteFilter(cliente);
-    setShowClienteSuggestions(false);
-  };
+
   const handleDateSortChange = (e) => {
     setDateSortDirection(e.target.value);
   };
@@ -253,17 +249,7 @@ function StatoAvanzamentoSoftware() {
           onClick={(e) => e.stopPropagation()}
           className="input-field"
         />
-        {showCommessaSuggestions && (
-          <ul className="suggestions-list">
-            {suggestionsCommessa
-              .filter((commessa) => commessa.toString().includes(commessaFilter))
-              .map((commessa, index) => (
-                <li key={index} onClick={() => handleSelectCommessa(commessa)}>
-                  {commessa}
-                </li>
-              ))}
-          </ul>
-        )}
+        
         </div>
 
         <div className="filter-group">
@@ -275,17 +261,7 @@ function StatoAvanzamentoSoftware() {
           onClick={(e) => e.stopPropagation()}
           className="input-field"
         />
-        {showClienteSuggestions && (
-          <ul className="suggestions-list">
-            {suggestionsCliente
-              .filter((cliente) => cliente.toLowerCase().includes(clienteFilter.toLowerCase()))
-              .map((cliente, index) => (
-                <li key={index} onClick={() => handleSelectCliente(cliente)}>
-                  {cliente}
-                </li>
-              ))}
-          </ul>
-        )}
+        
         </div>
         <div className="filter-group">
         <input
@@ -296,17 +272,7 @@ function StatoAvanzamentoSoftware() {
           onClick={(e) => e.stopPropagation()}
           className="input-field"
         />
-        {showTipoMacchinaSuggestions && (
-          <ul className="suggestions-list">
-            {suggestionsTipoMacchina
-              .filter((tipo) => tipo.toLowerCase().includes(tipoMacchinaFilter.toLowerCase()))
-              .map((tipo, index) => (
-                <li key={index} onClick={() => handleSelectTipoMacchina(tipo)}>
-                  {tipo}
-                </li>
-              ))}
-          </ul>
-        )}
+        
         </div>
         <div className="filter-group" ref={dropdownRef}>
             <label onClick={toggleDropdown} className="dropdown-label">
