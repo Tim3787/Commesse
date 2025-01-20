@@ -17,12 +17,12 @@ function StatoAvanzamentoSoftware() {
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
-  const [showOrder, setShowOrder] = useState(false);
-  const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const [statoFilter, setStatoFilter] = useState(""); 
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
+  const [showOrder, setShowOrder] = useState(false);
+  const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const dropdownRef = useRef(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [filters, setFilters] = useState({
@@ -160,41 +160,42 @@ function StatoAvanzamentoSoftware() {
   const handleTipoMacchinaChange = (e) => setTipoMacchinaFilter(e.target.value);
 
   const handleStatoChange = async (commessaId, repartoId, newStatoId) => {
-    setStatoFilter(event.target.value);
     try {
-      const updatedCommesse = commesse.map((commessa) =>
-        commessa.commessa_id === commessaId
-          ? {
-              ...commessa,
-              stati_avanzamento: commessa.stati_avanzamento.map((reparto) =>
-                reparto.reparto_id === repartoId
-                  ? {
-                      ...reparto,
-                      stati_disponibili: reparto.stati_disponibili.map((stato) =>
-                        stato.stato_id === newStatoId
-                          ? { ...stato, isActive: true }
-                          : { ...stato, isActive: false }
-                      ),
-                    }
-                  : reparto
-              ),
-            }
-          : commessa
-      );
-
-      // Aggiorna lo stato locale
-      setCommesse(updatedCommesse);
-
-      // Aggiorna il backend
+      // Aggiorna lo stato nel backend
       await axios.put(`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: newStatoId,
         is_active: true,
       });
+  
+      // Aggiorna lo stato locale senza eliminare le commesse
+      const updatedCommesse = commesse.map((commessa) => {
+        if (commessa.commessa_id === commessaId) {
+          return {
+            ...commessa,
+            stati_avanzamento: commessa.stati_avanzamento.map((reparto) => {
+              if (reparto.reparto_id === repartoId) {
+                return {
+                  ...reparto,
+                  stati_disponibili: reparto.stati_disponibili.map((stato) => ({
+                    ...stato,
+                    isActive: stato.stato_id === newStatoId,
+                  })),
+                };
+              }
+              return reparto;
+            }),
+          };
+        }
+        return commessa;
+      });
+  
+      setCommesse(updatedCommesse);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
+      alert("Errore durante l'aggiornamento dello stato.");
     }
   };
-
+  
   const toggleFilters = () => setShowFilters((prev) => !prev);
   const handleSortChange = (e) => {
     const { value } = e.target;

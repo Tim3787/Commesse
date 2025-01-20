@@ -83,6 +83,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/visualizzazione-commesse", label: "Visualizza le commesse" },
       { to: "/visualizzazione-attivita", label: "Visualizza le attività" },
       { to: "/calendario-attivita", label: "Calendario delle attività" },
+
     ],
     manager: [
       { to: "/gestione-commesse", label: "Crea o modifica commessa" },
@@ -90,6 +91,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
       { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
+      { to: "/DashboardSoftware", label: "Attività software dept." },
     ],
     admin: [
       { to: "/utenti", label: "Gestione utenti" },

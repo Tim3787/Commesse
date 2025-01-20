@@ -18,6 +18,7 @@ import GestioneStatiAvanzamento from "./components/pages/NuovaPagina";
 import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NotificheStati from "./components/pages/NotificheStati";
+import DashboardSoftware from "./components/pages/DashboardSoftware";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 
@@ -103,6 +104,7 @@ function App() {
     { path: "/visualizzazione-commesse", component: <VisualizzazioneCommesse /> },
     { path: "/visualizzazione-attivita", component: <VisualizzazioneAttivita /> },
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
+    { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 1  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
