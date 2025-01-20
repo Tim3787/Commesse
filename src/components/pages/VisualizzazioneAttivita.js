@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../style.css";
 import logo from"../assets/unitech-packaging.png";
+import { usePersistedFilters } from "./usePersistedFilters";
 
 function VisualizzazioneAttivita() {
   const [attivitaList, setAttivitaList] = useState([]);
@@ -14,7 +15,7 @@ function VisualizzazioneAttivita() {
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false); // MULTISEL
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = usePersistedFilters("savedFilters_VisualizzaAttivita", {
     commessa_id: "",
     risorsa_id: "",
     reparto_id: "",
