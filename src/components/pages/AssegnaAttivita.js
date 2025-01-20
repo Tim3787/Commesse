@@ -425,7 +425,7 @@ const stateDropdownRef = useRef(null);
                 <td>{attivita.risorsa}</td>
                 <td>{attivita.reparto}</td>
                 <td>{attivita.nome_attivita}</td>
-                <td>{new Date(attivita.data_inizio).toLocaleDateString()}</td>
+                <td>{attivita.data_inizio ? new Date(attivita.data_inizio).toLocaleDateString() : "Non definita"}</td>
                 <td>{attivita.durata} giorni</td>
                 <td>
                     {attivita.stato === 0 && "Non iniziata"}

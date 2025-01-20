@@ -68,8 +68,6 @@ function AttivitaCrea({
     e.preventDefault();
 
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-    console.log("Risorsa_ID:", risorsa_id);  
-     console.log("Attivita_ID", attivita_id);
     if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
       alert("Tutti i campi sono obbligatori.");
       return;

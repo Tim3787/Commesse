@@ -38,7 +38,7 @@ function CommessaCrea({
   useEffect(() => {
 
     if (isEditing && commessa) {
-      console.log("Stato della commessa (prima del set):", commessa.stato);
+
       setFormData({
         numero_commessa: commessa.numero_commessa,
         tipo_macchina: commessa.tipo_macchina,
@@ -49,8 +49,6 @@ function CommessaCrea({
         cliente: commessa.cliente,
         stato: commessa.stato,
       });
-      console.log("Stati passati a CommessaCrea:", stato);
-      console.log("Stati attuale:", commessa.stato);
       // Controlla che commessa.attivita sia definito
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
         // Inizializza selezioniAttivita per le attività già assegnate alla commessa
@@ -98,20 +96,20 @@ function CommessaCrea({
         data_consegna: formatDate(formData.data_consegna), // Usa la funzione formatDate
         stato: formData.stato || null, // Gestisci lo stato vuoto
       };
-      console.log("Payload inviato:", payload); // Aggiungi questo log
+
       if (isEditing) {
         const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
           payload
         );
-        console.log("Risposta dal server:", response.data);
+
         commessaId = editId;
       } else {
         const { data } = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse`,
           payload
         );
-        console.log("Risposta dal server (creazione):", data);
+
         commessaId = data.commessaId;
       }
   
