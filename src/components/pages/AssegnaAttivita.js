@@ -3,6 +3,7 @@ import axios from "axios";
 import "../style.css";
 import AttivitaCrea from "../AttivitaCrea";
 import logo from"../assets/unitech-packaging.png";
+import { usePersistedFilters } from "./usePersistedFilters";
 
 function AssegnaAttivita() {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
@@ -19,14 +20,14 @@ function AssegnaAttivita() {
    const [showActivityDropdown, setShowActivityDropdown] = useState(false);
    const activityDropdownRef = useRef(null);
 const stateDropdownRef = useRef(null);
-
-  const [filters, setFilters] = useState({
+  const [filters, setFilters]  = usePersistedFilters("savedFilters_AssegnaAttivita", {
     reparto_id: "",
     commessa_id: "",
     risorsa_id: "",
     attivita_id: [], // MULTISEL
     stati: [], // MULTISEL
   });
+
   const [commessaSuggestions, setCommessaSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../style.css";
 import logo from"../assets/unitech-packaging.png";
+import { usePersistedFilters } from "./usePersistedFilters";
 
 function StatoAvanzamentoSoftware() {
   const [commesse, setCommesse] = useState([]);
@@ -12,14 +13,14 @@ function StatoAvanzamentoSoftware() {
   const [loading, setLoading] = useState(false);
   const [statiSoftware, setStatiSoftware] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [sortOrder, setSortOrder] = useState("numero_commessa");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortOrder, setSortOrder] = usePersistedFilters("sortOrder", "numero_commessa");
+  const [sortDirection, setSortDirection] = usePersistedFilters("sortDirection", "asc");
+  const [dateSortDirection, setDateSortDirection] = usePersistedFilters("dateSortDirection", "crescente");
   const [statoFilter, setStatoFilter] = useState(""); 
   const [showOrder, setShowOrder] = useState(false);
-  const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const dropdownRef = useRef(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] =  usePersistedFilters("savedFilters_AvanzamentoSoftware", {
     commessa_id: "",
     risorsa_id: "",
     reparto_id: "",
@@ -49,16 +50,18 @@ function StatoAvanzamentoSoftware() {
 
         // Recupera gli stati software
         const statiResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/stati-avanzamento`);
-        setStatiSoftware(statiResponse.data.filter((stato) => stato.reparto_id === 1)); // Filtra solo stati software
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 1);
+      
+      console.log("Stati validi:", statiValidi); // Verifica i dati ricevuti
+      setStatiSoftware(statiValidi);
+    } catch (error) {
+      console.error("Errore durante il recupero degli stati:", error);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+  setLoading(false);
+}, []);
 
 
   
@@ -88,6 +91,8 @@ function StatoAvanzamentoSoftware() {
     setFilteredCommesse(filtered);
   }, [filters, commessaFilter, clienteFilter, tipoMacchinaFilter, commesse]);
   
+ 
+
 
   // Funzione per applicare l'ordinamento
   const sortCommesse = (commesse) => {
@@ -133,25 +138,35 @@ function StatoAvanzamentoSoftware() {
   
 
   const handleFilterChange = (e) => {
-  const { name, value, type, checked } = e.target;
-
-  if (type === "checkbox" && name === "stati") {
-    setFilters((prev) => {
-      const newStati = checked
-        ? [...prev.stati, value] // Aggiungi lo stato selezionato
-        : prev.stati.filter((stato) => stato !== value); // Rimuovi lo stato deselezionato
-      return {
+    const { name, value, type, checked } = e.target;
+    console.log("Evento checkbox:", e.target.value, e.target.checked);
+    console.log("Dati statiSoftware:", statiSoftware);
+    console.log("Checkbox valore:", e.target.value);
+console.log("Checkbox selezionato:", e.target.checked);
+    if (type === "checkbox" && name === "stati") {
+      if (value) { // Ignora valori vuoti
+        setFilters((prev) => {
+          const newStati = checked
+            ? [...prev.stati, value] // Aggiungi lo stato selezionato
+            : prev.stati.filter((stato) => stato !== value); // Rimuovi lo stato deselezionato
+  
+            console.log("Nuovo array stati:", newStati);// Debug
+          return {
+            ...prev,
+            stati: newStati,
+          };
+        });
+      }
+    } else {
+      setFilters((prev) => ({
         ...prev,
-        stati: newStati,
-      };
-    });
-  } else {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-};
+        [name]: value,
+      }));
+    }
+  };
+  
+  
+  
 
   const handleCommessaChange = (e) => setCommessaFilter(e.target.value);
   const handleClienteChange = (e) => setClienteFilter(e.target.value);
@@ -189,6 +204,7 @@ function StatoAvanzamentoSoftware() {
   
       setCommesse(updatedCommesse);
       setStatoFilter(event.target.value);
+
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
       alert("Errore durante l'aggiornamento dello stato.");
@@ -280,18 +296,22 @@ function StatoAvanzamentoSoftware() {
             </label>
             {showDropdown && (
               <div className="dropdown-menu">
-                {statiSoftware?.map((stato) => (
-  <label key={stato?.stato_id}>
-    <input
-      type="checkbox"
-      name="stati"
-      value={stato?.stato_id?.toString()} // Usa sempre stato_id come stringa
-      checked={filters.stati.includes(stato?.stato_id?.toString())} // Controlla inclusione corretta
-      onChange={handleFilterChange} // Gestione del cambiamento
-    />
-    {stato?.nome_stato || "Sconosciuto"}
-  </label>
-))}
+                {statiSoftware?.map((stato) => {
+  console.log("Rendering stato:", { id: stato.id, nome: stato.nome_stato }); // Debug
+  return (
+    <label key={stato.id}>
+      <input
+        type="checkbox"
+        name="stati"
+        value={stato.id.toString()}
+        checked={filters.stati.includes(stato.id.toString())}
+        onChange={handleFilterChange}
+      />
+      {stato.nome_stato || "Sconosciuto"}
+    </label>
+  );
+})}
+
               </div>
             )}
           </div>
