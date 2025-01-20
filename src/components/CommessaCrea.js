@@ -12,6 +12,7 @@ function CommessaCrea({
   setSelezioniAttivita,
   fetchCommesse,
   editId,
+  stato,
 }) {
   const [formData, setFormData] = useState({
     numero_commessa: "",
@@ -21,18 +22,23 @@ function CommessaCrea({
     data_FAT: "",
     altri_particolari: "",
     cliente: "",
+    stato: "",
   });
 
+
   // Funzione per formattare la data in formato 'yyyy-MM-dd'
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toISOString().split('T')[0];  
-};
+  const formatDate = (dateString) => {
+    if (!dateString || isNaN(new Date(dateString).getTime())) {
+      return null; // Restituisci null se la data è vuota o non valida
+    }
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
 
   useEffect(() => {
 
     if (isEditing && commessa) {
+      console.log("Stato della commessa (prima del set):", commessa.stato);
       setFormData({
         numero_commessa: commessa.numero_commessa,
         tipo_macchina: commessa.tipo_macchina,
@@ -41,9 +47,10 @@ const formatDate = (dateString) => {
         data_FAT: formatDate(commessa.data_FAT),
         altri_particolari: commessa.altri_particolari,
         cliente: commessa.cliente,
-        
+        stato: commessa.stato,
       });
-  
+      console.log("Stati passati a CommessaCrea:", stato);
+      console.log("Stati attuale:", commessa.stato);
       // Controlla che commessa.attivita sia definito
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
         // Inizializza selezioniAttivita per le attività già assegnate alla commessa
@@ -66,6 +73,7 @@ const formatDate = (dateString) => {
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
+        stato: "",
       });
   
       setSelezioniAttivita({}); 
@@ -83,21 +91,28 @@ const formatDate = (dateString) => {
   
     try {
       let commessaId;
-  
+
+      const payload = {
+        ...formData,
+        data_FAT: formatDate(formData.data_FAT), // Usa la funzione formatDate
+        data_consegna: formatDate(formData.data_consegna), // Usa la funzione formatDate
+        stato: formData.stato || null, // Gestisci lo stato vuoto
+      };
+      console.log("Payload inviato:", payload); // Aggiungi questo log
       if (isEditing) {
-        await axios.put(
+        const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
-          formData
+          payload
         );
+        console.log("Risposta dal server:", response.data);
         commessaId = editId;
-        //alert("Commessa aggiornata con successo!");
       } else {
         const { data } = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse`,
-          formData
+          payload
         );
+        console.log("Risposta dal server (creazione):", data);
         commessaId = data.commessaId;
-       // alert("Commessa aggiunta con successo!");
       }
   
       const attivitaDaAggiungere = [];
@@ -133,6 +148,7 @@ const formatDate = (dateString) => {
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
+        stato: "",
       });
       setSelezioniAttivita({});
       fetchCommesse(); 
@@ -225,7 +241,23 @@ const formatDate = (dateString) => {
               onChange={handleChange}
             />
           </div>
-
+          {/* stato */}
+          <div className="form-group">
+  <label>Stato:</label>
+  <select
+    name="stato"
+    value={formData.stato}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Seleziona uno stato</option>
+    {stato.map((st) => (
+      <option key={st.id} value={st.id}>
+        {st.nome_stato} {/* Usa nome_stato invece di nome */}
+      </option>
+    ))}
+  </select>
+</div>
           <h2>Aggiungi attività default</h2>
           {!isEditing && Array.isArray(reparti) && reparti.length > 0 && Array.isArray(attivita) && attivita.length > 0 ? (
   reparti.map((reparto) => (
