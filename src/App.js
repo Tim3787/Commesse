@@ -41,7 +41,6 @@ function App() {
     if (token && isTokenValid(token)) {
       setIsAuthenticated(true);
       const decodedToken = jwtDecode(token);
-      console.log("Decoded Token:", decodedToken);
       setUserRole(parseInt(sessionStorage.getItem("role"), 10));
     } else {
       sessionStorage.removeItem("token");

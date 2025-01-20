@@ -172,69 +172,6 @@ const [editId, setEditId] = useState(null);
     setShowPopup(true);
   };
   
-  function ResourceCell({ resourceId, day, activities, onActivityDrop }) {
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "ACTIVITY",
-      drop: (item) => onActivityDrop(item, resourceId, day),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
-  
-    return (
-      <td ref={drop} className={isOver ? "highlight" : ""}>
-        {activities.map((activity) => (
-          <DraggableActivity key={activity.id} activity={activity} />
-        ))}
-      </td>
-    );
-  }
-  
-  function DraggableActivity({ activity }) {
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: "ACTIVITY",
-      item: { ...activity },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
-  
-    return (
-      <div ref={drag} className="activity" style={{ opacity: isDragging ? 0.5 : 1 }}>
-        <strong>Commessa:</strong> {activity.numero_commessa}
-        <br />
-        <strong>Attività:</strong> {activity.nome_attivita}
-        <br />
-        <strong>Stato:</strong> {activity.stato === 0 ? "Non iniziata" : activity.stato === 1 ? "Iniziata" : "Completata"}
-      </div>
-    );
-  }
-  
-  const handleActivityDrop = async (activity, newResourceId, newDate) => {
-    try {
-      const updatedActivity = {
-        ...activity,
-        risorsa_id: newResourceId,
-        data_inizio: newDate.toISOString().split("T")[0],
-      };
-  
-      // Aggiorna il database
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
-        updatedActivity,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
-      // Aggiorna lo stato locale
-      setActivities((prev) =>
-        prev.map((act) => (act.id === activity.id ? { ...act, ...updatedActivity } : act))
-      );
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dell'attività:", error);
-    }
-  };
-  
-
   return (
     <div>
       <div className="container">
@@ -270,7 +207,7 @@ const [editId, setEditId] = useState(null);
                 {resources.map((resource) => (
                   <td key={resource.id}>
                     {getActivitiesForResourceAndDay(resource.id, day).map((activity) => (
-                      <div key={activity.id} className="activity"  onDoubleClick={() => handleActivityClick(activity)}>
+                      <div key={activity.id} className="activity"  onClick={() => handleActivityClick(activity)}>
                         <strong>Commessa:</strong> {activity.numero_commessa}
                         <br />
                         <strong>Attività:</strong> {activity.nome_attivita}
