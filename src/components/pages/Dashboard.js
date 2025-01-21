@@ -116,7 +116,9 @@ function Dashboard() {
   const today = new Date().toLocaleDateString();
 
   const [loadingActivities, setLoadingActivities] = useState({});
+  
   const updateActivityStatus = async (activityId, newStatus) => {
+
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
       const payload = { stato: newStatus };
