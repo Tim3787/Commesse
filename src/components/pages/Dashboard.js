@@ -24,7 +24,7 @@ function Dashboard() {
   const fetchActivities = async (monthStartDate) => {
     try {
       setLoading(true);
-       await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { startDate: monthStartDate.toISOString() },
       });
@@ -40,7 +40,7 @@ function Dashboard() {
   // Funzione per recuperare le commesse con data_FAT
   const fetchAllFATDates = async () => {
     try {
-      await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Filtra solo le commesse con data_FAT definita
@@ -66,7 +66,7 @@ function Dashboard() {
           const userId = decoded.id; // Ottieni l'ID utente
           console.log("Token decodificato:", decoded);
           // Recupera la lista di utenti
-         await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -115,23 +115,27 @@ function Dashboard() {
   const daysInMonth = getDaysInMonth(currentMonth);
   const today = new Date().toLocaleDateString();
 
+  const [loadingActivities, setLoadingActivities] = useState({});
   
   const updateActivityStatus = async (activityId, newStatus) => {
 
+    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
       const payload = { stato: newStatus };
       
       // Effettua la richiesta senza headers di autorizzazione
-    await axios.put(
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
         payload
       );
-  
+      console.log("monthlyActivities prima dell'update:", monthlyActivities);
+      console.log("activityId:", activityId, "newStatus:", newStatus);
       setMonthlyActivities((prev) =>
         prev.map((activity) =>
           activity.id === activityId ? { ...activity, stato: newStatus } : activity
         )
       );
+      console.log("Risposta PUT:", response.data);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
   
@@ -140,7 +144,9 @@ function Dashboard() {
       }
   
       alert("Si è verificato un errore durante l'aggiornamento dello stato.");
-    } 
+    } finally {
+      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
+    }
   };
   
   
@@ -201,12 +207,16 @@ function Dashboard() {
                     <button
                       className="btn btn-start"
                       onClick={() => updateActivityStatus(activity.id, 1)}
+                      disabled={loadingActivities[activity.id]}
                       >
+  {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
                     </button>
                     <button
                       className="btn btn-complete"
                       onClick={() => updateActivityStatus(activity.id, 2)}
+                      disabled={loadingActivities[activity.id]}
                       >
+  {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
                     </button>
                   </>
                 )}
