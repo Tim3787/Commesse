@@ -119,7 +119,6 @@ function Dashboard() {
   
   const updateActivityStatus = async (activityId, newStatus) => {
 
-    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
       const payload = { stato: newStatus };
       
@@ -142,9 +141,7 @@ function Dashboard() {
       }
   
       alert("Si è verificato un errore durante l'aggiornamento dello stato.");
-    } finally {
-      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
-    }
+    } 
   };
   
   
