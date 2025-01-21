@@ -115,7 +115,6 @@ function Dashboard() {
   const daysInMonth = getDaysInMonth(currentMonth);
   const today = new Date().toLocaleDateString();
 
-  const [loadingActivities, setLoadingActivities] = useState({});
   
   const updateActivityStatus = async (activityId, newStatus) => {
 

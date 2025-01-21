@@ -107,6 +107,7 @@ function App() {
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />, requiredRole: 2 },
+    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
     { path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },
@@ -114,7 +115,7 @@ function App() {
     { path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
     { path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
     { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
-    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
+
   ];
 
   return (
