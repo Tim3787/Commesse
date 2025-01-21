@@ -40,7 +40,7 @@ function Dashboard() {
   // Funzione per recuperare le commesse con data_FAT
   const fetchAllFATDates = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
+      await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Filtra solo le commesse con data_FAT definita
@@ -66,7 +66,7 @@ function Dashboard() {
           const userId = decoded.id; // Ottieni l'ID utente
           console.log("Token decodificato:", decoded);
           // Recupera la lista di utenti
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
+         await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -122,7 +122,7 @@ function Dashboard() {
       const payload = { stato: newStatus };
       
       // Effettua la richiesta senza headers di autorizzazione
-      const response = await axios.put(
+    await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
         payload
       );
