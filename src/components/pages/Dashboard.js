@@ -116,17 +116,15 @@ function Dashboard() {
   const today = new Date().toLocaleDateString();
 
   const [loadingActivities, setLoadingActivities] = useState({});
-
   const updateActivityStatus = async (activityId, newStatus) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
       const payload = { stato: newStatus };
-      const headers = { Authorization: `Bearer ${token}` };
-  
+      
+      // Effettua la richiesta senza headers di autorizzazione
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
-        payload,
-        { headers }
+        payload
       );
   
       setMonthlyActivities((prev) =>
@@ -146,6 +144,8 @@ function Dashboard() {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
+  
+  
   
   
   
