@@ -24,7 +24,7 @@ function Dashboard() {
   const fetchActivities = async (monthStartDate) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
+       await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { startDate: monthStartDate.toISOString() },
       });
