@@ -1,138 +1,140 @@
-import React, { useState, useEffect } from "react";
-import FullCalendar from "@fullcalendar/react";
-import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
-import interactionPlugin from "@fullcalendar/interaction";
-import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./CalendarioCommesse.css";
+import logo from "../assets/unitech-packaging.png";
 
-const CalendarioCommesse = () => {
-  const [eventi, setEventi] = useState([]);
-  const [risorse, setRisorse] = useState([]);
+function CalendarioCommesse() {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [commesse, setCommesse] = useState([]);
   const [loading, setLoading] = useState(false);
+  // Calcola i giorni del mese
+  const getDaysInMonth = () => {
+    const days = [];
+    const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchDati = async () => {
-      try {
-        const responseCommesse = await fetch(`${process.env.REACT_APP_API_URL}/api/commesse`);
-        const dataCommesse = await responseCommesse.json();
-  
-        // Organizza le risorse
-        const risorseTrasformate = dataCommesse.map((commessa) => ({
-          id: `commessa-${commessa.id}`,
-          title: `Commessa ${commessa.numero_commessa}`,
-          children: commessa.stati_avanzamento.map((reparto) => ({
-            id: `commessa-${commessa.id}-reparto-${reparto.reparto_id}`,
-            title: reparto.reparto_nome,
-            children: reparto.stati_disponibili.map((stato) => ({
-              id: `commessa-${commessa.id}-reparto-${reparto.reparto_id}-stato-${stato.stato_id}`,
-              title: stato.nome_stato,
-            })),
-          })),
-        }));
-  
-        setRisorse(risorseTrasformate);
-  
-        // Organizza gli eventi
-        const eventiTrasformati = dataCommesse.flatMap((commessa) =>
-          commessa.stati_avanzamento.flatMap((reparto) =>
-            reparto.stati_disponibili.map((stato) => ({
-              id: `stato-${stato.stato_id}`,
-              title: `${stato.nome_stato} (${commessa.numero_commessa})`,
-              start: stato.data_inizio ? new Date(stato.data_inizio) : null,
-              end: stato.data_fine ? new Date(stato.data_fine) : null,
-              resourceId: `commessa-${commessa.id}-reparto-${reparto.reparto_id}-stato-${stato.stato_id}`,
-              extendedProps: {
-                commessa_id: commessa.id,
-                reparto_id: reparto.reparto_id,
-                stato_id: stato.stato_id,
-              },
-            }))
-          )
-        );
-  
-        setEventi(eventiTrasformati);
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
-      } finally {
-        setLoading(false); // Chiusura corretta del `finally`
-      }
-    };
-    fetchDati();
-  }, []);
-  
-  const handleEventUpdate = async (info) => {
-    const eventoAggiornato = {
-      data_inizio: info.event.start.toISOString(),
-      data_fine: info.event.end.toISOString(),
-    };
-  
-    try {
-      // Esegui la chiamata al nuovo endpoint
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/commesse/${info.event.extendedProps.commessa_id}/stati-avanzamento/${info.event.extendedProps.stato_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(eventoAggiornato),
-        }
-      );
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Errore durante l'aggiornamento dell'evento: ${errorText}`);
-      }
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dell'evento:", error);
-      info.revert(); 
+    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+      days.push(new Date(d));
     }
+
+    return days;
   };
 
+  const daysInMonth = getDaysInMonth();
+
+  // Recupera dati iniziali
+  useEffect(() => {
+    const fetchCommesse = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
+        console.log("Dati ricevuti:", response.data); // Aggiungi questo
+        setCommesse(response.data);
+        setFilteredCommesse(response.data);
+      } catch (error) {
+        console.error("Errore durante il recupero delle commesse:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCommesse();
+  }, []);
+  
+
+  // Funzioni per navigare tra i mesi
+  const goToPreviousMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setFilteredCommesse([]);
+  };
+  
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setFilteredCommesse([]);
+  };
+  
+
+  const normalizeDate = (date) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+  };
+
+  const isSameDay = (date1, date2) => {
+    const d1 = normalizeDate(new Date(date1));
+    const d2 = normalizeDate(new Date(date2));
+    return d1.getTime() === d2.getTime();
+  };
+
+  const getCommesseForDay = (day) => {
+    return commesse.filter((commessa) => {
+      const consegna = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
+  
+      return consegna && isSameDay(consegna, day);
+    });
+  };
+  
+  
+  
+  function CalendarDay({ day }) {
+    const commesseForDay = getCommesseForDay(day);
+  
+    return (
+      <td>
+        {commesseForDay.length === 0 ? (
+          <span className="no-event">Nessuna commessa</span>
+        ) : (
+          commesseForDay.map((commessa) => (
+            <div key={commessa.commessa_id} className="event">
+              <strong>{commessa.numero_commessa}</strong>
+              <br />
+              <span>{commessa.cliente}</span>
+            </div>
+          ))
+        )}
+      </td>
+    );
+  }
   return (
-    <div className="calendar-container">
-       {loading && (
-        <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+    <div>
+      <div className="container">
+        <h1>Calendario Commesse</h1>
+        {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}
+
+        <div className="calendar-navigation">
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese Successivo →
+          </button>
         </div>
-      )}
-      <h1>Calendario Stati Avanzamento</h1>
-      <FullCalendar
-        plugins={[resourceTimelinePlugin, interactionPlugin]}
-        initialView="resourceTimelineWeek"
-        views={{
-          resourceTimelineWeek: {
-            type: "resourceTimeline",
-            duration: { weeks: 1 },
-            slotLabelFormat: [{ weekday: "short" }],
-          },
-          resourceTimelineMonth: {
-            type: "resourceTimeline",
-            duration: { months: 1 },
-            slotLabelFormat: [{ day: "numeric" }],
-          },
-          resourceTimelineYear: {
-            type: "resourceTimeline",
-            duration: { years: 1 },
-            slotLabelFormat: [{ month: "short" }],
-          },
-        }}
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "resourceTimelineWeek,resourceTimelineMonth,resourceTimelineYear",
-        }}
-        resources={risorse}
-        events={eventi}
-        editable={true}
-        droppable={true}
-        resourceAreaHeaderContent="Commessa - Reparto - Stato"
-        eventDrop={handleEventUpdate}
-        eventResize={handleEventUpdate}
-      />
+
+        <div className="Comm-table-container">
+          <table className="Comm-schedule">
+            <thead>
+              <tr>
+                {daysInMonth.map((day, index) => (
+                  <th key={index}>{day.toLocaleDateString()}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {daysInMonth.map((day, index) => (
+                  <CalendarDay key={index} day={day} />
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default CalendarioCommesse;

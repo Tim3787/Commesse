@@ -80,9 +80,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const navLinks = {
     user: [
       { to: "/Dashboard", label: "Bacheca" },
-      { to: "/visualizzazione-commesse", label: "Visualizza le commesse" },
-      { to: "/visualizzazione-attivita", label: "Visualizza le attività" },
+      { to: "/visualizzazione-commesse", label: "Commesse" },
       { to: "/calendario-attivita", label: "Calendario delle attività" },
+      { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
 
     ],
     manager: [
@@ -91,7 +91,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
       { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
-      { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
+
       { to: "/DashboardSoftware", label: "Attività software dept." },
       { to: "/DashboardElettrico", label: "Attività elettrico dept." },
     ],

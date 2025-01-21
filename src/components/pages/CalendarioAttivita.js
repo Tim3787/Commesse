@@ -1,214 +1,203 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./CalendarioAttivita.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/unitech-packaging.png";
 
-const CalendarioAttivita = () => {
-  const [eventi, setEventi] = useState([]);
-  const [risorse, setRisorse] = useState([]);
-  const giorniVisualizzati = 30;
-  const dataInizio = new Date();
+function CalendarioAttivita() {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activities, setActivities] = useState([]);
+  const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
+  const token = sessionStorage.getItem("token");
+
+  // Calcola i giorni del mese
+  const getDaysInMonth = () => {
+    const days = [];
+    const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+      days.push(new Date(d));
+    }
+
+    return days;
+  };
+
+  const daysInMonth = getDaysInMonth();
+
+  // Recupera dati iniziali
   useEffect(() => {
-    const fetchDati = async () => {
-      setLoading(true);
+    const fetchData = async () => {
       try {
-        const responseRisorse = await fetch(`${process.env.REACT_APP_API_URL}/api/reparti`);
-        const dataRisorse = await responseRisorse.json();
+        setLoading(true);
 
-        const responseAttivita = await fetch(`${process.env.REACT_APP_API_URL}/api/attivita`);
-        const dataAttivita = await responseAttivita.json();
-
-        const risorseConAttivita = dataRisorse.map((reparto) => ({
-          id: reparto.id,
-          nome: reparto.nome,
-          attivita: dataAttivita.filter((att) => att.reparto_id === reparto.id),
-        }));
-
-        setRisorse(risorseConAttivita);
-
-        const responseEventi = await fetch(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`);
-        const dataEventi = await responseEventi.json();
-
-        setEventi(
-          dataEventi.map((evento) => ({
-            ...evento,
-            data_inizio: new Date(evento.data_inizio),
-            data_fine: new Date(new Date(evento.data_inizio).setDate(new Date(evento.data_inizio).getDate() + evento.durata - 1)),
-          }))
+        // Recupera tutte le attività
+        const activitiesResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/attivita_commessa`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
+
+        setActivities(activitiesResponse.data);
+
+        // Recupera tutte le risorse
+        const resourcesResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setResources(resourcesResponse.data);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
-      }finally {
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchDati();
-  }, []);
+    fetchData();
+  }, [currentMonth, token]);
 
-  const generaIntervalloDate = (inizio, durata) => {
-    const giorni = [];
-    const current = new Date(inizio);
-    for (let i = 0; i < durata; i++) {
-      giorni.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-    return giorni;
+  // Funzioni per navigare tra i mesi
+  const goToPreviousMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
-  const giorniVisibili = generaIntervalloDate(dataInizio, giorniVisualizzati);
-
-  
-  const handleDragStart = (evento, e) => {
-    e.dataTransfer.setData("eventoId", evento.id);
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
-  
-  const handleDrop = (attivitaId, giorno, e) => {
-    e.preventDefault();
-    const eventoId = e.dataTransfer.getData("eventoId");
-  
-    if (!eventoId) return;
-  
-    const evento = eventi.find((ev) => ev.id === parseInt(eventoId, 10));
-    if (!evento) return;
-  
-    const nuovaDataInizio = new Date(giorno);
-    const nuovaDataFine = new Date(
-      nuovaDataInizio.setDate(nuovaDataInizio.getDate() + evento.durata - 1)
+
+  const normalizeDate = (date) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+  };
+
+  const getActivitiesForResourceAndDay = (resourceId, day) => {
+    const normalizedDay = normalizeDate(day);
+
+    return activities.filter((activity) => {
+      const startDate = normalizeDate(activity.data_inizio);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + activity.durata - 1);
+
+      return (
+        Number(activity.risorsa_id) === Number(resourceId) &&
+        normalizedDay >= startDate &&
+        normalizedDay <= endDate
+      );
+    });
+  };
+
+  const renderRepartoSection = (repartoId, repartoName) => {
+    const repartoResources = resources.filter(
+      (resource) => Number(resource.reparto_id) === repartoId
     );
   
-    const eventoAggiornato = {
-      ...evento,
-      data_inizio: nuovaDataInizio,
-      data_fine: nuovaDataFine,
-    };
+    return (
+      <>
+        <thead>
+          <tr>
+            <th colSpan={daysInMonth.length + 1}>{repartoName}</th>
+          </tr>
+          <tr>
+            <th>Risorsa</th>
+            {daysInMonth.map((day, index) => {
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Sabato e Domenica
+              const isToday = day.toDateString() === new Date().toDateString(); // Giorno corrente
+              const dateClass = isToday
+                ? "Gen-today-date"
+                : isWeekend
+                ? "Gen-weekend-date"
+                : "";
   
-    setEventi((prevEventi) =>
-      prevEventi.map((ev) => (ev.id === evento.id ? eventoAggiornato : ev))
+              return (
+                <th key={index}>
+                  <span className={dateClass}>{day.toLocaleDateString()}</span>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {repartoResources.map((resource) => (
+            <tr key={resource.id}>
+              <td>{resource.nome}</td>
+              {daysInMonth.map((day, index) => {
+                const activities = getActivitiesForResourceAndDay(resource.id, day);
+                return (
+                  <ResourceCell
+                    key={`${resource.id}-${index}`}
+                    activities={activities}
+                  />
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </>
     );
-  
-    fetch(`${process.env.REACT_APP_API_URL}/api/attivita_commessa/${evento.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(eventoAggiornato),
-    }).catch((error) => console.error("Errore aggiornamento evento:", error));
   };
+
+  function ResourceCell({ activities, dayClass }) {
+    return (
+      <td className={dayClass}>
+        {activities.map((activity) => {
+          const activityClass =
+            activity.stato === 0
+              ? "activity-not-started"
+              : activity.stato === 1
+              ? "activity-started"
+              : "activity-completed";
   
-  const handleResizeStart = (evento, e) => {
-    e.preventDefault();
+          return (
+            <div key={activity.id} className={`activity ${activityClass}`}>
+              <strong>Commessa:</strong> {activity.numero_commessa}
+              <br />
+              <strong>Attività:</strong> {activity.nome_attivita}
+              <br />
+              <strong>Stato:</strong>{" "}
+              {activity.stato === 0
+                ? "Non iniziata"
+                : activity.stato === 1
+                ? "Iniziata"
+                : "Completata"}
+            </div>
+          );
+        })}
+      </td>
+    );
+  }
   
-    const onMouseMove = (moveEvent) => {
-      const nuovaDataFine = new Date(evento.data_inizio);
-      nuovaDataFine.setDate(
-        nuovaDataFine.getDate() +
-        Math.ceil((moveEvent.clientX - e.clientX) / 20) // Adatta al pixel
-      );
-  
-      setEventi((prevEventi) =>
-        prevEventi.map((ev) =>
-          ev.id === evento.id
-            ? {
-                ...ev,
-                data_fine: nuovaDataFine,
-                durata: Math.ceil(
-                  (nuovaDataFine - ev.data_inizio) / (1000 * 60 * 60 * 24)
-                ),
-              }
-            : ev
-        )
-      );
-    };
-  
-    const onMouseUp = () => {
-      const eventoAggiornato = eventi.find((ev) => ev.id === evento.id);
-  
-      fetch(`${process.env.REACT_APP_API_URL}/api/attivita_commessa/${evento.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventoAggiornato),
-      }).catch((error) => console.error("Errore aggiornamento evento:", error));
-  
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-  
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-  };
-  
+
   
   return (
-    <div className="calendario-container">
-      {loading && (
-        <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+    <div>
+      <div className="container">
+        <h1>Bacheca Attività</h1>
+        {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}
+
+        <div className="calendar-navigation">
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese Successivo →
+          </button>
         </div>
-      )}
-      <h1>Calendario Attività</h1>
-      <div className="calendario">
-        <div className="calendario-header">
-          <div className="calendario-cell risorsa-header">Reparti / Attività</div>
-          {giorniVisibili.map((data, index) => (
-            <div key={index} className="calendario-cell giorno-header">
-              {data.toLocaleDateString("it-IT", { day: "2-digit", month: "short" })}
-            </div>
-          ))}
+
+        <div className="Gen-table-container">
+          <table className="Gen-schedule">
+            {renderRepartoSection(1, "Reparto Software")}
+            {renderRepartoSection(2, "Reparto Elettrico")}
+          </table>
         </div>
-
-        {risorse.map((reparto) => (
-          <React.Fragment key={reparto.id}>
-            <div className="calendario-riga reparto">
-              <div className="calendario-cell risorsa">{reparto.nome}</div>
-              {giorniVisibili.map((_, index) => (
-                <div key={index} className="calendario-cell vuota"></div>
-              ))}
-            </div>
-
-            {reparto.attivita.map((attivita) => (
-              <div key={attivita.id} className="calendario-riga attivita">
-                <div className="calendario-cell attivita-nome">{attivita.nome_attivita}</div>
-                {giorniVisibili.map((data, index) => (
-                  <div
-                    key={index}
-                    className="calendario-cell giorno"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => handleDrop(attivita.id, data, e)}
-                  >
-                    {eventi
-  .filter(
-    (evento) =>
-      evento.attivita_id === attivita.id &&
-      evento.data_inizio <= data &&
-      evento.data_fine >= data
-  )
-  .map((evento) => (
-    <div
-      key={evento.id}
-      className="evento"
-      draggable
-      onDragStart={(e) => handleDragStart(evento, e)}
-    >
-      {evento.numero_commessa} - {evento.risorsa}
-
-      {/* Maniglia per il resize */}
-      {evento.data_fine.toDateString() === data.toDateString() && (
-        <div
-          className="resize-handle"
-          onMouseDown={(e) => handleResizeStart(evento, e)}
-        ></div>
-      )}
-    </div>
-  ))}
-
-                  </div>
-                ))}
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
       </div>
     </div>
   );
-};
+}
 
 export default CalendarioAttivita;

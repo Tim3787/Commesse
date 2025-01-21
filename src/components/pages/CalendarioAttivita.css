@@ -1,96 +1,38 @@
-.calendario-container {
-  padding: 20px;
-}
 
-.calendario {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
-}
-
-.calendario-header,
-.calendario-riga {
-  display: grid;
-  grid-template-columns: 150px repeat(30, 1fr); /* Colonne dinamiche */
-}
-
-.calendario-cell {
+.Gen-table-container {
+  overflow-y: auto;  /* Scorrimento verticale */
+  max-height: 1000px; /* Altezza massima per lo scrolling */
   border: 1px solid #ddd;
-  padding: 5px;
-  text-align: center;
 }
 
-.risorsa-header {
-  background-color: #f4f4f4;
-  font-weight: bold;
+.Gen-schedule {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.giorno-header {
-  background-color: #e9e9e9;
-  font-weight: bold;
-}
-
-.risorsa {
-  background-color: #f9f9f9;
-  font-weight: bold;
-}
-
-.giorno {
-  position: relative;
-}
-
-.evento {
-  background-color: #007bff;
-  color: white;
-  padding: 2px;
-  font-size: 12px;
-  border-radius: 4px;
-  text-align: center;
-}
-.reparto {
-  background-color: #f4f4f4;
-  font-weight: bold;
-}
-
-.attivita-nome {
-  background-color: #f9f9f9;
-  font-style: italic;
-  padding-left: 10px;
-}
-
-.calendario-cell {
+.Gen-schedule th, 
+.Gen-schedule td {
+  padding: 10px;
   border: 1px solid #ddd;
-  text-align: center;
-  overflow: hidden;
-  white-space: nowrap;
+  text-align: left;
 }
 
-.evento {
-  background-color: #007bff;
-  color: white;
-  padding: 2px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: grab;
+
+
+.Gen-schedule td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2; /* Più alto per sovrapporsi alle celle */
+  background-color: #ffffff;
 }
-.resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 8px;
-  height: 8px;
-  background-color: white;
-  border: 2px solid #007bff;
-  border-radius: 50%;
-  cursor: se-resize;
+/* Colore per la data di oggi */
+.Gen-today-date {
+  color: #2bff00; /* Verde chiaro */
+  font-weight: bold;
 }
 
-.evento {
-  position: relative;
-  background-color: #007bff;
-  color: white;
-  padding: 5px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: grab;
+/* Colore per le date del weekend */
+.Gen-weekend-date {
+  color: #ff3b3b; /* Rosso chiaro */
+  font-weight: bold;
 }

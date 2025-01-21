@@ -166,7 +166,7 @@
   }
   
   .table-container {
-    max-height: 600px; /* Altezza massima per lo scrolling */
+    max-height: 1000px; /* Altezza massima per lo scrolling */
     overflow-y: auto;  /* Scorrimento verticale */
     border: 1px solid #ddd;
   }
@@ -189,7 +189,7 @@
     z-index: 1;       /* Assicurati che sia sopra le celle */
   }
 
-  .software-schedule th:first-child {
+  .software-schedule td:first-child {
     position: sticky;
     left: 0;
     z-index: 2; /* Più alto per sovrapporsi alle celle */
