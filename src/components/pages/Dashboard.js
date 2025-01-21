@@ -205,16 +205,12 @@ function Dashboard() {
                     <button
                       className="btn btn-start"
                       onClick={() => updateActivityStatus(activity.id, 1)}
-                      disabled={loadingActivities[activity.id]}
                       >
-  {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
                     </button>
                     <button
                       className="btn btn-complete"
                       onClick={() => updateActivityStatus(activity.id, 2)}
-                      disabled={loadingActivities[activity.id]}
                       >
-  {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
                     </button>
                   </>
                 )}
