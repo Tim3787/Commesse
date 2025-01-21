@@ -81,8 +81,8 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     user: [
       { to: "/Dashboard", label: "Bacheca" },
       { to: "/visualizzazione-commesse", label: "Commesse" },
-      { to: "/calendario-attivita", label: "Calendario delle attività" },
-      { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
+      { to: "/calendario-attivita", label: "Calendario attività" },
+      { to: "/CalendarioCommesse", label: "Calendario commesse" },
 
     ],
     manager: [
