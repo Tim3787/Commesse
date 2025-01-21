@@ -102,7 +102,7 @@ function App() {
     { path: "/visualizzazione-commesse", component: <VisualizzazioneCommesse /> },
     { path: "/visualizzazione-attivita", component: <VisualizzazioneAttivita /> },
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
-    { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 1  },
+    { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 2  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
@@ -114,7 +114,7 @@ function App() {
     { path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
     { path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
     { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
-    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 1 },
+    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
   ];
 
   return (
