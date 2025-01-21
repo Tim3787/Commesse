@@ -165,3 +165,32 @@
     transition: 0.2s;
   }
   
+  .table-container {
+    max-height: 600px; /* Altezza massima per lo scrolling */
+    overflow-y: auto;  /* Scorrimento verticale */
+    border: 1px solid #ddd;
+  }
+  
+  .software-schedule {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .software-schedule th, 
+  .software-schedule td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .software-schedule th {
+    position: sticky; /* Fissa l'intestazione */
+    top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
+    z-index: 1;       /* Assicurati che sia sopra le celle */
+  }
+
+  .software-schedule th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2; /* Più alto per sovrapporsi alle celle */
+  }

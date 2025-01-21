@@ -92,6 +92,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/CalendarioCommesse", label: "Calendario stati commesse" },
       { to: "/DashboardSoftware", label: "Attività software dept." },
+      { to: "/DashboardElettrico", label: "Attività elettrico dept." },
     ],
     admin: [
       { to: "/utenti", label: "Gestione utenti" },

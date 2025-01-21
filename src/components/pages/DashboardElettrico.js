@@ -71,7 +71,7 @@ const [editId, setEditId] = useState(null);
           headers: { Authorization: `Bearer ${token}` },
         });
         const filteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === 1
+          (resource) => Number(resource.reparto_id) === 2
         );
 
         setResources(filteredResources);
@@ -101,9 +101,9 @@ const [editId, setEditId] = useState(null);
   
 
   
-        // Filtra solo le attività relative al reparto software
+        // Filtra solo le attività relative al reparto
         const softwareActivities = attivitaWithReparto.filter(
-          (attivita) => attivita.reparto_id === 1
+          (attivita) => attivita.reparto_id === 2
         );
         setAttivitaConReparto(softwareActivities);
       } catch (error) {
@@ -163,7 +163,7 @@ const toLocalISOString = (date) => {
   
     setFormData({
       commessa_id: activity.commessa_id || "",
-      reparto_id: 1, // ID reparto software
+      reparto_id: 2, // ID reparto
       risorsa_id: activity.risorsa_id || "",
       attivita_id: activity.attivita_id || "",
       data_inizio: dataInizio,
@@ -276,7 +276,7 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
   return (
     <div>
       <div className="container">
-        <h1>Bacheca Reparto Software</h1>
+        <h1>Bacheca Reparto Elettrico</h1>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
