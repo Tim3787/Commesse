@@ -110,6 +110,7 @@ function App() {
     { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />, requiredRole: 2 },
     { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
+    { path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
     { path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },

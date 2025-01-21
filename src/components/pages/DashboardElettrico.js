@@ -6,7 +6,7 @@ import AttivitaCrea from "../AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-function DashboardSoftware() {
+function DashboardElettrico() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -352,4 +352,4 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
   );
 }
 
-export default DashboardSoftware;
+export default DashboardElettrico;
