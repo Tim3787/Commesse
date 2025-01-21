@@ -16,6 +16,7 @@ import GestioneAttivita from "./components/pages/GestioneAttivita";
 import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
 import GestioneStatiAvanzamento from "./components/pages/NuovaPagina";
 import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
+import StatoAvanzamentoElettrico from "./components/pages/StatoAvanzamentoElettrico";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NotificheStati from "./components/pages/NotificheStati";
 import DashboardSoftware from "./components/pages/DashboardSoftware";
