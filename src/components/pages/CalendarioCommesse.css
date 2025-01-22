@@ -12,7 +12,6 @@
 
 .Comm-schedule th, 
 .Comm-schedule td {
-  padding: 10px;
   border: 1px solid #ddd;
   text-align: left;
 }
@@ -21,7 +20,7 @@
 
 .Comm-event {
   text-align: center;
-  padding: 15px;
+  padding-top: 10px;
   border-radius: 3px;
   margin-bottom: 5px;
   font-size: 16px;
@@ -32,19 +31,16 @@
   color: #000;
 }
 
-.Comm-event.scadenza {
-  background-color: #28a745;
-  color: #fff;
-}
+
 
 .Comm-day-header {
   font-weight: bold;
   margin-bottom: 5px;
   text-align: left; /* Allinea il testo a sinistra */
-  position: absolute; /* Posizione assoluta */
   top: 5px; /* Distanza dalla parte superiore */
   left: 5px; /* Distanza dalla parte sinistra */
   font-size: 20px; /* Dimensione del font */
+  width: 100%;
 }
 
 .Com-empty-cell {
@@ -56,18 +52,33 @@ td {
   padding: 10px; /* Spaziatura interna per rendere il contenuto leggibile */
   vertical-align: top; /* Allinea il contenuto in alto */
 }
+.current-month {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 20px;
+  text-align: center;
+}
+.Comm-today-cell {
+  background-color: #baf2fc; /* Giallo chiaro */
+
+}
 
 
+.Comm-today-cell .Comm-day-header {
+  font-weight: bold;
+  color: #000;
+}
 
 /* ==============================
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-  .header {
+  .Comm-day-header {
     font-size: 14px; 
+
   }
   .Comm-event  {
     font-size: 12px; 
-    padding: 10px;
   }
+  
 }

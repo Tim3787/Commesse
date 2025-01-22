@@ -19,7 +19,24 @@ function CalendarioCommesse() {
 
     return days;
   };
-
+  const getMonthName = () => {
+    const monthNames = [
+      "Gennaio",
+      "Febbraio",
+      "Marzo",
+      "Aprile",
+      "Maggio",
+      "Giugno",
+      "Luglio",
+      "Agosto",
+      "Settembre",
+      "Ottobre",
+      "Novembre",
+      "Dicembre",
+    ];
+    return `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+  };
+  
   const getWeeksInMonth = () => {
     const days = getDaysInMonth();
     const weeks = [];
@@ -83,34 +100,64 @@ function CalendarioCommesse() {
     return d1.getTime() === d2.getTime();
   };
 
-  const getCommesseForDay = (day) => {
+  const getCommesseForDay = (day, type) => {
     return commesse.filter((commessa) => {
       const consegna = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
-      return consegna && isSameDay(consegna, day);
+      const fat = commessa.data_FAT ? normalizeDate(commessa.data_FAT) : null;
+  
+      if (type === "FAT") {
+        return fat && isSameDay(fat, day);
+      }
+      if (type === "Consegna") {
+        return consegna && isSameDay(consegna, day);
+      }
+  
+      return false;
     });
   };
+  
 
+  const isToday = (day) => {
+    const today = new Date();
+    return (
+      day.getDate() === today.getDate() &&
+      day.getMonth() === today.getMonth() &&
+      day.getFullYear() === today.getFullYear()
+    );
+  };
+  
   function CalendarDay({ day }) {
     if (!day) {
-      return <td className="empty-cell"></td>; // Celle vuote
+      return <td className="Comm-empty-cell"></td>; // Celle vuote
     }
   
-    const commesseForDay = getCommesseForDay(day);
-  
+    const fatCommesse = getCommesseForDay(day, "FAT");
+    const consegnaCommesse = getCommesseForDay(day, "Consegna");
+    const todayClass = isToday(day) ? "Comm-today-cell" : ""; // Aggiunge la classe se è oggi
+
     return (
-      <td>
-        <div className="Comm-day-header">{day.getDate()}</div> {/* Data in alto a sinistra */}
-        {commesseForDay.length === 0 ? (
-          <span className="Comm-no-event"></span>
-        ) : (
-          commesseForDay.map((commessa) => (
-            <div key={commessa.commessa_id} className="Comm-event">
-              <strong>{commessa.numero_commessa}</strong>
-              <br />
-              <span>{commessa.cliente}</span>
-            </div>
-          ))
-        )}
+      <td className={`Comm-calendar-day ${todayClass}`}>
+        <div className="Comm-day-header">{day.getDate()}</div>
+  
+        {fatCommesse.map((commessa) => (
+          <div key={`${commessa.commessa_id}-FAT`} className="Comm-event fat">
+                        <span>FAT:</span>
+            <br />
+            <strong>{commessa.numero_commessa}</strong>
+            <br />
+            <span>{commessa.cliente}</span>
+          </div>
+        ))}
+  
+        {consegnaCommesse.map((commessa) => (
+          <div key={`${commessa.commessa_id}-Consegna`} className="Comm-event scadenza">
+            <span>Scadenza:</span>
+            <br />
+            <strong>{commessa.numero_commessa}</strong>
+            <br />
+            <span>{commessa.cliente}</span>
+          </div>
+        ))}
       </td>
     );
   }
@@ -125,14 +172,16 @@ function CalendarioCommesse() {
           </div>
         )}
 
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
-          </button>
-        </div>
+<div className="calendar-navigation">
+  <button onClick={goToPreviousMonth} className="btn-Nav">
+    ← Mese Precedente
+  </button>
+  <span className="current-month">{getMonthName()}</span>
+  <button onClick={goToNextMonth} className="btn-Nav">
+    Mese Successivo →
+  </button>
+</div>
+
 
         <div className="Comm-table-container">
           <table className="Comm-schedule">
