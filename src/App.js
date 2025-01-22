@@ -17,10 +17,12 @@ import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
 import GestioneStatiAvanzamento from "./components/pages/NuovaPagina";
 import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
 import StatoAvanzamentoElettrico from "./components/pages/StatoAvanzamentoElettrico";
+import StatoAvanzamentoQuadri from "./components/pages/StatoAvanzamentoQuadri";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
 import NotificheStati from "./components/pages/NotificheStati";
 import DashboardSoftware from "./components/pages/DashboardSoftware";
 import DashboardElettrico from "./components/pages/DashboardElettrico";
+import DashboardQuadri from "./components/pages/DashboardQuadri";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 
@@ -107,12 +109,14 @@ function App() {
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />},
     { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 2  },
     { path: "/DashboardElettrico", component: <DashboardElettrico />, requiredRole: 2  },
+    { path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
 
     { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
     { path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
+    { path: "/StatoAvanzamentoQuadri", component: <StatoAvanzamentoQuadri />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
     { path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },

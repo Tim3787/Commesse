@@ -20,10 +20,11 @@
 
 .Comm-event {
   text-align: center;
-  padding-top: 10px;
+  padding-top: 5px;
   border-radius: 3px;
   margin-bottom: 5px;
   font-size: 16px;
+  border: 1px solid #030303;
 }
 
 .Comm-event.fat {

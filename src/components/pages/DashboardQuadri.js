@@ -6,7 +6,7 @@ import AttivitaCrea from "../AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-function DashboardElettrico() {
+function DashboardQuadri() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -15,7 +15,7 @@ function DashboardElettrico() {
   const [showPopup, setShowPopup] = useState(false);
   const [commesse, setCommesse] = useState([]);
 const [reparti, setReparti] = useState([]);
-const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Se necessario
+const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
 const [formData, setFormData] = useState({
   commessa_id: "",
   reparto_id: "",
@@ -58,7 +58,7 @@ const [loadingActivities, setLoadingActivities] = useState({});
         );
 
         const filteredActivities = activitiesResponse.data.filter(
-          (activity) => activity.reparto?.toLowerCase() === "elettrico"
+          (activity) => activity.reparto?.toLowerCase() === "quadristi"
         );
 
         setActivities(filteredActivities);
@@ -68,7 +68,7 @@ const [loadingActivities, setLoadingActivities] = useState({});
           headers: { Authorization: `Bearer ${token}` },
         });
         const filteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === 2
+          (resource) => Number(resource.reparto_id) === 15 // ID reparto
         );
 
         setResources(filteredResources);
@@ -94,19 +94,21 @@ const [loadingActivities, setLoadingActivities] = useState({});
           id: attivita.id,
           nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
           reparto_id: attivita.reparto_id,
+          
         }));
   
 
   
         // Filtra solo le attività relative al reparto
         const softwareActivities = attivitaWithReparto.filter(
-          (attivita) => attivita.reparto_id === 2
+          (attivita) => attivita.reparto_id === 15 // ID reparto
         );
         setAttivitaConReparto(softwareActivities);
+        console.log("Data", attivitaWithReparto )
+        
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
-        console.log("Data", attivitaWithReparto )
-        console.log("Data", attivitaWithReparto )
+      
       } finally {
         setLoading(false);
       }
@@ -127,7 +129,7 @@ const [loadingActivities, setLoadingActivities] = useState({});
   };
   const normalizeDate = (date) => {
     const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte in UTC
+    normalized.setHours(0, 0, 0, 0); 
     return normalized;
   };
   
@@ -165,6 +167,8 @@ const toLocalISOString = (date) => {
     const localDate = new Date(date.getTime() - offset * 60 * 1000);
     return localDate.toISOString().split("T")[0];
   };
+
+
   const getActivitiesForResourceAndDay = (resourceId, day) => {
     const normalizedDay = normalizeDate(day);
   
@@ -177,9 +181,10 @@ const toLocalISOString = (date) => {
         Number(activity.risorsa_id) === Number(resourceId) &&
         normalizedDay >= startDate &&
         normalizedDay <= endDate;
-  
+
   
       return matches;
+      
     });
   };
   
@@ -190,7 +195,7 @@ const toLocalISOString = (date) => {
   
     setFormData({
       commessa_id: activity.commessa_id || "",
-      reparto_id: 2, // ID reparto
+      reparto_id: 15, // ID reparto
       risorsa_id: activity.risorsa_id || "",
       attivita_id: activity.attivita_id || "",
       data_inizio: dataInizio,
@@ -203,11 +208,10 @@ const toLocalISOString = (date) => {
   };
   
   function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick }) {
-    const normalizedDay = normalizeDate(day); // Normalizza il giorno per evitare offset
-  
+    const normalizedDay = normalizeDate(day); 
     const [{ isOver }, drop] = useDrop(() => ({
-      accept: "ACTIVITY", // Deve essere uguale al tipo usato in DraggableActivity
-      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), // Usa la data normalizzata
+      accept: "ACTIVITY", 
+      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), 
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
@@ -219,7 +223,7 @@ const toLocalISOString = (date) => {
           <DraggableActivity
             key={activity.id}
             activity={activity}
-            onDoubleClick={() => onActivityClick(activity)} // Passa il doppio clic
+            onDoubleClick={() => onActivityClick(activity)}
           />
         ))}
       </td>
@@ -304,7 +308,7 @@ const toLocalISOString = (date) => {
   
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
-      const normalizedDate = normalizeDate(newDate); // Normalizza la data target
+      const normalizedDate = normalizeDate(newDate); 
   
       const updatedActivity = {
         ...activity,
@@ -339,7 +343,7 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
   return (
     <div>
       <div className="container">
-        <h1>Bacheca Reparto Elettrico</h1>
+        <h1>Bacheca Reparto quadri elettrici</h1>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
@@ -367,20 +371,20 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
           </thead>
           <tbody>
   {daysInMonth.map((day, index) => {
-    const isWeekend = day.getDay() === 0 || day.getDay() === 6; // 0 = Domenica, 6 = Sabato
-    const isToday = day.toDateString() === new Date().toDateString(); // Confronta con la data di oggi
-    const dayClass = isToday ? "today" : isWeekend ? "weekend" : ""; // Aggiungi classe per oggi o weekend
+    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+    const isToday = day.toDateString() === new Date().toDateString(); 
+    const dayClass = isToday ? "today" : isWeekend ? "weekend" : "";
 
     return (
       <tr key={index} className={dayClass}>
         <td>{day.toLocaleDateString()}</td>
         {resources.map((resource) => (
           <ResourceCell
-            key={`${day}-${resource.id}`} // Chiave univoca combinando giorno e risorsa
-            resourceId={resource.id} // ID della risorsa
-            day={day} // Giorno corrente
-            activities={getActivitiesForResourceAndDay(resource.id, day)} // Attività della risorsa per il giorno
-            onActivityDrop={handleActivityDrop} // Funzione chiamata quando viene eseguito il drop
+            key={`${day}-${resource.id}`} 
+            resourceId={resource.id} 
+            day={day} 
+            activities={getActivitiesForResourceAndDay(resource.id, day)} 
+            onActivityDrop={handleActivityDrop} 
             onActivityClick={handleActivityClick}
           />
         ))}
@@ -403,11 +407,11 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
 
     }}
     setShowPopup={setShowPopup}
-    commesse={commesse} // Passa le commesse recuperate
-    reparti={reparti} // Passa i reparti recuperati
-    risorse={resources} // Passa le risorse filtrate
+    commesse={commesse} 
+    reparti={reparti} 
+    risorse={resources} 
 
-    attivitaConReparto={attivitaConReparto} // (opzionale, se necessario)
+    attivitaConReparto={attivitaConReparto} 
   />
 )}
       </div>
@@ -415,4 +419,4 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
   );
 }
 
-export default DashboardElettrico;
+export default DashboardQuadri;

@@ -193,6 +193,7 @@ function CalendarioAttivita() {
           <table className="Gen-schedule">
             {renderRepartoSection(1, "Reparto Software")}
             {renderRepartoSection(2, "Reparto Elettrico")}
+            {renderRepartoSection(15, "Reparto Quadri")}
           </table>
         </div>
       </div>

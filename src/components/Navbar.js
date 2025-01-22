@@ -92,6 +92,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
       { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
+      { to: "/DashboardQuadri", label:  "Attività quadri dept." },
 
       { to: "/DashboardSoftware", label: "Attività software dept." },
       { to: "/DashboardElettrico", label: "Attività elettrico dept." },

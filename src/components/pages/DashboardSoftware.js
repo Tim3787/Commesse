@@ -27,7 +27,7 @@ const [formData, setFormData] = useState({
 });
 const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
-
+const [loadingActivities, setLoadingActivities] = useState({});
 
   // Calcola i giorni del mese
   const getDaysInMonth = () => {
@@ -131,6 +131,34 @@ const [editId, setEditId] = useState(null);
     normalized.setHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte in UTC
     return normalized;
   };
+
+  const updateActivityStatus = async (activityId, newStatus) => {
+    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+    try {
+      const payload = { stato: newStatus };
+  
+      // Effettua la richiesta API per aggiornare lo stato
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      console.log("Risposta PUT:", response.data);
+  
+      // Aggiorna lo stato locale delle attività
+      setActivities((prev) =>
+        prev.map((activity) =>
+          activity.id === activityId ? { ...activity, stato: newStatus } : activity
+        )
+      );
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
+      alert("Si è verificato un errore durante l'aggiornamento dello stato.");
+    } finally {
+      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
+    }
+  };
   
 // Nuova funzione per generare una stringa di data locale
 const toLocalISOString = (date) => {
@@ -203,14 +231,13 @@ const toLocalISOString = (date) => {
 
   function DraggableActivity({ activity, onDoubleClick }) {
     const [{ isDragging }, drag] = useDrag(() => ({
-      type: "ACTIVITY", // Deve essere uguale a quello usato in ResourceCell
+      type: "ACTIVITY", 
       item: { ...activity },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
     }));
   
-    // Determina la classe basata sullo stato dell'attività
     const activityClass =
       activity.stato === 0
         ? "activity-not-started"
@@ -221,9 +248,9 @@ const toLocalISOString = (date) => {
     return (
       <div
         ref={drag}
-        className={`activity ${activityClass}`} // Applica dinamicamente la classe
+        className={`activity ${activityClass}`}
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move" }}
-        onDoubleClick={onDoubleClick} // Associa il doppio clic per aprire il pop-up
+        onDoubleClick={onDoubleClick}
       >
         <strong>Commessa:</strong> {activity.numero_commessa}
         <br />
@@ -235,9 +262,46 @@ const toLocalISOString = (date) => {
           : activity.stato === 1
           ? "Iniziata"
           : "Completata"}
+        <br />
+  
+        {/* Pulsanti per modificare lo stato */}
+        <div className="activity-actions">
+          {activity.stato === 1 && (
+            <>
+              <span className="status-label">Iniziata</span>
+              <button
+                className="btn btn-complete"
+                onClick={() => updateActivityStatus(activity.id, 2)}
+                disabled={loadingActivities[activity.id]}
+              >
+                {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+              </button>
+            </>
+          )}
+          {activity.stato === 2 && <span className="status-label">Completata</span>}
+          {activity.stato === 0 && (
+            <>
+              <button
+                className="btn btn-start"
+                onClick={() => updateActivityStatus(activity.id, 1)}
+                disabled={loadingActivities[activity.id]}
+              >
+                {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
+              </button>
+              <button
+                className="btn btn-complete"
+                onClick={() => updateActivityStatus(activity.id, 2)}
+                disabled={loadingActivities[activity.id]}
+              >
+                {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+              </button>
+            </>
+          )}
+        </div>
       </div>
     );
   }
+  
   
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {

@@ -19,6 +19,7 @@ function AttivitaCrea({
   const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
   const suggestionsRef = useRef(null); 
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
 
   // Gestione del cambiamento dei campi di input
@@ -83,14 +84,19 @@ function AttivitaCrea({
 
       await axios[method](endpoint, formData);
       setSuccessMessage(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-      
+      setErrorMessage(""); // Rimuove eventuali errori precedenti
       setTimeout(() => {
          setSuccessMessage(""); // MESSAGGIO SUCCESSO
       }, 3000);
       fetchAttivita(); 
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
-    }
+      alert("Errore durante l'operazione.");
+      setErrorMessage("Si è verificato un errore. Per favore, riprova.");
+      setTimeout(() => {
+      setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
+   }, 3000);
+ }
   };
 
   // Funzione per chiudere i suggerimenti quando clicchi fuori
@@ -235,6 +241,7 @@ function AttivitaCrea({
 
           <button type="submit">{isEditing ? "Aggiorna" : "Aggiungi"}</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <button type="button" onClick={() => setShowPopup(false)}>
             Annulla
           </button>

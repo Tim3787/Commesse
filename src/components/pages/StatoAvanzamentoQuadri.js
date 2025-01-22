@@ -4,7 +4,7 @@ import "../style.css";
 import logo from"../assets/unitech-packaging.png";
 import { usePersistedFilters } from "./usePersistedFilters";
 
-function StatoAvanzamentoElettrico() {
+function StatoAvanzamentoQuadri() {
   const [commesse, setCommesse] = useState([]);
   const [filteredCommesse, setFilteredCommesse] = useState([]);
   const [clienteFilter, setClienteFilter] = useState("");
@@ -50,7 +50,7 @@ function StatoAvanzamentoElettrico() {
 
         // Recupera gli stati software
         const statiResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/stati-avanzamento`);
-      const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 2);
+      const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 15 );
       
       console.log("Stati validi:", statiValidi); // Verifica i dati ricevuti
       setStatiSoftware(statiValidi);
@@ -179,7 +179,7 @@ console.log("Checkbox selezionato:", e.target.checked);
         stato_id: newStatoId,
         is_active: true,
       });
-
+  
       // Aggiorna lo stato locale senza eliminare le commesse
       const updatedCommesse = commesse.map((commessa) => {
         if (commessa.commessa_id === commessaId) {
@@ -204,7 +204,6 @@ console.log("Checkbox selezionato:", e.target.checked);
   
       setCommesse(updatedCommesse);
       setStatoFilter(event.target.value);
-  
 
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
@@ -249,7 +248,7 @@ console.log("Checkbox selezionato:", e.target.checked);
       </div>
     )}
     <div className="header">
-    <h1>Stati avanzamento elettrico</h1>
+    <h1>Stati avanzamento quadri</h1>
     </div>
       <button onClick={toggleFilters} className="btn btn-filter">
         {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
@@ -351,13 +350,13 @@ console.log("Checkbox selezionato:", e.target.checked);
             <th>Cliente</th>
             <th>Tipo Macchina</th>
             <th>Data Consegna</th>
-            <th>Stato</th>
+            <th>Stato quadri</th>
           </tr>
         </thead>
         <tbody>
           {filteredCommesse.map((commessa) => {
             const softwareReparto = commessa.stati_avanzamento.find(
-              (reparto) => reparto.reparto_id === 2 // ID del reparto 
+              (reparto) => reparto.reparto_id === 15 // ID del reparto software
             );
             const activeStato = softwareReparto?.stati_disponibili.find((stato) => stato.isActive);
             return (
@@ -394,4 +393,4 @@ console.log("Checkbox selezionato:", e.target.checked);
   );
 }
 
-export default StatoAvanzamentoElettrico;
+export default StatoAvanzamentoQuadri;

@@ -25,6 +25,7 @@ function CommessaCrea({
     stato: "",
   });
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Funzione per formattare la data in formato 'yyyy-MM-dd'
   const formatDate = (dateString) => {
@@ -149,6 +150,7 @@ function CommessaCrea({
         stato: "",
       });
       setSelezioniAttivita({});
+      setErrorMessage(""); // Rimuove eventuali errori precedenti
       setSuccessMessage(isEditing ? "Commessa creata con successo!" : "Commessa creata con successo!");
       setTimeout(() => {
          setSuccessMessage(""); // MESSAGGIO SUCCESSO
@@ -157,6 +159,11 @@ function CommessaCrea({
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       alert("Errore durante l'operazione.");
+      setErrorMessage("Si è verificato un errore. Per favore, riprova.");
+   
+   setTimeout(() => {
+      setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
+   }, 3000);
     }
   };
   
@@ -286,6 +293,7 @@ function CommessaCrea({
 
           <button type="submit">{isEditing ? "Aggiorna" : "Crea"}</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
         </form>
         <button onClick={onClose}>Chiudi</button>
       </div>
