@@ -1,11 +1,12 @@
 
 .Gen-table-container {
   overflow-y: auto;  /* Scorrimento verticale */
-  max-height: 720px; /* Altezza massima per lo scrolling */
+  overflow-y: auto;  /* Scorrimento verticale */
   border: 1px solid #ddd;
 }
 
 .Gen-schedule {
+  font-size: 12px;
   width: 100%;
   border-collapse: collapse;
 }

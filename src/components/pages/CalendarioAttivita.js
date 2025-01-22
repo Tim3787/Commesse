@@ -180,7 +180,7 @@ function CalendarioAttivita() {
   
   return (
     <div>
-      <div className="container">
+      <div className="container-Scroll">
         <h1>Bacheca Attività</h1>
         {loading && (
           <div className="loading-overlay">

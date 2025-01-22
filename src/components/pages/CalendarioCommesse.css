@@ -1,7 +1,7 @@
 
 .Comm-table-container {
   overflow-y: auto;  /* Scorrimento verticale */
-  max-height: 720px; /* Altezza massima per lo scrolling */
+  max-height: 92vh; /* Altezza massima per lo scrolling */
   border: 1px solid #ddd;
 }
 
@@ -23,7 +23,7 @@
   padding-top: 5px;
   border-radius: 3px;
   margin-bottom: 5px;
-  font-size: 16px;
+  font-size: 14px;
   border: 1px solid #030303;
 }
 
@@ -40,7 +40,7 @@
   text-align: left; /* Allinea il testo a sinistra */
   top: 5px; /* Distanza dalla parte superiore */
   left: 5px; /* Distanza dalla parte sinistra */
-  font-size: 20px; /* Dimensione del font */
+  font-size: 16px; /* Dimensione del font */
   width: 100%;
 }
 

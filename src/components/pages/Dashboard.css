@@ -62,13 +62,7 @@
     margin-top: 10px;
   }
   
-  .activity {
-    margin-bottom: 5px;
-    padding: 5px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-  }
+
   
 
 .fat {
@@ -80,10 +74,12 @@
 }
 
   .calendar-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    flex-shrink: 0; /* Mantiene fissa la dimensione della navigazione */
+    padding: 5px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd; /* Separatore visivo */
   }
+  
   .today {
     background-color: #90d7ec;
     font-weight: bold;
@@ -112,9 +108,6 @@
     cursor: not-allowed;
   }
   
-  .activity {
-    margin-bottom: 10px;
-  }
   
   .activity-actions {
     margin-top: 5px;
@@ -142,15 +135,14 @@
     font-weight: bold; /* Evidenzia il testo */
   }
 
-  .activity {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #000000;
-  }
-  
 
+  
+  .activity {
+    padding: 5px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
   
   .activity-started {
     background-color: #f0ad4e; /* Arancione per attività iniziate */

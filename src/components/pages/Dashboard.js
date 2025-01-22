@@ -151,9 +151,7 @@ function Dashboard() {
   
   
   
-  // Controlla se l'attività è una Trasferta
-  const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
-
+  
   
   return (
     <div>
@@ -186,19 +184,12 @@ function Dashboard() {
 
       {/* Mostra le attività assegnate per il giorno */}
       <div className="activities">
-        
         {getActivitiesForDay(day).length > 0 ? (
           getActivitiesForDay(day).map((activity) => (
-            
             <div key={activity.id} className="activity">
               <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
               <strong>Attività:</strong> {activity.nome_attivita}
-              {isTrasferta && (
-              <span className="trasferta-icon" title="Trasferta">
-                🚗
-              </span>
-            )}
-              <br />
+              
               <div className="activity-actions">
                 {activity.stato === 1 && (
                   <>
