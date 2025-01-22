@@ -101,7 +101,7 @@ const [editId, setEditId] = useState(null);
   
 
   
-        // Filtra solo le attività relative al reparto software
+        // Filtra solo le attività relative al reparto
         const softwareActivities = attivitaWithReparto.filter(
           (attivita) => attivita.reparto_id === 1
         );
