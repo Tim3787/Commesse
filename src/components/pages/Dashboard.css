@@ -166,7 +166,7 @@
   }
   
   .table-container {
-    max-height: 1000px; /* Altezza massima per lo scrolling */
+    max-height: 720px; /* Altezza massima per lo scrolling */
     overflow-y: auto;  /* Scorrimento verticale */
     border: 1px solid #ddd;
   }
@@ -193,4 +193,5 @@
     position: sticky;
     left: 0;
     z-index: 2; /* Più alto per sovrapporsi alle celle */
+    background-color: #ffffff; 
   }

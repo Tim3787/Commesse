@@ -1,7 +1,7 @@
 
 .Gen-table-container {
   overflow-y: auto;  /* Scorrimento verticale */
-  max-height: 1000px; /* Altezza massima per lo scrolling */
+  max-height: 720px; /* Altezza massima per lo scrolling */
   border: 1px solid #ddd;
 }
 

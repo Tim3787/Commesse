@@ -150,7 +150,6 @@ function CommessaCrea({
       });
       setSelezioniAttivita({});
       fetchCommesse(); 
-      onClose(); 
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       alert("Errore durante l'operazione.");

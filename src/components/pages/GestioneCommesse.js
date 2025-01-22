@@ -85,7 +85,7 @@ function GestioneCommesse() {
 
   // Funzione per chiudere il pop-up
   const handleClosePopup = () => {
-    setShowPopup(false); 
+   setShowPopup(false); 
     setSelectedCommessa(null); 
   };
 

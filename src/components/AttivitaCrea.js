@@ -84,7 +84,7 @@ function AttivitaCrea({
       //alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
     
       fetchAttivita(); 
-      setShowPopup(false); 
+    //  setShowPopup(false); 
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
     }

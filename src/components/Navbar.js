@@ -54,6 +54,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
+  
   const markAllAsRead = async () => {
     try {
       const promises = notifications.map((notification) =>
@@ -108,7 +109,12 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const renderLinks = (links) =>
     links.map((link, index) => (
       <li key={index}>
-        <Link to={link.to}>{link.label}</Link>
+        <Link
+          to={link.to}
+          onClick={() => setActiveMenu(null)} // Chiudi il menu dopo il clic
+        >
+          {link.label}
+        </Link>
       </li>
     ));
 
