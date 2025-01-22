@@ -49,8 +49,6 @@ const [editId, setEditId] = useState(null);
     const fetchData = async () => {
       try {
         setLoading(true);
-
-  
         // Recupera tutte le attività
         const activitiesResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/attivita_commessa`,
@@ -59,9 +57,8 @@ const [editId, setEditId] = useState(null);
           }
         );
 
-  
         const filteredActivities = activitiesResponse.data.filter(
-          (activity) => activity.reparto?.toLowerCase() === "software"
+          (activity) => activity.reparto?.toLowerCase() === "elettrico"
         );
 
         setActivities(filteredActivities);
@@ -108,6 +105,8 @@ const [editId, setEditId] = useState(null);
         setAttivitaConReparto(softwareActivities);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+        console.log("Data", attivitaWithReparto )
+        console.log("Data", attivitaWithReparto )
       } finally {
         setLoading(false);
       }

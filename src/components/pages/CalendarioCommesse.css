@@ -19,26 +19,55 @@
 
 
 
-.Comm-schedule td:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 2; /* Più alto per sovrapporsi alle celle */
-  background-color: #ffffff;
-}
-
-.event {
-  padding: 5px;
+.Comm-event {
+  text-align: center;
+  padding: 15px;
   border-radius: 3px;
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: 16px;
 }
 
-.event.fat {
+.Comm-event.fat {
   background-color: #ffc107;
   color: #000;
 }
 
-.event.scadenza {
+.Comm-event.scadenza {
   background-color: #28a745;
   color: #fff;
+}
+
+.Comm-day-header {
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-align: left; /* Allinea il testo a sinistra */
+  position: absolute; /* Posizione assoluta */
+  top: 5px; /* Distanza dalla parte superiore */
+  left: 5px; /* Distanza dalla parte sinistra */
+  font-size: 20px; /* Dimensione del font */
+}
+
+.Com-empty-cell {
+  background-color: #f0f0f0;
+}
+
+td {
+  position: relative; /* Necessario per posizionare gli elementi assoluti */
+  padding: 10px; /* Spaziatura interna per rendere il contenuto leggibile */
+  vertical-align: top; /* Allinea il contenuto in alto */
+}
+
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .header {
+    font-size: 14px; 
+  }
+  .Comm-event  {
+    font-size: 12px; 
+    padding: 10px;
+  }
 }

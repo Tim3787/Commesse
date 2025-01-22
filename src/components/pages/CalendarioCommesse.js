@@ -7,7 +7,7 @@ function CalendarioCommesse() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [commesse, setCommesse] = useState([]);
   const [loading, setLoading] = useState(false);
-  // Calcola i giorni del mese
+
   const getDaysInMonth = () => {
     const days = [];
     const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -20,39 +20,56 @@ function CalendarioCommesse() {
     return days;
   };
 
-  const daysInMonth = getDaysInMonth();
+  const getWeeksInMonth = () => {
+    const days = getDaysInMonth();
+    const weeks = [];
+    let currentWeek = [];
 
-  // Recupera dati iniziali
+    days.forEach((day) => {
+      if (currentWeek.length === 0 || day.getDay() !== 0) {
+        currentWeek.push(day);
+      } else {
+        weeks.push(currentWeek);
+        currentWeek = [day];
+      }
+    });
+
+    if (currentWeek.length > 0) {
+      weeks.push(currentWeek);
+    }
+
+    return weeks.map((week) => {
+      const emptyCellsStart = Array(week[0].getDay()).fill(null); // Celle vuote all'inizio
+      const emptyCellsEnd = Array(6 - week[week.length - 1].getDay()).fill(null); // Celle vuote alla fine
+      return [...emptyCellsStart, ...week, ...emptyCellsEnd];
+    });
+  };
+
+  const weeksInMonth = getWeeksInMonth();
+
   useEffect(() => {
     const fetchCommesse = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-        console.log("Dati ricevuti:", response.data); // Aggiungi questo
         setCommesse(response.data);
-        setFilteredCommesse(response.data);
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchCommesse();
   }, []);
-  
 
-  // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-    setFilteredCommesse([]);
   };
-  
+
   const goToNextMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-    setFilteredCommesse([]);
   };
-  
 
   const normalizeDate = (date) => {
     const normalized = new Date(date);
@@ -69,23 +86,25 @@ function CalendarioCommesse() {
   const getCommesseForDay = (day) => {
     return commesse.filter((commessa) => {
       const consegna = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
-  
       return consegna && isSameDay(consegna, day);
     });
   };
-  
-  
-  
+
   function CalendarDay({ day }) {
+    if (!day) {
+      return <td className="empty-cell"></td>; // Celle vuote
+    }
+  
     const commesseForDay = getCommesseForDay(day);
   
     return (
       <td>
+        <div className="Comm-day-header">{day.getDate()}</div> {/* Data in alto a sinistra */}
         {commesseForDay.length === 0 ? (
-          <span className="no-event">Nessuna commessa</span>
+          <span className="Comm-no-event"></span>
         ) : (
           commesseForDay.map((commessa) => (
-            <div key={commessa.commessa_id} className="event">
+            <div key={commessa.commessa_id} className="Comm-event">
               <strong>{commessa.numero_commessa}</strong>
               <br />
               <span>{commessa.cliente}</span>
@@ -95,6 +114,7 @@ function CalendarioCommesse() {
       </td>
     );
   }
+  
   return (
     <div>
       <div className="container">
@@ -118,17 +138,23 @@ function CalendarioCommesse() {
           <table className="Comm-schedule">
             <thead>
               <tr>
-                {daysInMonth.map((day, index) => (
-                  <th key={index}>{day.toLocaleDateString()}</th>
-                ))}
+                <th>Domenica</th>
+                <th>Lunedì</th>
+                <th>Martedì</th>
+                <th>Mercoledì</th>
+                <th>Giovedì</th>
+                <th>Venerdì</th>
+                <th>Sabato</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                {daysInMonth.map((day, index) => (
-                  <CalendarDay key={index} day={day} />
-                ))}
-              </tr>
+              {weeksInMonth.map((week, weekIndex) => (
+                <tr key={weekIndex}>
+                  {week.map((day, dayIndex) => (
+                    <CalendarDay key={dayIndex} day={day} />
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
