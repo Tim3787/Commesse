@@ -18,6 +18,7 @@ function AttivitaCrea({
   const [commessaSearch, setCommessaSearch] = useState(""); 
   const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
   const suggestionsRef = useRef(null); 
+  const [successMessage, setSuccessMessage] = useState("");
 
 
   // Gestione del cambiamento dei campi di input
@@ -81,10 +82,12 @@ function AttivitaCrea({
       const method = isEditing ? "put" : "post";
 
       await axios[method](endpoint, formData);
-      //alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-    
+      setSuccessMessage(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+      
+      setTimeout(() => {
+         setSuccessMessage(""); // MESSAGGIO SUCCESSO
+      }, 3000);
       fetchAttivita(); 
-    //  setShowPopup(false); 
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
     }
@@ -231,6 +234,7 @@ function AttivitaCrea({
           </div>
 
           <button type="submit">{isEditing ? "Aggiorna" : "Aggiungi"}</button>
+          {successMessage && <div className="success-message">{successMessage}</div>}
           <button type="button" onClick={() => setShowPopup(false)}>
             Annulla
           </button>
