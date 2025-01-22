@@ -817,6 +817,13 @@ background-color: #f0f0f0;
   margin-right: 8px;
 }
 
+.trasferta-icon {
+  margin-left: 5px;
+  font-size: 20px;
+  color: #007bff; /* Colore dell'icona */
+  vertical-align: middle;
+}
+
 /* ==============================
 Responsive Design
 ============================== */

@@ -245,6 +245,9 @@ const toLocalISOString = (date) => {
         ? "activity-started"
         : "activity-completed";
   
+                      // Controlla se l'attività è una Trasferta
+                      const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+                      
     return (
       <div
         ref={drag}
@@ -255,6 +258,11 @@ const toLocalISOString = (date) => {
         <strong>Commessa:</strong> {activity.numero_commessa}
         <br />
         <strong>Attività:</strong> {activity.nome_attivita}
+        {isTrasferta && (
+              <span className="trasferta-icon" title="Trasferta">
+                🚗
+              </span>
+            )}
         <br />
         <strong>Stato:</strong>{" "}
         {activity.stato === 0

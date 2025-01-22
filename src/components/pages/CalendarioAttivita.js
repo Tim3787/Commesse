@@ -148,12 +148,20 @@ function CalendarioAttivita() {
               : activity.stato === 1
               ? "activity-started"
               : "activity-completed";
+              // Controlla se l'attività è una Trasferta
+        const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+
   
           return (
             <div key={activity.id} className={`activity ${activityClass}`}>
               <strong>Commessa:</strong> {activity.numero_commessa}
               <br />
               <strong>Attività:</strong> {activity.nome_attivita}
+               {isTrasferta && (
+              <span className="trasferta-icon" title="Trasferta">
+                🚗
+              </span>
+            )}
               <br />
               <strong>Stato:</strong>{" "}
               {activity.stato === 0
