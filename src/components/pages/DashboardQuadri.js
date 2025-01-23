@@ -207,28 +207,51 @@ const toLocalISOString = (date) => {
     setShowPopup(true);
   };
   
-  function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick }) {
-    const normalizedDay = normalizeDate(day); 
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "ACTIVITY", 
-      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), 
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
   
-    return (
-      <td ref={drop} className={isOver ? "highlight" : ""}>
-        {activities.map((activity) => (
-          <DraggableActivity
-            key={activity.id}
-            activity={activity}
-            onDoubleClick={() => onActivityClick(activity)}
-          />
-        ))}
-      </td>
-    );
-  }
+    const handleEmptyCellDoubleClick = (resourceId, day) => {
+      const formattedDate = toLocalISOString(day);
+      setFormData((prev) => ({
+        ...prev,
+        risorsa_id: resourceId,
+        data_inizio: formattedDate,
+        reparto_id: 15, // Reparto 
+      }));
+      setShowPopup(true); // Mostra il popup
+      setIsEditing(false); // Indica che si sta creando una nuova attività
+      setEditId(null); // Non modifica un'attività esistente
+    };
+  
+    
+    function ResourceCell({ resourceId, day, activities, onActivityClick }) {
+      const normalizedDay = normalizeDate(day);
+    
+      const [{ isOver }, drop] = useDrop(() => ({
+        accept: "ACTIVITY",
+        drop: () => {},
+        collect: (monitor) => ({
+          isOver: !!monitor.isOver(),
+        }),
+      }));
+    
+      return (
+        <td
+          ref={drop}
+          className={isOver ? "highlight" : ""}
+          onDoubleClick={() =>
+            activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
+          } // Chiama handleEmptyCellDoubleClick per celle vuote
+        >
+          {activities.map((activity) => (
+            <DraggableActivity
+              key={activity.id}
+              activity={activity}
+              onDoubleClick={() => onActivityClick(activity)}
+            />
+          ))}
+        </td>
+      );
+    }
+    
   
   
 
@@ -342,7 +365,7 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
 
   return (
     <div>
-      <div className="container">
+      <div className="container-Scroll">
         <h1>Bacheca Reparto quadri elettrici</h1>
         {loading && (
           <div className="loading-overlay">
@@ -359,7 +382,7 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
           </button>
         </div>
         <DndProvider backend={HTML5Backend}>
-        <div className="table-container">
+        <div className="Gen-table-container">
         <table className="software-schedule">
           <thead>
             <tr>
