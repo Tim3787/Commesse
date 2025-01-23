@@ -162,6 +162,18 @@ tr:nth-child(even) {
   transform: scale(1.02);
 }
 
+.commessa {
+  text-align: center;
+  padding-top: 5px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  border: 1px solid #030303;
+}
+.commessa:hover {
+  transform: scale(1.02);
+  background-color: #cdfcc3;
+}
 
 
 .table-hover tbody tr:hover {

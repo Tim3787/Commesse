@@ -32,7 +32,14 @@
   color: #000;
 }
 
-
+.Commessa {
+  text-align: center;
+  padding-top: 5px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  border: 1px solid #030303;
+}
 
 .Comm-day-header {
   font-weight: bold;
