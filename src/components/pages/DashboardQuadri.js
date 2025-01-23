@@ -222,35 +222,36 @@ const toLocalISOString = (date) => {
     };
   
     
-    function ResourceCell({ resourceId, day, activities, onActivityClick }) {
-      const normalizedDay = normalizeDate(day);
-    
-      const [{ isOver }, drop] = useDrop(() => ({
-        accept: "ACTIVITY",
-        drop: () => {},
-        collect: (monitor) => ({
-          isOver: !!monitor.isOver(),
-        }),
-      }));
-    
-      return (
-        <td
-          ref={drop}
-          className={isOver ? "highlight" : ""}
-          onDoubleClick={() =>
-            activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
-          } // Chiama handleEmptyCellDoubleClick per celle vuote
-        >
-          {activities.map((activity) => (
-            <DraggableActivity
-              key={activity.id}
-              activity={activity}
-              onDoubleClick={() => onActivityClick(activity)}
-            />
-          ))}
-        </td>
-      );
-    }
+    function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick }) {
+        const normalizedDay = normalizeDate(day);
+      
+        // Configurazione del drop
+        const [{ isOver }, drop] = useDrop(() => ({
+          accept: "ACTIVITY", // Tipo accettato
+          drop: (item) => onActivityDrop(item, resourceId, normalizedDay), // Funzione chiamata durante il drop
+          collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+          }),
+        }));
+      
+        return (
+          <td
+            ref={drop} // Mantiene il riferimento per il drag and drop
+            className={isOver ? "highlight" : ""}
+            onDoubleClick={() =>
+              activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
+            } // Doppio clic sulle celle vuote
+          >
+            {activities.map((activity) => (
+              <DraggableActivity
+                key={activity.id}
+                activity={activity}
+                onDoubleClick={() => onActivityClick(activity)} // Doppio clic su un'attività
+              />
+            ))}
+          </td>
+        );
+      }
     
   
   
