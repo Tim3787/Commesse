@@ -1,7 +1,7 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/unitech-packaging.png";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -9,6 +9,11 @@ function StatoAvanzamentoSoftware() {
   const [commesse, setCommesse] = useState([]);
   const [statiSoftware, setStatiSoftware] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [numeroCommessaFilter, setNumeroCommessaFilter] = useState("");
+  const [clienteFilter, setClienteFilter] = useState("");
+  const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const [statoFilter, setStatoFilter] = useState("");
   const token = sessionStorage.getItem("token");
 
   // Recupera le commesse e gli stati di avanzamento
@@ -103,7 +108,7 @@ function StatoAvanzamentoSoftware() {
       >
         <strong>{commessa.numero_commessa}</strong>
         <br />
-        <div>{commessa.cliente}  </div>
+        <div>{commessa.cliente} </div>
         <div>{commessa.data_consegna ? new Date(commessa.data_consegna).toLocaleDateString() : "N/A"}</div>
       </div>
     );
@@ -131,6 +136,18 @@ function StatoAvanzamentoSoftware() {
     );
   }
 
+  const filteredCommesse = commesse.filter((commessa) => {
+    const matchesNumeroCommessa = commessa.numero_commessa.toString().includes(numeroCommessaFilter);
+    const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
+    const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
+    const matchesStato = !statoFilter || commessa.stati_avanzamento.some((reparto) =>
+      reparto.reparto_id === 1 &&
+      reparto.stati_disponibili.some((s) => s.stato_id.toString() === statoFilter && s.isActive)
+    );
+
+    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && matchesStato;
+  });
+
   return (
     <div className="container">
       <h1>Stato Avanzamento Software</h1>
@@ -139,6 +156,28 @@ function StatoAvanzamentoSoftware() {
           <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
+
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Numero Commessa"
+          value={numeroCommessaFilter}
+          onChange={(e) => setNumeroCommessaFilter(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Cliente"
+          value={clienteFilter}
+          onChange={(e) => setClienteFilter(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Tipo Macchina"
+          value={tipoMacchinaFilter}
+          onChange={(e) => setTipoMacchinaFilter(e.target.value)}
+        />
+      </div>
+
       <DndProvider backend={HTML5Backend}>
         <table className="stati-software-table">
           <thead>
@@ -155,7 +194,7 @@ function StatoAvanzamentoSoftware() {
                   key={stato.id}
                   stato={stato}
                   repartoId={1} // ID reparto software
-                  commesse={commesse.filter((commessa) =>
+                  commesse={filteredCommesse.filter((commessa) =>
                     commessa.stati_avanzamento.some(
                       (reparto) =>
                         reparto.reparto_id === 1 &&
