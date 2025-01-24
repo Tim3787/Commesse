@@ -38,7 +38,7 @@ const stateDropdownRef = useRef(null);
     attivita_id: "",
     data_inizio: "",
     durata: "",
-    stati: "",
+    stato: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -105,7 +105,7 @@ const stateDropdownRef = useRef(null);
 
     // Funzione per aprire il pop-up in modalità modifica
     const handleEdit = (attivita) => {
-
+      console.log("Attività selezionata per modifica:", attivita);
   
       // Controlla se `data_inizio` è una data valida
       const dataInizio = attivita.data_inizio && attivita.data_inizio !== "Non specificata"
@@ -120,6 +120,7 @@ const stateDropdownRef = useRef(null);
         stato: attivita.stato|| "",
         data_inizio: dataInizio,
         durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", // Usa stringa vuota se `durata` non è valida
+        descrizione: attivita.descrizione_attivita || "", // Popola il campo descrizione
       });
       setIsEditing(true);
       setEditId(attivita.id);
@@ -231,6 +232,7 @@ const stateDropdownRef = useRef(null);
       attivita_id: "",
       data_inizio: "",
       durata: "",
+      stato: "",
     });
     setIsEditing(false);
     setShowPopup(true);

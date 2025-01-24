@@ -155,9 +155,8 @@ function Dashboard() {
   
   return (
     <div>
-
       <div className="container">
-      <h1>Bacheca {userName}</h1>
+        <h1>Bacheca {userName}</h1>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
@@ -171,81 +170,91 @@ function Dashboard() {
             Mese Successivo →
           </button>
         </div>
-
+  
         <div className="calendar">
-  {daysInMonth.map((day, index) => (
-    <div
-      key={index}
-      className={`calendar-day ${day.toLocaleDateString() === today ? "today" : ""}`}
-    >
-      <div className="day-header">
-        <strong>{day.toLocaleDateString()}</strong>
-      </div>
-
-      {/* Mostra le attività assegnate per il giorno */}
-      <div className="activities">
-        {getActivitiesForDay(day).length > 0 ? (
-          getActivitiesForDay(day).map((activity) => (
-            <div key={activity.id} className="activity">
-              <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
-              <strong>Attività:</strong> {activity.nome_attivita}
-              
-              <div className="activity-actions">
-                {activity.stato === 1 && (
-                  <>
-                    <span className="status-label">Iniziata</span>
-                    <button
-                      className="btn btn-complete"
-                      onClick={() => updateActivityStatus(activity.id, 2)}
-                    >
-                      Completa
-                    </button>
-                  </>
-                )}
-                {activity.stato === 2 && <span className="status-label">Completata</span>}
-                {activity.stato === 0 && (
-                  <>
-                    <button
-                      className="btn btn-start"
-                      onClick={() => updateActivityStatus(activity.id, 1)}
-                      disabled={loadingActivities[activity.id]}
-                      >
-  {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
-                    </button>
-                    <button
-                      className="btn btn-complete"
-                      onClick={() => updateActivityStatus(activity.id, 2)}
-                      disabled={loadingActivities[activity.id]}
-                      >
-  {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
-                    </button>
-                  </>
-                )}
+          {daysInMonth.map((day, index) => {
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6
+            const isToday = day.toLocaleDateString() === today;
+            return (
+              <div
+                key={index}
+                className={`calendar-day ${isToday ? "today" : ""} ${
+                  isWeekend ? "weekend" : ""
+                }`}
+              >
+                <div className="day-header">
+                  <strong>{day.toLocaleDateString()}</strong>
+                </div>
+  
+                {/* Mostra le attività assegnate per il giorno */}
+                <div className="activities">
+                  {getActivitiesForDay(day).length > 0 ? (
+                    getActivitiesForDay(day).map((activity) => (
+                      <div key={activity.id} className="activity">
+                        <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
+                        <strong>Attività:</strong> {activity.nome_attivita}
+                        <div className="activity-actions">
+                          {activity.stato === 1 && (
+                            <>
+                              <span className="status-label">Iniziata</span>
+                              <button
+                                className="btn btn-complete"
+                                onClick={() => updateActivityStatus(activity.id, 2)}
+                              >
+                                Completa
+                              </button>
+                            </>
+                          )}
+                          {activity.stato === 2 && (
+                            <span className="status-label">Completata</span>
+                          )}
+                          {activity.stato === 0 && (
+                            <>
+                              <button
+                                className="btn btn-start"
+                                onClick={() => updateActivityStatus(activity.id, 1)}
+                                disabled={loadingActivities[activity.id]}
+                              >
+                                {loadingActivities[activity.id]
+                                  ? "Caricamento..."
+                                  : "Inizia"}
+                              </button>
+                              <button
+                                className="btn btn-complete"
+                                onClick={() => updateActivityStatus(activity.id, 2)}
+                                disabled={loadingActivities[activity.id]}
+                              >
+                                {loadingActivities[activity.id]
+                                  ? "Caricamento..."
+                                  : "Completa"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
+  
+                {/* Mostra le commesse con FAT per il giorno */}
+                <div className="fat-dates">
+                  {allFATDates
+                    .filter((commessa) => {
+                      const fatDate = new Date(commessa.data_FAT).toLocaleDateString();
+                      return fatDate === day.toLocaleDateString();
+                    })
+                    .map((commessa) => (
+                      <div key={commessa.commessa_id} className="fat">
+                        <strong>FAT commessa:</strong> {commessa.numero_commessa}{" "}
+                      </div>
+                    ))}
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <div></div>
-        )}
-      </div>
-
-      {/* Mostra le commesse con FAT per il giorno */}
-      <div className="fat-dates">
-        {allFATDates
-          .filter((commessa) => {
-            const fatDate = new Date(commessa.data_FAT).toLocaleDateString();
-            return fatDate === day.toLocaleDateString();
-          })
-          .map((commessa) => (
-            <div key={commessa.commessa_id} className="fat">
-              <strong>FAT commessa:</strong> {commessa.numero_commessa} {" "}
-            </div>
-          ))}
-      </div>
-    </div>
-  ))}
-</div>
-
+            );
+          })}
+        </div>
       </div>
     </div>
   );

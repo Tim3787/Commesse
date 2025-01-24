@@ -182,14 +182,18 @@ function StatoAvanzamentoSoftware() {
         <table className="stati-software-table">
           <thead>
             <tr>
-              {statiSoftware.map((stato) => (
-                <th key={stato.id}>{stato.nome_stato}</th>
-              ))}
+            {[...statiSoftware]
+  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
+  .map((stato) => (
+    <th key={stato.id}>{stato.nome_stato}</th>
+  ))}
             </tr>
           </thead>
           <tbody>
             <tr>
-              {statiSoftware.map((stato) => (
+            {[...statiSoftware]
+  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
+  .map((stato) => (
                 <DropZone
                   key={stato.id}
                   stato={stato}

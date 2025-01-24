@@ -182,14 +182,19 @@ function StatoAvanzamentoElettrico() {
         <table className="stati-software-table">
           <thead>
             <tr>
-              {statiElettrico.map((stato) => (
-                <th key={stato.id}>{stato.nome_stato}</th>
-              ))}
+            {[...statiElettrico]
+  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
+  .map((stato) => (
+    <th key={stato.id}>{stato.nome_stato}</th>
+  ))}
+              
             </tr>
           </thead>
           <tbody>
             <tr>
-              {statiElettrico.map((stato) => (
+            {[...statiElettrico]
+  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
+  .map((stato) => (
                 <DropZone
                   key={stato.id}
                   stato={stato}

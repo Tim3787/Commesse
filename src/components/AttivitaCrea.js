@@ -64,40 +64,67 @@ function AttivitaCrea({
     setSuggestedCommesse([]); 
   };
   
-  
   // Funzione di invio del form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-    if (!commessa_id || !reparto_id || !risorsa_id || !attivita_id || !data_inizio || !durata) {
+  
+    // Imposta un valore predefinito per "descrizione" e convalida i dati
+    const updatedFormData = {
+      ...formData,
+      descrizione: formData.descrizione || "Nessuna descrizione fornita",
+      stato: parseInt(formData.stato, 10), // Converte "stato" in numero
+    };
+  
+    console.log("Dati inviati al server:", updatedFormData);
+  
+    const {
+      commessa_id,
+      reparto_id,
+      risorsa_id,
+      attivita_id,
+      data_inizio,
+      durata,
+      stato,
+    } = updatedFormData;
+  
+    // Validazione lato client
+    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata || stato === undefined) {
       alert("Tutti i campi sono obbligatori.");
       return;
     }
-
+  
     try {
       const endpoint = isEditing
         ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
         : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
-
+  
       const method = isEditing ? "put" : "post";
-
-      await axios[method](endpoint, formData);
+  
+      await axios[method](endpoint, updatedFormData);
       setSuccessMessage(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
       setErrorMessage(""); // Rimuove eventuali errori precedenti
+  
       setTimeout(() => {
-         setSuccessMessage(""); // MESSAGGIO SUCCESSO
+        setSuccessMessage(""); // Rimuove il messaggio di successo
       }, 3000);
-      fetchAttivita(); 
+  
+      fetchAttivita(); // Aggiorna la lista delle attività
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
-      alert("Errore durante l'operazione.");
-      setErrorMessage("Si è verificato un errore. Per favore, riprova.");
+  
+      // Mostra il messaggio di errore dettagliato
+      const errorMsg = error.response?.data || "Errore durante l'operazione.";
+      alert(errorMsg);
+      setErrorMessage(errorMsg);
+  
       setTimeout(() => {
-      setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
-   }, 3000);
- }
+        setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
+      }, 3000);
+    }
   };
+  
+
+
 
   // Funzione per chiudere i suggerimenti quando clicchi fuori
   const closeSuggestions = (e) => {
@@ -238,6 +265,35 @@ function AttivitaCrea({
               required
             />
           </div>
+
+        {/* Stato */}
+        <div className="form-group">
+          <label>Stato:</label>
+          <select
+            name="stato"
+            value={formData.stato}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleziona uno stato</option>
+            <option value={0}>Non iniziata</option>
+            <option value={1}>Iniziata</option>
+            <option value={2}>Completata</option>
+          </select>
+        </div>
+
+        {/* Descrizione */}
+        <div className="form-group">
+          <label>Descrizione:</label>
+          <textarea
+            name="descrizione"
+            value={formData.descrizione || ""}
+            onChange={handleChange}
+            placeholder="Inserisci una descrizione (opzionale)"
+            rows="4"
+            className="textarea-field"
+          />
+        </div>
 
           <button type="submit">{isEditing ? "Aggiorna" : "Aggiungi"}</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
