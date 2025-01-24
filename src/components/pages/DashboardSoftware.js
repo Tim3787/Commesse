@@ -280,28 +280,28 @@ const toLocalISOString = (date) => {
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move" }}
         onDoubleClick={onDoubleClick}
       >
-        <strong>Commessa:</strong> {activity.numero_commessa}
+        <strong>Commessa: {activity.numero_commessa}</strong>
         <br />
-        <strong>Attività:</strong> {activity.nome_attivita}
+        <strong>Attività: {activity.nome_attivita}</strong>
         {isTrasferta && (
               <span className="trasferta-icon" title="Trasferta">
                 🚗
               </span>
             )}
         <br />
-        <strong>Stato:</strong>{" "}
+        <strong>Stato:{" "}
         {activity.stato === 0
           ? "Non iniziata"
           : activity.stato === 1
           ? "Iniziata"
-          : "Completata"}
+          : "Completata"}</strong>
         <br />
   
         {/* Pulsanti per modificare lo stato */}
         <div className="activity-actions">
           {activity.stato === 1 && (
             <>
-              <span className="status-label">Iniziata</span>
+              
               <button
                 className="btn btn-complete"
                 onClick={() => updateActivityStatus(activity.id, 2)}
@@ -311,7 +311,7 @@ const toLocalISOString = (date) => {
               </button>
             </>
           )}
-          {activity.stato === 2 && <span className="status-label">Completata</span>}
+          
           {activity.stato === 0 && (
             <>
               <button

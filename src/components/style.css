@@ -158,9 +158,6 @@ tr:nth-child(even) {
   cursor: pointer;
 }
 
-.attivita-item:hover {
-  transform: scale(1.02);
-}
 
 .commessa {
   text-align: center;

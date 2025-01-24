@@ -55,7 +55,7 @@
     width: 100%;
     display: flex; /* Abilita flexbox */
     align-items: flex-start; /* Allinea gli elementi in alto */
-    justify-content: space-between; /* Se vuoi distribuire lo spazio */
+
   }
   
   .day-header {
@@ -65,6 +65,7 @@
   
   .activities {
     margin-top: 10px;
+    margin-left: 20px;
     max-width: fit-content;
   }
   
@@ -137,8 +138,8 @@
   }
 
   .weekend {
-    background-color:#ffd9d8; /* Colore di sfondo per i weekend */
-    color: #000000; /* Colore del testo per sabato e domenica */
+
+    color: #b80505; /* Colore del testo per sabato e domenica */
   }
   .weekend2 {
 
@@ -160,6 +161,8 @@
 
   
   .activity {
+    
+    font-size: 14px;
     padding: 5px;
     border: 1px solid #ddd;
     background-color: #f9f9f9;
@@ -167,17 +170,24 @@
   }
   
   .activity-started {
-    background-color: #f0ad4e; /* Arancione per attività iniziate */
+    background-color: #ffd69c; /* Arancione per attività iniziate */
   }
   
   .activity-completed {
-    background-color: #5cb85c; /* Verde per attività completate */
+    background-color: #c9fac9; /* Verde per attività completate */
   }
   
-  .activity:hover {
-    transform: scale(1.02);
-    transition: 0.2s;
+  .activity strong {
+    display: block; /* Ogni elemento <strong> su una riga separata */
+    margin-bottom: 5px; /* Spaziatura tra i <strong> */
   }
+
+  /* Aggiungi icone per decorazione */
+.activity .icon {
+  margin-left: auto;
+  font-size: 20px;
+  color: #777;
+}
   
   .table-container {
     max-height: 720px; /* Altezza massima per lo scrolling */
@@ -193,6 +203,7 @@
   .software-schedule th, 
   .software-schedule td {
     padding: 10px;
+    font-size: 16px;
     border: 1px solid #ddd;
     text-align: left;
   }

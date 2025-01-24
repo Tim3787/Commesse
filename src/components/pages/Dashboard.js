@@ -225,13 +225,17 @@ function Dashboard() {
 
       return (
         <div key={activity.id} className={`activity ${activityClass}`}>
-          <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
-          <strong>Attività:</strong> {activity.nome_attivita}
+
+  <div className="activity-content">
+          <strong>Commessa:  {activity.numero_commessa} |{" "}</strong> 
+          <strong>Attività:  {activity.nome_attivita}</strong> 
+          <strong>Note:  {activity.descrizione}</strong> 
           {isTrasferta && <span className="trasferta-icon" title="Trasferta">🚗</span>}
+          </div>
           <div className="activity-actions">
             {activity.stato === 1 && (
               <>
-                <span className="status-label">Iniziata</span>
+                <span className="status-label">Attività iniziata</span>
                 <button
                   className="btn btn-complete"
                   onClick={() => updateActivityStatus(activity.id, 2)}
@@ -241,7 +245,7 @@ function Dashboard() {
               </>
             )}
             {activity.stato === 2 && (
-              <span className="status-label">Completata</span>
+              <span className="status-label">Attività completata</span>
             )}
             {activity.stato === 0 && (
               <>
