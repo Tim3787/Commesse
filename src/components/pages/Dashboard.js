@@ -133,23 +133,29 @@ function Dashboard() {
   const [loadingActivities, setLoadingActivities] = useState({});
   
   const updateActivityStatus = async (activityId, newStatus) => {
-
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
+      const token = sessionStorage.getItem("token"); // Recupera il token
       const payload = { stato: newStatus };
-      
-      // Effettua la richiesta senza headers di autorizzazione
+  
+      // Effettua la richiesta con gli headers di autorizzazione
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
-        payload
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Aggiungi l'header di autorizzazione
+        }
       );
+  
       console.log("monthlyActivities prima dell'update:", monthlyActivities);
       console.log("activityId:", activityId, "newStatus:", newStatus);
+  
       setMonthlyActivities((prev) =>
         prev.map((activity) =>
           activity.id === activityId ? { ...activity, stato: newStatus } : activity
         )
       );
+  
       console.log("Risposta PUT:", response.data);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
@@ -163,6 +169,7 @@ function Dashboard() {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
+  
   
   
   
