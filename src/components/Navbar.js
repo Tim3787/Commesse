@@ -34,10 +34,16 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   }
 
   useEffect(() => {
+    let interval;
     if (isAuthenticated) {
-      fetchUnreadNotifications();
+        fetchUnreadNotifications();
+        // Controlla nuove notifiche ogni 60 secondi
+        interval = setInterval(fetchUnreadNotifications, 60000);
     }
-  }, [isAuthenticated]);
+
+    // Pulisce l'intervallo quando l'utente si disconnette o il componente viene smontato
+    return () => clearInterval(interval);
+}, [isAuthenticated]);
 
   const fetchUnreadNotifications = async () => {
     try {
