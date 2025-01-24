@@ -60,6 +60,7 @@
   
   .activities {
     margin-top: 10px;
+    max-width: fit-content;
   }
   
 
@@ -86,6 +87,11 @@
     font-weight: bold;
   }
 
+  .today2 {
+ background-color: #cfcfcf;
+    color: #000000; /* Verde chiaro */
+    font-weight: bold;
+  }
 
   .btn {
     margin: 5px;
@@ -188,3 +194,17 @@
     z-index: 2; /* Più alto per sovrapporsi alle celle */
     background-color: #ffffff; 
   }
+
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .software-schedule td:first-child {
+    border: 1px solid #ddd;
+    max-width: 15px; /* Limita la larghezza massima */
+    word-wrap: break-word; /* Consente al testo di andare a capo */
+    white-space: normal; /* Permette di andare a capo se necessario */
+  }
+}

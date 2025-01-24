@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./Dashboard.css";
 import logo from "../assets/unitech-packaging.png";
@@ -11,6 +11,9 @@ function Dashboard() {
   const [userName, setUserName] = useState("Utente");
   const token = sessionStorage.getItem("token");
   const [allFATDates, setAllFATDates] = useState([]);
+  const daysRefs = useRef([]); // Per memorizzare i riferimenti ai giorni
+  const today = new Date().toLocaleDateString();
+
   const getDaysInMonth = (date) => {
     const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const days = [];
@@ -20,6 +23,20 @@ function Dashboard() {
     return days;
   };
 
+  const daysInMonth = getDaysInMonth(currentMonth);
+
+  useEffect(() => {
+    // Scorri automaticamente fino al giorno di oggi
+    const todayIndex = daysInMonth.findIndex(
+      (day) => day.toLocaleDateString() === today
+    );
+    if (todayIndex !== -1 && daysRefs.current[todayIndex]) {
+      daysRefs.current[todayIndex].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [daysInMonth, today]);
   
   const fetchActivities = async (monthStartDate) => {
     try {
@@ -112,8 +129,6 @@ function Dashboard() {
     });  
   };
 
-  const daysInMonth = getDaysInMonth(currentMonth);
-  const today = new Date().toLocaleDateString();
 
   const [loadingActivities, setLoadingActivities] = useState({});
   
@@ -152,8 +167,8 @@ function Dashboard() {
   
   
   
-  
   return (
+    
     <div>
       <div className="container">
         <h1>Bacheca {userName}</h1>
@@ -170,73 +185,88 @@ function Dashboard() {
             Mese Successivo →
           </button>
         </div>
-  
+
         <div className="calendar">
+          
           {daysInMonth.map((day, index) => {
             const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6
             const isToday = day.toLocaleDateString() === today;
             return (
               <div
                 key={index}
-                className={`calendar-day ${isToday ? "today" : ""} ${
+                className={`calendar-day ${isToday ? "today2" : ""} ${
                   isWeekend ? "weekend" : ""
                 }`}
+                ref={(el) => (daysRefs.current[index] = el)} // Aggiungi il ref
               >
                 <div className="day-header">
                   <strong>{day.toLocaleDateString()}</strong>
                 </div>
-  
+
+                
                 {/* Mostra le attività assegnate per il giorno */}
                 <div className="activities">
-                  {getActivitiesForDay(day).length > 0 ? (
-                    getActivitiesForDay(day).map((activity) => (
-                      <div key={activity.id} className="activity">
-                        <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
-                        <strong>Attività:</strong> {activity.nome_attivita}
-                        <div className="activity-actions">
-                          {activity.stato === 1 && (
-                            <>
-                              <span className="status-label">Iniziata</span>
-                              <button
-                                className="btn btn-complete"
-                                onClick={() => updateActivityStatus(activity.id, 2)}
-                              >
-                                Completa
-                              </button>
-                            </>
-                          )}
-                          {activity.stato === 2 && (
-                            <span className="status-label">Completata</span>
-                          )}
-                          {activity.stato === 0 && (
-                            <>
-                              <button
-                                className="btn btn-start"
-                                onClick={() => updateActivityStatus(activity.id, 1)}
-                                disabled={loadingActivities[activity.id]}
-                              >
-                                {loadingActivities[activity.id]
-                                  ? "Caricamento..."
-                                  : "Inizia"}
-                              </button>
-                              <button
-                                className="btn btn-complete"
-                                onClick={() => updateActivityStatus(activity.id, 2)}
-                                disabled={loadingActivities[activity.id]}
-                              >
-                                {loadingActivities[activity.id]
-                                  ? "Caricamento..."
-                                  : "Completa"}
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div></div>
-                  )}
-                </div>
+  {getActivitiesForDay(day).length > 0 ? (
+    getActivitiesForDay(day).map((activity) => {
+      const activityClass =
+        activity.stato === 0
+          ? "activity-not-started"
+          : activity.stato === 1
+          ? "activity-started"
+          : "activity-completed";
+      const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+
+      return (
+        <div key={activity.id} className={`activity ${activityClass}`}>
+          <strong>Commessa:</strong> {activity.numero_commessa} |{" "}
+          <strong>Attività:</strong> {activity.nome_attivita}
+          {isTrasferta && <span className="trasferta-icon" title="Trasferta">🚗</span>}
+          <div className="activity-actions">
+            {activity.stato === 1 && (
+              <>
+                <span className="status-label">Iniziata</span>
+                <button
+                  className="btn btn-complete"
+                  onClick={() => updateActivityStatus(activity.id, 2)}
+                >
+                  Completa
+                </button>
+              </>
+            )}
+            {activity.stato === 2 && (
+              <span className="status-label">Completata</span>
+            )}
+            {activity.stato === 0 && (
+              <>
+                <button
+                  className="btn btn-start"
+                  onClick={() => updateActivityStatus(activity.id, 1)}
+                  disabled={loadingActivities[activity.id]}
+                >
+                  {loadingActivities[activity.id]
+                    ? "Caricamento..."
+                    : "Inizia"}
+                </button>
+                <button
+                  className="btn btn-complete"
+                  onClick={() => updateActivityStatus(activity.id, 2)}
+                  disabled={loadingActivities[activity.id]}
+                >
+                  {loadingActivities[activity.id]
+                    ? "Caricamento..."
+                    : "Completa"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      );
+    })
+  ) : (
+    <div></div>
+  )}
+</div>
+
   
                 {/* Mostra le commesse con FAT per il giorno */}
                 <div className="fat-dates">
