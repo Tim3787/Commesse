@@ -42,7 +42,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const fetchUnreadNotifications = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/notifications/unread`,
+        `${process.env.REACT_APP_API_URL}/api/notifiche/unread`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -59,7 +59,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     try {
       const promises = notifications.map((notification) =>
         axios.put(
-          `${process.env.REACT_APP_API_URL}/api/notifications/${notification.id}/read`,
+          `${process.env.REACT_APP_API_URL}/api/notifiche/${notification.id}/read`,
           null,
           {
             headers: { Authorization: `Bearer ${token}` },

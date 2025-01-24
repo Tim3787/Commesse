@@ -433,16 +433,16 @@ tr:nth-child(even) {
 
      .popup {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      overflow: hidden; /* Nasconde eventuali overflow */
+  top: 0; /* Assicurati che copra tutta la schermata */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Imposta un valore più alto dell'header */
+  overflow: hidden; /* Nasconde eventuali overflow */
     }
     
     .popup-content {
