@@ -268,19 +268,19 @@ function AttivitaCrea({
 
         {/* Stato */}
         <div className="form-group">
-          <label>Stato:</label>
-          <select
-            name="stato"
-            value={formData.stato}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seleziona uno stato</option>
-            <option value={0}>Non iniziata</option>
-            <option value={1}>Iniziata</option>
-            <option value={2}>Completata</option>
-          </select>
-        </div>
+  <label>Stato:</label>
+  <select
+    name="stato"
+    value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Seleziona uno stato</option>
+    <option value="0">Non iniziata</option>
+    <option value="1">Iniziata</option>
+    <option value="2">Completata</option>
+  </select>
+</div>
 
         {/* Descrizione */}
         <div className="form-group">

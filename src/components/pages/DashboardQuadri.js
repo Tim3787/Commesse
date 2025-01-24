@@ -24,6 +24,7 @@ const [formData, setFormData] = useState({
   data_inizio: "",
   durata: "",
   stato: "",
+  descrizione: "",
 });
 const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
@@ -200,7 +201,8 @@ const toLocalISOString = (date) => {
       attivita_id: activity.attivita_id || "",
       data_inizio: dataInizio,
       durata: activity.durata || "",
-      stato: activity.stato || "",
+      stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
+      descrizione: activity.descrizione_attivita || "",
     });
     setIsEditing(true);
     setEditId(activity.id);
@@ -384,41 +386,45 @@ console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("
         </div>
         <DndProvider backend={HTML5Backend}>
         <div className="Gen-table-container">
-        <table className="software-schedule">
-          <thead>
-            <tr>
-              <th>Giorno</th>
-              {resources.map((resource) => (
-                <th key={resource.id}>{resource.nome}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-  {daysInMonth.map((day, index) => {
-    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-    const isToday = day.toDateString() === new Date().toDateString(); 
-    const dayClass = isToday ? "today" : isWeekend ? "weekend" : "";
+  <table className="software-schedule">
+    <thead>
+      <tr>
+        <th>Risorsa</th>
+        {daysInMonth.map((day) => {
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6
+          const isToday = day.toDateString() === new Date().toDateString(); // Confronta con oggi
 
-    return (
-      <tr key={index} className={dayClass}>
-        <td>{day.toLocaleDateString()}</td>
-        {resources.map((resource) => (
-          <ResourceCell
-            key={`${day}-${resource.id}`} 
-            resourceId={resource.id} 
-            day={day} 
-            activities={getActivitiesForResourceAndDay(resource.id, day)} 
-            onActivityDrop={handleActivityDrop} 
-            onActivityClick={handleActivityClick}
-          />
-        ))}
+          return (
+            <th
+              key={day.toISOString()}
+              className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+            >
+              {day.toLocaleDateString()}
+            </th>
+          );
+        })}
       </tr>
-    );
-  })}
-</tbody>
+    </thead>
+    <tbody>
+      {resources.map((resource) => (
+        <tr key={resource.id}>
+          <td>{resource.nome}</td>
+          {daysInMonth.map((day) => (
+            <ResourceCell
+              key={`${resource.id}-${day}`} // Chiave unica
+              resourceId={resource.id}
+              day={day}
+              activities={getActivitiesForResourceAndDay(resource.id, day)}
+              onActivityDrop={handleActivityDrop}
+              onActivityClick={handleActivityClick}
+            />
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-        </table>
-        </div>
         </DndProvider>
         {showPopup && (
   <AttivitaCrea

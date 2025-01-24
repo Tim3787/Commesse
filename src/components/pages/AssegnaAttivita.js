@@ -39,6 +39,7 @@ const stateDropdownRef = useRef(null);
     data_inizio: "",
     durata: "",
     stato: "",
+    descrizione: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -122,6 +123,8 @@ const stateDropdownRef = useRef(null);
         durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", // Usa stringa vuota se `durata` non è valida
         descrizione: attivita.descrizione_attivita || "", // Popola il campo descrizione
       });
+ 
+  
       setIsEditing(true);
       setEditId(attivita.id);
       setShowPopup(true);
@@ -233,6 +236,7 @@ const stateDropdownRef = useRef(null);
       data_inizio: "",
       durata: "",
       stato: "",
+      descrizione: "",
     });
     setIsEditing(false);
     setShowPopup(true);
