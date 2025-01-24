@@ -48,14 +48,19 @@
   }
   
   .calendar-day {
-    margin-bottom: 20px;
-    padding: 10px;
+    margin-bottom: 2px;
+    margin-left: 2px;
+    padding: 2px;
     border-bottom: 1px solid #ccc;
     width: 100%;
+    display: flex; /* Abilita flexbox */
+    align-items: flex-start; /* Allinea gli elementi in alto */
+    justify-content: space-between; /* Se vuoi distribuire lo spazio */
   }
   
   .day-header {
     font-weight: bold;
+
   }
   
   .activities {
@@ -87,11 +92,16 @@
     font-weight: bold;
   }
 
-  .today2 {
- background-color: #cfcfcf;
-    color: #000000; /* Verde chiaro */
+  .today2 .day-header{
+
+    color: #2836f7; /* Verde chiaro */
     font-weight: bold;
+    text-decoration: underline;
+    text-decoration-thickness: 2px; /* Spessore della sottolineatura */
+    text-underline-offset: 3px; /* Distanza tra testo e sottolineatura */
+    text-decoration-color: rgb(25, 9, 247); /* Colore della sottolineatura */
   }
+
 
   .btn {
     margin: 5px;
@@ -127,10 +137,15 @@
   }
 
   .weekend {
-    background-color:#d9534f; /* Colore di sfondo per i weekend */
+    background-color:#ffd9d8; /* Colore di sfondo per i weekend */
     color: #000000; /* Colore del testo per sabato e domenica */
   }
-  
+  .weekend2 {
+
+    color: #d9534f; /* Colore del testo per sabato e domenica */
+    font-weight: bold; /* Facoltativo, rende il testo più evidente */
+  }
+
   .weekend td {
     color: #d9534f; /* Colore del testo per sabato e domenica */
     font-weight: bold; /* Facoltativo, rende il testo più evidente */

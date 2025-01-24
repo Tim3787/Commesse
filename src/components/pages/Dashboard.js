@@ -195,7 +195,7 @@ function Dashboard() {
               <div
                 key={index}
                 className={`calendar-day ${isToday ? "today2" : ""} ${
-                  isWeekend ? "weekend" : ""
+                  isWeekend ? "weekend2" : ""
                 }`}
                 ref={(el) => (daysRefs.current[index] = el)} // Aggiungi il ref
               >
