@@ -34,8 +34,9 @@ const TrelloBoardSoftware = () => {
   }, [boardId]);
 
   const handleDragEnd = async (result) => {
+    console.log("handleDragEnd triggered:", result);
     const { destination, source, draggableId } = result;
-  
+    console.log(`Moving card ${draggableId} to list ${destinationListId}`);
     console.log("Drag Result:", result);
   
     if (!destination) {
@@ -82,7 +83,7 @@ const TrelloBoardSoftware = () => {
       <DragDropContext onDragEnd={handleDragEnd}>
         <div style={styles.board}>
           {cardsByList.map((list) => (
-            <Droppable droppableId={list.id} key={list.id}>
+           <Droppable droppableId={list.id.toString()} key={list.id}>
               {(provided) => (
                 <div
                   ref={provided.innerRef}
@@ -92,7 +93,7 @@ const TrelloBoardSoftware = () => {
                   <h2 style={styles.listTitle}>{list.name}</h2>
                   <div style={styles.cards}>
                     {list.cards.map((card, index) => (
-                      <Draggable key={card.id} draggableId={card.id} index={index}>
+                      <Draggable draggableId={card.id.toString()} index={index}>
                         {(provided) => (
                           <div
                             ref={provided.innerRef}
