@@ -6,7 +6,7 @@ const TrelloBoard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const boardId = "id-della-board"; // Sostituisci con l'ID della tua board
+  const boardId = "Software"; // Sostituisci con l'ID della tua board
 
   useEffect(() => {
     const fetchCards = async () => {
