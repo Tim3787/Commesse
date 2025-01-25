@@ -27,6 +27,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/TrelloBoardElettrico";
+import MatchCommesse from "./components/MatchCommesse";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -127,6 +128,7 @@ function App() {
     { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
     { path: "/TrelloBoardSoftware", component: <TrelloBoardSoftware />, requiredRole: 1 },
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico/>, requiredRole: 1 },
+    { path: "/MatchCommesse", component: <MatchCommesse/>, requiredRole: 1 },
   ];
 
   return (
