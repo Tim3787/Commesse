@@ -25,7 +25,7 @@ import DashboardElettrico from "./components/pages/DashboardElettrico";
 import DashboardQuadri from "./components/pages/DashboardQuadri";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
-import TrelloBoard from "./components/pages/TrelloBoard";
+import TrelloBoardSoftware from "./components/pages/TrelloBoardSoftware";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -124,7 +124,7 @@ function App() {
     { path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
     { path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
     { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
-    { path: "/TrelloBoard", component: <TrelloBoard />, requiredRole: 1 },
+    { path: "/TrelloBoardSoftware", component: <TrelloBoardSoftware />, requiredRole: 1 },
   ];
 
   return (
