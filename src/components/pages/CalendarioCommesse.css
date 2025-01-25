@@ -1,0 +1,84 @@
+
+.Comm-table-container {
+  overflow-y: auto;  /* Scorrimento verticale */
+  max-height: 92vh; /* Altezza massima per lo scrolling */
+  border: 1px solid #ddd;
+}
+
+.Comm-schedule {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.Comm-schedule th, 
+.Comm-schedule td {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+
+
+.Comm-event {
+  text-align: center;
+  padding-top: 5px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  border: 1px solid #030303;
+}
+
+.Comm-event.fat {
+  background-color: #ffc107;
+  color: #000;
+}
+
+
+.Comm-day-header {
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-align: left; /* Allinea il testo a sinistra */
+  top: 5px; /* Distanza dalla parte superiore */
+  left: 5px; /* Distanza dalla parte sinistra */
+  font-size: 16px; /* Dimensione del font */
+  width: 100%;
+}
+
+.Com-empty-cell {
+  background-color: #f0f0f0;
+}
+
+td {
+  position: relative; /* Necessario per posizionare gli elementi assoluti */
+  padding: 10px; /* Spaziatura interna per rendere il contenuto leggibile */
+  vertical-align: top; /* Allinea il contenuto in alto */
+}
+.current-month {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 20px;
+  text-align: center;
+}
+.Comm-today-cell {
+  background-color: #baf2fc; /* Giallo chiaro */
+
+}
+
+
+.Comm-today-cell .Comm-day-header {
+  font-weight: bold;
+  color: #000;
+}
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .Comm-day-header {
+    font-size: 14px; 
+
+  }
+  .Comm-event  {
+    font-size: 12px; 
+  }
+  
+}

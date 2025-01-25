@@ -1,0 +1,39 @@
+
+.Gen-table-container {
+  overflow-y: auto;  /* Scorrimento verticale */
+  overflow-y: auto;  /* Scorrimento verticale */
+  border: 1px solid #ddd;
+}
+
+.Gen-schedule {
+  font-size: 12px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.Gen-schedule th, 
+.Gen-schedule td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+
+
+.Gen-schedule td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2; /* Più alto per sovrapporsi alle celle */
+  background-color: #ffffff;
+}
+/* Colore per la data di oggi */
+.Gen-today-date {
+  color: #2bff00; /* Verde chiaro */
+  font-weight: bold;
+}
+
+/* Colore per le date del weekend */
+.Gen-weekend-date {
+  color: #ff3b3b; /* Rosso chiaro */
+  font-weight: bold;
+}

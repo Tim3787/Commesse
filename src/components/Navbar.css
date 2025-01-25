@@ -1,0 +1,259 @@
+.navbar {
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  padding: 10px;
+
+}
+.navbar-header {
+
+  top: 0;
+
+  background-color: #007bff;
+  display: flex;
+  align-items: center;
+  padding: 10px ;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+}
+
+/* Pulsanti Menu */
+.menu-toggle {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.menu-toggle.active {
+  background-color: #0056b3;
+}
+
+.menu-toggle:hover {
+  background-color: #0056b3;
+}
+
+/* Logout Button */
+.logout-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+/* Dropdown Container */
+
+
+/* Dropdown Menu */
+.dropdown-menu-nav {
+  width: 100%;
+  background-color: white;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu-nav  ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dropdown-menu-nav  li {
+  padding: 10px 15px;
+}
+
+.dropdown-menu-nav  li a {
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+}
+
+.dropdown-menu-nav  li a:hover {
+  background-color: #f1f1f1;
+  color: #007bff;
+}
+
+/* Titolo delle notifiche */
+.dropdown-menu-nav h4 {
+  padding-left: 10px;
+  font-size: 18px;
+  color: #f10707;
+}
+
+/* Lista notifiche */
+.dropdown-menu-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+/* Singola notifica */
+.dropdown-menu-nav ul li {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 14px;
+  color: #555;
+}
+/* Nessuna notifica */
+.dropdown-menu-nav p {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #777;
+  text-align: center;
+}
+
+/* Pulsante "Segna tutte come lette" */
+.dropdown-menu-nav button {
+  display: block;
+  padding: 10px;
+  margin-left: 10px;
+  margin-top: 10px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-menu-nav button:hover {
+  background-color: #0056b3;
+}
+.notifications-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.notification-item {
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.notification-item.unread {
+  background-color: #ffefef;
+  font-weight: bold;
+}
+
+.notification-item.read {
+  background-color: #f0f8ff;
+  color: #666;
+}
+
+.notification-actions button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.notification-actions button:hover {
+  background-color: #ddd;
+}
+
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 300px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+}
+
+.notification-dropdown h4 {
+  margin-top: 0;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.notification-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-dropdown ul li {
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown ul li:last-child {
+  border-bottom: none;
+}
+
+.notification-dropdown button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.notification-dropdown button:hover {
+  background: #0056b3;
+}
+
+/* Animazione apertura menu */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+
+.menu-list li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  font-size: 14px;
+}
+}

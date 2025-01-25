@@ -1,0 +1,236 @@
+.dashboard-container {
+    padding: 20px;
+    text-align: center;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+  }
+  
+  .dashboard-title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .dashboard-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .dashboard-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background-color: #0056b3;
+  }
+  .calendar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .calendar-day {
+    margin-bottom: 2px;
+    margin-left: 2px;
+    padding: 2px;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
+    display: flex; /* Abilita flexbox */
+    align-items: flex-start; /* Allinea gli elementi in alto */
+
+  }
+  
+  .day-header {
+    font-weight: bold;
+
+  }
+  
+  .activities {
+    margin-top: 10px;
+    margin-left: 20px;
+    max-width: fit-content;
+  }
+  
+
+  
+
+.fat {
+  background-color: #fff0f0; /* Rosa chiaro per i FAT */
+  border: 1px solid #cc0000;
+  padding: 5px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
+
+  .calendar-navigation {
+    flex-shrink: 0; /* Mantiene fissa la dimensione della navigazione */
+    padding: 5px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd; /* Separatore visivo */
+  }
+  
+  .today {
+    background-color: #014a61;
+    color: #2bff00; /* Verde chiaro */
+    font-weight: bold;
+  }
+
+  .today2 .day-header{
+
+    color: #2836f7; /* Verde chiaro */
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-thickness: 2px; /* Spessore della sottolineatura */
+    text-underline-offset: 3px; /* Distanza tra testo e sottolineatura */
+    text-decoration-color: rgb(25, 9, 247); /* Colore della sottolineatura */
+  }
+
+
+  .btn {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .btn-start {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .btn-complete {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  
+  .activity-actions {
+    margin-top: 5px;
+  }
+
+  .highlight {
+    background-color: rgba(0, 255, 0, 0.2); /* Verde chiaro */
+    transition: background-color 0.3s;
+  }
+
+  .weekend {
+
+    color: #b80505; /* Colore del testo per sabato e domenica */
+  }
+  .weekend2 {
+
+    color: #d9534f; /* Colore del testo per sabato e domenica */
+    font-weight: bold; /* Facoltativo, rende il testo più evidente */
+  }
+
+  .weekend td {
+    color: #d9534f; /* Colore del testo per sabato e domenica */
+    font-weight: bold; /* Facoltativo, rende il testo più evidente */
+  }
+
+  
+  .today td {
+    color: #1c0796; /* Colore del testo per la data di oggi */
+    font-weight: bold; /* Evidenzia il testo */
+  }
+
+
+  
+  .activity {
+    
+    font-size: 14px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+  
+  .activity-started {
+    background-color: #ffd69c; /* Arancione per attività iniziate */
+  }
+  
+  .activity-completed {
+    background-color: #c9fac9; /* Verde per attività completate */
+  }
+  
+  .activity strong {
+    display: block; /* Ogni elemento <strong> su una riga separata */
+    margin-bottom: 5px; /* Spaziatura tra i <strong> */
+  }
+
+  /* Aggiungi icone per decorazione */
+.activity .icon {
+  margin-left: auto;
+  font-size: 20px;
+  color: #777;
+}
+  
+  .table-container {
+    max-height: 720px; /* Altezza massima per lo scrolling */
+    overflow-y: auto;  /* Scorrimento verticale */
+    border: 1px solid #ddd;
+  }
+  
+  .software-schedule {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .software-schedule th, 
+  .software-schedule td {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .software-schedule th {
+    position: sticky; /* Fissa l'intestazione */
+    top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
+    z-index: 1;       /* Assicurati che sia sopra le celle */
+  }
+
+  .software-schedule td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2; /* Più alto per sovrapporsi alle celle */
+    background-color: #ffffff; 
+  }
+
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .software-schedule td:first-child {
+    border: 1px solid #ddd;
+    max-width: 15px; /* Limita la larghezza massima */
+    word-wrap: break-word; /* Consente al testo di andare a capo */
+    white-space: normal; /* Permette di andare a capo se necessario */
+  }
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css" />
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Impostazioni Power-Up</h2>
+      <form id="settings-form">
+        <label for="option1">Opzione 1:</label>
+        <input type="text" id="option1" name="option1" />
+        <br />
+        <label for="option2">Opzione 2:</label>
+        <input type="text" id="option2" name="option2" />
+        <br />
+        <button type="submit">Salva</button>
+      </form>
+    </div>
+    <script>
+      const t = TrelloPowerUp.iframe();
+
+      document.getElementById('settings-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const option1 = document.getElementById('option1').value;
+        const option2 = document.getElementById('option2').value;
+
+        t.set('board', 'shared', { option1, option2 }).then(() => {
+          t.closePopup();
+        });
+      });
+
+      t.render(() => {
+        t.get('board', 'shared').then((settings) => {
+          if (settings.option1) {
+            document.getElementById('option1').value = settings.option1;
+          }
+          if (settings.option2) {
+            document.getElementById('option2').value = settings.option2;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
