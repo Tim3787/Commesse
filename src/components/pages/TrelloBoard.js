@@ -14,6 +14,8 @@ const TrelloBoard = () => {
         setLoading(true);
         const data = await getBoardCards(boardId); // Chiama l'API
         setCards(data); // Aggiorna lo stato con le schede
+        console.log("API Key:", TRELLO_API_KEY);
+console.log("Token:", TRELLO_TOKEN);
       } catch (err) {
         setError("Errore durante il recupero delle schede.");
       } finally {
