@@ -104,6 +104,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/DashboardSoftware", label: "Attività software dept." },
       { to: "/DashboardElettrico", label: "Attività elettrico dept." },
       { to: "TrelloBoardSoftware", label: "Bacheca software trello" },
+      { to: "TrelloBoardElettrico", label: "Bacheca elettrico trello" },
     ],
     admin: [
       { to: "/utenti", label: "Gestione utenti" },

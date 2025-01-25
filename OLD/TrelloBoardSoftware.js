@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists, moveCardToList } from "../API/trello";
-import axios from "axios";
 
 const TrelloBoardSoftware = () => {
   const [lists, setLists] = useState([]);
@@ -10,11 +9,7 @@ const TrelloBoardSoftware = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
-  const handleEditCard = (card) => {
-    console.log("Scheda in modifica:", card); // Log per debug
-    setEditingCard(card);
-  };
-  
+
   const boardId = "606e8f6e25edb789343d0871"; // Sostituisci con l'ID della tua board
 
   // Recupera le liste e le schede della board
@@ -53,7 +48,7 @@ const TrelloBoardSoftware = () => {
 
       // Aggiorna nel backend tramite l'API
       await moveCardToList(card.id, targetListId);
-
+      console.log(`Scheda ${card.id} spostata nella lista ${targetListId}`);
     } catch (error) {
       console.error("Errore durante lo spostamento della scheda:", error);
     }
@@ -61,7 +56,7 @@ const TrelloBoardSoftware = () => {
 
   const handleEditSave = async (updatedCard) => {
     try {
-      // Aggiorna la scheda nel backend
+      // Aggiorna nel backend
       await axios.put(
         `https://api.trello.com/1/cards/${updatedCard.id}`,
         { due: updatedCard.due },
@@ -72,23 +67,21 @@ const TrelloBoardSoftware = () => {
           },
         }
       );
-  
-      // Aggiorna la scheda localmente
+
+      // Aggiorna lo stato locale
       setCards((prevCards) =>
         prevCards.map((card) =>
           card.id === updatedCard.id ? { ...card, ...updatedCard } : card
         )
       );
-  
-      // Chiudi il popup di modifica
-      setEditingCard(null);
+
+      setEditingCard(null); // Chiude il form di modifica
       console.log(`Scheda ${updatedCard.id} aggiornata con successo.`);
     } catch (error) {
       console.error("Errore durante l'aggiornamento della scheda:", error);
-      alert("Non è stato possibile aggiornare la scheda. Riprova più tardi.");
     }
   };
-  
+
   const handleEditCancel = () => {
     setEditingCard(null); // Chiude il form di modifica
   };
@@ -106,7 +99,7 @@ const TrelloBoardSoftware = () => {
     <DndProvider backend={HTML5Backend}>
       <div style={styles.board}>
         {cardsByList.map((list) => (
-          <List key={list.id} list={list} onCardDrop={handleCardDrop}   onEditCard={handleEditCard} />
+          <List key={list.id} list={list} onCardDrop={handleCardDrop}  onEditCard={setEditingCard} />
         ))}
       </div>
       {editingCard && (
@@ -141,15 +134,14 @@ const List = ({ list, onCardDrop, onEditCard }) => {
       <h2 style={styles.listTitle}>{list.name}</h2>
       <div style={styles.cards}>
         {list.cards.map((card) => (
-          <Card key={card.id} card={card} onEdit={onEditCard} />
+          <Card key={card.id} card={card} onEdit={() => onEditCard(card)} />
         ))}
       </div>
     </div>
   );
 };
 
-
-const Card = ({ card, onEdit }) => {
+const Card = ({ card }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "CARD",
     item: card,
@@ -173,7 +165,7 @@ const Card = ({ card, onEdit }) => {
         <strong>Scadenza:</strong>{" "}
         {card.due ? new Date(card.due).toLocaleString() : "Nessuna scadenza"}
       </p>
-      <button onClick={() => onEdit(card)} style={styles.editButton}>
+      <button onClick={onEdit} style={styles.editButton}>
         Modifica
       </button>
       <p>
@@ -185,30 +177,11 @@ const Card = ({ card, onEdit }) => {
     </div>
   );
 };
-
 const EditCardPopup = ({ card, onSave, onCancel }) => {
-  // Converte la data nel formato compatibile con l'input datetime-local
-  const formatDateForInput = (date) => {
-    if (!date) return "";
-    const localDate = new Date(date);
-    return localDate.toISOString().slice(0, 16); // Prendi solo "yyyy-MM-ddThh:mm"
-  };
-
-  const [dueDate, setDueDate] = useState(formatDateForInput(card.due));
+  const [dueDate, setDueDate] = useState(card.due || "");
 
   const handleSave = () => {
-    if (!dueDate) {
-      alert("La data di scadenza non può essere vuota.");
-      return;
-    }
-
-    // Converte il formato della data nel formato richiesto dall'API Trello
-    const updatedCard = {
-      ...card,
-      due: new Date(dueDate).toISOString(), // Ripristina il formato ISO 8601
-    };
-
-    onSave(updatedCard);
+    onSave({ ...card, due: dueDate });
   };
 
   return (
@@ -229,25 +202,19 @@ const EditCardPopup = ({ card, onSave, onCancel }) => {
     </div>
   );
 };
-
 const styles = {
   board: {
     display: "flex",
     gap: "20px",
     padding: "10px",
     overflowX: "auto",
-    overflowY: "hidden", // Disabilita lo scroll verticale per la board
-    height: "calc(100vh - 100px)", // Adatta l'altezza, escludendo eventuali header/footer
-    boxSizing: "border-box", // Assicura che padding non ecceda l'altezza
   },
   list: {
     flex: "0 0 300px",
-    background: "#f4f5f7",
     borderRadius: "5px",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
     padding: "10px",
-    height: "100%", // Adatta la lista all'altezza del contenitore
-    overflowY: "auto", // Scroll verticale per il contenuto della lista
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+    minHeight: "200px",
   },
   listTitle: {
     fontSize: "18px",
@@ -265,23 +232,6 @@ const styles = {
     borderRadius: "5px",
     padding: "10px",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-  },
-  popup: {
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-    zIndex: 1000,
-    border: "2px solid red", // Aggiungi un bordo per debug
-  },
-  popupActions: {
-    marginTop: "10px",
-    display: "flex",
-    gap: "10px",
   },
 };
 

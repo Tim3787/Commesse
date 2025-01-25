@@ -17,6 +17,7 @@ TrelloPowerUp.initialize({
     ];
   },
 
+  
   // Configurazione per aggiungere badge alle schede
   "card-badges": async function (t, options) {
     const card = await t.card("id", "name"); // Ottieni i dettagli della scheda

@@ -25,7 +25,7 @@ console.log("Params:", { key: process.env.REACT_APP_TRELLO_API_KEY, token: proce
 
 
 export const getBoardLists = async (boardId) => {
-  const url = `https://api.trello.com/1/boards/${boardId}/lists?key=${process.env.REACT_APP_TRELLO_API_KEY}&token=${tokprocess.env.REACT_APP_TRELLO_TOKENen}`;
+  const url = `https://api.trello.com/1/boards/${boardId}/lists?key=${process.env.REACT_APP_TRELLO_API_KEY}&token=${process.env.REACT_APP_TRELLO_TOKEN}`;
   try {
     const response = await axios.get(url);
     return response.data; // Restituisce le liste della board

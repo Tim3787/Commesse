@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -15,7 +16,7 @@ const TrelloBoardSoftware = () => {
     setEditingCard(card);
   };
   
-  const boardId = "606e8f6e25edb789343d0871"; // Sostituisci con l'ID della tua board
+  const boardId = "606efd4d2898f5705163448f"; // Sostituisci con l'ID della tua board
 
   // Recupera le liste e le schede della board
   useEffect(() => {
@@ -103,6 +104,7 @@ const TrelloBoardSoftware = () => {
   }));
 
   return (
+
     <DndProvider backend={HTML5Backend}>
       <div style={styles.board}>
         {cardsByList.map((list) => (
@@ -185,6 +187,7 @@ const Card = ({ card, onEdit }) => {
     </div>
   );
 };
+
 
 const EditCardPopup = ({ card, onSave, onCancel }) => {
   // Converte la data nel formato compatibile con l'input datetime-local
