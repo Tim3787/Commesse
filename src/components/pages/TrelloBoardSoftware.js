@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { getBoardCards, getBoardLists, moveCardToList } from "../api/trello";
+import { getBoardCards, getBoardLists, moveCardToList } from "../API/trello";
 
 const TrelloBoardSoftware = () => {
   const [lists, setLists] = useState([]);
