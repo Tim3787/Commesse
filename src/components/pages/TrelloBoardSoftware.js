@@ -16,8 +16,7 @@ const TrelloBoardSoftware = () => {
   };
   
   const boardId = "606e8f6e25edb789343d0871"; // Sostituisci con l'ID della tua board
-  console.log("key:", process.env.REACT_APP_TRELLO_API_KEY); // Log per debug
-  console.log("token:", process.env.REACT_APP_TRELLO_TOKEN); // Log per debug
+
   // Recupera le liste e le schede della board
   useEffect(() => {
     const fetchBoardData = async () => {
