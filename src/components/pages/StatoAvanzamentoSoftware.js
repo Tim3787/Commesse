@@ -32,17 +32,21 @@ const accoppiamentoStati = {
     "collaudo terminato": "S: Completate",
     "no software": "S: Nessun lavoro software",
     },
+
     elettrico: {
       "in entrata": "E: In entrata",
       "cablaggio": "E: Wiring",
       "collaudo": "E: Testing",
     },
+
     meccanico: {
       "in entrata": "M: To Do",
       "progettazione": "M: Design",
       "assemblaggio": "M: Assembly",
     },
   };
+
+  const normalize = (str) => str?.trim().toLowerCase();
 
   const getListNameById = (listId) => {
     const list = lists.find((list) => list.id === listId);
@@ -90,6 +94,9 @@ const accoppiamentoStati = {
         ]);
         setLists(boardLists);
         setCards(boardCards);
+        console.log("Stato attivo:", statoAttivo?.stato?.nome_stato);
+        console.log("Stato normalizzato:", normalize(statoAttivo?.stato?.nome_stato));
+        console.log("Expected List:", expectedList);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -162,9 +169,10 @@ const accoppiamentoStati = {
       (s) => s.reparto_nome.toLowerCase() === "software" // Cambia in base al reparto
     );
 
-    const expectedList = statoAttivo?.stato?.nome_stato
-      ? accoppiamentoStati["software"]?.[statoAttivo.stato.nome_stato.trim().toLowerCase()] || "Non accoppiata"
-      : "Non assegnata";
+    
+const expectedList = statoAttivo?.stato?.nome_stato
+  ? accoppiamentoStati["software"]?.[normalize(statoAttivo.stato.nome_stato)] || "Non accoppiata"
+  : "Non assegnata";
 
     const isListDifferent = trelloListName !== expectedList;
   

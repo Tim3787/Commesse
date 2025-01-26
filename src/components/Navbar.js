@@ -113,7 +113,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/statiCommessa", label: "Gestione stati commessa" },
       { to: "/stati", label: "Gestione stati avanzamento" },
       { to: "/attivita", label: "Gestione attività" },
-      { to: "/MatchCommesse", label: "Match con trello" },
+      { to: "/MatchCommesse", label: "Commesse solo su trello" },
     ],
   };
 

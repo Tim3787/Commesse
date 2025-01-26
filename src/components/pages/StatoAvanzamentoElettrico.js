@@ -5,7 +5,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists } from "../services/api";
 
-function StatoAvanzamentoSoftware() {
+function StatoAvanzamentoElettrico() {
   const [commesse, setCommesse] = useState([]);
   const [statiSoftware, setStatiSoftware] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,17 +33,18 @@ const accoppiamentoStati = {
     "no software": "S: Nessun lavoro software",
     },
     elettrico: {
-      "in entrata": "E: In entrata",
       "sviluppo": "E: Sviluppo",
-      "cablaggio": "E: Wiring",
-      "collaudo": "E: Testing",
+      "analisi": "E: In entrata",
+      
+      "controllo": "E: Controllo schema prima del lancio",
+      "bm pronto": "Materiale BM Completo",
+      "completate": "E: Completate",
     },
     meccanico: {
-      "in entrata": "M: To Do",
-      "progettazione": "M: Design",
-      "assemblaggio": "M: Assembly",
+
     },
   };
+  const normalize = (str) => str?.trim().toLowerCase();
 
   const getListNameById = (listId) => {
     const list = lists.find((list) => list.id === listId);
@@ -91,6 +92,7 @@ const accoppiamentoStati = {
         ]);
         setLists(boardLists);
         setCards(boardCards);
+
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -136,6 +138,7 @@ const accoppiamentoStati = {
           return commessa;
         })
       );
+      
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
     }
@@ -164,8 +167,8 @@ const accoppiamentoStati = {
     );
 
     const expectedList = statoAttivo?.stato?.nome_stato
-      ? accoppiamentoStati["elettrico"]?.[statoAttivo.stato.nome_stato.trim().toLowerCase()] || "Non accoppiata"
-      : "Non assegnata";
+  ? accoppiamentoStati["elettrico"]?.[normalize(statoAttivo.stato.nome_stato)] || "Non accoppiata"
+  : "Non assegnata"
 
     const isListDifferent = trelloListName !== expectedList;
   
@@ -177,6 +180,10 @@ const accoppiamentoStati = {
       : "N/A";
     const isDateDifferent = trelloCard && trelloDate !== appDate;
   
+    console.log("Stato attivo:", statoAttivo?.stato?.nome_stato);
+    console.log("Stato normalizzato:", normalize(statoAttivo?.stato?.nome_stato));
+    console.log("Expected List:", expectedList);
+    
     const handleAlignDate = async (commessaId, trelloDate) => {
       try {
         // Trova la commessa corrente
@@ -333,7 +340,7 @@ const accoppiamentoStati = {
                 <DropZone
                   key={stato.id}
                   stato={stato}
-                  repartoId={1}
+                  repartoId={2}
                   commesse={filteredCommesse.filter((commessa) =>
                     commessa.stati_avanzamento.some(
                       (reparto) =>
@@ -353,4 +360,4 @@ const accoppiamentoStati = {
   );
 }
 
-export default StatoAvanzamentoSoftware;
+export default StatoAvanzamentoElettrico;
