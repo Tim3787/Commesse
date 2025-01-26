@@ -1,29 +1,73 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../style.css";
-import logo from "../assets/unitech-packaging.png";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { getBoardCards, getBoardLists } from "../services/api";
 
-function StatoAvanzamentoElettrico() {
+function StatoAvanzamentoSoftware() {
   const [commesse, setCommesse] = useState([]);
-  const [statiElettrico, setStatiElettrico] = useState([]);
+  const [statiSoftware, setStatiSoftware] = useState([]);
   const [loading, setLoading] = useState(false);
   const [numeroCommessaFilter, setNumeroCommessaFilter] = useState("");
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
-    // eslint-disable-next-line no-unused-vars
-  const [statoFilter, setStatoFilter] = useState("");
+  const [cards, setCards] = useState([]);
+  const [lists, setLists] = useState([]);
   const token = sessionStorage.getItem("token");
 
-  // Recupera le commesse e gli stati di avanzamento
+  const apiUrl = process.env.REACT_APP_API_URL;
+  const boardId = "606efd4d2898f5705163448f";
+
+ 
+const accoppiamentoStati = {
+  software: {
+    "in entrata": "S: In entrata",
+    "analisi": "S: Analisi",
+    "sviluppo programmato": "S: Sviluppo programmato",
+    "sviluppo": "S: Sviluppo",
+    "sviluppo ok": "S: pronto per messa in servizio",
+    "collaudo": "S: Testing",
+    "avviamento terminato": "S: Completate",
+    "collaudo terminato": "S: Completate",
+    "no software": "S: Nessun lavoro software",
+    },
+    elettrico: {
+      "in entrata": "E: In entrata",
+      "sviluppo": "E: Sviluppo",
+      "cablaggio": "E: Wiring",
+      "collaudo": "E: Testing",
+    },
+    meccanico: {
+      "in entrata": "M: To Do",
+      "progettazione": "M: Design",
+      "assemblaggio": "M: Assembly",
+    },
+  };
+
+  const getListNameById = (listId) => {
+    const list = lists.find((list) => list.id === listId);
+    return list ? list.name : "Lista sconosciuta";
+  };
+
+  const getStatiAttiviPerCommessa = (commessa) => {
+    return commessa.stati_avanzamento
+      ?.map((reparto) => {
+        const statoAttivo = reparto.stati_disponibili.find((stato) => stato.isActive);
+        return {
+          reparto_nome: reparto.reparto_nome,
+          stato: statoAttivo || null,
+        };
+      })
+      .filter((reparto) => reparto.stato !== null) || [];
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Recupera le commesse
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
+        const response = await axios.get(`${apiUrl}/api/commesse`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -33,16 +77,20 @@ function StatoAvanzamentoElettrico() {
             ? JSON.parse(commessa.stati_avanzamento)
             : commessa.stati_avanzamento,
         }));
-
         setCommesse(parsedCommesse);
 
-        // Recupera gli stati elettrico
-        const statiResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/stati-avanzamento`, {
+        const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 2);
-        setStatiElettrico(statiValidi);
+        setStatiSoftware(statiValidi);
+
+        const [boardLists, boardCards] = await Promise.all([
+          getBoardLists(boardId),
+          getBoardCards(boardId),
+        ]);
+        setLists(boardLists);
+        setCards(boardCards);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -51,18 +99,21 @@ function StatoAvanzamentoElettrico() {
     };
 
     fetchData();
-  }, [token]);
+  }, [apiUrl, token]);
 
-  // Funzione per aggiornare lo stato di un'attività
+  const extractCommessaNumber = (trelloName) => {
+    const match = trelloName.match(/^\d{5}/);
+    return match ? match[0] : null;
+  };
+
   const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     try {
       await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`,
+        `${apiUrl}/api/commesse/${commessaId}/reparti/${repartoId}/stato`,
         { stato_id: newStatoId, is_active: true },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Aggiorna lo stato localmente
       setCommesse((prevCommesse) =>
         prevCommesse.map((commessa) => {
           if (commessa.commessa_id === commessaId) {
@@ -87,7 +138,6 @@ function StatoAvanzamentoElettrico() {
       );
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato:", error);
-      alert("Errore durante l'aggiornamento dello stato.");
     }
   };
 
@@ -99,25 +149,123 @@ function StatoAvanzamentoElettrico() {
         isDragging: !!monitor.isDragging(),
       }),
     }));
+  
+    const trelloCard = cards.find((card) => {
+      const trelloNumero = extractCommessaNumber(card.name);
+      return commessa.numero_commessa === trelloNumero;
+    });
+  
+  
+    const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : "N/A";
 
+    const statiAttivi = getStatiAttiviPerCommessa(commessa);
+    const statoAttivo = statiAttivi.find(
+      (s) => s.reparto_nome.toLowerCase() === "elettrico" // Cambia in base al reparto
+    );
+
+    const expectedList = statoAttivo?.stato?.nome_stato
+      ? accoppiamentoStati["elettrico"]?.[statoAttivo.stato.nome_stato.trim().toLowerCase()] || "Non accoppiata"
+      : "Non assegnata";
+
+    const isListDifferent = trelloListName !== expectedList;
+  
+    const trelloDate = trelloCard?.due
+      ? new Date(trelloCard.due).toLocaleDateString()
+      : null;
+    const appDate = commessa.data_consegna
+      ? new Date(commessa.data_consegna).toLocaleDateString()
+      : "N/A";
+    const isDateDifferent = trelloCard && trelloDate !== appDate;
+  
+    const handleAlignDate = async (commessaId, trelloDate) => {
+      try {
+        // Trova la commessa corrente
+        const commessa = commesse.find((c) => c.commessa_id === commessaId);
+    
+        if (!commessa) {
+          console.error("Commessa non trovata");
+          alert("Commessa non trovata.");
+          return;
+        }
+    
+        // Invia i dati aggiornati con tutti i campi richiesti
+        await axios.put(
+          `${apiUrl}/api/commesse/${commessaId}`,
+          {
+            numero_commessa: commessa.numero_commessa,
+            tipo_macchina: commessa.tipo_macchina,
+            data_consegna: trelloDate,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+    
+        // Aggiorna localmente la data di consegna
+        setCommesse((prevCommesse) =>
+          prevCommesse.map((c) =>
+            c.commessa_id === commessaId ? { ...c, data_consegna: trelloDate } : c
+          )
+        );
+    
+        alert("Data allineata con successo.");
+      } catch (error) {
+        console.error("Errore durante l'allineamento della data:", error);
+        alert("Errore durante l'allineamento della data.");
+      }
+    };
+    
+    
     return (
       <div
         ref={drag}
         className="commessa"
-        style={{ opacity: isDragging ? 0.5 : 1 }}
+        style={{
+          opacity: isDragging ? 0.5 : 1,
+          backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
+          border: isListDifferent ? "2px solid red" : "none",
+        }}
       >
         <strong>{commessa.numero_commessa}</strong>
-        <br />
-        <div>{commessa.cliente} </div>
-        <div>{commessa.data_consegna ? new Date(commessa.data_consegna).toLocaleDateString() : "N/A"}</div>
+        {!trelloCard && (
+          <div style={{ color: "red", fontStyle: "italic" }}>
+            Non esiste su Trello
+          </div>
+        )}
+        <div>{commessa.cliente}</div>
+        <div>
+          Data App: {appDate}
+          {trelloCard && isDateDifferent && (
+            <div style={{ color: "red" }}>
+              Data Trello: {trelloDate}
+              <button
+                onClick={() =>
+                  handleAlignDate(commessa.commessa_id, trelloCard.due)
+                }
+              >
+                Allinea Data
+              </button>
+            </div>
+          )}
+        </div>
+        {trelloCard && (
+          <>
+            <div>Lista Trello: {trelloListName}</div>
+            <div>Stato atteso: {expectedList}</div>
+            {isListDifferent && (
+          <div style={{ color: "red" }}>Mismatch tra stato atteso e Trello</div>
+            )}
+          </>
+        )}
       </div>
     );
   }
+  
 
-  function DropZone({ stato, commesse, repartoId, onDrop }) {
+  function DropZone({ stato, commesse, repartoId }) {
     const [{ isOver }, drop] = useDrop(() => ({
       accept: "COMMESSA",
-      drop: (item) => onDrop(item.commessaId, repartoId, stato.id),
+      drop: (item) => handleActivityDrop(item.commessaId, repartoId, stato.id),
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
@@ -130,6 +278,7 @@ function StatoAvanzamentoElettrico() {
             key={commessa.commessa_id}
             commessa={commessa}
             repartoId={repartoId}
+            getListNameById={getListNameById}
           />
         ))}
       </td>
@@ -140,22 +289,13 @@ function StatoAvanzamentoElettrico() {
     const matchesNumeroCommessa = commessa.numero_commessa.toString().includes(numeroCommessaFilter);
     const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
     const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
-    const matchesStato = !statoFilter || commessa.stati_avanzamento.some((reparto) =>
-      reparto.reparto_id === 2 &&
-      reparto.stati_disponibili.some((s) => s.stato_id.toString() === statoFilter && s.isActive)
-    );
-
-    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && matchesStato;
+    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina;
   });
 
   return (
     <div className="container">
       <h1>Stato Avanzamento Elettrico</h1>
-      {loading && (
-        <div className="loading-overlay">
-          <img src={logo} alt="Logo" className="logo-spinner" />
-        </div>
-      )}
+      {loading && <div className="loading-overlay">Caricamento...</div>}
 
       <div className="filters">
         <input
@@ -182,23 +322,18 @@ function StatoAvanzamentoElettrico() {
         <table className="stati-software-table">
           <thead>
             <tr>
-            {[...statiElettrico]
-  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
-  .map((stato) => (
-    <th key={stato.id}>{stato.nome_stato}</th>
-  ))}
-              
+              {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
+                <th key={stato.id}>{stato.nome_stato}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             <tr>
-            {[...statiElettrico]
-  .sort((a, b) => a.ordine - b.ordine) // Ordina per il campo 'ordine'
-  .map((stato) => (
+              {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
                 <DropZone
                   key={stato.id}
                   stato={stato}
-                  repartoId={2} // ID reparto elettrico
+                  repartoId={1}
                   commesse={filteredCommesse.filter((commessa) =>
                     commessa.stati_avanzamento.some(
                       (reparto) =>
@@ -208,7 +343,6 @@ function StatoAvanzamentoElettrico() {
                         )
                     )
                   )}
-                  onDrop={handleActivityDrop}
                 />
               ))}
             </tr>
@@ -219,4 +353,4 @@ function StatoAvanzamentoElettrico() {
   );
 }
 
-export default StatoAvanzamentoElettrico;
+export default StatoAvanzamentoSoftware;
