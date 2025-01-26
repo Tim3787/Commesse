@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchAttivitaCommessa, fetchRisorse } from "../services/api"; 
 import "./CalendarioAttivita.css";
 import logo from "../assets/unitech-packaging.png";
 
@@ -8,7 +8,6 @@ function CalendarioAttivita() {
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
-  const token = sessionStorage.getItem("token");
 
   // Calcola i giorni del mese
   const getDaysInMonth = () => {
@@ -31,22 +30,14 @@ function CalendarioAttivita() {
       try {
         setLoading(true);
 
-        // Recupera tutte le attività
-        const activitiesResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/attivita_commessa`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        // Recupera tutte le attività e risorse
+        const [activitiesData, resourcesData] = await Promise.all([
+          fetchAttivitaCommessa(),
+          fetchRisorse(),
+        ]);
 
-        setActivities(activitiesResponse.data);
-
-        // Recupera tutte le risorse
-        const resourcesResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setResources(resourcesResponse.data);
+        setActivities(activitiesData);
+        setResources(resourcesData);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -55,7 +46,7 @@ function CalendarioAttivita() {
     };
 
     fetchData();
-  }, [currentMonth, token]);
+  }, [currentMonth]);
 
   // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
@@ -92,7 +83,7 @@ function CalendarioAttivita() {
     const repartoResources = resources.filter(
       (resource) => Number(resource.reparto_id) === repartoId
     );
-  
+
     return (
       <>
         <thead>
@@ -102,14 +93,14 @@ function CalendarioAttivita() {
           <tr>
             <th>Risorsa</th>
             {daysInMonth.map((day, index) => {
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Sabato e Domenica
-              const isToday = day.toDateString() === new Date().toDateString(); // Giorno corrente
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+              const isToday = day.toDateString() === new Date().toDateString(); 
               const dateClass = isToday
                 ? "Gen-today-date"
                 : isWeekend
                 ? "Gen-weekend-date"
                 : "";
-  
+
               return (
                 <th key={index}>
                   <span className={dateClass}>{day.toLocaleDateString()}</span>
@@ -148,20 +139,18 @@ function CalendarioAttivita() {
               : activity.stato === 1
               ? "activity-started"
               : "activity-completed";
-              // Controlla se l'attività è una Trasferta
-        const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+          const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
 
-  
           return (
             <div key={activity.id} className={`activity ${activityClass}`}>
               <strong>Commessa:</strong> {activity.numero_commessa}
               <br />
               <strong>Attività:</strong> {activity.nome_attivita}
-               {isTrasferta && (
-              <span className="trasferta-icon" title="Trasferta">
-                🚗
-              </span>
-            )}
+              {isTrasferta && (
+                <span className="trasferta-icon" title="Trasferta">
+                  🚗
+                </span>
+              )}
               <br />
               <strong>Stato:</strong>{" "}
               {activity.stato === 0
@@ -175,9 +164,7 @@ function CalendarioAttivita() {
       </td>
     );
   }
-  
 
-  
   return (
     <div>
       <div className="container-Scroll">

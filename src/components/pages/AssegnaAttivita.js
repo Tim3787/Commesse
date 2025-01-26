@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import "../style.css";
 import AttivitaCrea from "../AttivitaCrea";
 import logo from"../assets/unitech-packaging.png";
 import { usePersistedFilters } from "./usePersistedFilters";
+import {
+  fetchCommesse,
+  fetchRisorse,
+  fetchReparti,
+  fetchAttivita,
+  fetchAttivitaCommessa,
+  deleteAttivitaCommessa,
+} from "../services/api";
 
 function AssegnaAttivita() {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
@@ -16,16 +23,16 @@ function AssegnaAttivita() {
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-   const [showStateDropdown, setShowStateDropdown] = useState(false); // MULTISEL
-   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
-   const activityDropdownRef = useRef(null);
-const stateDropdownRef = useRef(null);
+  const [showStateDropdown, setShowStateDropdown] = useState(false); 
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const activityDropdownRef = useRef(null);
+  const stateDropdownRef = useRef(null);
   const [filters, setFilters]  = usePersistedFilters("savedFilters_AssegnaAttivita", {
     reparto_id: "",
     commessa_id: "",
     risorsa_id: "",
-    attivita_id: [], // MULTISEL
-    stati: [], // MULTISEL
+    attivita_id: [], 
+    stati: [], 
   });
 
   const [commessaSuggestions, setCommessaSuggestions] = useState([]);
@@ -44,64 +51,73 @@ const stateDropdownRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  useEffect(() => {
-    fetchOptions();
-  }, []);
-
+ 
   useEffect(() => {
     if (isEditing && editId) {
     }
   }, [isEditing, editId]);
 
-  
+
   useEffect(() => {
     applyFilters();
   }, [filters, attivitaProgrammate]);
 
-  const fetchOptions = async () => {
-    try {
-      setLoading(true);
-      const [commesseResponse, risorseResponse, repartiResponse, attivitaResponse, attivitaProgrammateResponse] =
-        await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/attivita`),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`),
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+  
+        const [
+          commesseData,
+          risorseData,
+          repartiData,
+          attivitaDefiniteData,
+          attivitaProgrammateData,
+        ] = await Promise.all([
+          fetchCommesse(),
+          fetchRisorse(),
+          fetchReparti(),
+          fetchAttivita(),
+          fetchAttivitaCommessa(),
         ]);
   
-      setCommesse(commesseResponse.data);
-      setRisorse(risorseResponse.data);
-      setReparti(repartiResponse.data);
-      setAttivitaDefinite(attivitaResponse.data);
-      setAttivitaProgrammate(attivitaProgrammateResponse.data);
-      setAttivitaFiltrate(attivitaProgrammateResponse.data);
-      setFilteredRisorse(risorseResponse.data);
-      // Imposta un ID di modifica iniziale se necessario
-    if (attivitaProgrammateResponse.data.length > 0) {
-      setEditId(attivitaProgrammateResponse.data[0].id); // Prendi il primo elemento
-    }
+        // Imposta i dati nello stato
+        setCommesse(commesseData);
+        setRisorse(risorseData);
+        setReparti(repartiData);
+        setAttivitaDefinite(attivitaDefiniteData);
+        setAttivitaProgrammate(attivitaProgrammateData);
+        setAttivitaFiltrate(attivitaProgrammateData);
+        setFilteredRisorse(risorseData);
   
-    // Trasforma le attività per includere reparto_id
-    const attivitaConReparto = attivitaResponse.data.map((attivita) => ({
-      id: attivita.id,
-      nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
-      reparto_id: attivita.reparto_id,
-    }));
-    
-    setattivitaConReparto(attivitaConReparto);
-    // Simuliamo attività definite
-    const uniqueActivities = Array.from(
-      new Set(attivitaResponse.data.map((att) => att.nome_attivita))
-    ).map((nome) => ({ nome }));
-    setAttivitaDefinite(uniqueActivities);
-    setFilteredActivities(uniqueActivities);
-  } catch (error) {
-    console.error("Errore durante il caricamento dei dati iniziali:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+        // Trasforma le attività per includere reparto_id
+        const attivitaConReparto = attivitaDefiniteData.map((attivita) => ({
+          id: attivita.id,
+          nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
+          reparto_id: attivita.reparto_id,
+        }));
+        setattivitaConReparto(attivitaConReparto);
+  
+        // Filtra attività uniche
+        const uniqueActivities = Array.from(
+          new Set(attivitaDefiniteData.map((att) => att.nome_attivita))
+        ).map((nome) => ({ nome }));
+        setAttivitaDefinite(uniqueActivities);
+        setFilteredActivities(uniqueActivities);
+  
+        // Imposta un ID di modifica iniziale (opzionale)
+        if (attivitaProgrammateData.length > 0) {
+          setEditId(attivitaProgrammateData[0].id);
+        }
+      } catch (error) {
+        console.error("Errore durante il caricamento dei dati iniziali:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    loadInitialData();
+  }, []);
   
 
     // Funzione per aprire il pop-up in modalità modifica
@@ -111,7 +127,7 @@ const stateDropdownRef = useRef(null);
       // Controlla se `data_inizio` è una data valida
       const dataInizio = attivita.data_inizio && attivita.data_inizio !== "Non specificata"
         ? new Date(attivita.data_inizio).toISOString().split("T")[0]
-        : ""; // Usa una stringa vuota se non è valida
+        : ""; 
     
       setFormData({
         commessa_id: attivita.commessa_id || "",
@@ -120,8 +136,8 @@ const stateDropdownRef = useRef(null);
         attivita_id: attivita.attivita_id || "",
         stato: attivita.stato|| "",
         data_inizio: dataInizio,
-        durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", // Usa stringa vuota se `durata` non è valida
-        descrizione: attivita.descrizione_attivita || "", // Popola il campo descrizione
+        durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", 
+        descrizione: attivita.descrizione_attivita || "", 
       });
  
   
@@ -157,7 +173,7 @@ const stateDropdownRef = useRef(null);
     }
     if (filters.stati.length > 0) {
       filtered = filtered.filter((att) => filters.stati.includes(att.stato.toString()));
-    }  // MULTISEL
+    } 
     setAttivitaFiltrate(filtered);
   };
 
@@ -168,15 +184,15 @@ const stateDropdownRef = useRef(null);
       setFilters((prev) => ({
         ...prev,
         attivita_id: checked
-          ? [...prev.attivita_id, value] // Aggiungi l'attività selezionata
-          : prev.attivita_id.filter((id) => id !== value), // Rimuovi l'attività deselezionata
+          ? [...prev.attivita_id, value] 
+          : prev.attivita_id.filter((id) => id !== value), 
       }));
     } else if (type === "checkbox" && name === "stati") {
       setFilters((prev) => ({
         ...prev,
         stati: checked
-          ? [...prev.stati, value] // Aggiungi lo stato selezionato
-          : prev.stati.filter((stato) => stato !== value), // Rimuovi lo stato deselezionato
+          ? [...prev.stati, value] 
+          : prev.stati.filter((stato) => stato !== value), 
       }));
     } else if (name === "reparto_id") {
       const repartoId = parseInt(value, 10);
@@ -244,12 +260,10 @@ const stateDropdownRef = useRef(null);
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/attivita_commessa/${id}`);
-      //alert("Attività eliminata con successo!");
-      fetchOptions();
+      await deleteAttivitaCommessa(id);
+      loadData(); 
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
-      alert("Errore durante l'eliminazione dell'attività.");
     }
   };
 
@@ -266,7 +280,7 @@ const stateDropdownRef = useRef(null);
 
   const toggleStateDropdown = () => {
     setShowStateDropdown((prev) => !prev);
-  };// MULTISEL
+  };
 
   const toggleActivityDropdown = () => {
     setShowActivityDropdown((prev) => !prev);
@@ -280,13 +294,13 @@ const stateDropdownRef = useRef(null);
         activityDropdownRef.current &&
         !activityDropdownRef.current.contains(e.target)
       ) {
-        setShowActivityDropdown(false); // Chiude il dropdown attività
+        setShowActivityDropdown(false); 
       }
       if (
         stateDropdownRef.current &&
         !stateDropdownRef.current.contains(e.target)
       ) {
-        setShowStateDropdown(false); // Chiude il dropdown stati
+        setShowStateDropdown(false); 
       }
     };
   
@@ -460,7 +474,6 @@ const stateDropdownRef = useRef(null);
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editId={editId}
-        fetchAttivita={fetchOptions}
         setShowPopup={setShowPopup}
         commesse={commesse}
         reparti={reparti}

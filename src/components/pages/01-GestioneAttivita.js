@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/unitech-packaging.png";
+import { fetchAttivita, fetchReparti, deleteAttivita, createAttivita, updateAttivita  } from "../services/api";
 
 function GestioneAttivita() {
   const [attivita, setAttivita] = useState([]);
@@ -9,32 +9,23 @@ function GestioneAttivita() {
   const [formData, setFormData] = useState({ nome_attivita: "", reparto_id: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [selectedReparto, setSelectedReparto] = useState(""); 
+  const [selectedReparto, setSelectedReparto] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchAttivita();
-    fetchReparti();
+    loadData();
   }, []);
 
-  const fetchAttivita = async () => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/attivita`);
-      setAttivita(response.data);
+      const [attivitaData, repartiData] = await Promise.all([fetchAttivita(), fetchReparti()]);
+      setAttivita(attivitaData);
+      setReparti(repartiData);
     } catch (error) {
-      console.error("Errore durante il recupero delle attività:", error);
-    }finally {
+      console.error("Errore durante il caricamento dei dati:", error);
+    } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchReparti = async () => {
-    try {
-      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/reparti`);
-      setReparti(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero dei reparti:", error);
     }
   };
 
@@ -43,7 +34,6 @@ function GestioneAttivita() {
     setFormData({ ...formData, [name]: value });
   };
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -53,27 +43,23 @@ function GestioneAttivita() {
     }
   
     try {
-      const endpoint = isEditing
-         ? `${process.env.REACT_APP_API_URL}/api/attivita/${editId}`
-          : `${process.env.REACT_APP_API_URL}/api/attivita`; 
+      if (isEditing) {
+        // Modifica un'attività esistente
+        await updateAttivita(editId, formData);
+      } else {
+        // Crea una nuova attività
+        await createAttivita(formData);
+      }
   
-      const method = isEditing ? "put" : "post";
-  
-      await axios[method](endpoint, {
-        nome_attivita: formData.nome_attivita,
-        reparto_id: formData.reparto_id,
-      });
-  
-      //alert(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-      setFormData({ nome: "", reparto_id: "" });
+      // Resetta il modulo e aggiorna i dati
+      setFormData({ nome_attivita: "", reparto_id: "" });
       setIsEditing(false);
       setEditId(null);
-      fetchAttivita();
+      loadData();
     } catch (error) {
-      console.error("Errore durante l'aggiunta o la modifica dell'attività:", error.response?.data || error.message);
+      console.error("Errore durante l'aggiunta o la modifica dell'attività:", error);
     }
   };
-  
 
   const handleEdit = (attivita) => {
     setFormData({ nome_attivita: attivita.nome_attivita, reparto_id: attivita.reparto_id });
@@ -83,9 +69,8 @@ function GestioneAttivita() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete (`${process.env.REACT_APP_API_URL}/api/attivita/${id}`);
-      //alert("Attività eliminata con successo!");
-      fetchAttivita();
+      await deleteAttivita(id);
+      loadData();
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
     }
@@ -99,7 +84,7 @@ function GestioneAttivita() {
     <div className="container">
       {loading && (
         <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+          <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
       <h1>Crea o modifica le attività</h1>
@@ -138,7 +123,7 @@ function GestioneAttivita() {
             type="button"
             className="btn btn-secondary"
             onClick={() => {
-              setFormData({ nome: "", reparto_id: "" });
+              setFormData({ nome_attivita: "", reparto_id: "" });
               setIsEditing(false);
               setEditId(null);
             }}
@@ -181,7 +166,9 @@ function GestioneAttivita() {
               <tr key={attivita.id}>
                 <td>{attivita.id}</td>
                 <td>{attivita.nome_attivita}</td>
-                <td>{reparti.find((reparto) => reparto.id === attivita.reparto_id)?.nome || "N/A"}</td>
+                <td>
+                  {reparti.find((reparto) => reparto.id === attivita.reparto_id)?.nome || "N/A"}
+                </td>
                 <td>
                   <button className="btn btn-warning" onClick={() => handleEdit(attivita)}>
                     Modifica

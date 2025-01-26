@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getBoardCards } from "./API/trello"; // Importa le funzioni per Trello
+import { getBoardCards } from "../services/api"; // Importa le funzioni per Trello
 import axios from "axios";
 
 const MatchCommesse = () => {

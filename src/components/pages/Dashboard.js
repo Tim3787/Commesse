@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { fetchDashboardActivities, fetchFATDates, fetchUserName, updateActivityStatusAPI } from "../services/api";
 import "./Dashboard.css";
 import logo from "../assets/unitech-packaging.png";
-import { jwtDecode } from "jwt-decode";
 
 function Dashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -11,7 +10,7 @@ function Dashboard() {
   const [userName, setUserName] = useState("Utente");
   const token = sessionStorage.getItem("token");
   const [allFATDates, setAllFATDates] = useState([]);
-  const daysRefs = useRef([]); // Per memorizzare i riferimenti ai giorni
+  const daysRefs = useRef([]); 
   const today = new Date().toLocaleDateString();
 
   const getDaysInMonth = (date) => {
@@ -37,78 +36,49 @@ function Dashboard() {
       });
     }
   }, [daysInMonth, today]);
-  
-  const fetchActivities = async (monthStartDate) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { startDate: monthStartDate.toISOString() },
-      });
-      setMonthlyActivities(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero delle attività mensili:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  // Funzione per recuperare le commesse con data_FAT
-  const fetchAllFATDates = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Filtra solo le commesse con data_FAT definita
-      const commesseConFAT = response.data.filter((commessa) => commessa.data_FAT);
-      setAllFATDates(commesseConFAT);
-    } catch (error) {
-      console.error("Errore durante il recupero delle commesse con FAT:", error);
-    }
-  };
-  
-  // Richiama la funzione quando il componente viene montato
-  useEffect(() => {
-    fetchAllFATDates();
-  }, []);
-
-
-
-    useEffect(() => {
-    const fetchUserName = async () => {
-      if (token) {
-        try {
-          const decoded = jwtDecode(token); // Decodifica il token
-          const userId = decoded.id; // Ottieni l'ID utente
-          console.log("Token decodificato:", decoded);
-          // Recupera la lista di utenti
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          // Filtra l'utente corrente dalla lista usando l'ID
-          const currentUser = response.data.find((user) => user.id === userId);
-
-          if (currentUser) {
-            setUserName(currentUser.username || "Utente");
-          } else {
-            console.warn("Utente non trovato nella lista.");
-          }
-        } catch (error) {
-          console.error("Errore durante il recupero del nome utente:", error);
-        }
-      }
-    };
-
-    fetchUserName();
-  }, [token]);
-
 
   useEffect(() => {
     const monthStartDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    fetchActivities(monthStartDate);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const activities = await fetchDashboardActivities(monthStartDate, token);
+        setMonthlyActivities(activities);
+      } catch (error) {
+        console.error("Errore durante il recupero delle attività mensili:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [currentMonth, token]);
+
+  useEffect(() => {
+    const fetchFATData = async () => {
+      try {
+        const fatDates = await fetchFATDates(token);
+        setAllFATDates(fatDates);
+      } catch (error) {
+        console.error("Errore durante il recupero delle commesse con FAT:", error);
+      }
+    };
+
+    fetchFATData();
+  }, [token]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = await fetchUserName(token);
+        setUserName(user);
+      } catch (error) {
+        console.error("Errore durante il recupero del nome utente:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [token]);
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -124,58 +94,32 @@ function Dashboard() {
       const startDate = new Date(activity.data_inizio);
       startDate.setDate(startDate.getDate() - 1);
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata );
+      endDate.setDate(startDate.getDate() + activity.durata);
       return startOfDay >= startDate && startOfDay <= endDate;
-    });  
+    });
   };
 
-
   const [loadingActivities, setLoadingActivities] = useState({});
-  
+
   const updateActivityStatus = async (activityId, newStatus) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
-      const token = sessionStorage.getItem("token"); // Recupera il token
-      const payload = { stato: newStatus };
-  
-      // Effettua la richiesta con gli headers di autorizzazione
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` }, // Aggiungi l'header di autorizzazione
-        }
-      );
-  
-      console.log("monthlyActivities prima dell'update:", monthlyActivities);
-      console.log("activityId:", activityId, "newStatus:", newStatus);
-  
+      await updateActivityStatusAPI(activityId, newStatus, token);
+
       setMonthlyActivities((prev) =>
         prev.map((activity) =>
           activity.id === activityId ? { ...activity, stato: newStatus } : activity
         )
       );
-  
-      console.log("Risposta PUT:", response.data);
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
-  
-      if (error.response) {
-        console.error("Dettagli errore:", error.response.data);
-      }
-  
       alert("Si è verificato un errore durante l'aggiornamento dello stato.");
     } finally {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
-  
-  
-  
-  
-  
+
   return (
-    
     <div>
       <div className="container">
         <h1>Bacheca {userName}</h1>
@@ -194,7 +138,6 @@ function Dashboard() {
         </div>
 
         <div className="calendar">
-          
           {daysInMonth.map((day, index) => {
             const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6
             const isToday = day.toLocaleDateString() === today;
@@ -210,75 +153,74 @@ function Dashboard() {
                   <strong>{day.toLocaleDateString()}</strong>
                 </div>
 
-                
-                {/* Mostra le attività assegnate per il giorno */}
                 <div className="activities">
-  {getActivitiesForDay(day).length > 0 ? (
-    getActivitiesForDay(day).map((activity) => {
-      const activityClass =
-        activity.stato === 0
-          ? "activity-not-started"
-          : activity.stato === 1
-          ? "activity-started"
-          : "activity-completed";
-      const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+                  {getActivitiesForDay(day).length > 0 ? (
+                    getActivitiesForDay(day).map((activity) => {
+                      const activityClass =
+                        activity.stato === 0
+                          ? "activity-not-started"
+                          : activity.stato === 1
+                          ? "activity-started"
+                          : "activity-completed";
+                      const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
 
-      return (
-        <div key={activity.id} className={`activity ${activityClass}`}>
-
-  <div className="activity-content">
-          <strong>Commessa:  {activity.numero_commessa} |{" "}</strong> 
-          <strong>Attività:  {activity.nome_attivita}</strong> 
-          <strong>Note:  {activity.descrizione}</strong> 
-          {isTrasferta && <span className="trasferta-icon" title="Trasferta">🚗</span>}
-          </div>
-          <div className="activity-actions">
-            {activity.stato === 1 && (
-              <>
-                <span className="status-label">Attività iniziata</span>
-                <button
-                  className="btn btn-complete"
-                  onClick={() => updateActivityStatus(activity.id, 2)}
-                >
-                  Completa
-                </button>
-              </>
-            )}
-            {activity.stato === 2 && (
-              <span className="status-label">Attività completata</span>
-            )}
-            {activity.stato === 0 && (
-              <>
-                <button
-                  className="btn btn-start"
-                  onClick={() => updateActivityStatus(activity.id, 1)}
-                  disabled={loadingActivities[activity.id]}
-                >
-                  {loadingActivities[activity.id]
-                    ? "Caricamento..."
-                    : "Inizia"}
-                </button>
-                <button
-                  className="btn btn-complete"
-                  onClick={() => updateActivityStatus(activity.id, 2)}
-                  disabled={loadingActivities[activity.id]}
-                >
-                  {loadingActivities[activity.id]
-                    ? "Caricamento..."
-                    : "Completa"}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      );
-    })
-  ) : (
-    <div></div>
-  )}
-</div>
-
-  
+                      return (
+                        <div key={activity.id} className={`activity ${activityClass}`}>
+                          <div className="activity-content">
+                            <strong>Commessa: {activity.numero_commessa} | </strong>
+                            <strong>Attività: {activity.nome_attivita}</strong>
+                            <strong>Note: {activity.descrizione}</strong>
+                            {isTrasferta && (
+                              <span className="trasferta-icon" title="Trasferta">
+                                🚗
+                              </span>
+                            )}
+                          </div>
+                          <div className="activity-actions">
+                            {activity.stato === 1 && (
+                              <>
+                                <span className="status-label">Attività iniziata</span>
+                                <button
+                                  className="btn btn-complete"
+                                  onClick={() => updateActivityStatus(activity.id, 2)}
+                                >
+                                  Completa
+                                </button>
+                              </>
+                            )}
+                            {activity.stato === 2 && (
+                              <span className="status-label">Attività completata</span>
+                            )}
+                            {activity.stato === 0 && (
+                              <>
+                                <button
+                                  className="btn btn-start"
+                                  onClick={() => updateActivityStatus(activity.id, 1)}
+                                  disabled={loadingActivities[activity.id]}
+                                >
+                                  {loadingActivities[activity.id]
+                                    ? "Caricamento..."
+                                    : "Inizia"}
+                                </button>
+                                <button
+                                  className="btn btn-complete"
+                                  onClick={() => updateActivityStatus(activity.id, 2)}
+                                  disabled={loadingActivities[activity.id]}
+                                >
+                                  {loadingActivities[activity.id]
+                                    ? "Caricamento..."
+                                    : "Completa"}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
                 {/* Mostra le commesse con FAT per il giorno */}
                 <div className="fat-dates">
                   {allFATDates

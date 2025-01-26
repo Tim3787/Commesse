@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import "../style.css";
 import logo from"../assets/unitech-packaging.png";
 import { usePersistedFilters } from "./usePersistedFilters";
+import {
+  fetchCommesse,
+  fetchRisorse,
+  fetchReparti,
+  fetchAttivita,
+} from "../services/api";
 
 function VisualizzazioneAttivita() {
   const [attivitaList, setAttivitaList] = useState([]);
@@ -30,40 +35,40 @@ function VisualizzazioneAttivita() {
   useEffect(() => {
     fetchInitialData();
   }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, attivitaList]);
-
+  
   const fetchInitialData = async () => {
-    try {
-      setLoading(true);
-      const [commesseResponse, risorseResponse, repartiResponse, attivitaResponse] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`),
-      ]);
+  try {
+    setLoading(true);
+    const [commesse, risorse, reparti, attivita] = await Promise.all([
+      fetchCommesse(),
+      fetchRisorse(),
+      fetchReparti(),
+      fetchAttivita(),
+    ]);
 
-      setCommesse(commesseResponse.data);
-      setRisorse(risorseResponse.data);
-      setReparti(repartiResponse.data);
-      setAttivitaList(attivitaResponse.data);
-      setFilteredAttivita(attivitaResponse.data);
-      setFilteredRisorse(risorseResponse.data);
+    setCommesse(commesse);
+    setRisorse(risorse);
+    setReparti(reparti);
+    setAttivitaList(attivita);
+    setFilteredAttivita(attivita);
+    setFilteredRisorse(risorse);
 
-      // Simuliamo attività definite
-      const uniqueActivities = Array.from(
-        new Set(attivitaResponse.data.map((att) => att.nome_attivita))
-      ).map((nome) => ({ nome }));
-      setAttivitaDefinite(uniqueActivities);
-      setFilteredActivities(uniqueActivities);
-    } catch (error) {
-      console.error("Errore durante il caricamento dei dati iniziali:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Simuliamo attività definite
+    const uniqueActivities = Array.from(
+      new Set(attivita.map((att) => att.nome_attivita))
+    ).map((nome) => ({ nome }));
+    setAttivitaDefinite(uniqueActivities);
+    setFilteredActivities(uniqueActivities);
+  } catch (error) {
+    console.error("Errore durante il caricamento dei dati iniziali:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  applyFilters();
+}, [filters, attivitaList]);
 
   const applyFilters = () => {
     let filtered = attivitaList;

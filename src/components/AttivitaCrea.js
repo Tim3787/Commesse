@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { fetchAttivita } from "./services/api";
 import "./style.css";
 
 function AttivitaCrea({
@@ -7,76 +7,53 @@ function AttivitaCrea({
   setFormData,
   isEditing,
   editId,
-  fetchAttivita,
   setShowPopup,
-  commesse, 
+  commesse,
   reparti,
   risorse,
   attivitaConReparto,
 }) {
-
-  const [commessaSearch, setCommessaSearch] = useState(""); 
-  const [suggestedCommesse, setSuggestedCommesse] = useState([]); 
-  const suggestionsRef = useRef(null); 
+  const [commessaSearch, setCommessaSearch] = useState("");
+  const [suggestedCommesse, setSuggestedCommesse] = useState([]);
+  const suggestionsRef = useRef(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
 
   // Gestione del cambiamento dei campi di input
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-   
+    setFormData({ ...formData, [name]: name === "stato" ? parseInt(value, 10) : value });
   };
 
-
+  // Gestione della ricerca della commessa
   const handleSearchCommessa = (e) => {
-    const searchText = e.target.value.trim().toLowerCase(); 
+    const searchText = e.target.value.trim().toLowerCase();
     setCommessaSearch(searchText);
-  
+
     if (!searchText) {
       setSuggestedCommesse([]);
       return;
     }
-  
+
     const filteredCommesse = commesse.filter((commessa) =>
       String(commessa.numero_commessa || "").toLowerCase().includes(searchText)
     );
-
-
 
     setSuggestedCommesse(filteredCommesse);
   };
 
   // Gestione della selezione della commessa
   const handleSelectCommessa = (commessa) => {
-
-    setCommessaSearch(commessa.numero_commessa); 
-    setFormData((prevState) => {
-      const updatedFormData = {
-        ...prevState,
-        commessa_id: commessa.commessa_id || "", 
-      };
-      return updatedFormData;
-
-    });
-
-    setSuggestedCommesse([]); 
+    setCommessaSearch(commessa.numero_commessa);
+    setFormData((prevState) => ({ ...prevState, commessa_id: commessa.commessa_id || "" }));
+    setSuggestedCommesse([]);
   };
-  
+
   // Funzione di invio del form
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Imposta un valore predefinito per "descrizione" e convalida i dati
-    const updatedFormData = {
-      ...formData,
-      descrizione: formData.descrizione || "Nessuna descrizione fornita",
-      stato: parseInt(formData.stato, 10), // Converte "stato" in numero
-    };
-  
-    console.log("Dati inviati al server:", updatedFormData);
-  
+
     const {
       commessa_id,
       reparto_id,
@@ -85,46 +62,43 @@ function AttivitaCrea({
       data_inizio,
       durata,
       stato,
-    } = updatedFormData;
-  
+    } = formData;
+
     // Validazione lato client
     if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata || stato === undefined) {
-      alert("Tutti i campi sono obbligatori.");
+      setErrorMessage("Tutti i campi sono obbligatori.");
+      setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
-  
+
     try {
+      setLoading(true);
       const endpoint = isEditing
         ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
         : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
-  
       const method = isEditing ? "put" : "post";
-  
-      await axios[method](endpoint, updatedFormData);
+
+      await fetch(endpoint, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
       setSuccessMessage(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-      setErrorMessage(""); // Rimuove eventuali errori precedenti
-  
-      setTimeout(() => {
-        setSuccessMessage(""); // Rimuove il messaggio di successo
-      }, 3000);
-  
-      fetchAttivita(); // Aggiorna la lista delle attività
+      setTimeout(() => setSuccessMessage(""), 3000);
+
+      await fetchAttivita(); // Aggiorna la lista delle attività
+      //setShowPopup(false); // Chiudi il pop-up
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
-  
-      // Mostra il messaggio di errore dettagliato
-      const errorMsg = error.response?.data || "Errore durante l'operazione.";
-      alert(errorMsg);
-      setErrorMessage(errorMsg);
-  
-      setTimeout(() => {
-        setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
-      }, 3000);
+      setErrorMessage("Errore durante l'operazione. Riprova.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    } finally {
+      setLoading(false);
     }
   };
-  
-
-
 
   // Funzione per chiudere i suggerimenti quando clicchi fuori
   const closeSuggestions = (e) => {
@@ -137,22 +111,18 @@ function AttivitaCrea({
   useEffect(() => {
     document.addEventListener("click", closeSuggestions);
     return () => {
-      document.removeEventListener("click", closeSuggestions); 
+      document.removeEventListener("click", closeSuggestions);
     };
   }, []);
 
-
   useEffect(() => {
     if (isEditing && formData.commessa_id) {
-      const commessa = commesse.find(
-        (c) => c.commessa_id === parseInt(formData.commessa_id, 10)
-      );
+      const commessa = commesse.find((c) => c.commessa_id === parseInt(formData.commessa_id, 10));
       if (commessa) {
         setCommessaSearch(commessa.numero_commessa);
       }
     }
   }, [isEditing, formData.commessa_id, commesse]);
-  
 
   return (
     <div className="popup">
@@ -162,27 +132,24 @@ function AttivitaCrea({
           <div className="form-group">
             <label>Commessa:</label>
             <input
-  type="text"
-  name="commessa_id"
-  value={commessaSearch || ""}  
-  onChange={handleSearchCommessa}
-  placeholder="Cerca per numero commessa"
-  className="input-field"
-/>
-{suggestedCommesse.length > 0 && (
-  <ul className="suggestions-list" ref={suggestionsRef}>
-    {suggestedCommesse.map((commessa) => {
-      return (
-        <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
-          {commessa.numero_commessa}
-        </li>
-      );
-    })}
-  </ul>
-)}
+              type="text"
+              name="commessa_id"
+              value={commessaSearch || ""}
+              onChange={handleSearchCommessa}
+              placeholder="Cerca per numero commessa"
+              className="input-field"
+            />
+            {suggestedCommesse.length > 0 && (
+              <ul className="suggestions-list" ref={suggestionsRef}>
+                {suggestedCommesse.map((commessa) => (
+                  <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
+                    {commessa.numero_commessa}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {/* Reparto */}
           <div className="form-group">
             <label>Reparto:</label>
             <select
@@ -195,13 +162,11 @@ function AttivitaCrea({
               {reparti.map((reparto) => (
                 <option key={reparto.id} value={reparto.id}>
                   {reparto.nome}
-                  
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Risorsa */}
           <div className="form-group">
             <label>Risorsa:</label>
             <select
@@ -221,28 +186,25 @@ function AttivitaCrea({
             </select>
           </div>
 
-          {/* Attività */}
           <div className="form-group">
-  <label>Attività:</label>
-  <select
-    name="attivita_id"
-    value={formData.attivita_id}
-    onChange={handleChange}
-    required
-  >
-    <option value="">Seleziona un'attività</option>
-    {attivitaConReparto
-      .filter((attivita) => attivita.reparto_id === parseInt(formData.reparto_id, 10))
-      .map((attivita) => (
-        <option key={attivita.id} value={attivita.id}>
-          {attivita.nome_attivita}
-        </option>
-      ))}
-  </select>
-</div>
+            <label>Attività:</label>
+            <select
+              name="attivita_id"
+              value={formData.attivita_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Seleziona un'attività</option>
+              {attivitaConReparto
+                .filter((attivita) => attivita.reparto_id === parseInt(formData.reparto_id, 10))
+                .map((attivita) => (
+                  <option key={attivita.id} value={attivita.id}>
+                    {attivita.nome_attivita}
+                  </option>
+                ))}
+            </select>
+          </div>
 
-
-          {/* Data Inizio */}
           <div className="form-group">
             <label>Data Inizio:</label>
             <input
@@ -254,7 +216,6 @@ function AttivitaCrea({
             />
           </div>
 
-          {/* Durata */}
           <div className="form-group">
             <label>Durata:</label>
             <input
@@ -266,36 +227,36 @@ function AttivitaCrea({
             />
           </div>
 
-        {/* Stato */}
-        <div className="form-group">
-  <label>Stato:</label>
-  <select
-    name="stato"
-    value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
-    onChange={handleChange}
-    required
-  >
-    <option value="">Seleziona uno stato</option>
-    <option value="0">Non iniziata</option>
-    <option value="1">Iniziata</option>
-    <option value="2">Completata</option>
-  </select>
-</div>
+          <div className="form-group">
+            <label>Stato:</label>
+            <select
+              name="stato"
+              value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Seleziona uno stato</option>
+              <option value="0">Non iniziata</option>
+              <option value="1">Iniziata</option>
+              <option value="2">Completata</option>
+            </select>
+          </div>
 
-        {/* Descrizione */}
-        <div className="form-group">
-          <label>Descrizione:</label>
-          <textarea
-            name="descrizione"
-            value={formData.descrizione || ""}
-            onChange={handleChange}
-            placeholder="Inserisci una descrizione (opzionale)"
-            rows="4"
-            className="textarea-field"
-          />
-        </div>
+          <div className="form-group">
+            <label>Descrizione:</label>
+            <textarea
+              name="descrizione"
+              value={formData.descrizione || ""}
+              onChange={handleChange}
+              placeholder="Inserisci una descrizione (opzionale)"
+              rows="4"
+              className="textarea-field"
+            />
+          </div>
 
-          <button type="submit">{isEditing ? "Aggiorna" : "Aggiungi"}</button>
+          <button type="submit" disabled={loading}>
+            {isEditing ? "Aggiorna" : "Aggiungi"}
+          </button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
           <button type="button" onClick={() => setShowPopup(false)}>

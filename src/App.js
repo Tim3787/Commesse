@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+import LoginRegister from "./components/pages/00-LoginRegister";
+
+import GestioneUtenti from "./components/pages/01-GestioneUtenti";
+import GestioneReparti from "./components/pages/01-GestioneReparti";
+import GestioneRisorse from "./components/pages/01-GestioneRisorse";
+import GestioneStati from "./components/pages/01-GestioneStati";
+import GestioneAttivita from "./components/pages/01-GestioneAttivita";
+import GestioneStatiCommessa from "./components/pages/01-GestioneStatiCommessa";
+import GestioneCommesse from "./components/pages/01-GestioneCommesse";
+
 import Navbar from "./components/Navbar";
-import LoginRegister from "./components/pages/LoginRegister";
+
 import Dashboard from "./components/pages/Dashboard";
 import VisualizzazioneCommesse from "./components/pages/VisualizzazioneCommesse";
 import VisualizzazioneAttivita from "./components/pages/VisualizzazioneAttivita";
 import CalendarioAttivita from "./components/pages/CalendarioAttivita";
-import GestioneCommesse from "./components/pages/GestioneCommesse";
 import AssegnaAttivita from "./components/pages/AssegnaAttivita";
-import GestioneUtenti from "./components/pages/GestioneUtenti";
-import GestioneReparti from "./components/pages/GestioneReparti";
-import GestioneRisorse from "./components/pages/GestioneRisorse";
-import GestioneStati from "./components/pages/GestioneStati";
-import GestioneAttivita from "./components/pages/GestioneAttivita";
-import GestioneStatiCommessa from "./components/pages/GestioneStatiCommessa";
-import GestioneStatiAvanzamento from "./components/pages/NuovaPagina";
+
+import StatiAvanzamento from "./components/pages/StatiAvanzamento";
 import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
 import StatoAvanzamentoElettrico from "./components/pages/StatoAvanzamentoElettrico";
 import StatoAvanzamentoQuadri from "./components/pages/StatoAvanzamentoQuadri";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
-import NotificheStati from "./components/pages/NotificheStati";
 import DashboardSoftware from "./components/pages/DashboardSoftware";
 import DashboardElettrico from "./components/pages/DashboardElettrico";
 import DashboardQuadri from "./components/pages/DashboardQuadri";
@@ -27,7 +31,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/TrelloBoardElettrico";
-import MatchCommesse from "./components/MatchCommesse";
+import MatchCommesse from "./components/pages/TrelloMatchCommesse";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -114,7 +118,7 @@ function App() {
     { path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
-    { path: "/gestione-stati-avanzamento", component: <GestioneStatiAvanzamento />, requiredRole: 2 },
+    { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },
 
     { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
     { path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
@@ -125,7 +129,6 @@ function App() {
     { path: "/stati", component: <GestioneStati />, requiredRole: 1 },
     { path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
     { path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
-    { path: "/NotificheStati", component: <NotificheStati />, requiredRole: 1 },
     { path: "/TrelloBoardSoftware", component: <TrelloBoardSoftware />, requiredRole: 1 },
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico/>, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse/>, requiredRole: 1 },

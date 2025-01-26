@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./CalendarioCommesse.css";
 import logo from "../assets/unitech-packaging.png";
+import { fetchCommesse } from "../services/api";
 
 function CalendarioCommesse() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -56,8 +56,8 @@ function CalendarioCommesse() {
     }
 
     return weeks.map((week) => {
-      const emptyCellsStart = Array(week[0].getDay()).fill(null); // Celle vuote all'inizio
-      const emptyCellsEnd = Array(6 - week[week.length - 1].getDay()).fill(null); // Celle vuote alla fine
+      const emptyCellsStart = Array(week[0].getDay()).fill(null); 
+      const emptyCellsEnd = Array(6 - week[week.length - 1].getDay()).fill(null); 
       return [...emptyCellsStart, ...week, ...emptyCellsEnd];
     });
   };
@@ -65,11 +65,11 @@ function CalendarioCommesse() {
   const weeksInMonth = getWeeksInMonth();
 
   useEffect(() => {
-    const fetchCommesse = async () => {
+    const getCommesse = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-        setCommesse(response.data);
+        const data = await fetchCommesse(); 
+        setCommesse(data);
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
       } finally {
@@ -77,8 +77,9 @@ function CalendarioCommesse() {
       }
     };
 
-    fetchCommesse();
+    getCommesse();
   }, []);
+
 
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -128,13 +129,12 @@ function CalendarioCommesse() {
   
   function CalendarDay({ day }) {
     if (!day) {
-      return <td className="Comm-empty-cell"></td>; // Celle vuote
+      return <td className="Comm-empty-cell"></td>; 
     }
   
     const fatCommesse = getCommesseForDay(day, "FAT");
     const consegnaCommesse = getCommesseForDay(day, "Consegna");
-    const todayClass = isToday(day) ? "Comm-today-cell" : ""; // Aggiunge la classe se è oggi
-
+    const todayClass = isToday(day) ? "Comm-today-cell" : ""; 
     return (
       <td className={`Comm-calendar-day ${todayClass}`}>
         <div className="Comm-day-header">{day.getDate()}</div>

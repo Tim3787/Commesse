@@ -4,7 +4,7 @@ import GestioneStatiAvanzamento from "../GestioneStatiAvanzamento";
 import "../style.css";
 import logo from"../assets/unitech-packaging.png";
 
-function NuovaPagina() {
+function StatiAvanzamento() {
   const [commesse, setCommesse] = useState([]);
   const [currentCommessaId, setCurrentCommessaId] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); 
@@ -440,4 +440,4 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   );
 }
 
-export default NuovaPagina;
+export default StatiAvanzamento;

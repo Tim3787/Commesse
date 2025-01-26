@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "../style.css";
 import CommessaDettagli from "../CommessaDettagli";  
 import logo from"../assets/unitech-packaging.png";
+import { fetchCommesse, fetchStatiCommessa } from "../services/api";
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]); 
@@ -26,52 +26,28 @@ function VisualizzazioneCommesse() {
   const [statoFilter, setStatoFilter] = useState(""); 
   const [statiCommessa, setStatiCommessa] = useState([]); 
   
+  // Funzione per caricare i dati
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      const [commesseData, statiCommessaData] = await Promise.all([
+        fetchCommesse(),
+        fetchStatiCommessa(),
+      ]);
+
+      setCommesse(commesseData);
+      setFilteredCommesse(commesseData);
+      setStatiCommessa(statiCommessaData);
+    } catch (error) {
+      console.error("Errore durante il caricamento dei dati:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCommesse = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-        setCommesse(response.data); 
-        setFilteredCommesse(response.data); 
-      } catch (error) {
-        console.error("Errore durante il recupero delle commesse:", error);
-      }finally {
-        setLoading(false);
-      }
-    };
-    fetchCommesse();
-
-    const fetchStati = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stati-avanzamento`);
-        setStatiAvanzamento(response.data); 
-      } catch (error) {
-        console.error("Errore durante il recupero degli stati avanzamento:", error);
-      }
-    };
-    
-    const fetchReparti = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
-        setReparti(response.data); 
-      } catch (error) {
-        console.error("Errore durante il recupero dei reparti:", error);
-      }
-    };
-
-    const fetchStatiCommessa = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-        setStatiCommessa(response.data);
-      } catch (error) {
-        console.error("Errore durante il recupero degli stati della commessa:", error);
-      }
-    };
-
-    fetchCommesse();
-    fetchStati();
-    fetchReparti();
-  fetchStatiCommessa();
+    fetchData();
   }, []);
 
   useEffect(() => {

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "../style.css";
 import CommessaCrea from "../CommessaCrea"; 
 import logo from"../assets/unitech-packaging.png";
-
+import {
+  fetchCommesse,
+  fetchReparti,
+  fetchAttivita,
+  fetchStatiCommessa,
+  deleteCommessa,
+} from "../services/api";
 
 function GestioneCommesse() {
   const [commesse, setCommesse] = useState([]);
@@ -25,46 +30,26 @@ function GestioneCommesse() {
   const [statiCommessa, setStatiCommessa] = useState([]); 
 
   useEffect(() => {
-    fetchCommesse();
-    fetchReparti();
-    fetchAttivita();
-    fetchStatiCommessa();
+    loadData();
   }, []);
 
-  const fetchCommesse = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`);
-      setCommesse(response.data);
+      const [commesseData, repartiData, attivitaData, statiData] = await Promise.all([
+        fetchCommesse(),
+        fetchReparti(),
+        fetchAttivita(),
+        fetchStatiCommessa(),
+      ]);
+      setCommesse(commesseData);
+      setReparti(repartiData);
+      setAttivita(attivitaData);
+      setStatiCommessa(statiData);
     } catch (error) {
-      console.error("Errore durante il recupero delle commesse:", error);
-    }finally {
+      console.error("Errore durante il caricamento dei dati:", error);
+    } finally {
       setLoading(false);
-    }
-  };
-  const fetchStatiCommessa = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-      setStatiCommessa(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero degli stati della commessa:", error);
-    }
-  };
-  const fetchReparti = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`);
-      setReparti(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero dei reparti:", error);
-    }
-  };
-
-  const fetchAttivita = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/attivita`);
-      setAttivita(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero delle attività:", error);
     }
   };
 
@@ -90,25 +75,14 @@ function GestioneCommesse() {
   };
 
   // Funzione per eliminare una commessa
-const handleDelete = async (commessaId) => {
-
-  try {
-    // Aggiungi un controllo per vedere se l'ID è valido
-    if (!commessaId) {
-      alert("ID della commessa non valido.");
-      return;
+  const handleDelete = async (commessaId) => {
+    try {
+      await deleteCommessa(commessaId);
+      await loadData(); // Ricarica i dati dopo l'eliminazione
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della commessa:", error);
     }
-    
-    // Modifica la query di eliminazione per usare il nome corretto della colonna (id)
-    await axios.delete (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}`);
-    //alert("Commessa eliminata con successo!");
-     // Ricarica l'elenco delle commesse dal backend
-     fetchCommesse(); 
-  } catch (error) {
-    console.error("Errore durante l'eliminazione della commessa:", error);
-    //alert("Errore durante l'eliminazione della commessa.");
-  }
-};
+  };
 
 
   // Funzione per applicare i filtri

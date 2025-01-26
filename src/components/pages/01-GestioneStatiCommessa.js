@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/unitech-packaging.png";
+import {
+  fetchStatiCommessa,
+  createStatoCommessa,
+  updateStatoCommessa,
+  deleteStatoCommessa,
+} from "../services/api";
 
 function GestioneStatiCommessa() {
   const [statiCommessa, setStatiCommessa] = useState([]);
@@ -9,18 +14,19 @@ function GestioneStatiCommessa() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    fetchStatiCommessa();
+    loadStatiCommessa();
   }, []);
 
-  const fetchStatiCommessa = async () => {
+  const loadStatiCommessa = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-      setStatiCommessa(response.data);
+      const data = await fetchStatiCommessa();
+      setStatiCommessa(data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati della commessa:", error);
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -37,16 +43,15 @@ function GestioneStatiCommessa() {
       return;
     }
     try {
-      const url = isEditing
-        ? `${process.env.REACT_APP_API_URL}/api/stato-commessa/${editId}`
-        : `${process.env.REACT_APP_API_URL}/api/stato-commessa`;
-      const method = isEditing ? "put" : "post";
-      await axios[method](url, { nome_stato: formData.nome_stato });
-      //alert(isEditing ? "Stato commessa aggiornato con successo!" : "Stato commessa aggiunto con successo!");
+      if (isEditing) {
+        await updateStatoCommessa(editId, formData);
+      } else {
+        await createStatoCommessa(formData);
+      }
       setFormData({ nome_stato: "" });
       setIsEditing(false);
       setEditId(null);
-      fetchStatiCommessa();
+      loadStatiCommessa();
     } catch (error) {
       console.error("Errore durante la gestione dello stato della commessa:", error);
     }
@@ -60,9 +65,8 @@ function GestioneStatiCommessa() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/stato-commessa/${id}`);
-      alert("Stato commessa eliminato con successo!");
-      fetchStatiCommessa();
+      await deleteStatoCommessa(id);
+      loadStatiCommessa();
     } catch (error) {
       console.error("Errore durante l'eliminazione dello stato della commessa:", error);
     }
@@ -72,7 +76,7 @@ function GestioneStatiCommessa() {
     <div className="container">
       {loading && (
         <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+          <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
       <h1>Crea o modifica stato della commessa</h1>

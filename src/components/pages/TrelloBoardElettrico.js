@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getBoardCards, getBoardLists, moveCardToList } from "../API/trello";
+import { getBoardCards, getBoardLists, moveCardToList } from "../services/api";
 import axios from "axios";
 
 const TrelloBoardSoftware = () => {
@@ -12,7 +12,6 @@ const TrelloBoardSoftware = () => {
   const [error, setError] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const handleEditCard = (card) => {
-    console.log("Scheda in modifica:", card); // Log per debug
     setEditingCard(card);
   };
   

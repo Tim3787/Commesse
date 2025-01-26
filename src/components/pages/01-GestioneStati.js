@@ -1,40 +1,46 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/unitech-packaging.png";
+import {
+  fetchStatiAvanzamento,
+  fetchReparti,
+  createStatoAvanzamento,
+  updateStatoAvanzamento,
+  deleteStatoAvanzamento,
+} from "../services/api";
 
-function GestioneRisorse() {
-  const [risorse, setRisorse] = useState([]);
+function GestioneStati() {
+  const [statiAvanzamento, setStatiAvanzamento] = useState([]);
+  const [reparti, setReparti] = useState([]);
   const [formData, setFormData] = useState({
-    nome: "",
+    nome_stato: "",
     reparto_id: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [reparti, setReparti] = useState([]);
-  const [selectedReparto, setSelectedReparto] = useState(""); 
+  const [selectedReparto, setSelectedReparto] = useState("");
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    fetchRisorse();
-    fetchReparti();
+    loadStatiAvanzamento();
+    loadReparti();
   }, []);
 
-  const fetchRisorse = async () => {
+  const loadStatiAvanzamento = async () => {
     setLoading(true);
     try {
-      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/risorse`);
-      setRisorse(response.data);
+      const data = await fetchStatiAvanzamento();
+      setStatiAvanzamento(data);
     } catch (error) {
-      console.error("Errore durante il recupero delle risorse:", error);
-    }finally {
+      console.error("Errore durante il recupero degli stati di avanzamento:", error);
+    } finally {
       setLoading(false);
     }
   };
 
-  const fetchReparti = async () => {
+  const loadReparti = async () => {
     try {
-      const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/reparti`);
-      setReparti(response.data);
+      const data = await fetchReparti();
+      setReparti(data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
     }
@@ -47,69 +53,63 @@ function GestioneRisorse() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nome || !formData.reparto_id) {
+    if (!formData.nome_stato || !formData.reparto_id) {
       alert("Tutti i campi sono obbligatori.");
       return;
     }
     try {
-      const endpoint = isEditing
-  ? `${process.env.REACT_APP_API_URL}/api/risorse/${editId}`
-          : `${process.env.REACT_APP_API_URL}/api/risorse`;
-
-      const method = isEditing ? "put" : "post";
-
-      await axios[method](endpoint, formData);
-
-      alert(
-        isEditing
-          ? "Risorsa aggiornata con successo!"
-          : "Risorsa aggiunta con successo!"
-      );
-      setFormData({ nome: "", reparto_id: "" });
+      if (isEditing) {
+        await updateStatoAvanzamento(editId, formData);
+      } else {
+        await createStatoAvanzamento(formData);
+      }
+      setFormData({ nome_stato: "", reparto_id: "" });
       setIsEditing(false);
       setEditId(null);
-      fetchRisorse();
+      loadStatiAvanzamento();
     } catch (error) {
-      console.error("Errore durante l'aggiunta o modifica della risorsa:", error);
+      console.error("Errore durante l'aggiunta o modifica dello stato di avanzamento:", error);
     }
   };
 
-  const handleEdit = (risorsa) => {
-    setFormData({ nome: risorsa.nome, reparto_id: risorsa.reparto_id });
+  const handleEdit = (stato) => {
+    setFormData({
+      nome_stato: stato.nome_stato,
+      reparto_id: stato.reparto_id,
+    });
     setIsEditing(true);
-    setEditId(risorsa.id);
+    setEditId(stato.id);
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete (`${process.env.REACT_APP_API_URL}/api/risorse/${id}`);
-      //alert("Risorsa eliminata con successo!");
-      fetchRisorse();
+      await deleteStatoAvanzamento(id);
+      loadStatiAvanzamento();
     } catch (error) {
-      console.error("Errore durante l'eliminazione della risorsa:", error);
+      console.error("Errore durante l'eliminazione dello stato di avanzamento:", error);
     }
   };
 
-  const filteredRisorse = selectedReparto
-    ? risorse.filter((risorsa) => risorsa.reparto_id === parseInt(selectedReparto))
-    : risorse;
+  const filteredStatiAvanzamento = selectedReparto
+    ? statiAvanzamento.filter((stato) => stato.reparto_id === parseInt(selectedReparto))
+    : statiAvanzamento;
 
   return (
     <div className="container">
       {loading && (
         <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+          <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
-      <h1>Crea o Modifica le Risorse</h1>
+      <h1>Crea o modifica gli stati avanzamento</h1>
       <form onSubmit={handleSubmit}>
-        <h2>{isEditing ? "Modifica Risorsa" : "Aggiungi Risorsa"}</h2>
+        <h2>{isEditing ? "Modifica Stato di Avanzamento" : "Aggiungi Stato di Avanzamento"}</h2>
         <div className="form-group">
-          <label>Nome:</label>
+          <label>Nome Stato:</label>
           <input
             type="text"
-            name="nome"
-            value={formData.nome}
+            name="nome_stato"
+            value={formData.nome_stato}
             onChange={handleChange}
             required
           />
@@ -131,7 +131,7 @@ function GestioneRisorse() {
           </select>
         </div>
         <button type="submit" className="btn btn-primary">
-          {isEditing ? "Aggiorna" : "Aggiungi"}
+          {isEditing ? "Aggiorna Stato" : "Aggiungi Stato"}
         </button>
         {isEditing && (
           <button
@@ -139,7 +139,7 @@ function GestioneRisorse() {
             className="btn btn-secondary"
             onClick={() => {
               setIsEditing(false);
-              setFormData({ nome: "", reparto_id: "" });
+              setFormData({ nome_stato: "", reparto_id: "" });
               setEditId(null);
             }}
           >
@@ -148,7 +148,7 @@ function GestioneRisorse() {
         )}
       </form>
 
-      <h2>Elenco Risorse</h2>
+      <h2>Elenco Stati di Avanzamento</h2>
       <div className="form-group">
         <label>Filtra per Reparto:</label>
         <select
@@ -167,30 +167,30 @@ function GestioneRisorse() {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nome</th>
+            <th>Nome Stato</th>
             <th>Reparto</th>
             <th>Azioni</th>
           </tr>
         </thead>
         <tbody>
-          {filteredRisorse.map((risorsa) => (
-            <tr key={risorsa.id}>
-              <td>{risorsa.id}</td>
-              <td>{risorsa.nome}</td>
+          {filteredStatiAvanzamento.map((stato) => (
+            <tr key={stato.id}>
+              <td>{stato.id}</td>
+              <td>{stato.nome_stato}</td>
               <td>
-                {reparti.find((reparto) => reparto.id === risorsa.reparto_id)?.nome ||
-                  "N/A"}
+                {reparti.find((reparto) => reparto.id === stato.reparto_id)?.nome ||
+                  "Non assegnato"}
               </td>
               <td>
                 <button
                   className="btn btn-warning"
-                  onClick={() => handleEdit(risorsa)}
+                  onClick={() => handleEdit(stato)}
                 >
                   Modifica
                 </button>
                 <button
                   className="btn btn-danger"
-                  onClick={() => handleDelete(risorsa.id)}
+                  onClick={() => handleDelete(stato.id)}
                 >
                   Elimina
                 </button>
@@ -203,4 +203,4 @@ function GestioneRisorse() {
   );
 }
 
-export default GestioneRisorse;
+export default GestioneStati;

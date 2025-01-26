@@ -95,7 +95,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     manager: [
       { to: "/gestione-commesse", label: "Crea o modifica commessa" },
       { to: "/assegna-attivita", label: "Assegna un'attività" },
-      { to: "/gestione-stati-avanzamento", label: "Aggiorna stati avanzamento" },
+      { to: "/StatiAvanzamento", label: "Aggiorna stati avanzamento" },
       { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
       { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
       //{ to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento quadri" },
