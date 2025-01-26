@@ -106,8 +106,7 @@ const [loadingActivities, setLoadingActivities] = useState({});
         setAttivitaConReparto(softwareActivities);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
-        console.log("Data", attivitaWithReparto )
-        console.log("Data", attivitaWithReparto )
+
       } finally {
         setLoading(false);
       }
@@ -357,8 +356,7 @@ const toLocalISOString = (date) => {
           act.id === activity.id ? { ...act, ...updatedActivity } : act
         )
       );
-      console.log("Data ricevuta per il drop:", newDate);
-console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("T")[0]);
+
 
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'attività:", error);

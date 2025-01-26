@@ -398,8 +398,7 @@ export const getBoardCards = async (boardId) => {
       }
     );
     return response.data; // Restituisce i dati della risposta
-    console.log("URL:", `https://api.trello.com/1/boards/${boardId}/cards`);
-console.log("Params:", { key: process.env.REACT_APP_TRELLO_API_KEY, token: process.env.REACT_APP_TRELLO_TOKEN });
+
 
   } catch (error) {
     console.error("Errore durante il recupero delle schede:", error);
@@ -432,7 +431,7 @@ export const moveCardToList = async (cardId, destinationListId) => {
         },
       }
     );
-    console.log(`Scheda ${cardId} spostata nella lista ${destinationListId}`);
+
     return response.data;
   } catch (error) {
     console.error(

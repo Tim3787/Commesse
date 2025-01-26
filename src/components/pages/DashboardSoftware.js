@@ -359,8 +359,6 @@ const toLocalISOString = (date) => {
           act.id === activity.id ? { ...act, ...updatedActivity } : act
         )
       );
-      console.log("Data ricevuta per il drop:", newDate);
-console.log("Data normalizzata e inviata:", normalizedDate.toISOString().split("T")[0]);
 
     } catch (error) {
       console.error("Errore durante l'aggiornamento dell'attività:", error);

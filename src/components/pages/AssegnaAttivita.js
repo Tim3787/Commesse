@@ -122,8 +122,6 @@ function AssegnaAttivita() {
 
     // Funzione per aprire il pop-up in modalità modifica
     const handleEdit = (attivita) => {
-      console.log("Attività selezionata per modifica:", attivita);
-  
       // Controlla se `data_inizio` è una data valida
       const dataInizio = attivita.data_inizio && attivita.data_inizio !== "Non specificata"
         ? new Date(attivita.data_inizio).toISOString().split("T")[0]

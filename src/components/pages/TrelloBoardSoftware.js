@@ -82,7 +82,7 @@ const TrelloBoardSoftware = () => {
   
       // Chiudi il popup di modifica
       setEditingCard(null);
-      console.log(`Scheda ${updatedCard.id} aggiornata con successo.`);
+
     } catch (error) {
       console.error("Errore durante l'aggiornamento della scheda:", error);
       alert("Non è stato possibile aggiornare la scheda. Riprova più tardi.");
