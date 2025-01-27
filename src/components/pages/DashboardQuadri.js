@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import axios from "axios";
 import "./Dashboard.css";
 import logo from "../assets/unitech-packaging.png";
@@ -29,6 +29,7 @@ const [formData, setFormData] = useState({
 const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
 const [loadingActivities, setLoadingActivities] = useState({});
+const todayRef = useRef(null);  //OGGI
 
   // Calcola i giorni del mese
   const getDaysInMonth = () => {
@@ -119,7 +120,12 @@ const [loadingActivities, setLoadingActivities] = useState({});
   }, [currentMonth, token]);
   
   
-
+// Scorri automaticamente alla colonna di oggi //OGGI
+useEffect(() => {
+  if (todayRef.current) {
+    todayRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }
+}, [daysInMonth]);
   // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -406,6 +412,7 @@ const toLocalISOString = (date) => {
             <th
               key={day.toISOString()}
               className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+              ref={isToday ? todayRef : null} //OGGI
             >
               {day.toLocaleDateString()}
             </th>
