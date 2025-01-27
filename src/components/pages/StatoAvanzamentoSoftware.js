@@ -168,52 +168,61 @@ const accoppiamentoStati = {
   
   const isListDifferent = !accoppiamentoStati["software"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
   
+  const normalizeDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString); // Interpreta la data come UTC o locale (dipende dal formato)
+    return date.toISOString().split("T")[0]; // Ritorna solo la parte YYYY-MM-DD
+  };
   
-    const trelloDate = trelloCard?.due
-      ? new Date(trelloCard.due).toLocaleDateString()
-      : null;
-    const appDate = commessa.data_consegna
-      ? new Date(commessa.data_consegna).toLocaleDateString()
-      : "N/A";
-    const isDateDifferent = trelloCard && trelloDate !== appDate;
   
-    const handleAlignDate = async (commessaId, trelloDate) => {
-      try {
-        // Trova la commessa corrente
-        const commessa = commesse.find((c) => c.commessa_id === commessaId);
-    
-        if (!commessa) {
-          console.error("Commessa non trovata");
-          alert("Commessa non trovata.");
-          return;
-        }
-    
-        // Invia i dati aggiornati con tutti i campi richiesti
-        await axios.put(
-          `${apiUrl}/api/commesse/${commessaId}`,
-          {
-            numero_commessa: commessa.numero_commessa,
-            tipo_macchina: commessa.tipo_macchina,
-            data_consegna: trelloDate,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-    
-        // Aggiorna localmente la data di consegna
-        setCommesse((prevCommesse) =>
-          prevCommesse.map((c) =>
-            c.commessa_id === commessaId ? { ...c, data_consegna: trelloDate } : c
-          )
-        );
-    
-        alert("Data allineata con successo.");
-      } catch (error) {
-        console.error("Errore durante l'allineamento della data:", error);
-        alert("Errore durante l'allineamento della data.");
+  const trelloDate = trelloCard?.due ? normalizeDate(trelloCard.due) : null;
+  const appDate = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
+  const isDateDifferent = trelloDate !== appDate;
+  
+  const handleAlignDate = async (commessaId, trelloDate) => {
+    try {
+      const normalizedTrelloDate = normalizeDate(trelloDate);
+  
+      if (!normalizedTrelloDate) {
+        alert("La data fornita da Trello non è valida.");
+        return;
       }
-    };
+  
+      // Trova la commessa corrente
+      const commessa = commesse.find((c) => c.commessa_id === commessaId);
+      if (!commessa) {
+        console.error("Commessa non trovata");
+        alert("Commessa non trovata.");
+        return;
+      }
+  
+      // Aggiorna la data in backend
+      await axios.put(
+        `${apiUrl}/api/commesse/${commessaId}`,
+        {
+          numero_commessa: commessa.numero_commessa,
+          tipo_macchina: commessa.tipo_macchina,
+          data_consegna: normalizedTrelloDate, // Usa la data normalizzata
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      // Aggiorna localmente la data
+      setCommesse((prevCommesse) =>
+        prevCommesse.map((c) =>
+          c.commessa_id === commessaId ? { ...c, data_consegna: normalizedTrelloDate } : c
+        )
+      );
+  
+      alert("Data allineata con successo.");
+    } catch (error) {
+      console.error("Errore durante l'allineamento della data:", error);
+      alert("Errore durante l'allineamento della data.");
+    }
+  };
+  
     
     
     return (
