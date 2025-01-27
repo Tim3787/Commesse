@@ -21,24 +21,15 @@ function StatoAvanzamentoElettrico() {
 
  
 const accoppiamentoStati = {
-  software: {
-    "in entrata": "S: In entrata",
-    "analisi": "S: Analisi",
-    "sviluppo programmato": "S: Sviluppo programmato",
-    "sviluppo": "S: Sviluppo",
-    "sviluppo ok": "S: pronto per messa in servizio",
-    "collaudo": "S: Testing",
-    "avviamento terminato": "S: Completate",
-    "collaudo terminato": "S: Completate",
-    "no software": "S: Nessun lavoro software",
-    },
     elettrico: {
-      "sviluppo": "E: Sviluppo",
-      "analisi": "E: In entrata",
-      
-      "controllo": "E: Controllo schema prima del lancio",
-      "bm pronto": "Materiale BM Completo",
-      "completate": "E: Completate",
+      "in entrata": ["E: In entrata","E: In entrata","E: Schema destinato a Luca","E: Schema destinato a Alan",
+        "E: Schema destinato a Alessio","E: Schema destinato a Simone"],
+      "analisi": ["E: Analisi documentazione"],
+      "sviluppo": ["E: Sviluppo"],
+      "controllo": ["E: Controllo schema prima del lancio"],
+      "bm in preparazione": ["E: Materiale BM in preparazione"],
+      "bm pronto": ["Materiale BM Completo"],
+      "completate": ["E: Completate"],
     },
     meccanico: {
 
@@ -167,10 +158,14 @@ const accoppiamentoStati = {
     );
 
     const expectedList = statoAttivo?.stato?.nome_stato
-  ? accoppiamentoStati["elettrico"]?.[normalize(statoAttivo.stato.nome_stato)] || "Non accoppiata"
-  : "Non assegnata"
-
-    const isListDifferent = trelloListName !== expectedList;
+    ? accoppiamentoStati["software"]?.[normalize(statoAttivo.stato.nome_stato)]?.includes(
+        trelloListName
+      )
+      ? trelloListName
+      : "Non accoppiata"
+    : "Non assegnata";
+  
+  const isListDifferent = !accoppiamentoStati["software"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
   
     const trelloDate = trelloCard?.due
       ? new Date(trelloCard.due).toLocaleDateString()

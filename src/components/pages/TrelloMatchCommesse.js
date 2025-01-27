@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getBoardCards } from "../services/api";
 import axios from "axios";
 import CommessaCrea from "../CommessaCrea";
-
+import logo from"../assets/unitech-packaging.png";
 const MatchCommesse = () => {
 
   const [cards, setCards] = useState([]);
@@ -57,14 +57,18 @@ const MatchCommesse = () => {
     return match ? match[0] : null;
   };
   
-
+  const extractClienteName = (trelloName) => {
+    const match = trelloName.match(/^\d{5}\s*(.*)/); // Estrae tutto ciò che segue i primi 5 numeri
+    return match ? match[1].trim() : ""; // Rimuove spazi aggiuntivi
+  };
+  
   const handleOpenPopup = (card) => {
   const numeroCommessa = extractCommessaNumber(card.name);
-
+  const clienteName = extractClienteName(card.name);
 
   const commessaData = {
     numero_commessa: numeroCommessa,
-    cliente: "", // Personalizza se necessario
+    cliente: clienteName,
     data_consegna: card.due ? new Date(card.due).toISOString().split("T")[0] : null,
     note: card.desc || "",
   };
@@ -84,13 +88,17 @@ const MatchCommesse = () => {
 
   
   return (
-    <div>
-      <h1>Match Commesse e Trello</h1>
-      {loading ? (
-        <p>Caricamento...</p>
-      ) : (
-        <div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+  
+      <div className="container-scroll">
+   {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
+        </div>
+      )}
+      <div className="header">
+                <h1>Commesse esistenti solo su Trello</h1>
+                 </div>
+        
             {cards
               .filter((card) => {
                 const trelloNumero = extractCommessaNumber(card.name);
@@ -106,9 +114,9 @@ const MatchCommesse = () => {
                   <p><strong>Data consegna:</strong> {card.due ? new Date(card.due).toLocaleDateString() : "N/A"}</p>
                 </div>
               ))}
-          </div>
-        </div>
-      )}
+         
+       
+     
 
       {showPopup && (
         <CommessaCrea
