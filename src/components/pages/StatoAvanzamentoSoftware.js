@@ -29,6 +29,7 @@ const accoppiamentoStati = {
     "pronta per collaudo": ["S: pronto per messa in servizio","S: Macchina quasi pronta per inizio collaudo (vedi data di massima inserita da Massimo)" ],
     "collaudo": ["S: Collaudo"],
     "avviamento terminato": ["S: Completate"],
+    "avviamento iniziato": ["S: Completate"],
     "collaudo terminato": ["S: Completate"],
     "no software": ["S: Nessun lavoro software"],
     },

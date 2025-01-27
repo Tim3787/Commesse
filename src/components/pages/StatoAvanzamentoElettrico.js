@@ -158,14 +158,14 @@ const accoppiamentoStati = {
     );
 
     const expectedList = statoAttivo?.stato?.nome_stato
-    ? accoppiamentoStati["software"]?.[normalize(statoAttivo.stato.nome_stato)]?.includes(
+    ? accoppiamentoStati["elettrico"]?.[normalize(statoAttivo.stato.nome_stato)]?.includes(
         trelloListName
       )
       ? trelloListName
       : "Non accoppiata"
     : "Non assegnata";
   
-  const isListDifferent = !accoppiamentoStati["software"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
+  const isListDifferent = !accoppiamentoStati["elettrico"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
   
     const trelloDate = trelloCard?.due
       ? new Date(trelloCard.due).toLocaleDateString()
