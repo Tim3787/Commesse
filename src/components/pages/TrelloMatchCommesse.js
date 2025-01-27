@@ -73,7 +73,7 @@ const MatchCommesse = () => {
     note: card.desc || "",
   };
 
-  console.log("Dati per la nuova commessa:", commessaData);
+
 
   setSelectedCommessa(commessaData);
   setShowPopup(true);

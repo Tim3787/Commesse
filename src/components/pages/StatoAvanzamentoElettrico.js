@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../style.css";
+import "./Dashboard.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists } from "../services/api";
+
 
 function StatoAvanzamentoElettrico() {
   const [commesse, setCommesse] = useState([]);
@@ -29,7 +30,7 @@ const accoppiamentoStati = {
       "controllo": ["E: Controllo schema prima del lancio"],
       "bm in preparazione": ["E: Materiale BM in preparazione"],
       "bm pronto": ["Materiale BM Completo"],
-      "completate": ["E: Completate"],
+      "completate": ["E: Completate","E: Documentazione da aggiornare","E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
     },
     meccanico: {
 
@@ -179,9 +180,7 @@ const accoppiamentoStati = {
   const appDate = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
   const isDateDifferent = trelloDate !== appDate;
   
-    console.log("Stato attivo:", statoAttivo?.stato?.nome_stato);
-    console.log("Stato normalizzato:", normalize(statoAttivo?.stato?.nome_stato));
-    console.log("Expected List:", expectedList);
+
     
     const handleAlignDate = async (commessaId, trelloDate) => {
       try {
@@ -285,6 +284,7 @@ const accoppiamentoStati = {
     }));
 
     return (
+
       <td ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
         {commesse.map((commessa) => (
           <DraggableCommessa
@@ -295,6 +295,7 @@ const accoppiamentoStati = {
           />
         ))}
       </td>
+
     );
   }
 
@@ -306,7 +307,7 @@ const accoppiamentoStati = {
   });
 
   return (
-    <div className="container">
+    <div className="container-scroll">
       <h1>Stato Avanzamento Elettrico</h1>
       {loading && <div className="loading-overlay">Caricamento...</div>}
 
@@ -332,7 +333,8 @@ const accoppiamentoStati = {
       </div>
 
       <DndProvider backend={HTML5Backend}>
-        <table className="stati-software-table">
+      <div className="Gen-table-container">
+        <table className="software-schedule">
           <thead>
             <tr>
               {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
@@ -361,6 +363,7 @@ const accoppiamentoStati = {
             </tr>
           </tbody>
         </table>
+        </div>
       </DndProvider>
     </div>
   );

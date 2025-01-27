@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../style.css";
+import "./Dashboard.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists } from "../services/api";
+
 
 function StatoAvanzamentoSoftware() {
   const [commesse, setCommesse] = useState([]);
@@ -22,8 +23,8 @@ function StatoAvanzamentoSoftware() {
  
 const accoppiamentoStati = {
   software: {
-    "in entrata": ["S: In entrata"],
-    "analisi": ["S: Analisi"],
+    "in entrata": ["S: In entrata", "S-Ribo in entrata", "S: Modifiche su macchina old"],
+    "analisi": ["S: Analisi", "S: Modifiche su macchina old"],
     "sviluppo programmato": ["S: In entrata","S: Analisi" ],
     "sviluppo": ["S: Sviluppo"],
     "pronta per collaudo": ["S: pronto per messa in servizio","S: Macchina quasi pronta per inizio collaudo (vedi data di massima inserita da Massimo)" ],
@@ -281,7 +282,9 @@ const accoppiamentoStati = {
     }));
 
     return (
+      
       <td ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
+
         {commesse.map((commessa) => (
           <DraggableCommessa
             key={commessa.commessa_id}
@@ -290,7 +293,9 @@ const accoppiamentoStati = {
             getListNameById={getListNameById}
           />
         ))}
+
       </td>
+       
     );
   }
 
@@ -302,7 +307,7 @@ const accoppiamentoStati = {
   });
 
   return (
-    <div className="container">
+    <div className="container-scroll">
       <h1>Stato Avanzamento Software</h1>
       {loading && <div className="loading-overlay">Caricamento...</div>}
 
@@ -328,7 +333,8 @@ const accoppiamentoStati = {
       </div>
 
       <DndProvider backend={HTML5Backend}>
-        <table className="stati-software-table">
+      <div className="Gen-table-container">
+        <table className="software-schedule">
           <thead>
             <tr>
               {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
@@ -357,6 +363,7 @@ const accoppiamentoStati = {
             </tr>
           </tbody>
         </table>
+        </div>
       </DndProvider>
     </div>
   );
