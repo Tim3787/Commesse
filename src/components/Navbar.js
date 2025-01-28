@@ -86,25 +86,38 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
   const navLinks = {
     user: [
-      { to: "/Dashboard", label: "Bacheca" },
-      { to: "/visualizzazione-commesse", label: "Commesse" },
+      { to: "/Dashboard", label: "Bacheca personale" },
+      { to: "/visualizzazione-commesse", label: "Visualizza dettagli commesse" },
       { to: "/calendario-attivita", label: "Calendario attività" },
       { to: "/CalendarioCommesse", label: "Calendario commesse" },
-
     ],
     manager: [
+      {
+        label: "Rep. Software",
+        links: [
+          { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
+          { to: "/DashboardSoftware", label: "Attività software dept." },
+          { to: "/TrelloBoardSoftware", label: "Bacheca software Trello" },
+        ],
+      },
+      {
+        label: "Rep. Elettrico",
+        links: [
+          { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
+          { to: "/DashboardElettrico", label: "Attività elettrico dept." },
+          { to: "/TrelloBoardElettrico", label: "Bacheca elettrico Trello" },
+        ],
+      },
+      {
+        label: "Rep. QE",
+        links: [
+          { to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento quadri" },
+          { to: "/DashboardQuadri", label: "Attività quadri dept." },
+        ],
+      },
       { to: "/gestione-commesse", label: "Crea o modifica commessa" },
-      { to: "/assegna-attivita", label: "Assegna un'attività" },
-      { to: "/StatiAvanzamento", label: "Aggiorna stati avanzamento" },
-      { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
-      { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
-      //{ to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento quadri" },
-      { to: "/DashboardQuadri", label:  "Attività quadri dept." },
-
-      { to: "/DashboardSoftware", label: "Attività software dept." },
-      { to: "/DashboardElettrico", label: "Attività elettrico dept." },
-      { to: "TrelloBoardSoftware", label: "Bacheca software trello" },
-      { to: "TrelloBoardElettrico", label: "Bacheca elettrico trello" },
+      { to: "/assegna-attivita", label: "Tutte le attività" },
+      { to: "/StatiAvanzamento", label: "Tutte gli stati avanzamento" },
     ],
     admin: [
       { to: "/utenti", label: "Gestione utenti" },
@@ -118,16 +131,32 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   };
 
   const renderLinks = (links) =>
-    links.map((link, index) => (
-      <li key={index}>
-        <Link
-          to={link.to}
-          onClick={() => setActiveMenu(null)} // Chiudi il menu dopo il clic
-        >
-          {link.label}
-        </Link>
-      </li>
-    ));
+    links.map((link, index) => {
+      if (link.links) {
+        // Rendi un sottogruppo
+        return (
+          <li key={index} className="dropdown-subgroup">
+            <span className="subgroup-title">{link.label}</span>
+            <ul>
+              {link.links.map((subLink, subIndex) => (
+                <li key={subIndex}>
+                  <Link to={subLink.to} onClick={() => setActiveMenu(null)}>
+                    {subLink.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        );
+      }
+      return (
+        <li key={index}>
+          <Link to={link.to} onClick={() => setActiveMenu(null)}>
+            {link.label}
+          </Link>
+        </li>
+      );
+    });
 
 
   const toggleMenu = (menu) => {

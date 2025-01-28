@@ -257,6 +257,7 @@ function AssegnaAttivita() {
   };
 
   const handleDelete = async (id) => {
+    if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
     try {
       await deleteAttivitaCommessa(id);
   
@@ -268,6 +269,7 @@ function AssegnaAttivita() {
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
     }
+  }
   };
   
   const handleReloadActivities = async () => {

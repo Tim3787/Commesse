@@ -5,7 +5,9 @@ import logo from "../assets/unitech-packaging.png";
 import AttivitaCrea from "../AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-
+import {
+  deleteAttivitaCommessa,
+} from "../services/api";
 
 function DashboardSoftware() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -226,6 +228,40 @@ const toLocalISOString = (date) => {
     setEditId(null); // Non modifica un'attività esistente
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
+      try {
+        await deleteAttivitaCommessa(id);
+  
+        // Aggiorna lo stato locale eliminando l'attività dall'elenco
+        setActivities((prevActivities) =>
+          prevActivities.filter((activity) => activity.id !== id)
+        );
+  
+        console.log("Attività eliminata con successo!");
+      } catch (error) {
+        console.error("Errore durante l'eliminazione dell'attività:", error);
+        alert("Si è verificato un errore durante l'eliminazione dell'attività.");
+      }
+    }
+  };
+  
+
+  const handleAddNew = () => {
+    setFormData({
+      commessa_id: "",
+      reparto_id: 1, // SOFTWARE
+      risorsa_id: "",
+      attivita_id: "",
+      data_inizio: "",
+      durata: 1,
+      stato: "",
+      descrizione: "",
+    });
+    setIsEditing(false);
+    setShowPopup(true);
+  };
+
   
   function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick }) {
     const normalizedDay = normalizeDate(day);
@@ -306,6 +342,12 @@ const toLocalISOString = (date) => {
   
         {/* Pulsanti per modificare lo stato */}
         <div className="activity-actions">
+        <button
+    className="btn btn-danger"
+    onClick={() => handleDelete(activity.id)} // Passa l'ID corretto
+  >
+    Elimina
+  </button>
           {activity.stato === 1 && (
             <>
               
@@ -335,6 +377,8 @@ const toLocalISOString = (date) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
+          
+
             </>
           )}
         </div>
@@ -384,7 +428,9 @@ const toLocalISOString = (date) => {
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-
+ <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+          Aggiungi Attività
+        </button>
         <div className="calendar-navigation">
           <button onClick={goToPreviousMonth} className="btn-Nav">
             ← Mese Precedente
