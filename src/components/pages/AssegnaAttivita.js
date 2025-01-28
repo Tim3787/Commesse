@@ -63,7 +63,7 @@ function AssegnaAttivita() {
   }, [filters, attivitaProgrammate]);
 
   useEffect(() => {
-    const loadInitialData = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
   
@@ -116,7 +116,7 @@ function AssegnaAttivita() {
       }
     };
   
-    loadInitialData();
+    loadData();
   }, []);
   
 
@@ -259,12 +259,26 @@ function AssegnaAttivita() {
   const handleDelete = async (id) => {
     try {
       await deleteAttivitaCommessa(id);
-      loadData(); 
+  
+      // Aggiorna lo stato locale eliminando l'attività dall'elenco
+      setAttivitaFiltrate((prev) => prev.filter((attivita) => attivita.id !== id));
+      setAttivitaProgrammate((prev) => prev.filter((attivita) => attivita.id !== id));
+  
+      console.log("Attività eliminata con successo!");
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
     }
   };
-
+  
+  const handleReloadActivities = async () => {
+    try {
+      const updatedActivities = await fetchAttivitaCommessa();
+      setAttivitaProgrammate(updatedActivities);
+      setAttivitaFiltrate(updatedActivities);
+    } catch (error) {
+      console.error("Errore durante il ricaricamento delle attività:", error);
+    }
+  };
   const closeSuggestions = (e) => {
     if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
       setCommessaSuggestions(false);
@@ -478,6 +492,7 @@ function AssegnaAttivita() {
         risorse={risorse}
         attivitaDefinite={attivitaDefinite}
         attivitaConReparto={attivitaConReparto}
+        reloadActivities={handleReloadActivities} 
       />
     )}
   </div>

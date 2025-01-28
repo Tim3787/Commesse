@@ -12,6 +12,7 @@ function AttivitaCrea({
   reparti,
   risorse,
   attivitaConReparto,
+  reloadActivities,
 }) {
   const [commessaSearch, setCommessaSearch] = useState("");
   const [suggestedCommesse, setSuggestedCommesse] = useState([]);
@@ -61,11 +62,10 @@ function AttivitaCrea({
       attivita_id,
       data_inizio,
       durata,
-      stato,
     } = formData;
 
     // Validazione lato client
-    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata || stato === undefined) {
+    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata ) {
       setErrorMessage("Tutti i campi sono obbligatori.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
@@ -91,6 +91,7 @@ function AttivitaCrea({
 
       await fetchAttivita(); // Aggiorna la lista delle attività
       //setShowPopup(false); // Chiudi il pop-up
+      reloadActivities();
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
       setErrorMessage("Errore durante l'operazione. Riprova.");
@@ -233,7 +234,7 @@ function AttivitaCrea({
               name="stato"
               value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
               onChange={handleChange}
-              required
+              //required
             >
               <option value="">Seleziona uno stato</option>
               <option value="0">Non iniziata</option>

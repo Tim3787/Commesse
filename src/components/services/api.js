@@ -35,15 +35,50 @@ export const fetchRoles = async () => {
   return response.data;
 };
 
-export const updateUserRole = async (userId, roleId) => {
-  const response = await apiClient.put(`/api/users/${userId}`, { role_id: roleId });
-  return response.data;
+export const updateUserRole = async (userId, roleId, username, email, risorsaId) => {
+  try {
+    // Controllo parametri obbligatori
+    if (!userId || !username || !email || !roleId || !risorsaId) {
+      console.error("Parametri mancanti:", { userId, roleId, username, email, risorsaId });
+      throw new Error("Parametri obbligatori mancanti per l'aggiornamento dell'utente.");
+    }
+    const response = await apiClient.put(`/api/users/${userId}`, {
+      username,
+      email,
+      role_id: roleId,
+      risorsa_id: risorsaId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento del ruolo:", error);
+    throw error;
+  }
 };
 
-export const updateUsername = async (userId, username) => {
-  const response = await apiClient.put(`/api/users/${userId}`, { username });
-  return response.data;
+
+export const updateUsername = async (userId, roleId, username, email, risorsaId) => {
+  try {
+    // Controllo parametri obbligatori
+    if (!userId || !username || !email || !roleId || !risorsaId) {
+      console.error("Parametri mancanti:", { userId, roleId, username, email, risorsaId });
+      throw new Error("Parametri obbligatori mancanti per l'aggiornamento dell'utente.");
+    }
+
+    // Esegui la richiesta PUT
+    const response = await apiClient.put(`/api/users/${userId}`, {
+      username,
+      email: email,
+      role_id: roleId,
+      risorsa_id: risorsaId,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento dell'utente:", error);
+    throw error;
+  }
 };
+
 
 export const assignResourceToUser = async (userId, resourceId) => {
   const response = await apiClient.put(`/api/users/${userId}/assign-resource`, { risorsa_id: resourceId });
@@ -53,6 +88,8 @@ export const assignResourceToUser = async (userId, resourceId) => {
 export const deleteUser = async (userId) => {
   await apiClient.delete(`/api/users/${userId}`);
 };
+
+
 
 /* ==============================
               DASHBOARD

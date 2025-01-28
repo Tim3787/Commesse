@@ -6,7 +6,6 @@ import {
   fetchRoles,
   fetchRisorse,
   updateUserRole,
-  updateUsername,
   assignResourceToUser,
   deleteUser,
 } from "../services/api";
@@ -42,32 +41,38 @@ function GestioneUtenti() {
 
   const handleRoleChange = async (userId, newRoleId) => {
     try {
-      await updateUserRole(userId, newRoleId);
-      setUtenti((prev) =>
-        prev.map((utente) =>
-          utente.id === userId ? { ...utente, role_id: newRoleId } : utente
-        )
+      const currentUser = utenti.find((utente) => utente.id === userId);
+  
+      if (!currentUser) {
+        console.error("Utente non trovato.");
+        return;
+      }
+  
+      console.log("Dati inviati:", {
+        userId,
+        newRoleId,
+        username: currentUser.username,
+        email: currentUser.email,
+        risorsa_id: currentUser.risorsa_id,
+      });
+  
+      await updateUserRole(
+        userId,
+        newRoleId,
+        currentUser.username,
+        currentUser.email,
+        currentUser.risorsa_id
       );
+  
+      console.log("Ruolo aggiornato con successo!");
     } catch (error) {
       console.error("Errore durante l'aggiornamento del ruolo:", error);
     }
   };
+  
 
-  const handleUsernameChange = async (userId) => {
-    try {
-      const newUsername = editedUsernames[userId];
-      if (!newUsername) return;
-      await updateUsername(userId, newUsername);
-      setUtenti((prev) =>
-        prev.map((utente) =>
-          utente.id === userId ? { ...utente, username: newUsername } : utente
-        )
-      );
-      setEditedUsernames((prev) => ({ ...prev, [userId]: undefined }));
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento del nome utente:", error);
-    }
-  };
+  
+  
 
   const handleAssignResource = async (userId, risorsaId) => {
     try {
@@ -127,13 +132,6 @@ function GestioneUtenti() {
                       })
                     }
                   />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleUsernameChange(utente.id)}
-                  >
-                    Salva
-                  </button>
                 </div>
               </td>
               <td>{utente.email}</td>

@@ -27,15 +27,25 @@ const accoppiamentoStati = {
         "E: Schema destinato a Alessio","E: Schema destinato a Simone"],
       "analisi": ["E: Analisi documentazione"],
       "sviluppo": ["E: Sviluppo"],
-      "controllo": ["E: Controllo schema prima del lancio"],
+      "controllo": ["E: Controllo schema prima del lancio", "E: Schema ok per BM", "E: Materiale impegnato da gestionale da ufficio acquisti" ],
       "bm in preparazione": ["E: Materiale BM in preparazione"],
       "bm pronto": ["Materiale BM Completo"],
       "completate": ["E: Completate","E: Documentazione da aggiornare","E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
+      "materiale elettrico in preparazione"	: ["	E: in lavorazione ordine materiale BM e QE","E: Materiale BM Ordinato",
+        "E: Materiale BM in preparazione","E: Materiale da sollecitare","E: Materiale già sollecitato","E: Materiale BM quasi completo","E: Materiale BM Completo" ],
+        "Macchina in cablaggio"	 	: ["E: Montaggio bordo macchina"],
+       "Macchina in pre-collaudo"	 	: ["E: Montaggio bordo macchina"],
     },
     meccanico: {
 
     },
   };
+
+		
+
+
+
+
   const normalize = (str) => str?.trim().toLowerCase();
 
   const getListNameById = (listId) => {

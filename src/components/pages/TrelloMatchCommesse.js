@@ -4,6 +4,7 @@ import axios from "axios";
 import CommessaCrea from "../CommessaCrea";
 import logo from "../assets/unitech-packaging.png";
 
+
 const MatchCommesse = () => {
   const [cards, setCards] = useState([]);
   const [commesse, setCommesse] = useState([]);
@@ -12,7 +13,7 @@ const MatchCommesse = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
   const [filterCommessa, setFilterCommessa] = useState(""); // Stato per il filtro delle commesse
-
+  const [stati, setStati] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const boardIds = { software: "606e8f6e25edb789343d0871" };
   const today = new Date(); // Data di oggi
@@ -22,27 +23,34 @@ const MatchCommesse = () => {
       try {
         setLoading(true);
         const boardId = boardIds[selectedReparto];
-        const [boardCards] = await Promise.all([getBoardCards(boardId)]);
+        const [boardCards, statoResponse] = await Promise.all([
+          getBoardCards(boardId),
+          axios.get(`${apiUrl}/api/stato-commessa`), // Recupera i dati degli stati
+        ]);
+  
         setCards(boardCards);
         setSelectedReparto;
-
+  
         const response = await axios.get(`${apiUrl}/api/commesse`);
         const parsedCommesse = response.data.map((commessa) => ({
           ...commessa,
-          stati_avanzamento: typeof commessa.stati_avanzamento === "string"
-            ? JSON.parse(commessa.stati_avanzamento)
-            : commessa.stati_avanzamento,
+          stati_avanzamento:
+            typeof commessa.stati_avanzamento === "string"
+              ? JSON.parse(commessa.stati_avanzamento)
+              : commessa.stati_avanzamento,
         }));
         setCommesse(parsedCommesse);
+        setStati(statoResponse.data); // Imposta gli stati
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [selectedReparto]);
+  
 
   const extractCommessaNumber = (trelloName) => {
     const match = trelloName.match(/^\d{5}/);
@@ -173,7 +181,7 @@ const MatchCommesse = () => {
           selezioniAttivita={{}}
           setSelezioniAttivita={() => {}}
           fetchCommesse={() => {}}
-          stato={[]}
+          stato={stati} // 
         />
       )}
     </div>
