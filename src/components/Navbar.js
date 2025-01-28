@@ -90,6 +90,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/visualizzazione-commesse", label: "Visualizza dettagli commesse" },
       { to: "/calendario-attivita", label: "Calendario attività" },
       { to: "/CalendarioCommesse", label: "Calendario commesse" },
+      { to: "/visualizzazione-attivita", label: "Visualizza le attività di una commessa" },
     ],
     manager: [
       {

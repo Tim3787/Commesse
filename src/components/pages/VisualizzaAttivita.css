@@ -1,0 +1,48 @@
+.activity5 {
+    padding: 5px;
+    margin: 2px;
+    border-radius: 4px;
+    color: #fff;
+    text-align: center;
+  }
+  
+  .activity5-type-default {
+    background-color: #18b131; /* Grigio */
+  }
+  .activity5-type-sviluppo {
+    background-color: #4caf50; /* Verde */
+    color: #fff;
+  }
+  .activity5-type-special {
+    background-color: #007bff; /* Blu */
+  }
+  
+  .activity5-type-urgent {
+    background-color: #dc3545; /* Rosso */
+  }
+  
+  .no-activity5 {
+    color: #ccc;
+    font-style: italic;
+  }
+  .suggestions-list2 {
+
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 300px;
+    z-index: 1000;
+  }
+  
+  .suggestion-item2 {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .suggestion-item2:hover {
+    background-color: #f0f0f0;
+  }

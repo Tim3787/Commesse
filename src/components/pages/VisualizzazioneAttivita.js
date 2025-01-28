@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fetchAttivitaCommessa } from "../services/api"; // Funzione per ottenere le attività filtrate per commessa
+import { fetchAttivitaCommessa,fetchCommesse } from "../services/api"; // Funzione per ottenere le attività filtrate per commessa
 import "./VisualizzaAttivita.css";
 import logo from "../assets/unitech-packaging.png";
 
@@ -9,6 +9,7 @@ function CalendarioAttivita() {
   const [loading, setLoading] = useState(false);
   const [numeroCommessa, setNumeroCommessa] = useState(""); // Numero di commessa inserito dall'utente
   const todayRef = useRef(null); // Per scorrere automaticamente a oggi
+  const [suggestions, setSuggestions] = useState([]);
 
   const reparti = [
     { id: 1, name: "Reparto Software" },
@@ -17,7 +18,30 @@ function CalendarioAttivita() {
     { id: 15, name: "Reparto Quadri" },
     { id: 18, name: "Reparto Service" },
   ];
+  // Funzione per ottenere i suggerimenti delle commesse
+  const fetchSuggestions = async () => {
+    try {
+      const data = await fetchCommesse(); // Ottieni i suggerimenti tramite fetchCommesse
+      setSuggestions(data); // Aggiorna lo stato dei suggerimenti
+    } catch (error) {
+      console.error("Errore nel recupero dei suggerimenti:", error);
+    }
+  };
 
+  // Chiamata a fetchSuggestions quando il componente viene montato
+  useEffect(() => {
+    fetchSuggestions();
+  }, []);
+
+  const filteredSuggestions = suggestions.filter(
+    (commessa) =>
+      commessa.numero_commessa &&
+      commessa.numero_commessa.toString().toLowerCase().includes(numeroCommessa.toLowerCase())
+  );
+  
+  
+  
+  
   // Calcola i giorni del mese
   const getDaysInMonth = () => {
     const days = [];
@@ -39,11 +63,20 @@ function CalendarioAttivita() {
       alert("Inserisci un numero di commessa!");
       return;
     }
-
+  
     try {
       setLoading(true);
       const activitiesData = await fetchAttivitaCommessa(numeroCommessa); // Ottiene le attività dal backend
-      setActivities(activitiesData);
+
+      // Filtra le attività per numero di commessa
+      const filteredActivities = activitiesData.filter(
+        (activity) =>
+          String(activity.numero_commessa).trim().toLowerCase() === numeroCommessa.trim().toLowerCase()
+      );
+      
+
+      setActivities(filteredActivities);
+  
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
       alert("Errore durante il recupero delle attività!");
@@ -51,7 +84,18 @@ function CalendarioAttivita() {
       setLoading(false);
     }
   };
-
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".search-commessa")) {
+        setSuggestions([]); // Nascondi suggerimenti
+      }
+    };
+  
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+  
   // Scorri automaticamente alla colonna di oggi
   useEffect(() => {
     if (todayRef.current) {
@@ -82,36 +126,46 @@ function CalendarioAttivita() {
   };
 
   const normalizeDate = (date) => {
-    if (!date) return null; // Gestisce date mancanti
+    if (!date) return null; // Gestione di date mancanti
     const normalized = new Date(date);
-    normalized.setUTCHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte in UTC
+    normalized.setHours(0, 0, 0, 0); // Normalizza l'orario
     return normalized;
   };
+  
+
 
   const getActivitiesForRepartoAndDay = (repartoId, day) => {
     const normalizedDay = normalizeDate(day);
-
-    // Trova il nome del reparto
+  
     const repartoName = reparti.find((r) => r.id === repartoId)?.name;
 
-    // Filtra le attività per reparto, giorno e commessa
-    return activities.filter((activity) => {
-      const startDate = normalizeDate(activity.data_inizio);
-      if (!startDate || !activity.durata || !activity.reparto || !activity.numero_commessa) {
-        return false; // Ignora attività con dati incompleti
+  
+    const filteredActivities = activities.filter((activity) => {
+      if (!activity.data_inizio || !activity.reparto) {
+
+        return false;
       }
+  
+      const startDate = normalizeDate(activity.data_inizio);
+      const endDate = normalizeDate(new Date(startDate));
+      endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
+  
+      const isInReparto =
+        activity.reparto?.toLowerCase().trim() === repartoName?.toLowerCase().replace("reparto ", "").trim();
+      const isInDateRange = normalizedDay >= startDate && normalizedDay <= endDate;
+  
 
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata - 1);
-
-      return (
-        activity.reparto === repartoName &&
-        normalizedDay >= startDate &&
-        normalizedDay <= endDate &&
-        activity.numero_commessa === numeroCommessa
-      );
+  
+      return isInReparto && isInDateRange;
     });
+  
+
+  
+    return filteredActivities;
   };
+  
+  
+  
 
   const renderCalendar = () => (
     <table className="Gen-schedule">
@@ -121,7 +175,7 @@ function CalendarioAttivita() {
           {daysInMonth.map((day, index) => {
             const isToday = day.toDateString() === new Date().toDateString();
             const dayClass = isToday ? "Gen-today-date" : "";
-
+  
             return (
               <th key={index} ref={isToday ? todayRef : null} className={dayClass}>
                 {day.toLocaleDateString()}
@@ -136,17 +190,22 @@ function CalendarioAttivita() {
             <td>{reparto.name}</td>
             {daysInMonth.map((day, index) => {
               const activitiesForDay = getActivitiesForRepartoAndDay(reparto.id, day);
+  
               return (
                 <td key={index}>
-                  {activitiesForDay.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className={`activity activity-type-${activity.tipo_attivita || "default"}`}
-                      title={`Tipo: ${activity.tipo_attivita || "Sconosciuto"} - Commessa: ${activity.numero_commessa}`}
-                    >
-                      {activity.tipo_attivita || "Attività"}
-                    </div>
-                  ))}
+                  {activitiesForDay.length > 0 ? (
+                    activitiesForDay.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className={`activity5 activity5-type-${activity.tipo_attivita || "default"}`}
+                        title={`Tipo: ${activity.tipo_attivita || "Sconosciuto"} - Risorsa: ${activity.risorsa}`}
+                      >
+                        {activity.nome_attivita || "Attività"}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="no-activity5">-</span> // Segnaposto se non ci sono attività
+                  )}
                 </td>
               );
             })}
@@ -155,7 +214,7 @@ function CalendarioAttivita() {
       </tbody>
     </table>
   );
-
+  
   return (
     <div>
       <div className="container-Scroll">
@@ -176,14 +235,34 @@ function CalendarioAttivita() {
         </div>
 
         <div className="search-commessa">
-          <input
-            type="text"
-            value={numeroCommessa}
-            onChange={(e) => setNumeroCommessa(e.target.value)}
-            placeholder="Inserisci numero commessa"
-          />
-          <button onClick={handleSearchCommessa}>Cerca</button>
-        </div>
+  <input
+    type="text"
+    value={numeroCommessa}
+    onChange={(e) => setNumeroCommessa(e.target.value)}
+    placeholder="Inserisci numero commessa"
+  />
+
+  {/* Suggerimenti */}
+  {numeroCommessa && filteredSuggestions.length > 0 && (
+  <ul className="suggestions-list2">
+    {filteredSuggestions.map((suggestion, index) => (
+      <li
+        key={index}
+        onClick={() => setNumeroCommessa(suggestion.numero_commessa.toString())}
+        className="suggestion-item2"
+      >
+        {suggestion.numero_commessa} - {suggestion.descrizione || "Nessuna descrizione"}
+      </li>
+
+    ))}
+  </ul>
+)}
+  <button onClick={handleSearchCommessa} disabled={loading}>
+    {loading ? "Caricamento..." : "Cerca"}
+  </button>
+</div>
+
+
 
         <div className="Gen-table-container">{renderCalendar()}</div>
       </div>
