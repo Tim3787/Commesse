@@ -221,6 +221,25 @@
     background-color: #ffffff; 
   }
 
+ss
+.software2-schedule {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.software2-schedule th, 
+.software2-schedule td {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.software2-schedule th {
+  position: sticky; /* Fissa l'intestazione */
+  top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
+  z-index: 1;       /* Assicurati che sia sopra le celle */
+}
 
 
 /* ==============================

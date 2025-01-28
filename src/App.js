@@ -24,9 +24,12 @@ import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftwar
 import StatoAvanzamentoElettrico from "./components/pages/StatoAvanzamentoElettrico";
 import StatoAvanzamentoQuadri from "./components/pages/StatoAvanzamentoQuadri";
 import CalendarioCommesse from "./components/pages/CalendarioCommesse";
+
 import DashboardSoftware from "./components/pages/DashboardSoftware";
 import DashboardElettrico from "./components/pages/DashboardElettrico";
 import DashboardQuadri from "./components/pages/DashboardQuadri";
+import DashboardService from "./components/pages/DashboardService";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/TrelloBoardSoftware";
@@ -116,6 +119,7 @@ function App() {
     { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 2  },
     { path: "/DashboardElettrico", component: <DashboardElettrico />, requiredRole: 2  },
     { path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
+    { path: "/DashboardService", component: <DashboardService/>, requiredRole: 2  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },

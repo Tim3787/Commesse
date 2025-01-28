@@ -8,7 +8,18 @@ function CalendarioAttivita() {
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
-const todayRef = useRef(null);  //OGGI
+  const [visibleSections, setVisibleSections] = useState({
+    1: false, // Reparto Software
+    2: false, // Reparto Elettrico
+    3: false, // Reparto Meccanico
+    13: false, // Reparto Commerciale
+    14: false, // Reparto Tecnico elettrico
+    15: false, // Reparto Quadri
+    16: false, // Reparto Tecncio meccanico
+    18: false, // Reparto Service
+  });
+  const todayRef = useRef(null); // OGGI
+
   // Calcola i giorni del mese
   const getDaysInMonth = () => {
     const days = [];
@@ -48,31 +59,25 @@ const todayRef = useRef(null);  //OGGI
     fetchData();
   }, [currentMonth]);
 
-  // Scorri automaticamente alla colonna di oggi //OGGI
-// Scorri automaticamente alla colonna di oggi
-useEffect(() => {
-  if (todayRef.current) {
-    // Cerca il contenitore scrollabile più vicino
-    const parentContainer = document.querySelector(".Gen-table-container");
+  // Scorri automaticamente alla colonna di oggi
+  useEffect(() => {
+    if (todayRef.current) {
+      const parentContainer = document.querySelector(".Gen-table-container");
 
-    if (parentContainer) {
-      const todayPosition = todayRef.current.offsetLeft; // Posizione della colonna "oggi"
-      const parentWidth = parentContainer.clientWidth; // Larghezza visibile del contenitore
-      const columnWidth = todayRef.current.offsetWidth; // Larghezza della colonna
+      if (parentContainer) {
+        const todayPosition = todayRef.current.offsetLeft;
+        const parentWidth = parentContainer.clientWidth;
+        const columnWidth = todayRef.current.offsetWidth;
 
-      // Calcola la posizione di scroll per centrare la colonna
-      const scrollPosition = todayPosition - parentWidth / 2 + columnWidth / 2;
+        const scrollPosition = todayPosition - parentWidth / 2 + columnWidth / 2;
 
-      // Effettua lo scroll orizzontale
-      parentContainer.scrollTo({
-        left: scrollPosition,
-        behavior: "smooth", // Scroll fluido
-      });
+        parentContainer.scrollTo({
+          left: scrollPosition,
+          behavior: "smooth",
+        });
+      }
     }
-  }
-}, [daysInMonth]);
-
-  
+  }, [daysInMonth]);
 
   // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
@@ -105,62 +110,83 @@ useEffect(() => {
     });
   };
 
+  const toggleSectionVisibility = (repartoId) => {
+    setVisibleSections((prev) => ({
+      ...prev,
+      [repartoId]: !prev[repartoId],
+    }));
+  };
+
   const renderRepartoSection = (repartoId, repartoName) => {
+    const isVisible = visibleSections[repartoId];
     const repartoResources = resources.filter(
       (resource) => Number(resource.reparto_id) === repartoId
     );
 
     return (
-      <>
+      <React.Fragment key={repartoId}>
         <thead>
           <tr>
-            <th colSpan={daysInMonth.length + 1}>{repartoName}</th>
-          </tr>
-          <tr>
-            <th>Risorsa</th>
-            {daysInMonth.map((day, index) => {
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
-              const isToday = day.toDateString() === new Date().toDateString(); 
-              const dateClass = isToday
-                ? "Gen-today-date"
-                : isWeekend
-                ? "Gen-weekend-date"
-                : "";
-
-              return (
-                 <th
-                key={index}
-                ref={isToday ? todayRef : null} // Assegna il riferimento al giorno di oggi
+        
+            <th colSpan={daysInMonth.length + 1}>
+  
+              <button
+                className="toggle-button"
+                onClick={() => toggleSectionVisibility(repartoId)}
               >
-                  <span className={dateClass}>{day.toLocaleDateString()}</span>
-                </th>
-              );
-            })}
+                {isVisible ? "▼" : "▶"} {repartoName}
+              </button>
+            </th>
           </tr>
-        </thead>
-        <tbody>
-          {repartoResources.map((resource) => (
-            <tr key={resource.id}>
-              <td>{resource.nome}</td>
+          {isVisible && (
+            <tr>
+              <th>Risorsa</th>
               {daysInMonth.map((day, index) => {
-                const activities = getActivitiesForResourceAndDay(resource.id, day);
+                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                const isToday = day.toDateString() === new Date().toDateString();
+                const dateClass = isToday
+                  ? "Gen-today-date"
+                  : isWeekend
+                  ? "Gen-weekend-date"
+                  : "";
+
                 return (
-                  <ResourceCell
-                    key={`${resource.id}-${index}`}
-                    activities={activities}
-                  />
+                  <th
+                    key={index}
+                    ref={isToday ? todayRef : null}
+                  >
+                    <span className={dateClass}>{day.toLocaleDateString()}</span>
+                  </th>
                 );
               })}
             </tr>
-          ))}
-        </tbody>
-      </>
+          )}
+        </thead>
+        {isVisible && (
+          <tbody>
+            {repartoResources.map((resource) => (
+              <tr key={resource.id}>
+                <td>{resource.nome}</td>
+                {daysInMonth.map((day, index) => {
+                  const activities = getActivitiesForResourceAndDay(resource.id, day);
+                  return (
+                    <ResourceCell
+                      key={`${resource.id}-${index}`}
+                      activities={activities}
+                    />
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        )}
+      </React.Fragment>
     );
   };
 
-  function ResourceCell({ activities, dayClass }) {
+  function ResourceCell({ activities }) {
     return (
-      <td className={dayClass}>
+      <td>
         {activities.map((activity) => {
           const activityClass =
             activity.stato === 0
@@ -218,6 +244,11 @@ useEffect(() => {
             {renderRepartoSection(1, "Reparto Software")}
             {renderRepartoSection(2, "Reparto Elettrico")}
             {renderRepartoSection(15, "Reparto Quadri")}
+            {renderRepartoSection(18, "Reparto Service")}
+            {renderRepartoSection(3, "Reparto Meccanico")}
+            {renderRepartoSection(14, "Reparto Tecnico elettrico")}
+            {renderRepartoSection(16, "Reparto Tecncio meccanico")}
+
           </table>
         </div>
       </div>

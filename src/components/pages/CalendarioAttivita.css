@@ -11,21 +11,47 @@
   border-collapse: collapse;
 }
 
-.Gen-schedule th, 
-.Gen-schedule td {
+
+/* Rendi la riga del titolo del reparto sticky in alto e orizzontalmente */
+.Gen-schedule th[colspan] {
+  
+  position: sticky;
+  top: 0; /* Blocca la riga in alto durante lo scroll verticale */
+  z-index: 3; /* Assicurati che sia sopra altre celle */
+  background-color: #ffffff; /* Sfondo per evitare sovrapposizioni */
+  border-bottom: 2px solid #ddd; /* Linea di separazione */
   padding: 10px;
-  border: 1px solid #ddd;
+  min-height: 20px ;
   text-align: left;
+  color: rgb(0, 8, 8);
 }
 
-
-
+/* Colonna "Risorsa" sticky */
+.Gen-schedule th:first-child,
 .Gen-schedule td:first-child {
   position: sticky;
-  left: 0;
-  z-index: 2; /* Più alto per sovrapporsi alle celle */
-  background-color: #ffffff;
+  left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
+  z-index: 2; /* Priorità inferiore rispetto alla riga del titolo */
+  background-color: #f8f9fa; /* Sfondo per coerenza visiva */
+  border-right: 1px solid #ddd;
+  color: rgb(1, 2, 2);
 }
+
+/* Intestazione principale (riga con i giorni) sticky */
+.Gen-schedule thead tr:nth-child(2) th {
+  position: sticky;
+  top: 40px; /* Mantiene l'intestazione sotto il titolo del reparto */
+  z-index: 2;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  color: rgb(8, 0, 1);
+}
+
+/* Aggiungi un'ombra per il titolo del reparto durante lo scroll */
+.Gen-schedule th[colspan].sticky {
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
 /* Colore per la data di oggi */
 .Gen-today-date {
   color: #2bff00; /* Verde chiaro */

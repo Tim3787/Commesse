@@ -115,6 +115,12 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           { to: "/DashboardQuadri", label: "Attività quadri dept." },
         ],
       },
+      {
+        label: "Rep. Service",
+        links: [
+          { to: "/DashboardService", label: "Attività service dept." },
+        ],
+      },
       { to: "/gestione-commesse", label: "Crea o modifica commessa" },
       { to: "/assegna-attivita", label: "Tutte le attività" },
       { to: "/StatiAvanzamento", label: "Tutte gli stati avanzamento" },

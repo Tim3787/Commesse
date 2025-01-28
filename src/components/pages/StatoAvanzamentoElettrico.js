@@ -317,7 +317,7 @@ const accoppiamentoStati = {
   });
 
   return (
-    <div className="container-scroll">
+    <div className="container-Scroll">
       <h1>Stato Avanzamento Elettrico</h1>
       {loading && <div className="loading-overlay">Caricamento...</div>}
 
@@ -344,7 +344,7 @@ const accoppiamentoStati = {
 
       <DndProvider backend={HTML5Backend}>
       <div className="Gen-table-container">
-        <table className="software-schedule">
+        <table className="software2-schedule">
           <thead>
             <tr>
               {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
