@@ -126,12 +126,12 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/StatiAvanzamento", label: "Tutte gli stati avanzamento" },
     ],
     admin: [
-      { to: "/utenti", label: "Gestione utenti" },
-      { to: "/reparti", label: "Gestione reparti" },
-      { to: "/risorse", label: "Gestione risorse" },
-      { to: "/statiCommessa", label: "Gestione stati commessa" },
-      { to: "/stati", label: "Gestione stati avanzamento" },
-      { to: "/attivita", label: "Gestione attività" },
+      { to: "/utenti", label: "Modifica/aggiungi utenti" },
+      { to: "/reparti", label: "Modifica/aggiungi reparti" },
+      { to: "/risorse", label: "Modifica/aggiungi risorse" },
+      { to: "/statiCommessa", label: "Modifica/aggiungi stati commessa" },
+      { to: "/stati", label: "Modifica/aggiungi stati avanzamento" },
+      { to: "/attivita", label: "Modifica/aggiungi attività" },
       { to: "/MatchCommesse", label: "Commesse solo su trello" },
     ],
   };

@@ -1,369 +1,194 @@
-import React, { useState, useEffect, useRef } from "react";
-import "../style.css";
-import logo from"../assets/unitech-packaging.png";
-import { usePersistedFilters } from "./usePersistedFilters";
-import {
-  fetchCommesse,
-  fetchRisorse,
-  fetchReparti,
-  fetchAttivita,
-} from "../services/api";
+import React, { useEffect, useState, useRef } from "react";
+import { fetchAttivitaCommessa } from "../services/api"; // Funzione per ottenere le attività filtrate per commessa
+import "./VisualizzaAttivita.css";
+import logo from "../assets/unitech-packaging.png";
 
-function VisualizzazioneAttivita() {
-  const [attivitaList, setAttivitaList] = useState([]);
-  const [filteredAttivita, setFilteredAttivita] = useState([]);
-  const [commesse, setCommesse] = useState([]);
-  const [risorse, setRisorse] = useState([]);
-  const [reparti, setReparti] = useState([]);
-  const [attivitaDefinite, setAttivitaDefinite] = useState([]);
-  const [filteredRisorse, setFilteredRisorse] = useState([]);
-  const [filteredActivities, setFilteredActivities] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false); // MULTISEL
-  const [filters, setFilters] = usePersistedFilters("savedFilters_VisualizzaAttivita", {
-    commessa_id: "",
-    risorsa_id: "",
-    reparto_id: "",
-    attivita_id: "",
-    settimana: "",
-    stati: [], // MULTISEL
-  });
-  const [commessaSuggestions, setCommessaSuggestions] = useState([]);
+function CalendarioAttivita() {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const dropdownRef = useRef(null);
-  
+  const [numeroCommessa, setNumeroCommessa] = useState(""); // Numero di commessa inserito dall'utente
+  const todayRef = useRef(null); // Per scorrere automaticamente a oggi
+
+  const reparti = [
+    { id: 1, name: "Reparto Software" },
+    { id: 2, name: "Reparto Elettrico" },
+    { id: 3, name: "Reparto Meccanico" },
+    { id: 15, name: "Reparto Quadri" },
+    { id: 18, name: "Reparto Service" },
+  ];
+
+  // Calcola i giorni del mese
+  const getDaysInMonth = () => {
+    const days = [];
+    const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+      days.push(new Date(d));
+    }
+
+    return days;
+  };
+
+  const daysInMonth = getDaysInMonth();
+
+  // Funzione per recuperare le attività filtrate per commessa
+  const handleSearchCommessa = async () => {
+    if (!numeroCommessa) {
+      alert("Inserisci un numero di commessa!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const activitiesData = await fetchAttivitaCommessa(numeroCommessa); // Ottiene le attività dal backend
+      setActivities(activitiesData);
+    } catch (error) {
+      console.error("Errore durante il recupero delle attività:", error);
+      alert("Errore durante il recupero delle attività!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Scorri automaticamente alla colonna di oggi
   useEffect(() => {
-    fetchInitialData();
-  }, []);
-  
-  const fetchInitialData = async () => {
-  try {
-    setLoading(true);
-    const [commesse, risorse, reparti, attivita] = await Promise.all([
-      fetchCommesse(),
-      fetchRisorse(),
-      fetchReparti(),
-      fetchAttivita(),
-    ]);
+    if (todayRef.current) {
+      const parentContainer = document.querySelector(".Gen-table-container");
 
-    setCommesse(commesse);
-    setRisorse(risorse);
-    setReparti(reparti);
-    setAttivitaList(attivita);
-    setFilteredAttivita(attivita);
-    setFilteredRisorse(risorse);
+      if (parentContainer) {
+        const todayPosition = todayRef.current.offsetLeft;
+        const parentWidth = parentContainer.clientWidth;
+        const columnWidth = todayRef.current.offsetWidth;
 
-    // Simuliamo attività definite
-    const uniqueActivities = Array.from(
-      new Set(attivita.map((att) => att.nome_attivita))
-    ).map((nome) => ({ nome }));
-    setAttivitaDefinite(uniqueActivities);
-    setFilteredActivities(uniqueActivities);
-  } catch (error) {
-    console.error("Errore durante il caricamento dei dati iniziali:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+        const scrollPosition = todayPosition - parentWidth / 2 + columnWidth / 2;
 
-useEffect(() => {
-  applyFilters();
-}, [filters, attivitaList]);
-
-  const applyFilters = () => {
-    let filtered = attivitaList;
-
-    if (filters.reparto_id) {
-      const repartoId = parseInt(filters.reparto_id, 10);
-      const repartoNome = reparti.find((rep) => rep.id === repartoId)?.nome;
-      if (repartoNome) {
-        filtered = filtered.filter((att) => att.reparto === repartoNome);
-        const relatedActivities = attivitaDefinite.filter(
-          (act) => filtered.some((att) => att.nome_attivita === act.nome)
-        );
-        setFilteredActivities(relatedActivities);
+        parentContainer.scrollTo({
+          left: scrollPosition,
+          behavior: "smooth",
+        });
       }
     }
+  }, [daysInMonth]);
 
-    if (filters.risorsa_id) {
-      filtered = filtered.filter((att) => att.risorsa_id === parseInt(filters.risorsa_id, 10));
-    }
-
-    if (filters.commessa_id) {
-      filtered = filtered.filter((att) => att.numero_commessa.includes(filters.commessa_id));
-    }
-
-    if (filters.settimana) {
-      const [year, week] = filters.settimana.split("-W");
-      filtered = filtered.filter((att) => {
-        const startDate = new Date(att.data_inizio);
-        const startWeek = getWeekNumber(startDate);
-        return startDate.getFullYear() === parseInt(year, 10) && startWeek === parseInt(week, 10);
-      });
-    }
-
-    if (filters.attivita_id) {
-      filtered = filtered.filter((att) => att.nome_attivita === filters.attivita_id);
-    }
-
-    if (filters.stati.length > 0) {
-      filtered = filtered.filter((att) => filters.stati.includes(att.stato.toString()));
-    }  // MULTISEL
-
-filtered.sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio));
-
-    setFilteredAttivita(filtered);
+  // Funzioni per navigare tra i mesi
+  const goToPreviousMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
-  
-    // Gestione dei checkbox per il filtro degli stati (selezione multipla)
-    if (type === "checkbox" && name === "stati") {
-      setFilters((prev) => ({
-        ...prev,
-        stati: checked
-          ? [...prev.stati, value] // Aggiunge lo stato selezionato
-          : prev.stati.filter((stato) => stato !== value), // Rimuove lo stato deselezionato
-      }));
-    } 
-    // Gestione della selezione singola per reparto_id
-    else if (name === "reparto_id") {
-      const repartoId = parseInt(value, 10);
-  
-      if (repartoId) {
-        // Filtra le risorse in base al reparto selezionato
-        const filtered = risorse.filter((risorsa) => risorsa.reparto_id === repartoId);
-        setFilteredRisorse(filtered);
-      } else {
-        // Se il reparto non è selezionato, mostra tutte le risorse
-        setFilteredRisorse(risorse);
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const normalizeDate = (date) => {
+    if (!date) return null; // Gestisce date mancanti
+    const normalized = new Date(date);
+    normalized.setUTCHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte in UTC
+    return normalized;
+  };
+
+  const getActivitiesForRepartoAndDay = (repartoId, day) => {
+    const normalizedDay = normalizeDate(day);
+
+    // Trova il nome del reparto
+    const repartoName = reparti.find((r) => r.id === repartoId)?.name;
+
+    // Filtra le attività per reparto, giorno e commessa
+    return activities.filter((activity) => {
+      const startDate = normalizeDate(activity.data_inizio);
+      if (!startDate || !activity.durata || !activity.reparto || !activity.numero_commessa) {
+        return false; // Ignora attività con dati incompleti
       }
-  
-      // Aggiorna il filtro reparto_id e resetta risorsa_id e attivita_id
-      setFilters((prev) => ({
-        ...prev,
-        reparto_id: value, // Aggiorna il reparto selezionato
-        risorsa_id: "",    // Resetta la risorsa
-        attivita_id: "",   // Resetta l'attività
-      }));
-    } 
-    // Gestione generale per altri tipi di input (selezione singola, testo, ecc.)
-    else {
-      setFilters((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-  
 
-  const handleCommessaInputChange = (e) => {
-    const value = e.target.value;
-    setFilters((prev) => ({ ...prev, commessa_id: value }));
-    setCommessaSuggestions(
-      commesse.filter((commessa) =>
-        commessa.numero_commessa.toLowerCase().includes(value.toLowerCase())
-      )
-    );
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + activity.durata - 1);
+
+      return (
+        activity.reparto === repartoName &&
+        normalizedDay >= startDate &&
+        normalizedDay <= endDate &&
+        activity.numero_commessa === numeroCommessa
+      );
+    });
   };
 
-  const selectCommessaSuggestion = (numeroCommessa) => {
-    setFilters((prev) => ({ ...prev, commessa_id: numeroCommessa }));
-    setCommessaSuggestions([]);
-  };
+  const renderCalendar = () => (
+    <table className="Gen-schedule">
+      <thead>
+        <tr>
+          <th>Reparto</th>
+          {daysInMonth.map((day, index) => {
+            const isToday = day.toDateString() === new Date().toDateString();
+            const dayClass = isToday ? "Gen-today-date" : "";
 
-  const getWeekNumber = (date) => {
-    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-  };
-
-  const toggleFilters = () => {
-    setShowFilters((prev) => !prev);
-  };
-
- 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowDropdown(false);
-      }
-    };
-  
-    document.addEventListener("click", handleClickOutside);
-  
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
-  
-
+            return (
+              <th key={index} ref={isToday ? todayRef : null} className={dayClass}>
+                {day.toLocaleDateString()}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody>
+        {reparti.map((reparto) => (
+          <tr key={reparto.id}>
+            <td>{reparto.name}</td>
+            {daysInMonth.map((day, index) => {
+              const activitiesForDay = getActivitiesForRepartoAndDay(reparto.id, day);
+              return (
+                <td key={index}>
+                  {activitiesForDay.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className={`activity activity-type-${activity.tipo_attivita || "default"}`}
+                      title={`Tipo: ${activity.tipo_attivita || "Sconosciuto"} - Commessa: ${activity.numero_commessa}`}
+                    >
+                      {activity.tipo_attivita || "Attività"}
+                    </div>
+                  ))}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
   return (
-    <div className="container">
-  
-      {loading && (
-        <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+    <div>
+      <div className="container-Scroll">
+        <h1>Bacheca Attività</h1>
+        {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}
+
+        <div className="calendar-navigation">
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese Successivo →
+          </button>
         </div>
-      )}
-      <div className="header">
-      <h1>Attività</h1>
-      </div>
-      <button onClick={toggleFilters} className="btn btn-filter">
-          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
-        </button>
 
-      {showFilters && (
-      <div className="filters">
-
-          <div className="filter-group">
+        <div className="search-commessa">
           <input
             type="text"
-            value={filters.commessa_id}
-            onChange={handleCommessaInputChange}
-            placeholder="Cerca per Numero Commessa"
-                      className="input-field"
+            value={numeroCommessa}
+            onChange={(e) => setNumeroCommessa(e.target.value)}
+            placeholder="Inserisci numero commessa"
           />
-          {commessaSuggestions.length > 0 && (
-            <ul className="suggestions-list">
-              {commessaSuggestions.map((commessa) => (
-                <li
-                  key={commessa.id}
-                  onClick={() => selectCommessaSuggestion(commessa.numero_commessa)}
-                >
-                  {commessa.numero_commessa}
-                </li>
-              ))}
-            </ul>
-          )}
-            </div>
-         <div className="filter-group">
-           <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange}>
-             <option value="">Seleziona reparto</option>
-             {reparti.map((reparto) => (
-               <option key={reparto.id} value={reparto.id}>
-                 {reparto.nome}
-               </option>
-             ))}
-           </select>
-          </div>
-          <div className="filter-group">
-           <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange}>
-             <option value="">Seleziona risorsa</option>
-             {filteredRisorse.map((risorsa) => (
-               <option key={risorsa.id} value={risorsa.id}>
-                 {risorsa.nome}
-               </option>
-             ))}
-           </select>
-          </div>
-          <div className="filter-group">
-            <select name="attivita_id" value={filters.attivita_id} onChange={handleFilterChange}>
-             <option value="">Seleziona attività</option>
-             {filteredActivities.map((attivita) => (
-               <option key={attivita.nome} value={attivita.nome}>
-                {attivita.nome}
-               </option>
-          ))}
-             </select>
-             </div>
-             <div className="filter-group" ref={dropdownRef}>
-            <label className="dropdown-label" onClick={() => setShowDropdown((prev) => !prev)}>
-              Seleziona stato
-            </label>
-            {showDropdown && (
-              <div className="dropdown-menu">
-                <label>
-                  <input
-                    type="checkbox"
-                    name="stati"
-                    value="0"
-                    checked={filters.stati.includes("0")}
-                    onChange={handleFilterChange}
-                  />
-                  Non iniziata
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="stati"
-                    value="1"
-                    checked={filters.stati.includes("1")}
-                    onChange={handleFilterChange}
-                  />
-                  Iniziata
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="stati"
-                    value="2"
-                    checked={filters.stati.includes("2")}
-                    onChange={handleFilterChange}
-                  />
-                  Completata
-                </label>
-              </div>
-            )}
-          </div>
+          <button onClick={handleSearchCommessa}>Cerca</button>
+        </div>
 
-          <div className="filter-group">
-          <input
-            type="week"
-            name="settimana"
-            value={filters.settimana}
-            onChange={handleFilterChange}
-             className="input-field"
-          />
-           </div>
-           </div>
-  )}
-      {loading ? (
-        <p>Caricamento in corso...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Commessa</th>
-              <th>Risorsa</th>
-              <th>Reparto</th>
-              <th>Attività</th>
-              <th>Data Inizio</th>
-              <th>Durata</th>
-              <th>Stato</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAttivita.length > 0 ? (
-              filteredAttivita.map((attivita) => (
-                <tr key={attivita.id}>
-                  <td>{attivita.numero_commessa || "Non definita"}</td>
-        <td>{attivita.risorsa || "Non definita"}</td>
-        <td>{attivita.reparto || "Non definito"}</td>
-        <td>{attivita.nome_attivita || "Non definita"}</td>
-        <td>{attivita.data_inizio ? new Date(attivita.data_inizio).toLocaleDateString() : "Non definita"}</td>
-        <td>{attivita.durata ? `${attivita.durata} giorni` : "Non definita"}</td>
-                  <td>
-                    {attivita.stato === 0 && "Non iniziata"}
-                    {attivita.stato === 1 && "Iniziata"}
-                    {attivita.stato === 2 && "Completata"}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7">Nessuna attività trovata.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+        <div className="Gen-table-container">{renderCalendar()}</div>
+      </div>
     </div>
   );
 }
 
-export default VisualizzazioneAttivita;
+export default CalendarioAttivita;

@@ -1,0 +1,70 @@
+.Gen-table-container {
+  overflow-x: auto;
+}
+
+.Gen-schedule {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.Gen-schedule th,
+.Gen-schedule td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  min-width: 100px;
+}
+
+.Gen-today-date {
+  background-color: #f0f8ff;
+  font-weight: bold;
+}
+
+.activity {
+  text-align: center;
+  padding: 5px;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Colori dinamici per i tipi di attività */
+.activity-type-analisi {
+  background-color: #007bff;
+}
+
+.activity-type-sviluppo {
+  background-color: #28a745;
+}
+
+.activity-type-test {
+  background-color: #ffc107;
+}
+
+.activity-type-rilascio {
+  background-color: #dc3545;
+}
+
+.search-commessa {
+  margin: 20px 0;
+}
+
+.search-commessa input {
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.search-commessa button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.search-commessa button:hover {
+  background-color: #0056b3;
+}
