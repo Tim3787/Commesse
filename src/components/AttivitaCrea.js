@@ -176,6 +176,7 @@ function AttivitaCrea({
               value={formData.risorsa_id}
               onChange={handleChange}
               required
+              className="input-field-100"
             >
               <option value="">Seleziona una risorsa</option>
               {risorse
@@ -195,6 +196,7 @@ function AttivitaCrea({
               value={formData.attivita_id}
               onChange={handleChange}
               required
+                  className="input-field-100"
             >
               <option value="">Seleziona un'attività</option>
               {attivitaConReparto
@@ -215,6 +217,7 @@ function AttivitaCrea({
               value={formData.data_inizio}
               onChange={handleChange}
               required
+                  className="input-field-100"
             />
           </div>
 
@@ -226,6 +229,7 @@ function AttivitaCrea({
               value={formData.durata}
               onChange={handleChange}
               required
+                  className="input-field-100"
             />
           </div>
 
@@ -235,6 +239,7 @@ function AttivitaCrea({
               name="stato"
               value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
               onChange={handleChange}
+                  className="input-field-100"
               //required
             >
               <option value="">Seleziona uno stato</option>
@@ -252,16 +257,16 @@ function AttivitaCrea({
               onChange={handleChange}
               placeholder="Inserisci una descrizione (opzionale)"
               rows="4"
-              className="textarea-field"
+                  className="input-field-100"
             />
           </div>
 
-          <button type="submit" disabled={loading}>
+          <button type="submit" className="btn-100"disabled={loading}>
             {isEditing ? "Aggiorna" : "Aggiungi"}
           </button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
-          <button type="button" onClick={() => setShowPopup(false)}>
+          <button type="button"className="btn-100" onClick={() => setShowPopup(false)}>
             Annulla
           </button>
         </form>

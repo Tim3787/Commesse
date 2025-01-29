@@ -82,7 +82,7 @@
 
   .calendar-navigation {
     flex-shrink: 0; /* Mantiene fissa la dimensione della navigazione */
-    padding: 5px;
+    padding: 2px;
     background-color: #f8f9fa;
     border-bottom: 1px solid #ddd; /* Separatore visivo */
   }
@@ -164,7 +164,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 12px 15px;
+    padding: 10px 10px;
     background: rgba(255, 255, 255, 0.8); /* Effetto trasparente */
     border-radius: 10px;
     border: 1px solid #ddd;
@@ -175,7 +175,7 @@
     word-wrap: break-word;
     backdrop-filter: blur(10px);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
   }
   
   .activity:hover {

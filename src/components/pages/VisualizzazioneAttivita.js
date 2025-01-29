@@ -3,7 +3,7 @@ import { fetchAttivitaCommessa,fetchCommesse } from "../services/api"; // Funzio
 import "./VisualizzaAttivita.css";
 import logo from "../assets/unitech-packaging.png";
 
-function CalendarioAttivita() {
+function VisualizzaAttivita() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,17 +19,14 @@ function CalendarioAttivita() {
     { id: 18, name: "Reparto Service" },
   ];
   // Funzione per ottenere i suggerimenti delle commesse
-  const fetchSuggestions = async () => {
-    try {
-      const data = await fetchCommesse(); // Ottieni i suggerimenti tramite fetchCommesse
-      setSuggestions(data); // Aggiorna lo stato dei suggerimenti
-    } catch (error) {
-      console.error("Errore nel recupero dei suggerimenti:", error);
-    }
-  };
-
-  // Chiamata a fetchSuggestions quando il componente viene montato
   useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        setSuggestions(await fetchCommesse());
+      } catch (error) {
+        console.error("Errore nel recupero dei suggerimenti:", error);
+      }
+    };
     fetchSuggestions();
   }, []);
 
@@ -85,16 +82,7 @@ function CalendarioAttivita() {
     }
   };
   
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest(".search-commessa")) {
-        setSuggestions([]); // Nascondi suggerimenti
-      }
-    };
-  
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+
   
   // Scorri automaticamente alla colonna di oggi
   useEffect(() => {
@@ -234,12 +222,13 @@ function CalendarioAttivita() {
           </button>
         </div>
 
-        <div className="search-commessa">
+        <div className="filter-group">
   <input
     type="text"
     value={numeroCommessa}
     onChange={(e) => setNumeroCommessa(e.target.value)}
     placeholder="Inserisci numero commessa"
+    className="input-field"
   />
 
   {/* Suggerimenti */}
@@ -249,7 +238,7 @@ function CalendarioAttivita() {
       <li
         key={index}
         onClick={() => setNumeroCommessa(suggestion.numero_commessa.toString())}
-        className="suggestion-item2"
+
       >
         {suggestion.numero_commessa} - {suggestion.cliente || "Nessuna descrizione"}
       </li>
@@ -257,7 +246,7 @@ function CalendarioAttivita() {
     ))}
   </ul>
 )}
-  <button onClick={handleSearchCommessa} disabled={loading}>
+  <button onClick={handleSearchCommessa} className="btn-search-commessa" disabled={loading}>
     {loading ? "Caricamento..." : "Cerca"}
   </button>
 </div>
@@ -270,4 +259,4 @@ function CalendarioAttivita() {
   );
 }
 
-export default CalendarioAttivita;
+export default VisualizzaAttivita;

@@ -623,6 +623,9 @@ animation: spin 1s linear infinite;
       cursor: pointer;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
+    .btn-100 {
+width: 100%;
+    }
     button:hover, a:hover {
       background-color: #0056b3;
       color: #fff;
@@ -713,7 +716,11 @@ background-color: #0056b3;
   font-size: 14px;
 
   }
-  
+  .input-field-100 {
+  width: 100%;
+  max-width: 800px;
+    }
+    
   .input-group {
     display: flex;
     align-items: center;

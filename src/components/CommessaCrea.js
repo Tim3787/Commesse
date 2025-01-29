@@ -203,6 +203,7 @@ function CommessaCrea({
               value={formData.numero_commessa}
               onChange={handleChange}
               required
+              className="input-field-100"
             />
             <label>Tipo Macchina:</label>
             <input
@@ -211,6 +212,7 @@ function CommessaCrea({
               value={formData.tipo_macchina}
               onChange={handleChange}
               required
+              className="input-field-100"
             />
             <label>Cliente:</label>
             <input
@@ -219,12 +221,14 @@ function CommessaCrea({
               value={formData.cliente}
               onChange={handleChange}
               required
+              className="input-field-100"
             />
             <label>Descrizione:</label>
             <textarea
               name="descrizione"
               value={formData.descrizione}
               onChange={handleChange}
+              className="input-field-100"
             />
             <label>Data Consegna:</label>
             <input
@@ -233,6 +237,7 @@ function CommessaCrea({
               value={formData.data_consegna}
               onChange={handleChange}
               required
+              className="input-field-100"
             />
             <label>Data FAT:</label>
             <input
@@ -240,13 +245,14 @@ function CommessaCrea({
               name="data_FAT"
               value={formData.data_FAT}
               onChange={handleChange}
-             
+              className="input-field-100"
             />
             <label>Altri Particolari:</label>
             <textarea
               name="altri_particolari"
               value={formData.altri_particolari}
               onChange={handleChange}
+              className="input-field-100"
             />
           </div>
           {/* stato */}
@@ -291,11 +297,11 @@ function CommessaCrea({
   <span>Nessuna attività disponibile o attività non associate ai reparti</span>
 )}
 
-          <button type="submit">{isEditing ? "Aggiorna" : "Crea"}</button>
+          <button type="submit"className="btn-100">{isEditing ? "Aggiorna" : "Crea"}</button>
           {successMessage && <div className="success-message">{successMessage}</div>}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
         </form>
-        <button onClick={onClose}>Chiudi</button>
+        <button onClick={onClose} className="btn-100">Chiudi</button>
       </div>
     </div>
   );
