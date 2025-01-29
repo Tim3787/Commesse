@@ -122,21 +122,17 @@ function Dashboard() {
   return (
     <div>
       <div className="container">
-        <h1>Bacheca {userName}</h1>
+      <h1>Benvenuto, {userName}</h1>
+     
+        <div className="calendar-navigation">
+        <button onClick={goToPreviousMonth} className="btn-nav">← Mese Precedente</button>
+        <button onClick={goToNextMonth} className="btn-nav">Mese Successivo →</button>
+        </div>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
-          </button>
-        </div>
-
         <div className="calendar">
           {daysInMonth.map((day, index) => {
             const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6

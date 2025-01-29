@@ -24,25 +24,37 @@
 }
 
 /* Colonna "Risorsa" sticky */
-.Gen-schedule th:first-child,
-.Gen-schedule td:first-child {
+.Gen-schedule th:first-child
+{
   position: sticky;
   left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
-  z-index: 2; /* Priorità inferiore rispetto alla riga del titolo */
+  z-index: 3; /* Priorità inferiore rispetto alla riga del titolo */
   background-color: #f8f9fa; /* Sfondo per coerenza visiva */
   border-right: 1px solid #ddd;
   color: rgb(1, 2, 2);
 }
 
-/* Intestazione principale (riga con i giorni) sticky */
+/* RISORSE */
+.Gen-schedule td:first-child {
+  position: sticky;
+  left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
+  z-index: 1; /* Priorità inferiore rispetto alla riga del titolo */
+
+  border-right: 1px solid #ddd;
+  background-color: #3498db;
+  color: white;
+}
+
+/* DATE */
 .Gen-schedule thead tr:nth-child(2) th {
   position: sticky;
-  top: 40px; /* Mantiene l'intestazione sotto il titolo del reparto */
+  top: 60px; /* Mantiene l'intestazione sotto il titolo del reparto */
   z-index: 2;
 
   border-bottom: 1px solid #ddd;
   color: rgb(255, 255, 255);
 }
+
 /* Mantiene il pulsante sempre visibile */
 .toggle-button {
   position: sticky;
