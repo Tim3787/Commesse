@@ -2,6 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { fetchAttivitaCommessa, fetchRisorse } from "../services/api"; 
 import "./CalendarioAttivita.css";
 import logo from "../assets/unitech-packaging.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+
+
 
 function CalendarioAttivita() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -117,8 +121,10 @@ function CalendarioAttivita() {
     }));
   };
 
+
   const renderRepartoSection = (repartoId, repartoName) => {
     const isVisible = visibleSections[repartoId];
+    
     const repartoResources = resources.filter(
       (resource) => Number(resource.reparto_id) === repartoId
     );
@@ -135,12 +141,17 @@ function CalendarioAttivita() {
                 onClick={() => toggleSectionVisibility(repartoId)}
               >
                 {isVisible ? "▼" : "▶"} {repartoName}
+
               </button>
+
             </th>
+  
           </tr>
           {isVisible && (
+             
             <tr>
-              <th>Risorsa</th>
+              
+            
               {daysInMonth.map((day, index) => {
                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                 const isToday = day.toDateString() === new Date().toDateString();
@@ -156,7 +167,9 @@ function CalendarioAttivita() {
                     ref={isToday ? todayRef : null}
                   >
                     <span className={dateClass}>{day.toLocaleDateString()}</span>
+                    
                   </th>
+                  
                 );
               })}
             </tr>
@@ -164,7 +177,9 @@ function CalendarioAttivita() {
         </thead>
         {isVisible && (
           <tbody>
+            
             {repartoResources.map((resource) => (
+           
               <tr key={resource.id}>
                 <td>{resource.nome}</td>
                 {daysInMonth.map((day, index) => {
@@ -223,23 +238,23 @@ function CalendarioAttivita() {
   return (
     <div>
       <div className="container-Scroll">
-        <h1>Bacheca Attività</h1>
+        <h1>Calendario attività</h1>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
-          </button>
-        </div>
+<div className="calendar-navigation">
+   <button onClick={goToPreviousMonth} className="btn-Nav">
+     <FontAwesomeIcon icon={faChevronLeft} /> Mese Precedente
+   </button>
+   <button onClick={goToNextMonth} className="btn-Nav">
+     Mese Successivo <FontAwesomeIcon icon={faChevronRight} />
+   </button>
+</div>
 
         <div className="Gen-table-container">
+      
           <table className="Gen-schedule">
             {renderRepartoSection(1, "Reparto Software")}
             {renderRepartoSection(2, "Reparto Elettrico")}

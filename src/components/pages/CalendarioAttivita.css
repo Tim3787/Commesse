@@ -14,16 +14,13 @@
 
 /* Rendi la riga del titolo del reparto sticky in alto e orizzontalmente */
 .Gen-schedule th[colspan] {
-  
   position: sticky;
-  top: 0; /* Blocca la riga in alto durante lo scroll verticale */
-  z-index: 3; /* Assicurati che sia sopra altre celle */
-  background-color: #ffffff; /* Sfondo per evitare sovrapposizioni */
-  border-bottom: 2px solid #ddd; /* Linea di separazione */
+  left: 0;  /* Fissa la colonna a sinistra */
+  top: 0;   /* Fissa la riga in alto */
+  z-index: 4; /* Priorità più alta per non essere coperto da altre celle */
+  background-color: #f8f9fa; /* Colore di sfondo per coerenza */
   padding: 10px;
-  min-height: 20px ;
-  text-align: left;
-  color: rgb(0, 8, 8);
+  border-right: 2px solid #ddd; /* Separazione con il resto della tabella */
 }
 
 /* Colonna "Risorsa" sticky */
@@ -42,11 +39,23 @@
   position: sticky;
   top: 40px; /* Mantiene l'intestazione sotto il titolo del reparto */
   z-index: 2;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
-  color: rgb(8, 0, 1);
-}
 
+  border-bottom: 1px solid #ddd;
+  color: rgb(255, 255, 255);
+}
+/* Mantiene il pulsante sempre visibile */
+.toggle-button {
+  position: sticky;
+  left: 10px; /* Fissa il pulsante a sinistra */
+  z-index: 5; /* Priorità più alta per non essere coperto */
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
 /* Aggiungi un'ombra per il titolo del reparto durante lo scroll */
 .Gen-schedule th[colspan].sticky {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);

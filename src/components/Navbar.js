@@ -3,6 +3,20 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faTasks,
+  faClipboardList,
+  faUsers,
+  faProjectDiagram,
+  faTools,
+  faUserCog,
+  faCalendarAlt,
+  faListCheck,
+  faChartBar,
+  faBuilding,
+} from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -86,61 +100,61 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
   const navLinks = {
     user: [
-      { to: "/Dashboard", label: "Bacheca personale" },
-      { to: "/visualizzazione-commesse", label: "Visualizza dettagli commesse" },
-      { to: "/calendario-attivita", label: "Calendario attività" },
-      { to: "/CalendarioCommesse", label: "Calendario commesse" },
-      { to: "/visualizzazione-attivita", label: "Visualizza le attività di una commessa" },
+      { to: "/Dashboard", label: "Bacheca personale", icon: faUser },
+      { to: "/visualizzazione-commesse", label: "Visualizza dettagli commesse", icon: faClipboardList },
+      { to: "/calendario-attivita", label: "Calendario attività", icon: faCalendarAlt },
+      { to: "/CalendarioCommesse", label: "Calendario commesse", icon: faCalendarAlt },
+      { to: "/visualizzazione-attivita", label: "Attività commessa", icon: faTasks },
     ],
     manager: [
       {
         label: "Rep. Software",
         links: [
-          { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento software" },
-          { to: "/DashboardSoftware", label: "Attività software dept." },
-          { to: "/TrelloBoardSoftware", label: "Bacheca software Trello" },
+          { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento", icon: faChartBar },
+          { to: "/DashboardSoftware", label: "Attività software", icon: faTasks },
+          { to: "/TrelloBoardSoftware", label: "Bacheca Trello", icon: faClipboardList },
         ],
       },
       {
         label: "Rep. Elettrico",
         links: [
-          { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento elettrico" },
-          { to: "/DashboardElettrico", label: "Attività elettrico dept." },
-          { to: "/TrelloBoardElettrico", label: "Bacheca elettrico Trello" },
+          { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento", icon: faChartBar },
+          { to: "/DashboardElettrico", label: "Attività elettrico", icon: faTasks },
+          { to: "/TrelloBoardElettrico", label: "Bacheca Trello", icon: faClipboardList },
         ],
       },
       {
         label: "Rep. QE",
         links: [
-          { to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento quadri" },
-          { to: "/DashboardQuadri", label: "Attività quadri dept." },
+          { to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento quadri", icon: faChartBar },
+          { to: "/DashboardQuadri", label: "Attività quadri", icon: faTasks },
         ],
       },
       {
         label: "Rep. Service",
         links: [
-          { to: "/DashboardService", label: "Attività service dept." },
+          { to: "/DashboardService", label: "Attività service", icon: faTools },
         ],
       },
-      { to: "/gestione-commesse", label: "Crea o modifica commessa" },
-      { to: "/assegna-attivita", label: "Tutte le attività" },
-      { to: "/StatiAvanzamento", label: "Tutte gli stati avanzamento" },
+      { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
+      { to: "/assegna-attivita", label: "Tutte le attività", icon: faListCheck },
+      { to: "/StatiAvanzamento", label: "Tutti gli stati avanzamento", icon: faChartBar },
     ],
     admin: [
-      { to: "/utenti", label: "Modifica/aggiungi utenti" },
-      { to: "/reparti", label: "Modifica/aggiungi reparti" },
-      { to: "/risorse", label: "Modifica/aggiungi risorse" },
-      { to: "/statiCommessa", label: "Modifica/aggiungi stati commessa" },
-      { to: "/stati", label: "Modifica/aggiungi stati avanzamento" },
-      { to: "/attivita", label: "Modifica/aggiungi attività" },
-      { to: "/MatchCommesse", label: "Commesse solo su trello" },
+      { to: "/utenti", label: "Gestione utenti", icon: faUsers },
+      { to: "/reparti", label: "Gestione reparti", icon: faBuilding },
+      { to: "/risorse", label: "Gestione risorse", icon: faUserCog },
+      { to: "/statiCommessa", label: "Stati commessa", icon: faClipboardList },
+      { to: "/stati", label: "Stati avanzamento", icon: faListCheck },
+      { to: "/attivita", label: "Gestione attività", icon: faTasks },
+      { to: "/MatchCommesse", label: "Commesse Trello", icon: faClipboardList },
     ],
   };
-
+  
   const renderLinks = (links) =>
     links.map((link, index) => {
       if (link.links) {
-        // Rendi un sottogruppo
+        // Sottogruppi (dropdown con più link)
         return (
           <li key={index} className="dropdown-subgroup">
             <span className="subgroup-title">{link.label}</span>
@@ -148,7 +162,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
               {link.links.map((subLink, subIndex) => (
                 <li key={subIndex}>
                   <Link to={subLink.to} onClick={() => setActiveMenu(null)}>
-                    {subLink.label}
+                    <FontAwesomeIcon icon={subLink.icon} className="menu-icon" /> {subLink.label}
                   </Link>
                 </li>
               ))}
@@ -159,11 +173,12 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       return (
         <li key={index}>
           <Link to={link.to} onClick={() => setActiveMenu(null)}>
-            {link.label}
+            <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
           </Link>
         </li>
       );
     });
+  
 
 
   const toggleMenu = (menu) => {
