@@ -299,8 +299,7 @@ const toLocalISOString = (date) => {
    const handleReloadActivities = async () => {
         try {
           const updatedActivities = await fetchAttivitaCommessa();
-          setAttivitaProgrammate(updatedActivities);
-          setAttivitaFiltrate(updatedActivities);
+          setActivities(updatedActivities); // Aggiorna lo stato con le attività ricaricate
         } catch (error) {
           console.error("Errore durante il ricaricamento delle attività:", error);
         }

@@ -115,7 +115,7 @@ function GestioneAttivita() {
             ))}
           </select>
         </div>
-        <button type="submit" className="btn">
+        <button type="submit" className="btn-primary">
           {isEditing ? "Aggiorna Attività" : "Aggiungi Attività"}
         </button>
         {isEditing && (

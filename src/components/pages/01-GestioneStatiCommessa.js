@@ -90,7 +90,7 @@ function GestioneStatiCommessa() {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn">
+        <button type="submit" className="btn-primary">
           {isEditing ? "Aggiorna Stato" : "Aggiungi Stato"}
         </button>
       </form>

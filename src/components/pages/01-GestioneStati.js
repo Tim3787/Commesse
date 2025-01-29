@@ -108,6 +108,7 @@ function GestioneStati() {
           <label>Nome Stato:</label>
           <input
             type="text"
+             className="input-field"
             name="nome_stato"
             value={formData.nome_stato}
             onChange={handleChange}

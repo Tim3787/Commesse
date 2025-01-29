@@ -76,7 +76,7 @@ function GestioneReparti() {
           <label>Nome Reparto:</label>
           <input type="text" name="nome" value={formData.nome} onChange={handleChange} required />
         </div>
-        <button type="submit" className="btn">
+        <button type="submit" className="btn-primary">
           {isEditing ? "Aggiorna Reparto" : "Aggiungi Reparto"}
         </button>
         {isEditing && (

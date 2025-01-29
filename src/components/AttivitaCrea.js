@@ -25,6 +25,7 @@ function AttivitaCrea({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: name === "stato" ? parseInt(value, 10) : value });
+    reloadActivities();
   };
 
   // Gestione della ricerca della commessa

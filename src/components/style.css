@@ -69,6 +69,7 @@ form input, form textarea, form select, form button {
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: fit-content;
 }
 
 form button {
@@ -503,6 +504,10 @@ background-image: url('https://image.shutterstock.com/image-vector/arrow-icon-26
 background-position: right 10px center;
 background-repeat: no-repeat;
 padding-right: 30px; /* Spazio per l'icona */
+text-align: left;
+max-height: 200px;
+overflow-y: auto;
+width: fit-content;
 }
 
 /* Cambia il bordo quando il select è in focus */
@@ -524,11 +529,7 @@ background-color: #4CAF50; /* Verde per l'opzione selezionata */
 color: white;
 }
 
-/* Aggiungi scroll per select con tante opzioni */
-.container select {
-max-height: 200px;
-overflow-y: auto;
-}
+
 
     /* ==============================
      loading spin
@@ -676,6 +677,7 @@ background-color: #0056b3;
   color: white;
   padding: 5px 10px;
   cursor: pointer;
+  width: fit-content;
 }
 
 .btn-primary:hover {
@@ -715,6 +717,7 @@ background-color: #0056b3;
   .input-group {
     display: flex;
     align-items: center;
+    min-width: max-content;
   }
   input:focus {
     border-color: #80bdff;
@@ -785,7 +788,18 @@ position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Effetto ombra */
 }
 
+.form-group label {
+  font-size: 14px;
+  text-align: left;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+}
 
+.form-group input:focus + label,
+.form-group select:focus + label {
+  color: #0d47a1; /* Blu più scuro quando il campo è attivo */
+  font-size: 14px;
+}
 .suggestions-list li {
 padding: 10px;
 cursor: pointer;
@@ -796,6 +810,9 @@ background-color: #f0f0f0;
 }
 .form-group {
   position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .dropdown-label {

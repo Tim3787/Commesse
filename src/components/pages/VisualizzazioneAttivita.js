@@ -251,7 +251,7 @@ function CalendarioAttivita() {
         onClick={() => setNumeroCommessa(suggestion.numero_commessa.toString())}
         className="suggestion-item2"
       >
-        {suggestion.numero_commessa} - {suggestion.descrizione || "Nessuna descrizione"}
+        {suggestion.numero_commessa} - {suggestion.cliente || "Nessuna descrizione"}
       </li>
 
     ))}
