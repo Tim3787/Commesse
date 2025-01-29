@@ -7,6 +7,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import {
   deleteAttivitaCommessa,
+  fetchAttivitaCommessa,
 } from "../services/api";
 
 function DashboardSoftware() {
@@ -386,6 +387,17 @@ const toLocalISOString = (date) => {
     );
   }
   
+   const handleReloadActivities = async () => {
+      try {
+        const updatedActivities = await fetchAttivitaCommessa();
+        setAttivitaProgrammate(updatedActivities);
+        setAttivitaFiltrate(updatedActivities);
+      } catch (error) {
+        console.error("Errore durante il ricaricamento delle attività:", error);
+      }
+    };
+
+  
   
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
@@ -496,8 +508,9 @@ const toLocalISOString = (date) => {
     commesse={commesse} // Passa le commesse recuperate
     reparti={reparti} // Passa i reparti recuperati
     risorse={resources} // Passa le risorse filtrate
-
     attivitaConReparto={attivitaConReparto} // (opzionale, se necessario)
+    reloadActivities={handleReloadActivities} 
+
   />
 )}
       </div>

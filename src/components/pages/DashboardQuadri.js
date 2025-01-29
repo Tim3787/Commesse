@@ -5,6 +5,10 @@ import logo from "../assets/unitech-packaging.png";
 import AttivitaCrea from "../AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  deleteAttivitaCommessa,
+  fetchAttivitaCommessa,
+} from "../services/api";
 
 function DashboardQuadri() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -384,7 +388,15 @@ const toLocalISOString = (date) => {
     );
   }
   
-  
+   const handleReloadActivities = async () => {
+        try {
+          const updatedActivities = await fetchAttivitaCommessa();
+          setAttivitaProgrammate(updatedActivities);
+          setAttivitaFiltrate(updatedActivities);
+        } catch (error) {
+          console.error("Errore durante il ricaricamento delle attività:", error);
+        }
+      };
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
       const normalizedDate = normalizeDate(newDate); 
@@ -497,6 +509,7 @@ const toLocalISOString = (date) => {
     risorse={resources} 
 
     attivitaConReparto={attivitaConReparto} 
+    reloadActivities={handleReloadActivities} 
   />
 )}
       </div>
