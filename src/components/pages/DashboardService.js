@@ -39,7 +39,7 @@ const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
 const [loadingActivities, setLoadingActivities] = useState({});
 const todayRef = useRef(null);  
-
+const hasScrolledToToday = useRef(false);
   // Calcola i giorni del mese
   const getDaysInMonth= () => {
     const days = [];
@@ -154,8 +154,17 @@ const todayRef = useRef(null);
   
 // Scorri automaticamente alla colonna di oggi 
 useEffect(() => {
-  if (todayRef.current) {
-    todayRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  // Scrolla al giorno di oggi solo se non è già stato fatto
+  if (!hasScrolledToToday.current && todayRef.current) {
+    todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Aggiungi un listener temporaneo per sapere quando lo scroll è finito
+    const handleScrollEnd = () => {
+      hasScrolledToToday.current = true; // Segna che lo scroll è stato eseguito
+      window.removeEventListener("scroll", handleScrollEnd); // Rimuovi il listener
+    };
+
+    window.addEventListener("scroll", handleScrollEnd);
   }
 }, [daysInMonth]);
   // Funzioni per navigare tra i mesi
@@ -420,6 +429,7 @@ const toLocalISOString = (date) => {
             </>
           )}
         </div>
+        <div className="note"> Note: {activity.note}</div>
       </div>
     );
   }
@@ -474,7 +484,7 @@ const toLocalISOString = (date) => {
     <div>
       <div className="container-Scroll">
         <h1>Bacheca Reparto {RepartoName}</h1>
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

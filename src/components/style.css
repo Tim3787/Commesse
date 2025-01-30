@@ -340,6 +340,16 @@ tr:nth-child(even) {
   color: #333;
 }
 
+.note {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal; /* Permette al testo di andare a capo */
+  word-wrap: break-word;
+}
+
+
     /* ==============================
      tabs
      ============================== */

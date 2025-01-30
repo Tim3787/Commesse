@@ -85,7 +85,7 @@ function LoginRegister({ onLogin }) {
 
   return (
     <>
-    <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+    <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
     <div className="login-container">
   
       <h1>

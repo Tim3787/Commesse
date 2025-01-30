@@ -107,7 +107,7 @@ function GestioneCommesse() {
 
   return (
     <div className="container">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       {loading && (
         <div className="loading-overlay">
           <img src={logo} alt="Logo" className="logo-spinner" />

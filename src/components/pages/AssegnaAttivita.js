@@ -340,7 +340,7 @@ function AssegnaAttivita() {
       )}
 
       <div className="header">
-              <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+              <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <h1>Attività</h1>
       </div>
       <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">

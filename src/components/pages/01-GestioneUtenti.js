@@ -119,7 +119,7 @@ function GestioneUtenti() {
         </div>
       )}
       <h1>Gestione Utenti</h1>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />  
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />  
       <table className="table table-striped table-hover">
         <thead className="table-dark">
           <tr>

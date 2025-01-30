@@ -15,6 +15,7 @@ function Dashboard() {
   const daysRefs = useRef([]); 
   const today = new Date().toLocaleDateString();
   const [noteUpdates, setNoteUpdates] = useState({}); 
+  const hasScrolledToToday = useRef(false);
   
   const getDaysInMonth = (date) => {
     const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -28,17 +29,19 @@ function Dashboard() {
   const daysInMonth = getDaysInMonth(currentMonth);
 
   useEffect(() => {
-    // Scorri automaticamente fino al giorno di oggi
-    const todayIndex = daysInMonth.findIndex(
-      (day) => day.toLocaleDateString() === today
-    );
-    if (todayIndex !== -1 && daysRefs.current[todayIndex]) {
-      daysRefs.current[todayIndex].scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (!hasScrolledToToday.current) {
+      const todayIndex = daysInMonth.findIndex(
+        (day) => day.toLocaleDateString() === today
+      );
+      if (todayIndex !== -1 && daysRefs.current[todayIndex]) {
+        daysRefs.current[todayIndex].scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        hasScrolledToToday.current = true; // Segna che lo scroll è stato fatto
+      }
     }
-  }, [daysInMonth, today]);
+  }, [daysInMonth]);
 
   useEffect(() => {
     const monthStartDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -146,7 +149,7 @@ function Dashboard() {
     <div>
       <div className="container">
       <h1>Benvenuto, {userName}</h1>
-         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         <div className="calendar-navigation">
         <button onClick={goToPreviousMonth} className="btn-nav">← Mese Precedente</button>
         <button onClick={goToNextMonth} className="btn-nav">Mese Successivo →</button>

@@ -118,7 +118,7 @@ function GestioneRisorse() {
         </div>
       )}
       <h1>Crea o Modifica le Risorse</h1>
-       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <form onSubmit={handleSubmit}>
         <h2>{isEditing ? "Modifica Risorsa" : "Aggiungi Risorsa"}</h2>
         <div className="form-group-100">

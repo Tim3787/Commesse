@@ -103,7 +103,7 @@ function GestioneAttivita() {
         </div>
       )}
       <h1>Crea o modifica le attività</h1>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <form onSubmit={handleSubmit}>
         <div className="form-group-100">
           <label>Nome Attività:</label>

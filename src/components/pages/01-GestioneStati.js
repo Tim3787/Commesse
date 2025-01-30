@@ -133,7 +133,7 @@ function GestioneStati() {
         </div>
       )}
       <h1>Crea o modifica gli stati avanzamento</h1>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <form onSubmit={handleSubmit}>
         <h2>{isEditing ? "Modifica Stato di Avanzamento" : "Aggiungi Stato di Avanzamento"}</h2>
         <div className="form-group-100">

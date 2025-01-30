@@ -105,7 +105,7 @@ function AttivitaCrea({
 
   return (
     <div className="popup">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <div className="popup-content">
         <h2>{isEditing ? "Modifica Attività" : "Aggiungi Attività"}</h2>
         <form onSubmit={handleSubmit}>
