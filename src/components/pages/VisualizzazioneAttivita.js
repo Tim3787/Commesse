@@ -15,7 +15,7 @@ function VisualizzaAttivita() {
     { id: 1, name: "Reparto Software" },
     { id: 2, name: "Reparto Elettrico" },
     { id: 3, name: "Reparto Meccanico" },
-    { id: 15, name: "Reparto Quadri" },
+    { id: 15, name: "Reparto Quadristi" },
     { id: 18, name: "Reparto Service" },
   ];
   // Funzione per ottenere i suggerimenti delle commesse
