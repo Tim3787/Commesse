@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
 import AttivitaCrea from "../AttivitaCrea";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { usePersistedFilters } from "./usePersistedFilters";
 import {
   fetchCommesse,
@@ -111,6 +113,7 @@ function AssegnaAttivita() {
         }
       } catch (error) {
         console.error("Errore durante il caricamento dei dati iniziali:", error);
+         toast.error("Errore nel caricamento dei dati.");
       } finally {
         setLoading(false);
       }
@@ -268,6 +271,7 @@ function AssegnaAttivita() {
       console.log("Attività eliminata con successo!");
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
+      toast.error("Errore durante l'eliminazione dell'attività");
     }
   }
   };
@@ -279,6 +283,7 @@ function AssegnaAttivita() {
       setAttivitaFiltrate(updatedActivities);
     } catch (error) {
       console.error("Errore durante il ricaricamento delle attività:", error);
+      toast.error("Errore durante il ricaricamento delle attività");
     }
   };
   const closeSuggestions = (e) => {
@@ -335,6 +340,7 @@ function AssegnaAttivita() {
       )}
 
       <div className="header">
+              <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <h1>Attività</h1>
       </div>
       <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   fetchStatiCommessa,
   createStatoCommessa,
@@ -14,6 +16,7 @@ function GestioneStatiCommessa() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [highlightedId, setHighlightedId] = useState(null);
 
   useEffect(() => {
     loadStatiCommessa();
@@ -26,6 +29,7 @@ function GestioneStatiCommessa() {
       setStatiCommessa(data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati della commessa:", error);
+       toast.error("Errore nel caricamento dei dati.");
     } finally {
       setLoading(false);
     }
@@ -42,11 +46,17 @@ function GestioneStatiCommessa() {
       alert("Il nome dello stato è obbligatorio.");
       return;
     }
+    setLoading(true);
     try {
       if (isEditing) {
         await updateStatoCommessa(editId, formData);
+        setHighlightedId(editId); 
+         toast.success("Stato modificato con successo!");
       } else {
+        const newStato = await createStatoCommessa(formData);
         await createStatoCommessa(formData);
+        setHighlightedId(newStato.id);
+         toast.success("Stato creato con successo!");
       }
       setFormData({ nome_stato: "" });
       setIsEditing(false);
@@ -54,6 +64,9 @@ function GestioneStatiCommessa() {
       loadStatiCommessa();
     } catch (error) {
       console.error("Errore durante la gestione dello stato della commessa:", error);
+      toast.error("Errore durante la gestione dello stato della commessa.");
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -64,13 +77,20 @@ function GestioneStatiCommessa() {
   };
 
   const handleDelete = async (id) => {
+    if (window.confirm("Sei sicuro di voler eliminare questo stato della commessa?")) {
+      setLoading(true);
     try {
       await deleteStatoCommessa(id);
       loadStatiCommessa();
+       toast.success("Stato eliminato con successo!");
     } catch (error) {
       console.error("Errore durante l'eliminazione dello stato della commessa:", error);
+      toast.error("Errore durante l'eliminazione dello stato della commessa.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
 
   return (
     <div className="container">
@@ -80,8 +100,9 @@ function GestioneStatiCommessa() {
         </div>
       )}
       <h1>Crea o modifica stato della commessa</h1>
+       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="form-group-100">
           <label>Nome Stato Comessa:</label>
           <input
             type="text"
@@ -90,9 +111,22 @@ function GestioneStatiCommessa() {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn-primary">
-          {isEditing ? "Aggiorna Stato" : "Aggiungi Stato"}
+        <button type="submit" className="btn-100" disabled={loading}>
+          {loading ? "Salvataggio..." : isEditing ? "Aggiorna stato" : "Aggiungi stato"}
         </button>
+        {isEditing && (
+          <button
+            type="button"
+            className="btn-100"
+            onClick={() => {
+              setFormData({ nome_stato: "" });
+              setIsEditing(false);
+              setEditId(null);
+            }}
+          >
+            Annulla
+          </button>
+          )}
       </form>
       <table className="table">
         <thead>
@@ -104,7 +138,12 @@ function GestioneStatiCommessa() {
         </thead>
         <tbody>
           {statiCommessa.map((stato) => (
-            <tr key={stato.id}>
+            <tr
+            key={stato.id}
+            className={highlightedId === stato.id ? "highlighted-row" : ""}
+            onAnimationEnd={() => setHighlightedId(null)}
+          >
+          
               <td>{stato.id}</td>
               <td>{stato.nome_stato}</td>
               <td>

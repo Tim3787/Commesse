@@ -492,6 +492,7 @@ tr:nth-child(even) {
     /* ==============================
      select
      ============================== */
+  
 .container select {
 width: 100%;
 padding: 8px;
@@ -625,7 +626,9 @@ animation: spin 1s linear infinite;
     }
     .btn-100 {
 width: 100%;
+max-width: 400px;
     }
+
     button:hover, a:hover {
       background-color: #0056b3;
       color: #fff;
@@ -640,7 +643,10 @@ font-size: 16px;
 cursor: pointer;
 
 }
-
+.highlighted-row {
+  animation: highlight 1s ease-in-out;
+  background-color: #d4edda; /* Verde chiaro */
+}
 .create-activity-btn:hover {
 background-color: #0056b3;
 }
@@ -736,14 +742,15 @@ background-color: #0056b3;
      ============================== */
 
 .filters {
-  display: flex;
+ 
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 20px;
   padding: 5px;
   border: 1px solid #ced4da;
   border-radius: 4px;
-  flex-wrap: wrap
+  flex-wrap: wrap;
+  display: flex
 }
 
 .filter-label {
@@ -766,13 +773,38 @@ background-color: #0056b3;
   outline: none;
 }
 
-
 .filter-group {
-display: flex;
-flex-direction: column;
-padding-left: 20px;
-padding-right: 20px;
-position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid #ccc;
+}
+
+.filter-group h2 {
+  text-align: center;
+  padding-bottom: 20px;
+  margin: 0;
+}
+
+.filter-group-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px; /* Distanza minima tra label e select */
+}
+
+.filter-group label {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: border-color 0.3s;
 }
 
 .filters.active {
@@ -807,6 +839,40 @@ position: relative;
   color: #0d47a1; /* Blu più scuro quando il campo è attivo */
   font-size: 14px;
 }
+
+.form-group-100 {
+  position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-wrap: wrap
+}
+
+.form-group-100 label {
+  font-size: 14px;
+  text-align: center;
+  align-items: center;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.form-group-100 select {
+  font-size: 14px;
+  text-align: center;
+  align-items: center;
+  margin-bottom: 5px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+.form-group-100 input:focus + label,
+.form-group-100 select:focus + label {
+  color: #0d47a1; /* Blu più scuro quando il campo è attivo */
+  font-size: 14px;
+}
+
+
+
 .suggestions-list li {
 padding: 10px;
 cursor: pointer;
@@ -865,7 +931,14 @@ background-color: #f0f0f0;
   color: #007bff; /* Colore dell'icona */
   vertical-align: middle;
 }
-
+@keyframes highlight {
+  0% {
+    background-color: #00ff3c;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
 /* ==============================
 Responsive Design
 ============================== */

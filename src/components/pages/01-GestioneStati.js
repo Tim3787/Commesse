@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   fetchStatiAvanzamento,
   fetchReparti,
@@ -19,6 +21,9 @@ function GestioneStati() {
   const [editId, setEditId] = useState(null);
   const [selectedReparto, setSelectedReparto] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [highlightedId, setHighlightedId] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     loadStatiAvanzamento();
@@ -32,17 +37,22 @@ function GestioneStati() {
       setStatiAvanzamento(data);
     } catch (error) {
       console.error("Errore durante il recupero degli stati di avanzamento:", error);
+       toast.error("Errore nel caricamento degli stati di avanzamento.");
     } finally {
       setLoading(false);
     }
   };
 
   const loadReparti = async () => {
+    setLoading(true);
     try {
       const data = await fetchReparti();
       setReparti(data);
     } catch (error) {
       console.error("Errore durante il recupero dei reparti:", error);
+       toast.error("Errore nel caricamento dei reparti.");
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -54,23 +64,36 @@ function GestioneStati() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.nome_stato || !formData.reparto_id) {
-      alert("Tutti i campi sono obbligatori.");
+      toast.error("Tutti i campi sono obbligatori.");
       return;
     }
+    setSubmitLoading(true);
     try {
+      let updatedId;
       if (isEditing) {
         await updateStatoAvanzamento(editId, formData);
+        toast.success("Stato aggiornato con successo!");
+        updatedId = editId;
       } else {
-        await createStatoAvanzamento(formData);
+        const newStato = await createStatoAvanzamento(formData);
+        toast.success("Stato creato con successo!");
+        updatedId = newStato.id;
       }
+  
       setFormData({ nome_stato: "", reparto_id: "" });
       setIsEditing(false);
       setEditId(null);
       loadStatiAvanzamento();
+      setHighlightedId(updatedId); // Evidenzia la riga aggiornata o aggiunta
     } catch (error) {
-      console.error("Errore durante l'aggiunta o modifica dello stato di avanzamento:", error);
+      console.error("Errore durante la gestione dello stato di avanzamento:", error);
+      toast.error("Errore durante la gestione dello stato.");
+    } finally {
+      setSubmitLoading(false);
     }
   };
+  
+  
 
   const handleEdit = (stato) => {
     setFormData({
@@ -82,13 +105,21 @@ function GestioneStati() {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await deleteStatoAvanzamento(id);
-      loadStatiAvanzamento();
-    } catch (error) {
-      console.error("Errore durante l'eliminazione dello stato di avanzamento:", error);
+    if (window.confirm("Sei sicuro di voler eliminare questo stato di avanzamento?")) {
+      setDeleteLoadingId(id);
+      try {
+        await deleteStatoAvanzamento(id);
+        toast.success("Stato eliminato con successo!");
+        loadStatiAvanzamento();
+      } catch (error) {
+        console.error("Errore durante l'eliminazione dello stato di avanzamento:", error);
+        toast.error("Errore durante l'eliminazione dello stato.");
+      } finally {
+        setDeleteLoadingId(null);
+      }
     }
   };
+  
 
   const filteredStatiAvanzamento = selectedReparto
     ? statiAvanzamento.filter((stato) => stato.reparto_id === parseInt(selectedReparto))
@@ -102,9 +133,10 @@ function GestioneStati() {
         </div>
       )}
       <h1>Crea o modifica gli stati avanzamento</h1>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <form onSubmit={handleSubmit}>
         <h2>{isEditing ? "Modifica Stato di Avanzamento" : "Aggiungi Stato di Avanzamento"}</h2>
-        <div className="form-group">
+        <div className="form-group-100">
           <label>Nome Stato:</label>
           <input
             type="text"
@@ -115,7 +147,7 @@ function GestioneStati() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="form-group-100">
           <label>Reparto:</label>
           <select
             name="reparto_id"
@@ -131,13 +163,13 @@ function GestioneStati() {
             ))}
           </select>
         </div>
-        <button type="submit" className="btn btn-primary">
-          {isEditing ? "Aggiorna Stato" : "Aggiungi Stato"}
+        <button type="submit" className="btn-100" disabled={submitLoading}>
+          {loading ? "Salvataggio..." : isEditing ? "Aggiorna stato" : "Aggiungi stato"}
         </button>
         {isEditing && (
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn-100"
             onClick={() => {
               setIsEditing(false);
               setFormData({ nome_stato: "", reparto_id: "" });
@@ -149,8 +181,9 @@ function GestioneStati() {
         )}
       </form>
 
+      <div className="filter-group">
       <h2>Elenco Stati di Avanzamento</h2>
-      <div className="form-group">
+      <div className="filter-group-row">
         <label>Filtra per Reparto:</label>
         <select
           value={selectedReparto}
@@ -164,6 +197,7 @@ function GestioneStati() {
           ))}
         </select>
       </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -175,7 +209,12 @@ function GestioneStati() {
         </thead>
         <tbody>
           {filteredStatiAvanzamento.map((stato) => (
-            <tr key={stato.id}>
+            <tr
+            key={stato.id}
+            className={highlightedId === stato.id ? "highlighted-row" : ""}
+            onAnimationEnd={() => setHighlightedId(null)}  
+          >
+          
               <td>{stato.id}</td>
               <td>{stato.nome_stato}</td>
               <td>
@@ -192,8 +231,9 @@ function GestioneStati() {
                 <button
                   className="btn btn-danger"
                   onClick={() => handleDelete(stato.id)}
+                  disabled={deleteLoadingId === stato.id}
                 >
-                  Elimina
+                  {deleteLoadingId === stato.id ? "Eliminazione..." : "Elimina"}
                 </button>
               </td>
             </tr>

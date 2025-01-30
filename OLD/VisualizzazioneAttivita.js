@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 import { usePersistedFilters } from "./usePersistedFilters";
 import {
   fetchCommesse,
@@ -61,6 +61,7 @@ function VisualizzazioneAttivita() {
     setFilteredActivities(uniqueActivities);
   } catch (error) {
     console.error("Errore durante il caricamento dei dati iniziali:", error);
+    toast.error("Errore durante il caricamento dei dati iniziali:");
   } finally {
     setLoading(false);
   }

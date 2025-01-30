@@ -1,16 +1,21 @@
 import React, { useEffect, useState, useRef } from "react"; //OGGI
 import axios from "axios";
 import "./Dashboard.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 import AttivitaCrea from "../AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   deleteAttivitaCommessa,
   fetchAttivitaCommessa,
 } from "../services/api";
 
 function DashboardSoftware() {
+  const RepartoID = 1;
+  const RepartoName = "software";
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -33,20 +38,44 @@ const [formData, setFormData] = useState({
 const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
 const [loadingActivities, setLoadingActivities] = useState({});
-const todayRef = useRef(null);  //OGGI
+const todayRef = useRef(null);  
 
   // Calcola i giorni del mese
-  const getDaysInMonth = () => {
+  const getDaysInMonth= () => {
     const days = [];
-    const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-
-    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  
+    // Trova il giorno della settimana del primo giorno del mese (0 = Domenica, 6 = Sabato)
+    const startDayOfWeek = startOfMonth.getDay();
+    const endDayOfWeek = endOfMonth.getDay();
+  
+    // Aggiungi i giorni del mese precedente fino all'inizio della settimana
+    if (startDayOfWeek !== 1) { // Se non è lunedì
+      for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        const prevDate = new Date(startOfMonth);
+        prevDate.setDate(startOfMonth.getDate() - i - 1);
+        days.push(prevDate);
+      }
+    }
+  
+    // Aggiungi i giorni del mese corrente
+    for (let d = startOfMonth; d <= endOfMonth; d.setDate(d.getDate() + 1)) {
       days.push(new Date(d));
     }
-
+  
+    // Aggiungi i giorni del mese successivo fino a completare la settimana
+    if (endDayOfWeek !== 0) { // Se non è domenica
+      for (let i = 1; i <= 6 - endDayOfWeek; i++) {
+        const nextDate = new Date(endOfMonth);
+        nextDate.setDate(endOfMonth.getDate() + i);
+        days.push(nextDate);
+      }
+    }
+  
     return days;
   };
+  
 
   const daysInMonth = getDaysInMonth();
 
@@ -67,7 +96,7 @@ const todayRef = useRef(null);  //OGGI
 
   
         const filteredActivities = activitiesResponse.data.filter(
-          (activity) => activity.reparto?.toLowerCase() === "software"
+          (activity) => activity.reparto?.toLowerCase() === RepartoName
         );
 
         setActivities(filteredActivities);
@@ -77,7 +106,7 @@ const todayRef = useRef(null);  //OGGI
           headers: { Authorization: `Bearer ${token}` },
         });
         const filteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === 1
+          (resource) => Number(resource.reparto_id) === RepartoID
         );
 
         setResources(filteredResources);
@@ -109,7 +138,7 @@ const todayRef = useRef(null);  //OGGI
   
         // Filtra solo le attività relative al reparto
         const softwareActivities = attivitaWithReparto.filter(
-          (attivita) => attivita.reparto_id === 1
+          (attivita) => attivita.reparto_id === RepartoID
         );
         setAttivitaConReparto(softwareActivities);
       } catch (error) {
@@ -123,7 +152,7 @@ const todayRef = useRef(null);  //OGGI
   }, [currentMonth, token]);
   
   
-// Scorri automaticamente alla colonna di oggi //OGGI
+// Scorri automaticamente alla colonna di oggi 
 useEffect(() => {
   if (todayRef.current) {
     todayRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
@@ -202,7 +231,7 @@ const toLocalISOString = (date) => {
   
     setFormData({
       commessa_id: activity.commessa_id || "",
-      reparto_id: 1, // ID reparto software
+      reparto_id: RepartoID, 
       risorsa_id: activity.risorsa_id || "",
       attivita_id: activity.attivita_id || "",
       data_inizio: dataInizio,
@@ -217,17 +246,25 @@ const toLocalISOString = (date) => {
   
   const handleEmptyCellDoubleClick = (resourceId, day) => {
     const formattedDate = toLocalISOString(day);
-    setFormData((prev) => ({
-      ...prev,
-      risorsa_id: resourceId,
-      data_inizio: formattedDate,
-      reparto_id: 1, // Reparto Software (ID predefinito)
-      durata: 1,
-    }));
-    setShowPopup(true); // Mostra il popup
-    setIsEditing(false); // Indica che si sta creando una nuova attività
-    setEditId(null); // Non modifica un'attività esistente
+    const existingActivities = getActivitiesForResourceAndDay(resourceId, day);
+    
+    if (existingActivities.length === 0) {
+      setFormData({
+        commessa_id: "",
+        reparto_id: RepartoID,
+        risorsa_id: resourceId,
+        data_inizio: formattedDate,
+        durata: 1,
+        stato: "",
+        descrizione: "",
+      });
+      setIsEditing(false);
+      setShowPopup(true);
+    } else {
+      toast.warn("Cella già occupata.");
+    }
   };
+  
 
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
@@ -251,7 +288,7 @@ const toLocalISOString = (date) => {
   const handleAddNew = () => {
     setFormData({
       commessa_id: "",
-      reparto_id: 1, // SOFTWARE
+      reparto_id: RepartoID, 
       risorsa_id: "",
       attivita_id: "",
       data_inizio: "",
@@ -270,7 +307,7 @@ const toLocalISOString = (date) => {
     // Configurazione del drop
     const [{ isOver }, drop] = useDrop(() => ({
       accept: "ACTIVITY", // Tipo accettato
-      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), // Funzione chiamata durante il drop
+      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), 
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
@@ -278,17 +315,17 @@ const toLocalISOString = (date) => {
   
     return (
       <td
-        ref={drop} // Mantiene il riferimento per il drag and drop
+        ref={drop} 
         className={isOver ? "highlight" : ""}
         onDoubleClick={() =>
           activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
-        } // Doppio clic sulle celle vuote
+        } 
       >
         {activities.map((activity) => (
           <DraggableActivity
             key={activity.id}
             activity={activity}
-            onDoubleClick={() => onActivityClick(activity)} // Doppio clic su un'attività
+            onDoubleClick={() => onActivityClick(activity)} 
           />
         ))}
       </td>
@@ -314,7 +351,7 @@ const toLocalISOString = (date) => {
         ? "activity-started"
         : "activity-completed";
   
-                      // Controlla se l'attività è una Trasferta
+                     
                       const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
                       
     return (
@@ -345,7 +382,7 @@ const toLocalISOString = (date) => {
         <div className="activity-actions">
         <button
     className="btn btn-danger"
-    onClick={() => handleDelete(activity.id)} // Passa l'ID corretto
+    onClick={() => handleDelete(activity.id)} 
   >
     Elimina
   </button>
@@ -387,15 +424,17 @@ const toLocalISOString = (date) => {
     );
   }
   
-   const handleReloadActivities = async () => {
-      try {
-        const updatedActivities = await fetchAttivitaCommessa();
-        setActivities(updatedActivities); // Aggiorna lo stato con le attività ricaricate
-
-      } catch (error) {
-        console.error("Errore durante il ricaricamento delle attività:", error);
-      }
-    };
+  const handleReloadActivities = async () => {
+    try {
+      const updatedActivities = await fetchAttivitaCommessa(); 
+      setActivities(updatedActivities); // Aggiorna solo con i dati ricevuti dal server
+      toast.success("Attività ricaricate con successo.");
+    } catch (error) {
+      console.error("Errore durante il ricaricamento delle attività:", error);
+      toast.error("Errore durante il ricaricamento delle attività.");
+    }
+  };
+  
 
   
   
@@ -434,7 +473,8 @@ const toLocalISOString = (date) => {
   return (
     <div>
       <div className="container-Scroll">
-        <h1>Bacheca Reparto Software</h1>
+        <h1>Bacheca Reparto {RepartoName}</h1>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
@@ -458,14 +498,13 @@ const toLocalISOString = (date) => {
       <tr>
         <th>Risorsa</th>
         {daysInMonth.map((day) => {
-          const isWeekend = day.getDay() === 0 || day.getDay() === 6; // Domenica = 0, Sabato = 6
-          const isToday = day.toDateString() === new Date().toDateString(); // Confronta con oggi
-
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+          const isToday = day.toDateString() === new Date().toDateString(); 
           return (
             <th
               key={day.toISOString()}
               className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-              ref={isToday ? todayRef : null} //OGGI
+              ref={isToday ? todayRef : null}
             >
               {day.toLocaleDateString()}
             </th>
@@ -496,22 +535,20 @@ const toLocalISOString = (date) => {
         </DndProvider>
         {showPopup && (
   <AttivitaCrea
-    formData={formData}
-    setFormData={setFormData}
-    isEditing={isEditing}
-    setIsEditing={setIsEditing}
-    editId={editId}
-    fetchAttivita={() => {
+  formData={formData}
+  setFormData={setFormData}
+  isEditing={isEditing}
+  setIsEditing={setIsEditing}
+  editId={editId}
+  fetchAttivita={handleReloadActivities}
+  setShowPopup={setShowPopup}
+  commesse={commesse}
+  reparti={reparti}
+  risorse={resources}
+  attivitaConReparto={attivitaConReparto}
+  reloadActivities={handleReloadActivities}
+/>
 
-    }}
-    setShowPopup={setShowPopup}
-    commesse={commesse} // Passa le commesse recuperate
-    reparti={reparti} // Passa i reparti recuperati
-    risorse={resources} // Passa le risorse filtrate
-    attivitaConReparto={attivitaConReparto} // (opzionale, se necessario)
-    reloadActivities={handleReloadActivities} 
-
-  />
 )}
       </div>
     </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
+import { ToastContainer, toast } from "react-toastify";  // Importa toast
+import "react-toastify/dist/ReactToastify.css";  // Stile per il toast
 import {
   fetchUsers,
   fetchRoles,
@@ -31,6 +33,7 @@ function GestioneUtenti() {
         setRisorse(risorseResponse);
       } catch (error) {
         console.error("Errore nel caricamento dati:", error);
+        toast.error("Errore nel caricamento dei dati.");
       } finally {
         setLoading(false);
       }
@@ -45,16 +48,9 @@ function GestioneUtenti() {
   
       if (!currentUser) {
         console.error("Utente non trovato.");
+        toast.error("Utente non trovato.");
         return;
       }
-  
-      console.log("Dati inviati:", {
-        userId,
-        newRoleId,
-        username: currentUser.username,
-        email: currentUser.email,
-        risorsa_id: currentUser.risorsa_id,
-      });
   
       await updateUserRole(
         userId,
@@ -64,9 +60,18 @@ function GestioneUtenti() {
         currentUser.risorsa_id
       );
   
-      console.log("Ruolo aggiornato con successo!");
+      toast.success("Ruolo aggiornato con successo!");
+
+ // Aggiorna lo stato locale
+ setUtenti((prev) =>
+  prev.map((utente) =>
+    utente.id === userId ? { ...utente, role_id: newRoleId } : utente
+  )
+);
+
     } catch (error) {
       console.error("Errore durante l'aggiornamento del ruolo:", error);
+      toast.error("Errore durante l'aggiornamento del ruolo.");
     }
   };
   
@@ -77,23 +82,33 @@ function GestioneUtenti() {
   const handleAssignResource = async (userId, risorsaId) => {
     try {
       await assignResourceToUser(userId, risorsaId);
+
+       // Aggiorna lo stato locale
       setUtenti((prev) =>
         prev.map((utente) =>
           utente.id === userId ? { ...utente, risorsa_id: risorsaId } : utente
         )
       );
+      toast.success("Risorsa assegnata con successo!");
     } catch (error) {
       console.error("Errore durante l'assegnazione della risorsa:", error);
+      toast.error("Errore durante l'assegnazione della risorsa.");
     }
   };
 
   const handleDeleteUser = async (userId) => {
+    if (window.confirm("Sei sicuro di voler eliminare questo utente?")) {
     try {
       await deleteUser(userId);
+
+       // Aggiorna lo stato locale
       setUtenti((prev) => prev.filter((utente) => utente.id !== userId));
+      toast.success("Utente eliminato con successo!");
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'utente:", error);
+      toast.error("Errore durante l'eliminazione dell'utente.");
     }
+  }
   };
 
   return (
@@ -104,6 +119,7 @@ function GestioneUtenti() {
         </div>
       )}
       <h1>Gestione Utenti</h1>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />  
       <table className="table table-striped table-hover">
         <thead className="table-dark">
           <tr>

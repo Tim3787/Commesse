@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchAttivitaCommessa, fetchRisorse } from "../services/api"; 
 import "./CalendarioAttivita.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -24,19 +24,43 @@ function CalendarioAttivita() {
   });
   const todayRef = useRef(null); // OGGI
 
+  
   // Calcola i giorni del mese
-  const getDaysInMonth = () => {
+  const getDaysInMonth= () => {
     const days = [];
-    const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-
-    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  
+    // Trova il giorno della settimana del primo giorno del mese (0 = Domenica, 6 = Sabato)
+    const startDayOfWeek = startOfMonth.getDay();
+    const endDayOfWeek = endOfMonth.getDay();
+  
+    // Aggiungi i giorni del mese precedente fino all'inizio della settimana
+    if (startDayOfWeek !== 1) { // Se non è lunedì
+      for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        const prevDate = new Date(startOfMonth);
+        prevDate.setDate(startOfMonth.getDate() - i - 1);
+        days.push(prevDate);
+      }
+    }
+  
+    // Aggiungi i giorni del mese corrente
+    for (let d = startOfMonth; d <= endOfMonth; d.setDate(d.getDate() + 1)) {
       days.push(new Date(d));
     }
-
+  
+    // Aggiungi i giorni del mese successivo fino a completare la settimana
+    if (endDayOfWeek !== 0) { // Se non è domenica
+      for (let i = 1; i <= 6 - endDayOfWeek; i++) {
+        const nextDate = new Date(endOfMonth);
+        nextDate.setDate(endOfMonth.getDate() + i);
+        days.push(nextDate);
+      }
+    }
+  
     return days;
   };
-
+  
   const daysInMonth = getDaysInMonth();
 
   // Recupera dati iniziali

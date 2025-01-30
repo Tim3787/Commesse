@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./CalendarioCommesse.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 import { fetchCommesse } from "../services/api";
 
 function CalendarioCommesse() {
@@ -151,8 +151,6 @@ function CalendarioCommesse() {
   
         {consegnaCommesse.map((commessa) => (
           <div key={`${commessa.commessa_id}-Consegna`} className="Comm-event scadenza">
-            <span>Scadenza:</span>
-            <br />
             <strong>{commessa.numero_commessa}</strong>
             <br />
             <span>{commessa.cliente}</span>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { fetchDashboardActivities, fetchFATDates, fetchUserName, updateActivityStatusAPI } from "../services/api";
 import "./Dashboard.css";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 
 function Dashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -163,7 +163,7 @@ function Dashboard() {
                       return (
                         <div key={activity.id} className={`activity ${activityClass}`}>
                           <div className="activity-content">
-                            <strong>Commessa: {activity.numero_commessa} | </strong>
+                            <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
                             <strong>Note: {activity.descrizione}</strong>
                             {isTrasferta && (

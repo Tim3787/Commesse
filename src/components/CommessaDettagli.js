@@ -24,8 +24,16 @@ function CommessaDettagli({ commessa, onClose }) {
         <h2>Dettagli Commessa #{commessa.numero_commessa}</h2>
         <p><strong>Cliente:</strong> {commessa.cliente}</p>
         <p><strong>Tipo Macchina:</strong> {commessa.tipo_macchina}</p>
-        <p><strong>Descrizione:</strong> {commessa.descrizione || "N/A"}</p>
-        <p><strong>Data Consegna:</strong> {new Date(commessa.data_consegna).toLocaleDateString()}</p>
+        <p><strong>Descrizione:</strong> {commessa.descrizione || "Nessuna descrizione"}</p>
+      <p>
+  <strong>Data FAT:</strong>{" "}
+  {commessa.data_FAT ? new Date(commessa.data_FAT).toLocaleDateString() : "Nessuna data"}
+</p>
+<p>
+  <strong>Data Consegna:</strong>{" "}
+  {commessa.data_consegna ? new Date(commessa.data_consegna).toLocaleDateString() : "Nessuna data"}
+</p>
+   
 
         {/* Stati avanzamento */}
         <h3>Stati Avanzamento:</h3>
@@ -35,7 +43,7 @@ function CommessaDettagli({ commessa, onClose }) {
               <li key={index}>
                 <strong>{reparto.reparto_nome}:</strong>
                 <div>
-                  - {reparto.stato.nome_stato}
+                  {reparto.stato.nome_stato}
                   {reparto.stato.data_inizio && (
                     <span>
                       {" "} (Inizio: {new Date(reparto.stato.data_inizio).toLocaleDateString()})

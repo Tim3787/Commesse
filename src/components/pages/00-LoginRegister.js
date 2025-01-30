@@ -3,25 +3,29 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
 import logo from "../assets/unitech-packaging.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function LoginRegister({ onLogin }) {
   const [formType, setFormType] = useState("login");
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
-    if (formType === "register" || formType === "recover") {
-      if (!formData.email) return "L'email è obbligatoria.";
+    if ((formType === "register" || formType === "recover") && !formData.email) {
+      return "L'email è obbligatoria.";
     }
-    if (formType === "register" || formType === "login") {
-      if (!formData.username) return "L'username è obbligatorio.";
-      if (!formData.password) return "La password è obbligatoria.";
+    if ((formType === "register" || formType === "login") && !formData.username) {
+      return "L'username è obbligatorio.";
+    }
+    if ((formType === "register" || formType === "login") && !formData.password) {
+      return "La password è obbligatoria.";
     }
     return null;
   };
+
 
   const makeRequest = async (endpoint, successMessage) => {
     setIsLoading(true);
@@ -40,7 +44,8 @@ function LoginRegister({ onLogin }) {
         if (formType === "register") setFormType("login");
       }
     } catch (error) {
-      throw error;
+      console.error("Errore durante l'operazione:", error);
+      toast.error(error.response?.data?.message || "Errore durante l'operazione.");
     } finally {
       setIsLoading(false);
     }
@@ -48,16 +53,15 @@ function LoginRegister({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
     setIsLoading(true);
 
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
+      toast.error(validationError);
       setIsLoading(false);
       return;
     }
+
 
     try {
       if (formType === "login") await makeRequest("/api/users/login", "");
@@ -73,14 +77,17 @@ function LoginRegister({ onLogin }) {
         );
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
-      setError(error.response?.data || "Errore durante l'operazione");
+      toast.error("Errore durante l'operazione.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
+    <>
+    <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     <div className="login-container">
+  
       <h1>
         {formType === "login"
           ? "Login"
@@ -89,7 +96,7 @@ function LoginRegister({ onLogin }) {
           : "Recupero Password"}
       </h1>
       <form onSubmit={handleSubmit}>
-        {formType !== "recover" && (
+        {(formType === "register" || formType === "login") && (
           <div>
             <label htmlFor="username">Username:</label>
             <input
@@ -97,12 +104,11 @@ function LoginRegister({ onLogin }) {
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              required={formType !== "recover"}
               aria-label="Inserisci il tuo username"
             />
           </div>
         )}
-        {formType !== "login" && (
+        {(formType === "register" || formType === "recover") && (
           <div>
             <label htmlFor="email">Email:</label>
             <input
@@ -110,12 +116,11 @@ function LoginRegister({ onLogin }) {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
               aria-label="Inserisci il tuo indirizzo email"
             />
           </div>
         )}
-        {formType !== "recover" && (
+        {(formType === "register" || formType === "login") && (
           <div>
             <label htmlFor="password">Password:</label>
             <input
@@ -123,13 +128,10 @@ function LoginRegister({ onLogin }) {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
               aria-label="Inserisci la tua password"
             />
           </div>
         )}
-        {error && <p className="error">{error}</p>}
-        {message && <p className="message">{message}</p>}
         <button type="submit" disabled={isLoading}>
           {isLoading
             ? "Caricamento..."
@@ -151,12 +153,9 @@ function LoginRegister({ onLogin }) {
       {formType === "recover" && (
         <button onClick={() => setFormType("login")}>Torna al Login</button>
       )}
-      <img
-        src={logo}
-        alt="Logo"
-        className={`login-logo ${isLoading ? "pulsing" : ""}`}
-      />
+      <img src={logo} alt="Logo" className={`login-logo ${isLoading ? "pulsing" : ""}`} />
     </div>
+    </>
   );
 }
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GestioneStatiAvanzamento from "../GestioneStatiAvanzamento";
 import "../style.css";
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 
 function StatiAvanzamento() {
   const [commesse, setCommesse] = useState([]);

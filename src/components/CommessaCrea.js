@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./style.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 function CommessaCrea({
   commessa,
@@ -24,9 +28,8 @@ function CommessaCrea({
     cliente: "",
     stato: "",
   });
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
+  const [loading, setLoading] = useState(false);
   // Funzione per formattare la data in formato 'yyyy-MM-dd'
   const formatDate = (dateString) => {
     if (!dateString || isNaN(new Date(dateString).getTime())) {
@@ -84,10 +87,10 @@ function CommessaCrea({
     e.preventDefault();
 
     if (formData.data_FAT && new Date(formData.data_FAT) > new Date(formData.data_consegna)) {
-      alert("La data FAT deve essere antecedente alla data di consegna.");
+      toast.error("La data FAT deve essere antecedente alla data di consegna.");
       return;
     }
-  
+    setLoading(true);
     try {
       let commessaId;
 
@@ -150,20 +153,14 @@ function CommessaCrea({
         stato: "",
       });
       setSelezioniAttivita({});
-      setErrorMessage(""); // Rimuove eventuali errori precedenti
-      setSuccessMessage(isEditing ? "Commessa creata con successo!" : "Commessa creata con successo!");
-      setTimeout(() => {
-         setSuccessMessage(""); // MESSAGGIO SUCCESSO
-      }, 3000);
+      toast.success("Commessa creata con successo!");
       fetchCommesse(); 
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
-      alert("Errore durante l'operazione.");
-      setErrorMessage("Si è verificato un errore. Per favore, riprova.");
-   
-   setTimeout(() => {
-      setErrorMessage(""); // Nasconde il messaggio di errore dopo 3 secondi
-   }, 3000);
+      toast.error("Errore durante l'operazione.");
+    }
+    finally {
+      setLoading(false);
     }
   };
   
@@ -193,6 +190,7 @@ function CommessaCrea({
   return (
     <div className="popup">
       <div className="popup-content">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <h2>{isEditing ? "Modifica Commessa" : "Crea Commessa"}</h2>
         <form onSubmit={handleSubmit}>
           <div>
@@ -297,9 +295,10 @@ function CommessaCrea({
   <span>Nessuna attività disponibile o attività non associate ai reparti</span>
 )}
 
-          <button type="submit"className="btn-100">{isEditing ? "Aggiorna" : "Crea"}</button>
-          {successMessage && <div className="success-message">{successMessage}</div>}
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
+<button type="submit" className="btn-100" disabled={loading}>
+  {loading ? "Salvataggio..." : isEditing ? "Aggiorna" : "Crea"}
+</button>
+
         </form>
         <button onClick={onClose} className="btn-100">Chiudi</button>
       </div>

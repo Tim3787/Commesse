@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
 import CommessaDettagli from "../CommessaDettagli";  
-import logo from"../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 import { fetchCommesse, fetchStatiCommessa } from "../services/api";
 
 function VisualizzazioneCommesse() {

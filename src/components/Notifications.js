@@ -21,7 +21,6 @@ const Notifications = () => {
       setUnreadNotifications(response.data.filter((n) => !n.is_read));
     } catch (error) {
       console.error("Errore nel recupero delle notifiche:", error);
-      setError("Impossibile recuperare le notifiche.");
     } finally {
       setLoading(false);
     }

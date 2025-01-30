@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getBoardCards } from "../services/api";
 import axios from "axios";
 import CommessaCrea from "../CommessaCrea";
-import logo from "../assets/unitech-packaging.png";
+import logo from "../assets/Animation - 1738249246846.gif";
 
 
 const MatchCommesse = () => {

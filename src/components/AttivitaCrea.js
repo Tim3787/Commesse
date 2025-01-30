@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { fetchAttivita } from "./services/api";
 import "./style.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AttivitaCrea({
   formData,
@@ -17,104 +18,32 @@ function AttivitaCrea({
   const [commessaSearch, setCommessaSearch] = useState("");
   const [suggestedCommesse, setSuggestedCommesse] = useState([]);
   const suggestionsRef = useRef(null);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Gestione del cambiamento dei campi di input
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: name === "stato" ? parseInt(value, 10) : value });
-    reloadActivities();
-  };
-
-  // Gestione della ricerca della commessa
-  const handleSearchCommessa = (e) => {
-    const searchText = e.target.value.trim().toLowerCase();
-    setCommessaSearch(searchText);
-
-    if (!searchText) {
-      setSuggestedCommesse([]);
-      return;
-    }
-
-    const filteredCommesse = commesse.filter((commessa) =>
-      String(commessa.numero_commessa || "").toLowerCase().includes(searchText)
-    );
-
-    setSuggestedCommesse(filteredCommesse);
-  };
-
-  // Gestione della selezione della commessa
-  const handleSelectCommessa = (commessa) => {
-    setCommessaSearch(commessa.numero_commessa);
-    setFormData((prevState) => ({ ...prevState, commessa_id: commessa.commessa_id || "" }));
-    setSuggestedCommesse([]);
-  };
-
-  // Funzione di invio del form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const {
-      commessa_id,
-      reparto_id,
-      risorsa_id,
-      attivita_id,
-      data_inizio,
-      durata,
-    } = formData;
-
-    // Validazione lato client
-    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata ) {
-      setErrorMessage("Tutti i campi sono obbligatori.");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const endpoint = isEditing
-        ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
-        : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
-      const method = isEditing ? "put" : "post";
-
-      await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      setSuccessMessage(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
-      setTimeout(() => setSuccessMessage(""), 3000);
-
-      await fetchAttivita(); // Aggiorna la lista delle attività
-      //setShowPopup(false); // Chiudi il pop-up
-      reloadActivities();
-    } catch (error) {
-      console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
-      setErrorMessage("Errore durante l'operazione. Riprova.");
-      setTimeout(() => setErrorMessage(""), 3000);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Funzione per chiudere i suggerimenti quando clicchi fuori
-  const closeSuggestions = (e) => {
-    if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
-      setSuggestedCommesse([]);
-    }
-  };
-
-  // Aggiungiamo un evento per rilevare i clic fuori dalla lista
+  // Debounce della ricerca delle commesse
   useEffect(() => {
-    document.addEventListener("click", closeSuggestions);
-    return () => {
-      document.removeEventListener("click", closeSuggestions);
+    const timer = setTimeout(() => {
+      if (commessaSearch.trim()) {
+        const filteredCommesse = commesse.filter((commessa) =>
+          String(commessa.numero_commessa || "").toLowerCase().includes(commessaSearch.toLowerCase())
+        );
+        setSuggestedCommesse(filteredCommesse);
+      } else {
+        setSuggestedCommesse([]);
+      }
+    }, 300); // Ritardo di 300ms
+    return () => clearTimeout(timer);
+  }, [commessaSearch, commesse]);
+
+  // Chiude i suggerimenti quando si clicca fuori
+  useEffect(() => {
+    const closeSuggestions = (e) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
+        setSuggestedCommesse([]);
+      }
     };
+    document.addEventListener("click", closeSuggestions);
+    return () => document.removeEventListener("click", closeSuggestions);
   }, []);
 
   useEffect(() => {
@@ -126,8 +55,57 @@ function AttivitaCrea({
     }
   }, [isEditing, formData.commessa_id, commesse]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: name === "stato" ? parseInt(value, 10) : value });
+  };
+
+  const handleSelectCommessa = (commessa) => {
+    setCommessaSearch(commessa.numero_commessa);
+    setFormData((prevState) => ({ ...prevState, commessa_id: commessa.commessa_id || "" }));
+    setSuggestedCommesse([]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
+
+    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata) {
+      toast.error("Tutti i campi sono obbligatori.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const endpoint = isEditing
+        ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
+        : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Errore nella richiesta");
+
+      toast.success(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+      reloadActivities();
+     // setShowPopup(false);
+    } catch (error) {
+      console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
+      toast.error("Errore durante l'aggiunta o modifica dell'attività.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="popup">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <div className="popup-content">
         <h2>{isEditing ? "Modifica Attività" : "Aggiungi Attività"}</h2>
         <form onSubmit={handleSubmit}>
@@ -137,7 +115,7 @@ function AttivitaCrea({
               type="text"
               name="commessa_id"
               value={commessaSearch || ""}
-              onChange={handleSearchCommessa}
+              onChange={(e) => setCommessaSearch(e.target.value)}
               placeholder="Cerca per numero commessa"
               className="input-field"
             />
@@ -159,6 +137,7 @@ function AttivitaCrea({
               value={formData.reparto_id}
               onChange={handleChange}
               required
+              className="input-field"
             >
               <option value="">Seleziona un reparto</option>
               {reparti.map((reparto) => (
@@ -264,8 +243,6 @@ function AttivitaCrea({
           <button type="submit" className="btn-100"disabled={loading}>
             {isEditing ? "Aggiorna" : "Aggiungi"}
           </button>
-          {successMessage && <div className="success-message">{successMessage}</div>}
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <button type="button"className="btn-100" onClick={() => setShowPopup(false)}>
             Annulla
           </button>

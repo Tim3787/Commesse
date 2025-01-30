@@ -62,6 +62,7 @@ Notification.requestPermission()
         });
     } else {
       console.error("Permesso per le notifiche negato.");
+      toast.error("Permesso per le notifiche negato.");
     }
   })
   .catch((err) => console.error("Errore durante la richiesta di permesso:", err));
