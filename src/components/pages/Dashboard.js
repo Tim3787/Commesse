@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { fetchDashboardActivities, fetchFATDates, fetchUserName, updateActivityStatusAPI } from "../services/api";
+import { fetchDashboardActivities, fetchFATDates, fetchUserName, updateActivityStatusAPI, updateActivityNotes } from "../services/api";
 import "./Dashboard.css";
 import logo from "../assets/Animation - 1738249246846.gif";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Dashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -12,7 +14,8 @@ function Dashboard() {
   const [allFATDates, setAllFATDates] = useState([]);
   const daysRefs = useRef([]); 
   const today = new Date().toLocaleDateString();
-
+  const [noteUpdates, setNoteUpdates] = useState({}); 
+  
   const getDaysInMonth = (date) => {
     const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const days = [];
@@ -118,12 +121,32 @@ function Dashboard() {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
+//NOTE
+  const handleNoteChange = (activityId, note) => {
+    setNoteUpdates((prev) => ({ ...prev, [activityId]: note }));
+  };
 
+  const saveNote = async (activityId) => {
+    try {
+      const updatedActivity = monthlyActivities.find((activity) => activity.id === activityId);
+      updatedActivity.note = noteUpdates[activityId];
+  
+      // Passa la nota come stringa e non come oggetto annidato
+      await updateActivityNotes(activityId, updatedActivity.note, token);
+      toast.success("Nota creata con successo!");
+
+    } catch (error) {
+      console.error("Errore durante il salvataggio della nota:", error);
+      toast.error("Errore durante il salvataggio della nota");
+    }
+  };
+  
   return (
+
     <div>
       <div className="container">
       <h1>Benvenuto, {userName}</h1>
-     
+         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <div className="calendar-navigation">
         <button onClick={goToPreviousMonth} className="btn-nav">← Mese Precedente</button>
         <button onClick={goToNextMonth} className="btn-nav">Mese Successivo →</button>
@@ -163,9 +186,10 @@ function Dashboard() {
                       return (
                         <div key={activity.id} className={`activity ${activityClass}`}>
                           <div className="activity-content">
+                            
                             <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
-                            <strong>Note: {activity.descrizione}</strong>
+                            <strong>Descrizione: </strong> {activity.descrizione}
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗
@@ -210,6 +234,14 @@ function Dashboard() {
                               </>
                             )}
                           </div>
+                          <textarea
+                              placeholder="Aggiungi una nota..."
+                              value={noteUpdates[activity.id] || activity.note || ""}
+                              onChange={(e) => handleNoteChange(activity.id, e.target.value)}
+                            />
+                            <button className="btn btn-save" onClick={() => saveNote(activity.id)}>
+                              Salva Nota
+                            </button>
                         </div>
                       );
                     })
