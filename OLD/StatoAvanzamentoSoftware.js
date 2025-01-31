@@ -4,12 +4,11 @@ import "./Dashboard.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists } from "../services/api";
-import WarningDetails from "../WarningDetails";
-import UnfinishedActivities from "../UnfinishedActivities";
+
 
 function StatoAvanzamentoSoftware() {
   const [commesse, setCommesse] = useState([]);
-  const [stati, setStati] = useState([]);
+  const [statiSoftware, setStatiSoftware] = useState([]);
   const [loading, setLoading] = useState(false);
   const [numeroCommessaFilter, setNumeroCommessaFilter] = useState("");
   const [clienteFilter, setClienteFilter] = useState("");
@@ -21,10 +20,10 @@ function StatoAvanzamentoSoftware() {
   const apiUrl = process.env.REACT_APP_API_URL;
   const [resources, setResources] = useState([]);
   const boardId = "606e8f6e25edb789343d0871";
-  const RepartoID = 1;
-  const RepartoName = "software";
 
+ //REPARTO
 const accoppiamentoStati = {
+  software: {
     "in entrata": ["S: In entrata", "S-Ribo in entrata", "S: Modifiche su macchina old"],
     "analisi": ["S: Analisi", "S: Modifiche su macchina old"],
     "sviluppo programmato": ["S: In entrata","S: Analisi" ],
@@ -35,6 +34,8 @@ const accoppiamentoStati = {
     "avviamento iniziato": ["S: Completate"],
     "collaudo terminato": ["S: Completate"],
     "no software": ["S: Nessun lavoro software"],
+    },
+
   };
 
   const normalize = (str) => str?.trim().toLowerCase();
@@ -87,8 +88,8 @@ const accoppiamentoStati = {
         const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === RepartoID); //REPARTO
-        setStati(statiValidi);
+        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 1); //REPARTO
+        setStatiSoftware(statiValidi);
 
         const [boardLists, boardCards] = await Promise.all([
           getBoardLists(boardId),
@@ -179,16 +180,10 @@ const accoppiamentoStati = {
         activity.stato === 2 &&
         activity.note &&
         activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
+        activity.reparto?.toLowerCase() === "software" // REPARTO
     );
-    // Attività non completate
-    const unfinishedActivities = activities.filter(
-      (activity) =>
-        activity.stato == 1 && // Stato non completato
-        activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
-    );
-
+    
+  
     const trelloCard = cards.find((card) => {
       const trelloNumero = extractCommessaNumber(card.name);
       return commessa.numero_commessa === trelloNumero;
@@ -198,12 +193,20 @@ const accoppiamentoStati = {
     const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : "N/A";
 
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
-    const statoAttivo = statiAttivi.find((s) => s.reparto_nome.toLowerCase() === RepartoName);
+    const statoAttivo = statiAttivi.find(
+      (s) => s.reparto_nome.toLowerCase() === "software" //REPARTO
+    );
 
-
-  
-const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
-
+    //REPARTO
+    const expectedList = statoAttivo?.stato?.nome_stato
+    ? accoppiamentoStati["software"]?.[normalize(statoAttivo.stato.nome_stato)]?.includes(
+        trelloListName
+      )
+      ? trelloListName
+      : "Non accoppiata"
+    : "Non assegnata";
+  //REPARTO
+  const isListDifferent = !accoppiamentoStati["software"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
   
   const normalizeDate = (dateString) => {
     if (!dateString) return null;
@@ -215,7 +218,6 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
   const trelloDate = trelloCard?.due ? normalizeDate(trelloCard.due) : null;
   const appDate = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
   const isDateDifferent = trelloDate !== appDate;
-  
   
   const handleAlignDate = async (commessaId, trelloDate) => {
     try {
@@ -262,66 +264,101 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
   };
   
     
+    
+    return (
+      <div
+        ref={drag}
+        className="commessa"
+        style={{
+          opacity: isDragging ? 0.5 : 1,
+          backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
+          border: isListDifferent ? "2px solid red" : "none",
+        }}
+      >
+        <strong>{commessa.numero_commessa}</strong>
+        <div>{commessa.cliente}</div>
+       
+         {warningActivities.length > 0 && (
+        <div className="warning-section">
+          <span 
+  className="warning-icon"
+  title={`
+    Attività: ${activity.nome_attivita}
+    Data inizio: ${new Date(activity.data_inizio).toLocaleDateString()}
+    Risorsa: ${resourceName}
+    Nota: ${activity.note || 'Nessuna'}
+  `}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    fill="#e60000"
+    viewBox="0 0 24 24"
+  >
+    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+  </svg>
+</span>
+
+          {/* Dettagli delle attività con warning */}
+          <div className="warning-details">
+          {warningActivities.map((activity) => {
+  // Trova il nome della risorsa corrispondente a risorsa_id
+  const resourceName = resources.find(
+    (resource) => resource.id === activity.risorsa_id
+  )?.nome || "Nome non disponibile"; // Gestisce il caso in cui non trovi la risorsa
+
   return (
     <div
-      ref={drag}
-      className="commessa"
+      key={activity.id}
       style={{
-        opacity: isDragging ? 0.5 : 1,
-        backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
-        border: isListDifferent ? "2px solid red" : "2px solid black",
+        padding: "10px",
+        backgroundColor: "#ffe6e6",
+        border: "1px solid #e60000",
+        marginBottom: "10px",
       }}
     >
-      <strong>{commessa.numero_commessa}</strong>
-      <div>{commessa.cliente}</div>
-  
-      {/* Mostra warning attività completate */}
-      {warningActivities.length > 0 && (
-        <WarningDetails warningActivities={warningActivities} resources={resources} />
-      )}
-  
-      {/* Mostra warning attività non completate */}
-      {unfinishedActivities.length > 0 && (
-        <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} />
-      )}
-  
-      {!trelloCard && (
-        <div style={{ color: "red", fontStyle: "italic" }}>
-          Non esiste su Trello
-        </div>
-      )}
-  
-      <div>
-        Data App: {appDate}
-        {trelloCard && isDateDifferent && (
-          <div style={{ color: "red" }}>
-            Data Trello: {trelloDate}
-            <button
-              onClick={() =>
-                handleAlignDate(commessa.commessa_id, trelloCard.due)
-              }
-            >
-              Allinea Data
-            </button>
-          </div>
-        )}
-      </div>
-  
-      {trelloCard && (
-        <>
-          
-          {isListDifferent && (
-            <div style={{ color: "red" }}>
-             <div>Lista Trello: {trelloListName}</div>
-             
-            
-            </div>
-          )}
-        </>
-      )}
+      <strong>Attività:</strong> {activity.nome_attivita} <br />
+      <strong>Data inizio:</strong> {new Date(activity.data_inizio).toLocaleDateString()} <br />
+      <strong>Risorsa:</strong> {resourceName} <br />
+      <strong>Nota:</strong> {activity.note} <br />
     </div>
   );
-  
+})}
+          </div>
+        </div>
+      )}
+       {!trelloCard && (
+          <div style={{ color: "red", fontStyle: "italic" }}>
+            Non esiste su Trello
+          </div>
+        )}
+        <div>
+          Data App: {appDate}
+          {trelloCard && isDateDifferent && (
+            <div style={{ color: "red" }}>
+              Data Trello: {trelloDate}
+              <button
+                onClick={() =>
+                  handleAlignDate(commessa.commessa_id, trelloCard.due)
+                }
+              >
+                Allinea Data
+              </button>
+            </div>
+          )}
+        </div>
+        {trelloCard && (
+          <>
+            <div>Lista Trello: {trelloListName}</div>
+            <div>Stato atteso: {expectedList}</div>
+            {isListDifferent && (
+          <div style={{ color: "red" }}>Mismatch tra stato atteso e Trello</div>
+            )}
+          </>
+        )}
+      </div>
+    );
   }
   
 
@@ -363,7 +400,7 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
 
   return (
     <div className="container-Scroll">
-      <h1>Stato Avanzamento {RepartoName}</h1>
+      <h1>Stato Avanzamento Software</h1>
       {loading && <div className="loading-overlay">Caricamento...</div>}
 
       <div className="filters">
@@ -392,31 +429,30 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
         <table className="software2-schedule">
           <thead>
             <tr>
-              {stati.sort((a, b) => a.ordine - b.ordine).map((stato) => (
+              {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
                 <th key={stato.id}>{stato.nome_stato}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             <tr>
-            {stati.sort((a, b) => a.ordine - b.ordine).map((stato) => (
-  <DropZone
-    key={stato.id}
-    stato={stato}
-    repartoId={RepartoID}
-    commesse={filteredCommesse.filter((commessa) =>
-      commessa.stati_avanzamento.some(
-        (reparto) =>
-          reparto.reparto_id === RepartoID &&
-          reparto.stati_disponibili.some(
-            (s) => s.stato_id === stato.id && s.isActive
-          )
-      )
-    )}
-    activities={activities}
-    resources={resources}
-  />
-))}
+              {statiSoftware.sort((a, b) => a.ordine - b.ordine).map((stato) => (
+                <DropZone
+                  key={stato.id}
+                  stato={stato}
+                  repartoId={1}
+                  commesse={filteredCommesse.filter((commessa) =>
+                    commessa.stati_avanzamento.some(
+                      (reparto) =>
+                        reparto.reparto_id === 1 &&
+                        reparto.stati_disponibili.some(
+                          (s) => s.stato_id === stato.id && s.isActive
+                        )//REPARTO
+                    )
+                  )}
+                  activities={activities}
+                />
+              ))}
             </tr>
           </tbody>
         </table>
