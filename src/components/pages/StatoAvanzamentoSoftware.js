@@ -292,10 +292,12 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
       )}
   
       <div>
-        Data App: {appDate}
+        
         {trelloCard && isDateDifferent && (
+          
           <div style={{ color: "red" }}>
-            Data Trello: {trelloDate}
+            Data App: {appDate}<br />
+            Data Trello: {trelloDate}<br />
             <button
               onClick={() =>
                 handleAlignDate(commessa.commessa_id, trelloCard.due)
