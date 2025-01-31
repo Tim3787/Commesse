@@ -40,7 +40,7 @@ function LoginRegister({ onLogin }) {
         onLogin(response.data.token, response.data.role_id);
         navigate("/dashboard");
       } else {
-        setMessage(successMessage);
+        toast.success(successMessage);
         if (formType === "register") setFormType("login");
       }
     } catch (error) {
