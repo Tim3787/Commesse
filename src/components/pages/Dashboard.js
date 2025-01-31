@@ -125,24 +125,45 @@ function Dashboard() {
     }
   };
 //NOTE
-  const handleNoteChange = (activityId, note) => {
-    setNoteUpdates((prev) => ({ ...prev, [activityId]: note }));
-  };
+const handleNoteChange = (activityId, note) => {
+  setNoteUpdates((prev) => ({ ...prev, [activityId]: note }));
+};
 
-  const saveNote = async (activityId) => {
-    try {
-      const updatedActivity = monthlyActivities.find((activity) => activity.id === activityId);
-      updatedActivity.note = noteUpdates[activityId];
+const saveNote = async (activityId) => {
+  try {
+    const updatedActivity = monthlyActivities.find((activity) => activity.id === activityId);
+    updatedActivity.note = noteUpdates[activityId] || "";  // Salva anche il valore vuoto
   
-      // Passa la nota come stringa e non come oggetto annidato
-      await updateActivityNotes(activityId, updatedActivity.note, token);
-      toast.success("Nota creata con successo!");
+    await updateActivityNotes(activityId, updatedActivity.note, token);
+    toast.success("Nota aggiornata con successo!");
+  
+    // Aggiorna lo stato locale dell'attività
+    setMonthlyActivities((prev) =>
+      prev.map((activity) =>
+        activity.id === activityId ? { ...activity, note: updatedActivity.note } : activity
+      )
+    );
+  } catch (error) {
+    console.error("Errore durante il salvataggio della nota:", error);
+    toast.error("Errore durante il salvataggio della nota.");
+  }
+};
 
-    } catch (error) {
-      console.error("Errore durante il salvataggio della nota:", error);
-      toast.error("Errore durante il salvataggio della nota");
-    }
-  };
+const deleteNote = async (activityId) => {
+  try {
+    await updateActivityNotes(activityId, null, token); // Invia null al backend
+    toast.success("Nota eliminata con successo!");
+
+    // Aggiorna lo stato locale per rimuovere la nota
+    setMonthlyActivities((prev) =>
+      prev.map((activity) => (activity.id === activityId ? { ...activity, note: null } : activity))
+    );
+    setNoteUpdates((prev) => ({ ...prev, [activityId]: "" })); // Resetta anche il campo della nota
+  } catch (error) {
+    console.error("Errore durante l'eliminazione della nota:", error);
+    toast.error("Errore durante l'eliminazione della nota.");
+  }
+};
   
   return (
 
@@ -189,7 +210,20 @@ function Dashboard() {
                       return (
                         <div key={activity.id} className={`activity ${activityClass}`}>
                           <div className="activity-content">
-                            
+                            {/* Mostra l'icona rossa di avvertimento se c'è una nota e l'attività è completata */}
+                            {activity.stato === 2 && activity.note && (
+  <span className="warning-icon" title="Nota presente nell'attività completata">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      fill="#e60000" 
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+    </svg>
+  </span>
+)}
                             <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
                             <strong>Descrizione: </strong> {activity.descrizione}
@@ -198,6 +232,8 @@ function Dashboard() {
                                 🚗
                               </span>
                             )}
+                             
+    
                           </div>
                           <div className="activity-actions">
                             {activity.stato === 1 && (
@@ -237,14 +273,24 @@ function Dashboard() {
                               </>
                             )}
                           </div>
-                          <textarea
-                              placeholder="Aggiungi una nota..."
-                              value={noteUpdates[activity.id] || activity.note || ""}
-                              onChange={(e) => handleNoteChange(activity.id, e.target.value)}
-                            />
-                            <button className="btn btn-save" onClick={() => saveNote(activity.id)}>
-                              Salva Nota
-                            </button>
+                          <div>
+    <textarea
+      placeholder="Aggiungi una nota..."
+      value={noteUpdates[activity.id] !== undefined ? noteUpdates[activity.id] : activity.note || ""}
+      onChange={(e) => handleNoteChange(activity.id, e.target.value)}
+    />
+    <div>
+      <button className="btn btn-save" onClick={() => saveNote(activity.id)}>
+        Salva Nota
+      </button>
+
+      {activity.note && (
+        <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+          Elimina Nota
+        </button>
+      )}
+    </div>
+  </div>
                         </div>
                       );
                     })

@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   deleteAttivitaCommessa,
   fetchAttivitaCommessa,
+  updateActivityNotes,
 } from "../services/api";
 
 function DashboardElettrico() {
@@ -24,9 +25,8 @@ function DashboardElettrico() {
   const [showPopup, setShowPopup] = useState(false);
   const [commesse, setCommesse] = useState([]);
 const [reparti, setReparti] = useState([]);
-
 const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
-
+const hasScrolledToToday = useRef(false);
 const [formData, setFormData] = useState({
   commessa_id: "",
   reparto_id: "",
@@ -41,7 +41,7 @@ const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
 const [loadingActivities, setLoadingActivities] = useState({});
 const todayRef = useRef(null);  
-const hasScrolledToToday = useRef(false);
+
   // Calcola i giorni del mese
   const getDaysInMonth= () => {
     const days = [];
@@ -155,6 +155,7 @@ const hasScrolledToToday = useRef(false);
   
   
 // Scorri automaticamente alla colonna di oggi 
+
 useEffect(() => {
   // Scrolla al giorno di oggi solo se non è già stato fatto
   if (!hasScrolledToToday.current && todayRef.current) {
@@ -249,6 +250,7 @@ const toLocalISOString = (date) => {
       durata:  activity.durata || "",
       stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
       descrizione: activity.descrizione_attivita || "",
+      note: activity.note || "",
     });
     setIsEditing(true);
     setEditId(activity.id);
@@ -268,6 +270,7 @@ const toLocalISOString = (date) => {
         durata: 1,
         stato: "",
         descrizione: "",
+        note: "",
       });
       setIsEditing(false);
       setShowPopup(true);
@@ -295,6 +298,23 @@ const toLocalISOString = (date) => {
     }
   };
   
+  const deleteNote = async (activityId) => {
+    try {
+      await updateActivityNotes(activityId, null, token); // Invia null al backend
+      toast.success("Nota eliminata con successo!");
+  
+      // Aggiorna lo stato locale della nota a null senza rimuovere l'attività
+      setActivities((prevActivities) =>
+        prevActivities.map((activity) =>
+          activity.id === activityId ? { ...activity, note: null } : activity
+        )
+      );
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della nota:", error);
+      toast.error("Errore durante l'eliminazione della nota.");
+    }
+  };
+  
 
   const handleAddNew = () => {
     setFormData({
@@ -306,6 +326,7 @@ const toLocalISOString = (date) => {
       durata: 1,
       stato: "",
       descrizione: "",
+      note: "",
     });
     setIsEditing(false);
     setShowPopup(true);
@@ -372,6 +393,20 @@ const toLocalISOString = (date) => {
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move" }}
         onDoubleClick={onDoubleClick}
       >
+        {activity.stato === 2 && activity.note && (
+  <span className="warning-icon" title="Nota presente nell'attività completata">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      fill="#e60000"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+    </svg>
+  </span>
+)}
+<br />
         <strong>Commessa: {activity.numero_commessa}</strong>
         <br />
         <strong>Attività: {activity.nome_attivita}</strong>
@@ -391,12 +426,7 @@ const toLocalISOString = (date) => {
   
         {/* Pulsanti per modificare lo stato */}
         <div className="activity-actions">
-        <button
-    className="btn btn-danger"
-    onClick={() => handleDelete(activity.id)} 
-  >
-    Elimina
-  </button>
+
           {activity.stato === 1 && (
             <>
               
@@ -407,6 +437,12 @@ const toLocalISOString = (date) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
+              <button
+    className="btn btn-danger"
+    onClick={() => handleDelete(activity.id)} 
+  >
+    Elimina
+  </button>
             </>
           )}
           
@@ -426,12 +462,22 @@ const toLocalISOString = (date) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-          
+              <button
+    className="btn btn-danger"
+    onClick={() => handleDelete(activity.id)} 
+  >
+    Elimina
+  </button>
 
             </>
           )}
         </div>
         <div className="note"> Note: {activity.note}</div>
+        {activity.note && (
+        <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+          Elimina Nota
+        </button>
+      )}
       </div>
     );
   }

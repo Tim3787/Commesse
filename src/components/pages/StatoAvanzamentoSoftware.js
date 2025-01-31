@@ -16,11 +16,12 @@ function StatoAvanzamentoSoftware() {
   const [cards, setCards] = useState([]);
   const [lists, setLists] = useState([]);
   const token = sessionStorage.getItem("token");
-
+  const [activities, setActivities] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
+  const [resources, setResources] = useState([]);
   const boardId = "606e8f6e25edb789343d0871";
 
- 
+ //REPARTO
 const accoppiamentoStati = {
   software: {
     "in entrata": ["S: In entrata", "S-Ribo in entrata", "S: Modifiche su macchina old"],
@@ -56,6 +57,17 @@ const accoppiamentoStati = {
       .filter((reparto) => reparto.stato !== null) || [];
   };
 
+  // Funzione per recuperare le attività dal backend
+  const fetchActivities = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/attivita_commessa`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setActivities(response.data);
+    } catch (error) {
+      console.error("Errore durante il recupero delle attività:", error);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -76,7 +88,7 @@ const accoppiamentoStati = {
         const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 1);
+        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === 1); //REPARTO
         setStatiSoftware(statiValidi);
 
         const [boardLists, boardCards] = await Promise.all([
@@ -85,7 +97,7 @@ const accoppiamentoStati = {
         ]);
         setLists(boardLists);
         setCards(boardCards);
-
+        await fetchActivities();
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -94,6 +106,21 @@ const accoppiamentoStati = {
     };
 
     fetchData();
+  }, [apiUrl, token]);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/risorse`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setResources(response.data);
+      } catch (error) {
+        console.error("Errore durante il recupero delle risorse:", error);
+      }
+    };
+  
+    fetchResources();
   }, [apiUrl, token]);
 
   const extractCommessaNumber = (trelloName) => {
@@ -136,14 +163,26 @@ const accoppiamentoStati = {
     }
   };
 
-  function DraggableCommessa({ commessa, repartoId }) {
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: "COMMESSA",
-      item: { commessaId: commessa.commessa_id, repartoId },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
+  
+  function DraggableCommessa({ commessa, repartoId, activities, resources }) {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "COMMESSA",
+    item: { commessaId: commessa.commessa_id, repartoId },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
+  
+    // Funzione per filtrare le attività che generano il warning
+    const warningActivities = activities.filter(
+      (activity) =>
+        activity.stato === 2 &&
+        activity.note &&
+        activity.commessa_id === commessa.commessa_id &&
+        activity.reparto?.toLowerCase() === "software" // REPARTO
+    );
+    
   
     const trelloCard = cards.find((card) => {
       const trelloNumero = extractCommessaNumber(card.name);
@@ -155,10 +194,10 @@ const accoppiamentoStati = {
 
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
     const statoAttivo = statiAttivi.find(
-      (s) => s.reparto_nome.toLowerCase() === "software" // Cambia in base al reparto
+      (s) => s.reparto_nome.toLowerCase() === "software" //REPARTO
     );
 
-    
+    //REPARTO
     const expectedList = statoAttivo?.stato?.nome_stato
     ? accoppiamentoStati["software"]?.[normalize(statoAttivo.stato.nome_stato)]?.includes(
         trelloListName
@@ -166,7 +205,7 @@ const accoppiamentoStati = {
       ? trelloListName
       : "Non accoppiata"
     : "Non assegnata";
-  
+  //REPARTO
   const isListDifferent = !accoppiamentoStati["software"]?.[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
   
   const normalizeDate = (dateString) => {
@@ -237,12 +276,55 @@ const accoppiamentoStati = {
         }}
       >
         <strong>{commessa.numero_commessa}</strong>
-        {!trelloCard && (
+        <div>{commessa.cliente}</div>
+       
+         {warningActivities.length > 0 && (
+        <div className="warning-section">
+          <span className="warning-icon" title="Nota presente in attività completata">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#e60000"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+            </svg>
+          </span>
+
+          {/* Dettagli delle attività con warning */}
+          <div className="warning-details">
+          {warningActivities.map((activity) => {
+  // Trova il nome della risorsa corrispondente a risorsa_id
+  const resourceName = resources.find(
+    (resource) => resource.id === activity.risorsa_id
+  )?.nome || "Nome non disponibile"; // Gestisce il caso in cui non trovi la risorsa
+
+  return (
+    <div
+      key={activity.id}
+      style={{
+        padding: "10px",
+        backgroundColor: "#ffe6e6",
+        border: "1px solid #e60000",
+        marginBottom: "10px",
+      }}
+    >
+      <strong>Attività:</strong> {activity.nome_attivita} <br />
+      <strong>Data inizio:</strong> {new Date(activity.data_inizio).toLocaleDateString()} <br />
+      <strong>Risorsa:</strong> {resourceName} <br />
+      <strong>Nota:</strong> {activity.note} <br />
+    </div>
+  );
+})}
+          </div>
+        </div>
+      )}
+       {!trelloCard && (
           <div style={{ color: "red", fontStyle: "italic" }}>
             Non esiste su Trello
           </div>
         )}
-        <div>{commessa.cliente}</div>
         <div>
           Data App: {appDate}
           {trelloCard && isDateDifferent && (
@@ -291,6 +373,8 @@ const accoppiamentoStati = {
             commessa={commessa}
             repartoId={repartoId}
             getListNameById={getListNameById}
+            activities={activities} 
+            resources={resources}
           />
         ))}
 
@@ -355,9 +439,10 @@ const accoppiamentoStati = {
                         reparto.reparto_id === 1 &&
                         reparto.stati_disponibili.some(
                           (s) => s.stato_id === stato.id && s.isActive
-                        )
+                        )//REPARTO
                     )
                   )}
+                  activities={activities}
                 />
               ))}
             </tr>
