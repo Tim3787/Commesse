@@ -3,38 +3,29 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import LoginRegister from "./components/pages/00-LoginRegister";
 
-import GestioneUtenti from "./components/pages/01-GestioneUtenti";
-import GestioneReparti from "./components/pages/01-GestioneReparti";
-import GestioneRisorse from "./components/pages/01-GestioneRisorse";
-import GestioneStati from "./components/pages/01-GestioneStati";
-import GestioneAttivita from "./components/pages/01-GestioneAttivita";
-import GestioneStatiCommessa from "./components/pages/01-GestioneStatiCommessa";
-import GestioneCommesse from "./components/pages/01-GestioneCommesse";
+import GestioneUtenti from "./components/pages/configuration/GestioneUtenti";
+import GestioneReparti from "./components/pages/configuration/GestioneReparti";
+import GestioneRisorse from "./components/pages/configuration/GestioneRisorse";
+import GestioneStati from "./components/pages/configuration/GestioneStati";
+import GestioneAttivita from "./components/pages/configuration/GestioneAttivita";
+import GestioneStatiCommessa from "./components/pages/configuration/GestioneStatiCommessa";
 
-import Navbar from "./components/Navbar";
-
-import Dashboard from "./components/pages/Dashboard";
-import VisualizzazioneCommesse from "./components/pages/VisualizzazioneCommesse";
-import VisualizzazioneAttivita from "./components/pages/VisualizzazioneAttivita";
-import CalendarioAttivita from "./components/pages/CalendarioAttivita";
-import AssegnaAttivita from "./components/pages/AssegnaAttivita";
-
-import StatiAvanzamento from "./components/pages/StatiAvanzamento";
-import StatoAvanzamentoSoftware from "./components/pages/StatoAvanzamentoSoftware";
-import StatoAvanzamentoElettrico from "./components/pages/StatoAvanzamentoElettrico";
-import StatoAvanzamentoQuadri from "./components/pages/StatoAvanzamentoQuadri";
-import CalendarioCommesse from "./components/pages/CalendarioCommesse";
-
-import DashboardSoftware from "./components/pages/DashboardSoftware";
-import DashboardElettrico from "./components/pages/DashboardElettrico";
-import DashboardQuadri from "./components/pages/DashboardQuadri";
-import DashboardService from "./components/pages/DashboardService";
-
-import ProtectedRoute from "./components/ProtectedRoute";
+import GestioneCommesse from "./components/pages/CreaCommesse";
+import Navbar from "./components/common/Navbar";
+import Dashboard from "./components/pages/Dashboard-user" ;
+import VisualizzazioneCommesse from "./components/pages/Visualizza-Commesse";
+import VisualizzazioneAttivita from "./components/pages/Gantt-Attivita";
+import CalendarioAttivita from "./components/pages/calendars/CalendarioAttivita";
+import AssegnaAttivita from "./components/pages/TutteLeAttivita";
+import StatiAvanzamento from "./components/pages/StatoAvanzamento";
+import StatoAvanzamentoReparti from "./components/pages/StatoAvanzamento-reparto";
+import CalendarioCommesse from "./components/pages/calendars/CalendarioCommesse";
+import DashboardReparto from "./components/pages/Dashboard-reparto";
+import ProtectedRoute from "./components/utils/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
-import TrelloBoardSoftware from "./components/pages/TrelloBoardSoftware";
-import TrelloBoardElettrico from "./components/pages/TrelloBoardElettrico";
-import MatchCommesse from "./components/pages/TrelloMatchCommesse";
+import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
+import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico";
+import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -116,17 +107,17 @@ function App() {
     { path: "/visualizzazione-attivita", component: <VisualizzazioneAttivita /> },
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />},
-    { path: "/DashboardSoftware", component: <DashboardSoftware />, requiredRole: 2  },
-    { path: "/DashboardElettrico", component: <DashboardElettrico />, requiredRole: 2  },
-    { path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
-    { path: "/DashboardService", component: <DashboardService/>, requiredRole: 2  },
+    { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2  },
+    //{ path: "/DashboardElettrico", component: <DashboardElettrico />, requiredRole: 2  },
+    //{ path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
+    //{ path: "/DashboardService", component: <DashboardService/>, requiredRole: 2  },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
-    { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },
+    { path: "/StatoAvanzamento/:reparto", component: <StatoAvanzamentoReparti />, requiredRole: 2 },
 
-    { path: "/StatoAvanzamentoSoftware", component: <StatoAvanzamentoSoftware />, requiredRole: 2 },
-    { path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
-    { path: "/StatoAvanzamentoQuadri", component: <StatoAvanzamentoQuadri />, requiredRole: 2 },
+    { path: "/StatoAvanzamento:", component: <StatiAvanzamento />, requiredRole: 2 },
+    //{ path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
+    //{ path: "/StatoAvanzamentoQuadri", component: <StatoAvanzamentoQuadri />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
     { path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },

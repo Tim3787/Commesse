@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import "./style.css";
-import { fetchAttivitaCommessa } from "./services/api";
+import ".././style.css";
+import { fetchAttivitaCommessa } from "../services/api";
 
 
 function CommessaDettagli({ commessa, onClose }) {

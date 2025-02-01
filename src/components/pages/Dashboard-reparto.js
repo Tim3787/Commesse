@@ -2,21 +2,32 @@ import React, { useEffect, useState, useRef } from "react"; //OGGI
 import axios from "axios";
 import "./Dashboard.css";
 import logo from "../assets/Animation - 1738249246846.gif";
-import AttivitaCrea from "../AttivitaCrea";
+import AttivitaCrea from "../popup/AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useParams } from "react-router-dom"; 
 import {
   deleteAttivitaCommessa,
   fetchAttivitaCommessa,
   updateActivityNotes,
 } from "../services/api";
 
-function DashboardElettrico() {
-  const RepartoID = 2;
-  const RepartoName = "elettrico";
+function DashboardReparto() {
+  const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
+
+  // Definisci dinamicamente i parametri per ogni reparto
+  const repartoConfig = {
+    software: { RepartoID: 1, RepartoName: "software" },
+    elettrico: { RepartoID: 2, RepartoName: "elettrico" },
+    service: { RepartoID: 18, RepartoName: "service" },
+    quadristi: { RepartoID: 15, RepartoName: "quadristi" },
+
+  };
+
+  // Ottieni la configurazione per il reparto corrente
+  const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -84,6 +95,11 @@ const todayRef = useRef(null);
   // Recupera dati iniziali
   useEffect(() => {
     const fetchData = async () => {
+      if (!RepartoID || !RepartoName) {
+        console.error("Reparto non valido.");
+        return;
+      }
+
       try {
         setLoading(true);
 
@@ -151,7 +167,7 @@ const todayRef = useRef(null);
     };
   
     fetchData();
-  }, [currentMonth, token]);
+  }, [RepartoID, RepartoName, reparto, token]);
   
   
 // Scorri automaticamente alla colonna di oggi 
@@ -613,4 +629,4 @@ const toLocalISOString = (date) => {
   );
 }
 
-export default DashboardElettrico;
+export default DashboardReparto;

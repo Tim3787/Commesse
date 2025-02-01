@@ -1,6 +1,6 @@
 import React from "react";
 import "./GestioneStatiAvanzamento.css";
-import "./style.css";
+import "../style.css";
 
 function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUpdateDate, handleRemoveDate,  formatDate, handleStatoChange, statiCommessa }) {
   // Aggiungi un controllo per verificare se la commessa è valida

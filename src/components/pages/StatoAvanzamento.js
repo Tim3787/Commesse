@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import GestioneStatiAvanzamento from "../GestioneStatiAvanzamento";
+import GestioneStatiAvanzamento from "../utils/GestioneStatiAvanzamento";
 import "../style.css";
 import logo from "../assets/Animation - 1738249246846.gif";
 

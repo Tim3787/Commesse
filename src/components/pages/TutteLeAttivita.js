@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
-import AttivitaCrea from "../AttivitaCrea";
+import AttivitaCrea from "../popup/AttivitaCrea";
 import logo from "../assets/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

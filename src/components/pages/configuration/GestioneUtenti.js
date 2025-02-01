@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
-import logo from "../assets/Animation - 1738249246846.gif";
+import "../../style.css";
+import logo from "../../assets/Animation - 1738249246846.gif"
 import { ToastContainer, toast } from "react-toastify";  // Importa toast
 import "react-toastify/dist/ReactToastify.css";  // Stile per il toast
 import {
@@ -10,7 +10,7 @@ import {
   updateUserRole,
   assignResourceToUser,
   deleteUser,
-} from "../services/api";
+} from "../../services/api";
 
 function GestioneUtenti() {
   const [utenti, setUtenti] = useState([]);

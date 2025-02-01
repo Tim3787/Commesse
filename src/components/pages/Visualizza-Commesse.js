@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
-import CommessaDettagli from "../CommessaDettagli";  
+import CommessaDettagli from "../popup/CommessaDettagli";  
 import logo from "../assets/Animation - 1738249246846.gif";
 import { fetchCommesse, fetchStatiCommessa } from "../services/api";
 

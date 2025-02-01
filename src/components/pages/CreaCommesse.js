@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
-import CommessaCrea from "../CommessaCrea"; 
+import CommessaCrea from "../popup/CommessaCrea"; 
 import logo from "../assets/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

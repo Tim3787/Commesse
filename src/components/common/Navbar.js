@@ -110,30 +110,30 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       {
         label: "Rep. Software",
         links: [
-          { to: "/StatoAvanzamentoSoftware", label: "Stato avanzamento", icon: faChartBar },
-          { to: "/DashboardSoftware", label: "Attività", icon: faTasks },
+          { to: "/StatoAvanzamento/software", label: "Stato avanzamento", icon: faChartBar },
+          { to: "/Dashboard/software", label: "Attività", icon: faTasks },
           { to: "/TrelloBoardSoftware", label: "Bacheca Trello", icon: faClipboardList },
         ],
       },
       {
         label: "Rep. Elettrico",
         links: [
-          { to: "/StatoAvanzamentoElettrico", label: "Stato avanzamento", icon: faChartBar },
-          { to: "/DashboardElettrico", label: "Attività", icon: faTasks },
+          { to: "/StatoAvanzamento/elettrico", label: "Stato avanzamento", icon: faChartBar },
+          { to: "/Dashboard/elettrico", label: "Attività", icon: faTasks },
           { to: "/TrelloBoardElettrico", label: "Bacheca Trello", icon: faClipboardList },
         ],
       },
       {
         label: "Rep. QE",
         links: [
-          { to: "/StatoAvanzamentoQuadri", label: "Stato avanzamento ", icon: faChartBar },
-          { to: "/DashboardQuadri", label: "Attività ", icon: faTasks },
+          { to: "/StatoAvanzamento/quadristi", label: "Stato avanzamento ", icon: faChartBar },
+          { to: "/Dashboard/quadristi", label: "Attività ", icon: faTasks },
         ],
       },
       {
         label: "Rep. Service",
         links: [
-          { to: "/DashboardService", label: "Attività ", icon: faTools },
+          { to: "/Dashboard/service", label: "Attività ", icon: faTools },
         ],
       },
       { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },

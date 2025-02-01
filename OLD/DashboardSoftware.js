@@ -7,7 +7,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useParams } from "react-router-dom"; 
 import {
   deleteAttivitaCommessa,
   fetchAttivitaCommessa,
@@ -15,8 +15,19 @@ import {
 } from "../services/api";
 
 function DashboardSoftware() {
-  const RepartoID = 1;
-  const RepartoName = "software";
+  const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
+
+  // Definisci dinamicamente i parametri per ogni reparto
+  const repartoConfig = {
+    software: { RepartoID: 1, RepartoName: "software" },
+    elettrico: { RepartoID: 2, RepartoName: "elettrico" },
+    meccanico: { RepartoID: 18, RepartoName: "service" },
+    quadristi: { RepartoID: 15, RepartoName: "quadristi" },
+
+  };
+
+  // Ottieni la configurazione per il reparto corrente
+  const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -84,6 +95,11 @@ const todayRef = useRef(null);
   // Recupera dati iniziali
   useEffect(() => {
     const fetchData = async () => {
+      if (!RepartoID || !RepartoName) {
+        console.error("Reparto non valido.");
+        return;
+      }
+
       try {
         setLoading(true);
 
@@ -151,7 +167,7 @@ const todayRef = useRef(null);
     };
   
     fetchData();
-  }, [currentMonth, token]);
+  }, [RepartoID, RepartoName, reparto, token]);
   
   
 // Scorri automaticamente alla colonna di oggi 
