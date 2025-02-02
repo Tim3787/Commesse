@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getBoardCards } from "../../services/api";
 import axios from "axios";
 import CommessaCrea from "../../popup/CommessaCrea";
-import logo from "../../assets/Animation - 1738249246846.gif";
+import logo from "../../img/Animation - 1738249246846.gif";
 
 
 const MatchCommesse = () => {

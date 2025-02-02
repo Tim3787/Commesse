@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchAttivitaCommessa, fetchRisorse } from "../../services/api"; 
 import "./CalendarioAttivita.css";
-import logo from "../../assets/Animation - 1738249246846.gif";
+import logo from "../../img/Animation - 1738249246846.gif";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { fetchDashboardActivities, fetchFATDates, fetchUserName, updateActivityStatusAPI, updateActivityNotes } from "../services/api";
 import "./Dashboard.css";
-import logo from "../assets/Animation - 1738249246846.gif";
+import logo from "../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./CalendarioCommesse.css";
-import logo from "../../assets/Animation - 1738249246846.gif";
+import logo from "../../img/Animation - 1738249246846.gif";
 import { fetchCommesse } from "../../services/api";
 
 function CalendarioCommesse() {

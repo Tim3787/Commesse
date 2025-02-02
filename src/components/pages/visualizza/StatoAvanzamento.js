@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import GestioneStatiAvanzamento from "../utils/GestioneStatiAvanzamento";
-import "../style.css";
-import logo from "../assets/Animation - 1738249246846.gif";
+import GestioneStatiAvanzamento from "../../assets/GestioneStatiAvanzamento";
+import "../../style.css";
+import logo from "../../img/Animation - 1738249246846.gif";
 
 function StatiAvanzamento() {
   const [commesse, setCommesse] = useState([]);

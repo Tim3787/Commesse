@@ -1,34 +1,29 @@
 import React, { useEffect, useState, useRef } from "react"; //OGGI
 import axios from "axios";
-import "./Dashboard.css";
-import logo from "../assets/Animation - 1738249246846.gif";
-import AttivitaCrea from "../popup/AttivitaCrea";
+import "../Dashboard.css";
+import logo from "../../img/Animation - 1738249246846.gif";
+import AttivitaCrea from "../../popup/AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom"; 
+import repartoConfig from "../../config/repartoConfig";
+import { getDaysInMonth } from "../../assets/date";
+
 import {
   deleteAttivitaCommessa,
   fetchAttivitaCommessa,
   updateActivityNotes,
-} from "../services/api";
+ 
+  
+} from "../../services/api";
 
 function DashboardReparto() {
   const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
 
-  // Definisci dinamicamente i parametri per ogni reparto
-  const repartoConfig = {
-    software: { RepartoID: 1, RepartoName: "software" },
-    elettrico: { RepartoID: 2, RepartoName: "elettrico" },
-    service: { RepartoID: 18, RepartoName: "service" },
-    quadristi: { RepartoID: 15, RepartoName: "quadristi" },
-
-  };
-
   // Ottieni la configurazione per il reparto corrente
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
-  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -52,46 +47,12 @@ const [isEditing, setIsEditing] = useState(false);
 const [editId, setEditId] = useState(null);
 const [loadingActivities, setLoadingActivities] = useState({});
 const todayRef = useRef(null);  
+const [currentMonth, setCurrentMonth] = useState(new Date());
+const daysInMonth = getDaysInMonth(currentMonth);
 
-  // Calcola i giorni del mese
-  const getDaysInMonth= () => {
-    const days = [];
-    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-  
-    // Trova il giorno della settimana del primo giorno del mese (0 = Domenica, 6 = Sabato)
-    const startDayOfWeek = startOfMonth.getDay();
-    const endDayOfWeek = endOfMonth.getDay();
-  
-    // Aggiungi i giorni del mese precedente fino all'inizio della settimana
-    if (startDayOfWeek !== 1) { // Se non è lunedì
-      for (let i = startDayOfWeek - 1; i >= 0; i--) {
-        const prevDate = new Date(startOfMonth);
-        prevDate.setDate(startOfMonth.getDate() - i - 1);
-        days.push(prevDate);
-      }
-    }
-  
-    // Aggiungi i giorni del mese corrente
-    for (let d = startOfMonth; d <= endOfMonth; d.setDate(d.getDate() + 1)) {
-      days.push(new Date(d));
-    }
-  
-    // Aggiungi i giorni del mese successivo fino a completare la settimana
-    if (endDayOfWeek !== 0) { // Se non è domenica
-      for (let i = 1; i <= 6 - endDayOfWeek; i++) {
-        const nextDate = new Date(endOfMonth);
-        nextDate.setDate(endOfMonth.getDate() + i);
-        days.push(nextDate);
-      }
-    }
-  
-    return days;
-  };
-  
 
-  const daysInMonth = getDaysInMonth();
-
+  // Recupera dati iniziali
+  
   // Recupera dati iniziali
   useEffect(() => {
     const fetchData = async () => {
@@ -170,6 +131,7 @@ const todayRef = useRef(null);
   }, [RepartoID, RepartoName, reparto, token]);
   
   
+  
 // Scorri automaticamente alla colonna di oggi 
 
 useEffect(() => {
@@ -206,13 +168,13 @@ useEffect(() => {
       const payload = { stato: newStatus };
   
       // Effettua la richiesta API per aggiornare lo stato
-      const response = await axios.put(
+       await axios.put(
         `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      console.log("Risposta PUT:", response.data);
+     
   
       // Aggiorna lo stato locale delle attività
       setActivities((prev) =>
@@ -267,7 +229,9 @@ const toLocalISOString = (date) => {
       stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
       descrizione: activity.descrizione_attivita || "",
       note: activity.note || "",
+      
     });
+    console.log("commessa_id",activity.commessa_id );
     setIsEditing(true);
     setEditId(activity.id);
     setShowPopup(true);
@@ -514,8 +478,7 @@ const toLocalISOString = (date) => {
   
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
-      const normalizedDate = normalizeDate(newDate); // Normalizza la data target
-  
+      const normalizedDate = normalizeDate(newDate); 
       const updatedActivity = {
         ...activity,
         risorsa_id: newResourceId,
@@ -592,7 +555,7 @@ const toLocalISOString = (date) => {
           <td>{resource.nome}</td>
           {daysInMonth.map((day) => (
             <ResourceCell
-              key={`${resource.id}-${day}`} // Chiave unica
+              key={`${resource.id}-${day}`} 
               resourceId={resource.id}
               day={day}
               activities={getActivitiesForResourceAndDay(resource.id, day)}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import LoginRegister from "./components/pages/00-LoginRegister";
+import LoginRegister from "./components/pages/LoginRegister";
 
 import GestioneUtenti from "./components/pages/configuration/GestioneUtenti";
 import GestioneReparti from "./components/pages/configuration/GestioneReparti";
@@ -13,14 +13,14 @@ import GestioneStatiCommessa from "./components/pages/configuration/GestioneStat
 import GestioneCommesse from "./components/pages/CreaCommesse";
 import Navbar from "./components/common/Navbar";
 import Dashboard from "./components/pages/Dashboard-user" ;
-import VisualizzazioneCommesse from "./components/pages/Visualizza-Commesse";
+import VisualizzazioneCommesse from "./components/pages/visualizza/Visualizza-Commesse";
 import VisualizzazioneAttivita from "./components/pages/Gantt-Attivita";
 import CalendarioAttivita from "./components/pages/calendars/CalendarioAttivita";
-import AssegnaAttivita from "./components/pages/TutteLeAttivita";
-import StatiAvanzamento from "./components/pages/StatoAvanzamento";
-import StatoAvanzamentoReparti from "./components/pages/StatoAvanzamento-reparto";
+import AssegnaAttivita from "./components/pages/visualizza/TutteLeAttivita";
+import StatiAvanzamento from "./components/pages/visualizza/StatoAvanzamento";
+import StatoAvanzamentoReparti from "./components/pages/reparto/StatoAvanzamento-reparto";
 import CalendarioCommesse from "./components/pages/calendars/CalendarioCommesse";
-import DashboardReparto from "./components/pages/Dashboard-reparto";
+import DashboardReparto from "./components/pages/reparto/Dashboard-reparto";
 import ProtectedRoute from "./components/utils/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";

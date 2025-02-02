@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../style.css";
-import AttivitaCrea from "../popup/AttivitaCrea";
-import logo from "../assets/Animation - 1738249246846.gif";
+import "../../style.css";
+import AttivitaCrea from "../../popup/AttivitaCrea";
+import logo from "../../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { usePersistedFilters } from "./usePersistedFilters";
+import { usePersistedFilters } from "../../assets/usePersistedFilters";
 import {
   fetchCommesse,
   fetchRisorse,
@@ -12,7 +12,7 @@ import {
   fetchAttivita,
   fetchAttivitaCommessa,
   deleteAttivitaCommessa,
-} from "../services/api";
+} from "../../services/api";
 
 function AssegnaAttivita() {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);

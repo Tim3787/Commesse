@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchAttivitaCommessa,fetchCommesse } from "../services/api"; // Funzione per ottenere le attività filtrate per commessa
 import "./VisualizzaAttivita.css";
-import logo from "../assets/Animation - 1738249246846.gif";
+import logo from "../img/Animation - 1738249246846.gif";
 
 function VisualizzaAttivita() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
