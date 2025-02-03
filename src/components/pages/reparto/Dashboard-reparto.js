@@ -13,6 +13,7 @@ import { getDaysInMonth } from "../../assets/date";
 import {updateActivityNotes} from "../../services/API/notifiche-api";
 import {deleteAttivitaCommessa,fetchAttivitaCommessa} from "../../services/API/attivitaCommesse-api";
 
+
 function DashboardReparto() {
   const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
 
@@ -20,12 +21,14 @@ function DashboardReparto() {
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
+  const [serviceResources, setServiceResources] = useState([]); 
   const [loading, setLoading] = useState(false);
   const token = sessionStorage.getItem("token");
   const [showPopup, setShowPopup] = useState(false);
   const [commesse, setCommesse] = useState([]);
 const [reparti, setReparti] = useState([]);
 const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
+const [selectedServiceResource, setSelectedServiceResource] = useState(null);
 const hasScrolledToToday = useRef(false);
 const [formData, setFormData] = useState({
   commessa_id: "",
@@ -45,7 +48,7 @@ const [currentMonth, setCurrentMonth] = useState(new Date());
 const daysInMonth = getDaysInMonth(currentMonth);
 
 
-  // Recupera dati iniziali
+
   
   // Recupera dati iniziali
   useEffect(() => {
@@ -54,38 +57,18 @@ const daysInMonth = getDaysInMonth(currentMonth);
         console.error("Reparto non valido.");
         return;
       }
-
+  
       try {
         setLoading(true);
-
   
-        // Recupera tutte le attività
-        const activitiesResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/attivita_commessa`,
-          {
+        // Recupera dati dal backend
+        const [activitiesResponse, resourcesResponse, commesseResponse, repartiResponse, attivitaDefiniteResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-  
-        const filteredActivities = activitiesResponse.data.filter(
-          (activity) => activity.reparto?.toLowerCase() === RepartoName
-        );
-
-        setActivities(filteredActivities);
-  
-        // Recupera tutte le risorse
-        const resourcesResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const filteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === RepartoID
-        );
-
-        setResources(filteredResources);
-  
-        // Recupera commesse, reparti e attività definite
-        const [commesseResponse, repartiResponse, attivitaDefiniteResponse] = await Promise.all([
+          }),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
           axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -97,23 +80,44 @@ const daysInMonth = getDaysInMonth(currentMonth);
           }),
         ]);
   
+        // Imposta i dati corretti
+        setActivities(activitiesResponse.data);
         setCommesse(commesseResponse.data);
         setReparti(repartiResponse.data);
   
-        // Trasforma le attività definite includendo il reparto_id
-        const attivitaWithReparto = attivitaDefiniteResponse.data.map((attivita) => ({
+        // Imposta le attività del reparto con attivita_definite
+        const attivitaConReparto = attivitaDefiniteResponse.data.map((attivita) => ({
           id: attivita.id,
           nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
           reparto_id: attivita.reparto_id,
         }));
+        setAttivitaConReparto(attivitaConReparto);
   
-
-  
-        // Filtra solo le attività relative al reparto
-        const softwareActivities = attivitaWithReparto.filter(
-          (attivita) => attivita.reparto_id === RepartoID
+        // Risorse del reparto corrente
+        const filteredResources = resourcesResponse.data.filter(
+          (resource) => Number(resource.reparto_id) === RepartoID
         );
-        setAttivitaConReparto(softwareActivities);
+        setResources(filteredResources);
+  
+        // Risorse del reparto service
+        const serviceFilteredResources = resourcesResponse.data.filter(
+          (resource) => Number(resource.reparto_id) === repartoConfig.service.RepartoID
+        );
+        setServiceResources(serviceFilteredResources);
+  
+        
+      // Imposta la risorsa di default solo se il reparto NON è "service"
+      if (reparto !== "service") {
+        const defaultServiceId = repartoConfig[reparto]?.defaultServiceResourceId || null;
+        setSelectedServiceResource(
+          defaultServiceId && serviceFilteredResources.some((res) => res.id === defaultServiceId)
+            ? defaultServiceId
+            : serviceFilteredResources[0]?.id || null
+        );
+      } else {
+        setSelectedServiceResource(null); // Nascondi se il reparto è "service"
+      }
+  
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
@@ -123,6 +127,24 @@ const daysInMonth = getDaysInMonth(currentMonth);
   
     fetchData();
   }, [RepartoID, RepartoName, reparto, token]);
+  
+  
+  
+
+
+
+  // Funzione per cambiare risorsa selezionata
+  const handleServiceResourceChange = (e) => {
+    const value = e.target.value;
+    setSelectedServiceResource(value ? Number(value) : null);
+  };
+  
+  // Funzione per ottenere le attività della risorsa selezionata
+   //const getServiceActivities = () => {
+    // if (!selectedServiceResource) return [];
+    // return activities.filter((activity) => activity.risorsa_id === selectedServiceResource);
+  // };
+  
   
   
   
@@ -215,7 +237,7 @@ const toLocalISOString = (date) => {
   
     setFormData({
       commessa_id: activity.commessa_id || "",
-      reparto_id: RepartoID, 
+      reparto_id: reparti.find((reparto) => reparto.nome === activity.reparto)?.id || "",
       risorsa_id: activity.risorsa_id || "",
       attivita_id: activity.attivita_id || "",
       data_inizio: dataInizio,
@@ -225,7 +247,6 @@ const toLocalISOString = (date) => {
       note: activity.note || "",
       
     });
-    console.log("commessa_id",activity.commessa_id );
     setIsEditing(true);
     setEditId(activity.id);
     setShowPopup(true);
@@ -398,6 +419,14 @@ const toLocalISOString = (date) => {
           : "Completata"}</strong>
         <br />
   
+  {/** Mostra la descrizione solo se il reparto è "service" **/}
+  {activity.reparto?.toLowerCase() === "service" && (
+    <>
+      <br />
+      <strong>Descrizione: {activity.descrizione_attivita  || ""}</strong>
+      <br />
+    </>
+  )}
         {/* Pulsanti per modificare lo stato */}
         <div className="activity-actions">
 
@@ -523,47 +552,98 @@ const toLocalISOString = (date) => {
           </button>
         </div>
         <DndProvider backend={HTML5Backend}>
-        <div className="Gen-table-container">
-  <table className="software-schedule">
-    <thead>
-      <tr>
-        <th>Risorsa</th>
-        {daysInMonth.map((day) => {
-          const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
-          const isToday = day.toDateString() === new Date().toDateString(); 
-          return (
+  <div className="Gen-table-container">
+    <h2>Bacheca Attività</h2>
+
+    {/* Dropdown per selezionare una risorsa "Service" specifica */}
+    {serviceResources.length > 0 && reparto !== "service" && (
+      <div>
+      <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
+      <select
+        id="serviceResourceSelect"
+        value={selectedServiceResource || ""}
+        onChange={handleServiceResourceChange}
+      >
+        <option value="">Nessuna risorsa selezionata</option>
+        {serviceResources.map((resource) => (
+          <option key={resource.id} value={resource.id}>
+            {resource.nome}
+          </option>
+        ))}
+      </select>
+    </div>
+    )}
+
+    <table className="software-schedule">
+      <thead>
+        <tr>
+          <th>Risorsa</th>
+          {daysInMonth.map((day) => (
             <th
               key={day.toISOString()}
-              className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-              ref={isToday ? todayRef : null}
+              className={day.toDateString() === new Date().toDateString() ? "today" : ""}
             >
               {day.toLocaleDateString()}
             </th>
-          );
-        })}
-      </tr>
-    </thead>
-    <tbody>
-      {resources.map((resource) => (
-        <tr key={resource.id}>
-          <td>{resource.nome}</td>
-          {daysInMonth.map((day) => (
-            <ResourceCell
-              key={`${resource.id}-${day}`} 
-              resourceId={resource.id}
-              day={day}
-              activities={getActivitiesForResourceAndDay(resource.id, day)}
-              onActivityDrop={handleActivityDrop}
-              onActivityClick={handleActivityClick}
-            />
           ))}
         </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        {/** Mostra le risorse del reparto corrente */}
+        {resources.map((resource) => (
+          <tr key={resource.id}>
+            <td>{resource.nome}</td>
+            {daysInMonth.map((day) => (
+              <ResourceCell
+                key={`${resource.id}-${day}`}
+                resourceId={resource.id}
+                day={day}
+                activities={getActivitiesForResourceAndDay(resource.id, day)}
+                onActivityDrop={handleActivityDrop}
+                onActivityClick={handleActivityClick}
+              />
+            ))}
+          </tr>
+        ))}
 
-        </DndProvider>
+        {/** Mostra solo la risorsa selezionata dal Service */}
+        {selectedServiceResource && (
+          <>
+            <tr>
+              <td colSpan={daysInMonth.length + 1} className="service-header">
+                <strong>
+                  Service:
+                </strong>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                {
+                  serviceResources.find((res) => res.id === selectedServiceResource)
+                    ?.nome || "Risorsa non trovata"
+                }
+              </td>
+              {daysInMonth.map((day) => (
+                <ResourceCell
+                  key={`${selectedServiceResource}-${day}`}
+                  resourceId={selectedServiceResource}
+                  day={day}
+                  activities={getActivitiesForResourceAndDay(selectedServiceResource, day)}
+                  onActivityDrop={handleActivityDrop}
+                  onActivityClick={handleActivityClick}
+                />
+              ))}
+            </tr>
+          </>
+        )}
+      </tbody>
+    </table>
+  </div>
+</DndProvider>
+
+
+
+
         {showPopup && (
   <AttivitaCrea
   formData={formData}

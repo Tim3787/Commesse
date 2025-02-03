@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/notifiche-api";
 import {fetchFATDates}  from "../services/API/commesse-api";
 import { fetchDashboardActivities} from "../services/API/dashboard-api";
+import { fetchUserName} from "../services/API/utenti-api";
 
 import "./Dashboard.css";
 import logo from "../img/Animation - 1738249246846.gif";

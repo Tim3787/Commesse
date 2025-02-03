@@ -21,6 +21,7 @@ import StatiAvanzamento from "./components/pages/visualizza/StatoAvanzamento";
 import StatoAvanzamentoReparti from "./components/pages/reparto/StatoAvanzamento-reparto";
 import CalendarioCommesse from "./components/pages/calendars/CalendarioCommesse";
 import DashboardReparto from "./components/pages/reparto/Dashboard-reparto";
+import DashboardTEST from "./components/pages/reparto/Dashboard-TEST";
 import ProtectedRoute from "./components/utils/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
@@ -108,16 +109,13 @@ function App() {
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />},
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2  },
-    //{ path: "/DashboardElettrico", component: <DashboardElettrico />, requiredRole: 2  },
-    //{ path: "/DashboardQuadri", component: <DashboardQuadri />, requiredRole: 2  },
-    //{ path: "/DashboardService", component: <DashboardService/>, requiredRole: 2  },
+    { path: "/DashboardTEST/:reparto", component: <DashboardTEST />, requiredRole: 2  },
+
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/StatoAvanzamento/:reparto", component: <StatoAvanzamentoReparti />, requiredRole: 2 },
 
     { path: "/StatoAvanzamento:", component: <StatiAvanzamento />, requiredRole: 2 },
-    //{ path: "/StatoAvanzamentoElettrico", component: <StatoAvanzamentoElettrico />, requiredRole: 2 },
-    //{ path: "/StatoAvanzamentoQuadri", component: <StatoAvanzamentoQuadri />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
     { path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },
