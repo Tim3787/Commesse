@@ -1,11 +1,4 @@
 
-import axios from "axios";
-// Configurazione base di Axios
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-  timeout: 10000, // Timeout di 10 secondi
-});
-
 
 
 // Funzione per ottenere le schede di una board
@@ -13,6 +6,7 @@ export const getBoardCards = async (boardId) => {
   try {
     const response = await axios.get(
       `https://api.trello.com/1/boards/${boardId}/cards`,
+
       {
         params: {
           key: process.env.REACT_APP_TRELLO_API_KEY,
