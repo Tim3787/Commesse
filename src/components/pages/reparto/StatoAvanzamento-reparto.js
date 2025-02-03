@@ -3,7 +3,7 @@ import axios from "axios";
 import "../Dashboard.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getBoardCards, getBoardLists } from "../../services/api";
+import { getBoardCards, getBoardLists } from "../../services/API/trello-api";
 import WarningDetails from "../../assets/WarningDetails";
 import UnfinishedActivities from "../../assets/UnfinishedActivities";
 import { useParams } from "react-router-dom"; 

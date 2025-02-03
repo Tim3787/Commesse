@@ -3,14 +3,8 @@ import "../../style.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";  // Importa toast
 import "react-toastify/dist/ReactToastify.css";  // Stile per il toast
-import {
-  fetchUsers,
-  fetchRoles,
-  fetchRisorse,
-  updateUserRole,
-  assignResourceToUser,
-  deleteUser,
-} from "../../services/api";
+import { deleteUser,assignResourceToUser,updateUserRole,fetchRoles,fetchUsers} from "../../services/API/utenti-api";
+import { fetchRisorse,} from "../../services/API/risorse-api";
 
 function GestioneUtenti() {
   const [utenti, setUtenti] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getBoardCards, getBoardLists, moveCardToList } from "../../services/api";
+import { getBoardCards, getBoardLists, moveCardToList } from "../../services/API/trello-api";
 import axios from "axios";
 
 const TrelloBoardSoftware = () => {

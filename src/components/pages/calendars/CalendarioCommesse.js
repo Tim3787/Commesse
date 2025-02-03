@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./CalendarioCommesse.css";
 import logo from "../../img/Animation - 1738249246846.gif";
-import { fetchCommesse } from "../../services/api";
+import { fetchCommesse } from "../../services/API/commesse-api";
 
 function CalendarioCommesse() {
   const [currentMonth, setCurrentMonth] = useState(new Date());

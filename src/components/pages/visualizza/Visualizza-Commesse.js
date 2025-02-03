@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../../style.css";
 import CommessaDettagli from "../../popup/CommessaDettagli";  
 import logo from "../../img/Animation - 1738249246846.gif";
-import { fetchCommesse, fetchStatiCommessa } from "../../services/api";
+import {  fetchStatiCommessa } from "../../services/API/statoCommessa-api";
+import { fetchCommesse} from "../../services/API/commesse-api"
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]); 
@@ -10,7 +11,7 @@ function VisualizzazioneCommesse() {
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState(""); 
-  const [sortOrder, setSortOrder] = useState("numero_commessa"); 
+  const [sortOrder, setSortOrder] = useState("data"); 
   const [sortDirection, setSortDirection] = useState("asc"); 
   const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
@@ -95,7 +96,7 @@ function VisualizzazioneCommesse() {
         return sortDirection === "asc"
           ? a.numero_commessa - b.numero_commessa
           : b.numero_commessa - a.numero_commessa;
-      } else if (sortOrder === "desc") {
+      } else if (sortOrder === "data") {
         if (dateSortDirection === "crescente") {
           return new Date(a.data_consegna) - new Date(b.data_consegna);
         } else {
@@ -313,7 +314,7 @@ const getStatoNome = (id) => {
       <div className="filter-group">
         <select onChange={handleSortChange} value={sortOrder}>
           <option value="numero_commessa">Ordina per: Numero Commessa</option>
-          <option value="desc">Ordina per: Data Consegna</option>
+          <option value="data">Ordina per: Data Consegna</option>
         </select>
       </div>
       <div className="filter-group">

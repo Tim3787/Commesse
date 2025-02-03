@@ -10,14 +10,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom"; 
 import repartoConfig from "../../config/repartoConfig";
 import { getDaysInMonth } from "../../assets/date";
-
-import {
-  deleteAttivitaCommessa,
-  fetchAttivitaCommessa,
-  updateActivityNotes,
- 
-  
-} from "../../services/api";
+import {updateActivityNotes} from "../../services/API/notifiche-api";
+import {deleteAttivitaCommessa,fetchAttivitaCommessa} from "../../services/API/attivitaCommesse-api";
 
 function DashboardReparto() {
   const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL

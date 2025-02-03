@@ -3,7 +3,8 @@ import "../../style.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchAttivita, fetchReparti, deleteAttivita, createAttivita, updateAttivita } from "../../services/api";
+import { fetchAttivita, deleteAttivita, createAttivita, updateAttivita } from "../../services/API/attivita-api";
+import { fetchReparti} from "../../services/API/reparti-api";
 
 function GestioneAttivita() {
   const [attivita, setAttivita] = useState([]);

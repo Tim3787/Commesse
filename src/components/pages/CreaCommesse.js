@@ -4,14 +4,10 @@ import CommessaCrea from "../popup/CommessaCrea";
 import logo from "../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import {
-  fetchCommesse,
-  fetchReparti,
-  fetchAttivita,
-  fetchStatiCommessa,
-  deleteCommessa,
-} from "../services/api";
+import { fetchCommesse, deleteCommessa } from "../services/API/commesse-api";
+import {fetchReparti} from "../services/API/reparti-api";
+import {fetchAttivita} from "../services/API/attivita-api";
+import {fetchStatiCommessa} from "../services/API/statoCommessa-api";
 
 function GestioneCommesse() {
   const [commesse, setCommesse] = useState([]);

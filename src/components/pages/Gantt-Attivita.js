@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fetchAttivitaCommessa,fetchCommesse } from "../services/api"; // Funzione per ottenere le attività filtrate per commessa
+import { fetchCommesse } from "../services/API/commesse-api"; 
+import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api" ;
 import "./VisualizzaAttivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
