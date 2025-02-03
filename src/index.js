@@ -68,4 +68,18 @@ root.render(
   </React.StrictMode>
 );
 
+
+fetch('http://il-tuo-backend.com/salva-token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ token: currentToken }),
+})
+  .then(response => response.json())
+  .then(data => console.log("Token salvato con successo:", data))
+  .catch(err => console.error("Errore nel salvataggio del token:", err));
+
+
+  
 reportWebVitals();
