@@ -20,12 +20,17 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('Messaggio ricevuto in background:', payload);
 
-  // Mostra la notifica usando il Service Worker API
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: '/logo192.png'  // Assicurati che il file esista
-  };
+  // Mostra la notifica solo se contiene il titolo e il corpo
+  if (payload.notification) {
+    const notificationTitle = payload.notification.title || "Nuova notifica";
+    const notificationOptions = {
+      body: payload.notification.body || "Hai un nuovo messaggio.",
+      icon: '/logo192.png'
+    };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  } else {
+    console.warn("Nessuna notifica da mostrare.");
+  }
 });
+

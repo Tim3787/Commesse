@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import LoginRegister from "./components/pages/LoginRegister";
@@ -27,6 +29,7 @@ import { jwtDecode } from "jwt-decode";
 import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
+import { getDeviceToken } from "./firebase";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -100,7 +103,32 @@ function App() {
         setUserRole(null);
       }
     }, []);
-
+    useEffect(() => {
+      const registerDeviceToken = async () => {
+        const token = await getDeviceToken(); // Ottieni il token del dispositivo
+        const userToken = sessionStorage.getItem("token"); // Assumi che il token JWT sia salvato qui
+  
+        if (token && userToken) {
+          try {
+            // Invia il token dispositivo al backend
+            await axios.post(
+              `${process.env.REACT_APP_API_URL}/users/device-token`,
+              { token },  // Corpo della richiesta
+              {
+                headers: {
+                  Authorization: `Bearer ${userToken}`,
+                },
+              }
+            );
+            console.log("Token dispositivo registrato con successo.");
+          } catch (error) {
+            console.error("Errore durante la registrazione del token dispositivo:", error);
+          }
+        }
+      };
+  
+      registerDeviceToken();
+    }, []); // Esegui solo una volta all'inizio
 
   const routes = [
     { path: "/dashboard", component: <Dashboard /> },

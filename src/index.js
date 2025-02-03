@@ -2,9 +2,24 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./components/utils/reportWebVitals";
-import { messaging } from "./firebase";  // Assicurati di aver messo il percorso corretto
+import { messaging } from "./firebase";  // Assicurati che il percorso sia corretto
 import { getToken, onMessage } from "firebase/messaging";
 
+const vapidKey = 'BEy_oianKnmIWUnHe-pmubXs0hXyeMeMdlFJeZ-KqMHSv6rfu1QizeAveFZSKgeuOFY6igPUXftwOeFgxPVchvs';
+
+// Funzione per ottenere il token del dispositivo
+getToken(messaging, { vapidKey })
+  .then((currentToken) => {
+    if (currentToken) {
+      console.log("Token dispositivo:", currentToken);
+      // Puoi inviare il token al backend per associarlo all'utente loggato.
+    } else {
+      console.error("Nessun token disponibile. Richiedi il permesso per le notifiche.");
+    }
+  })
+  .catch((err) => {
+    console.error("Errore durante l'ottenimento del token:", err);
+  });
 
 // Funzione per richiedere il permesso per le notifiche push
 const requestNotificationPermission = async () => {
@@ -12,9 +27,7 @@ const requestNotificationPermission = async () => {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       console.log("Notifiche autorizzate.");
-      const token = await getToken(messaging, {
-        vapidKey: "BEy_oianKnmIWUnHe-pmubXs0hXyeMeMdlFJeZ-KqMHSv6rfu1QizeAveFZSKgeuOFY6igPUXftwOeFgxPVchvs",
-      });
+      const token = await getToken(messaging, { vapidKey });
       if (token) {
         console.log("Token dispositivo:", token);
       } else {
@@ -41,7 +54,7 @@ if ("serviceWorker" in navigator) {
 
 // Ascolta i messaggi in arrivo
 onMessage(messaging, (payload) => {
-  console.log("Messaggio ricevuto:", payload);
+  console.log("Messaggio ricevuto in foreground:", payload);
   alert(`Nuova notifica: ${payload.notification.title}`);
 });
 
