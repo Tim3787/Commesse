@@ -112,7 +112,7 @@ function App() {
           try {
             // Invia il token dispositivo al backend
             await axios.post(
-              `${process.env.REACT_APP_API_URL}/users/device-token`,
+              `${process.env.REACT_APP_API_URL}/api/users/device-token`,
               { token },  // Corpo della richiesta
               {
                 headers: {
