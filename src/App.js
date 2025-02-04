@@ -97,28 +97,31 @@ function App() {
       setUserRole(null);
     }
   }, []);
-  // Gestione login
-  const handleLogin = async (token, role) => {
-    sessionStorage.setItem("token", token);
-    sessionStorage.setItem("role", role);
-    setIsAuthenticated(true);
-    setUserRole(parseInt(role, 10));
-  
-    // Registra il device token dopo il login
-    await registerDeviceToken();
-  };
-  
-  
-  apiClient.post("/users/login", { username: "user", password: "pass" })
-  .then(response => console.log(response))
-  .catch(error => console.error("Errore:", error));
+  /// Gestione login
+const handleLogin = async (token, role) => {
+  sessionStorage.setItem("token", token);
+  sessionStorage.setItem("role", role);
+  setIsAuthenticated(true);
+  setUserRole(parseInt(role, 10));
 
+  // Registra il device token dopo il login
+  await registerDeviceToken();
+};
 
-  // Gestione logout
-  const handleLogout = async () => {
+// Login con `apiClient`
+apiClient.post("/users/login", { username: "user", password: "pass" })
+  .then(response => {
+    console.log("Login riuscito:", response);
+    // Chiama handleLogin per aggiornare lo stato
+    handleLogin(response.data.token, response.data.role_id);
+  })
+  .catch(error => console.error("Errore durante il login:", error));
+
+// Gestione logout
+const handleLogout = async () => {
   try {
-    await api.post("/users/logout", {}, {
-      withCredentials: true,  // Questo assicura l'invio dei cookie
+    await apiClient.post("/users/logout", {}, {
+      withCredentials: true,  // Assicura l'invio dei cookie
     });
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
