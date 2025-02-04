@@ -4,6 +4,9 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
 });
 
+api.defaults.withCredentials = true;
+
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

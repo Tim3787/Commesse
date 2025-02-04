@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import apiClient from "../src/components/config/axiosConfig";
+
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
@@ -106,24 +108,27 @@ function App() {
     await registerDeviceToken();
   };
   
+  
+  apiClient.post("/users/login", { username: "user", password: "pass" })
+  .then(response => console.log(response))
+  .catch(error => console.error("Errore:", error));
+
 
   // Gestione logout
   const handleLogout = async () => {
-    try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/users/logout`, {}, {
-        withCredentials: true,
-      });
-      
-
-    } catch (error) {
-      console.error("Errore durante il logout:", error);
-    }
-  
+  try {
+    await api.post("/users/logout", {}, {
+      withCredentials: true,  // Questo assicura l'invio dei cookie
+    });
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
     setIsAuthenticated(false);
     setUserRole(null);
-  };
+  } catch (error) {
+    console.error("Errore durante il logout:", error);
+  }
+};
+
 
 
   useEffect(() => {
