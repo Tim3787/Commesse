@@ -110,7 +110,10 @@ function App() {
   // Gestione logout
   const handleLogout = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/logout`);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/users/logout`, {}, {
+        withCredentials: true,
+      });
+      
 
     } catch (error) {
       console.error("Errore durante il logout:", error);
