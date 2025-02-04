@@ -43,6 +43,40 @@ function App() {
       return false; // Il token non è valido
     }
   };
+
+  const registerDeviceToken = async () => {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      console.error("Permesso per le notifiche negato.");
+      return;
+    }
+  
+    const token = await getDeviceToken(); // Ottieni il token del dispositivo
+    if (!token) {
+      console.error("Impossibile ottenere il device token.");
+      return;
+    }
+  
+    const userToken = sessionStorage.getItem("token");
+    if (userToken) {
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/users/device-token`,
+          { token },
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+        console.log("Token dispositivo registrato con successo.");
+      } catch (error) {
+        console.error("Errore durante la registrazione del token dispositivo:", error);
+      }
+    }
+  };
+
+  
   // Carica token e ruolo da sessionStorage all'avvio dell'app
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -57,11 +91,14 @@ function App() {
     }
   }, []);
   // Gestione login
-  const handleLogin = (token, role) => {
+  const handleLogin = async (token, role) => {
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("role", role);
     setIsAuthenticated(true);
     setUserRole(parseInt(role, 10));
+    
+    // Registra il device token dopo il login
+    await registerDeviceToken();
   };
 
   // Gestione logout
@@ -73,20 +110,17 @@ function App() {
   };
   
   useEffect(() => {
-    let logoutTimer;
-  
-    if (isAuthenticated) {
-      const token = sessionStorage.getItem("token");
-      const decoded = jwtDecode(token);
-      const timeToExpiration = decoded.exp * 1000 - Date.now(); // Tempo rimanente in millisecondi
-  
-      logoutTimer = setTimeout(() => {
-        handleLogout();
-        alert("Sessione scaduta. Effettua nuovamente il login.");
-      }, timeToExpiration);
-    }
-  
-    return () => clearTimeout(logoutTimer); // Cancella il timer al logout o smontaggio
+    //let logoutTimer;
+   // if (isAuthenticated) {
+    //  const token = sessionStorage.getItem("token");
+     // const decoded = jwtDecode(token);
+    //  const timeToExpiration = decoded.exp * 1000 - Date.now(); // Tempo rimanente in millisecondi
+    //  logoutTimer = setTimeout(() => {
+    //    handleLogout();
+     //   alert("Sessione scaduta. Effettua nuovamente il login.");
+     // }, timeToExpiration);
+   // }
+   // return () => clearTimeout(logoutTimer); // Cancella il timer al logout o smontaggio
   }, [isAuthenticated]);
   
   useEffect(() => {
@@ -103,32 +137,8 @@ function App() {
         setUserRole(null);
       }
     }, []);
-    useEffect(() => {
-      const registerDeviceToken = async () => {
-        const token = await getDeviceToken(); // Ottieni il token del dispositivo
-        const userToken = sessionStorage.getItem("token"); // Assumi che il token JWT sia salvato qui
-  
-        if (token && userToken) {
-          try {
-            // Invia il token dispositivo al backend
-            await axios.post(
-              `${process.env.REACT_APP_API_URL}/api/users/device-token`,
-              { token },  // Corpo della richiesta
-              {
-                headers: {
-                  Authorization: `Bearer ${userToken}`,
-                },
-              }
-            );
-            console.log("Token dispositivo registrato con successo.");
-          } catch (error) {
-            console.error("Errore durante la registrazione del token dispositivo:", error);
-          }
-        }
-      };
-  
-      registerDeviceToken();
-    }, []); // Esegui solo una volta all'inizio
+
+
 
   const routes = [
     { path: "/dashboard", component: <Dashboard /> },

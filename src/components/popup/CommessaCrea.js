@@ -190,7 +190,7 @@ function CommessaCrea({
   return (
     <div className="popup">
       <div className="popup-content">
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
         <h2>{isEditing ? "Modifica Commessa" : "Crea Commessa"}</h2>
         <form onSubmit={handleSubmit}>
           <div>
