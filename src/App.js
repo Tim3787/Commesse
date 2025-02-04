@@ -23,13 +23,16 @@ import StatiAvanzamento from "./components/pages/visualizza/StatoAvanzamento";
 import StatoAvanzamentoReparti from "./components/pages/reparto/StatoAvanzamento-reparto";
 import CalendarioCommesse from "./components/pages/calendars/CalendarioCommesse";
 import DashboardReparto from "./components/pages/reparto/Dashboard-reparto";
-import DashboardTEST from "./components/pages/reparto/Dashboard-TEST";
+import PrenotazioneSale from "./components/pages/PrenotazioneSale";
+
 import ProtectedRoute from "./components/utils/ProtectedRoute";
-import { jwtDecode } from "jwt-decode";
+
 import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
+
 import { getDeviceToken } from "./firebase";
+import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -66,6 +69,7 @@ function App() {
           {
             headers: {
               Authorization: `Bearer ${userToken}`,
+
             },
           }
         );
@@ -96,32 +100,55 @@ function App() {
     sessionStorage.setItem("role", role);
     setIsAuthenticated(true);
     setUserRole(parseInt(role, 10));
-    
+  
     // Registra il device token dopo il login
     await registerDeviceToken();
   };
+  
 
   // Gestione logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/logout`);
+
+    } catch (error) {
+      console.error("Errore durante il logout:", error);
+    }
+  
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
     setIsAuthenticated(false);
     setUserRole(null);
   };
-  
+
+
   useEffect(() => {
-    //let logoutTimer;
-   // if (isAuthenticated) {
-    //  const token = sessionStorage.getItem("token");
-     // const decoded = jwtDecode(token);
-    //  const timeToExpiration = decoded.exp * 1000 - Date.now(); // Tempo rimanente in millisecondi
-    //  logoutTimer = setTimeout(() => {
-    //    handleLogout();
-     //   alert("Sessione scaduta. Effettua nuovamente il login.");
-     // }, timeToExpiration);
-   // }
-   // return () => clearTimeout(logoutTimer); // Cancella il timer al logout o smontaggio
-  }, [isAuthenticated]);
+    const refreshToken = async () => {
+      const token = sessionStorage.getItem("token");
+  
+      if (!token) return;
+  
+      try {
+        const decoded = jwtDecode(token);
+        const timeToExpiration = decoded.exp * 1000 - Date.now();
+  
+        if (timeToExpiration < 5 * 60 * 1000) {
+          // Effettua una richiesta per ottenere un nuovo access token
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/refresh-token`);
+          sessionStorage.setItem("token", response.data.accessToken);
+        }
+      } catch (err) {
+        console.error("Errore durante il rinnovo del token:", err);
+        handleLogout();
+      }
+    };
+  
+    const interval = setInterval(refreshToken, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  
+
   
   useEffect(() => {
       const token = sessionStorage.getItem("token");
@@ -146,8 +173,8 @@ function App() {
     { path: "/visualizzazione-attivita", component: <VisualizzazioneAttivita /> },
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse />},
+    { path: "/PrenotazioneSale", component: <PrenotazioneSale />},
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2  },
-    { path: "/DashboardTEST/:reparto", component: <DashboardTEST />, requiredRole: 2  },
 
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },

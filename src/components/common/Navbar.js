@@ -16,6 +16,10 @@ import {
   faListCheck,
   faChartBar,
   faBuilding,
+  faBusinessTime,
+  faGear,
+  faBars,
+  faScrewdriverWrench,
 } from "@fortawesome/free-solid-svg-icons";
 
 
@@ -105,6 +109,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       { to: "/calendario-attivita", label: "Calendario attività", icon: faCalendarAlt },
       { to: "/CalendarioCommesse", label: "Calendario commesse", icon: faCalendarAlt },
       { to: "/visualizzazione-attivita", label: "Attività commessa", icon: faTasks },
+      { to: "/PrenotazioneSale", label: "Prenotazione sale", icon: faBusinessTime },
     ],
     manager: [
       {
@@ -196,25 +201,19 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
           onClick={() => toggleMenu("user")}
         >
-          ☰ Menu
-
+          
+          <FontAwesomeIcon icon={faBars} className="settings-icon" />
         </button>
         {userRole <= 2 && (
           <button
             className={`menu-toggle ${activeMenu === "manager" ? "active" : ""}`}
             onClick={() => toggleMenu("manager")}
           >
-            ☰ Manager
+          
+            <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
         )}
-        {userRole === 1 && (
-          <button
-            className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
-            onClick={() => toggleMenu("admin")}
-          >
-            ☰ Admin
-          </button>
-        )}
+        
                   {/* Icona notifiche */}
                   <div
             className="notification-icon"
@@ -226,6 +225,16 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         <button className="logout-button" onClick={handleLogout}>
           Logout
         </button>
+        {userRole === 1 && (
+          <button
+            className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+            onClick={() => toggleMenu("admin")}
+            
+          >
+            <FontAwesomeIcon icon={faGear} className="settings-icon" />
+          
+          </button>
+        )}
       </header>
 
       {/* Dropdown Menus */}
