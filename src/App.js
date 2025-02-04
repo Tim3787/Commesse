@@ -41,6 +41,7 @@ function App() {
     try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000; // Tempo corrente in secondi
+      
       return decoded.exp > currentTime; // Controlla se il token è ancora valido
     } catch (error) {
       return false; // Il token non è valido
