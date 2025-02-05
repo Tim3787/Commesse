@@ -50,16 +50,17 @@ export const deleteStatoAvanzamento = async (id) => {
   }
 };
 
-// Funzione per aggiornare l'ordine di uno stato
-export const updateStatoOrdine = async (id, nuovoOrdine, repartoId) => {
+
+// Funzione per aggiornare l'ordine di tutti gli stati per un reparto
+export const ordinaStatiAvanzamento = async (id, repartoId, stati) => {
   try {
-    const response = await apiClient.put(`/api/stati-avanzamento/${id}/ordine`, {
-      nuovoOrdine,
-      repartoId,
+    const response = await apiClient.put(`/api/stati-avanzamento/${id}/reparti/${repartoId}/ordina-stati`, {
+      stati,  // Stato atteso: un array di oggetti, ad esempio [{ stato_id: 4, ordine: 1 }, ...]
     });
     return response.data;
   } catch (error) {
-    console.error('Errore durante l\'aggiornamento dell\'ordine:', error);
+    console.error("Errore durante l'ordinamento degli stati:", error);
     throw error;
   }
 };
+

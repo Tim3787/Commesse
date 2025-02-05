@@ -171,17 +171,17 @@
 .notification-icon {
   position: relative;
   cursor: pointer;
-  font-size: 25px;
-  margin-right: 20px;
-  margin-left: 20px;
+  font-size: 20px;
+  margin-right: 15px;
+  margin-left: 15px;
 }
 
 .settings-icon {
   position: relative;
   cursor: pointer;
-  font-size: 25px;
-  margin-left: 20px;
-  margin-right: 20px;
+  font-size: 20px;
+  margin-right: 15px;
+  margin-left: 15px;
 }
 .notification-badge {
   position: absolute;

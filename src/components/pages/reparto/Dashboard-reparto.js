@@ -173,11 +173,11 @@ useEffect(() => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
   const normalizeDate = (date) => {
-    const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte in UTC
-    return normalized;
-  };
+  const localDate = new Date(date);
+  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+};
 
+  
   const updateActivityStatus = async (activityId, newStatus) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
@@ -200,7 +200,7 @@ useEffect(() => {
       );
     } catch (error) {
       console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
-      alert("Si è verificato un errore durante l'aggiornamento dello stato.");
+      toast.error("Si è verificato un errore durante l'aggiornamento dello stato.");
     } finally {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
@@ -219,7 +219,7 @@ const toLocalISOString = (date) => {
       const startDate = normalizeDate(activity.data_inizio);
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + activity.durata - 1);
-  
+
       const matches =
         Number(activity.risorsa_id) === Number(resourceId) &&
         normalizedDay >= startDate &&
@@ -288,7 +288,7 @@ const toLocalISOString = (date) => {
 
       } catch (error) {
         console.error("Errore durante l'eliminazione dell'attività:", error);
-        alert("Si è verificato un errore durante l'eliminazione dell'attività.");
+        toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
       }
     }
   };

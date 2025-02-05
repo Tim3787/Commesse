@@ -3,6 +3,8 @@ import axios from "axios";
 import GestioneStatiAvanzamento from "../../assets/GestioneStatiAvanzamento";
 import "../../style.css";
 import logo from "../../img/Animation - 1738249246846.gif";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function StatiAvanzamento() {
   const [commesse, setCommesse] = useState([]);
@@ -32,6 +34,7 @@ function StatiAvanzamento() {
         }
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
+           toast.error("Errore durante il recupero delle commesse:", error);
       }
     };
     fetchData();
@@ -41,6 +44,7 @@ function StatiAvanzamento() {
         setStatiCommessa(response.data);
       } catch (error) {
         console.error("Errore durante il recupero degli stati della commessa:", error);
+        toast.error("Errore durante il recupero degli stati della commessa:", error);
       }finally {
         setLoading(false);
       }
@@ -337,6 +341,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       )}
            <div className="header">
       <h1>Stati avanzamento</h1>
+       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
       <button onClick={toggleFilters} className="btn btn-filter">
           {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}

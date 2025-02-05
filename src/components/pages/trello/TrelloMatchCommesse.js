@@ -3,7 +3,8 @@ import { getBoardCards } from "../../services/API/trello-api";
 import axios from "axios";
 import CommessaCrea from "../../popup/CommessaCrea";
 import logo from "../../img/Animation - 1738249246846.gif";
-
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 const MatchCommesse = () => {
   const [cards, setCards] = useState([]);
@@ -43,6 +44,7 @@ const MatchCommesse = () => {
         setStati(statoResponse.data); // Imposta gli stati
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+         toast.error("Errore durante il recupero dei dati:", error);
       } finally {
         setLoading(false);
       }
@@ -113,6 +115,7 @@ const MatchCommesse = () => {
       )}
       <div className="header">
         <h1>Commesse esistenti solo su Trello</h1>
+         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         <div style={{ marginBottom: "20px" }}>
           <label htmlFor="filterCommessa" style={{ marginRight: "10px" }}>
             Filtra per commessa:

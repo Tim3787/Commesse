@@ -3,12 +3,13 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists, moveCardToList } from "../../services/API/trello-api";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 const TrelloBoardSoftware = () => {
   const [lists, setLists] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); // Stato per il filtro della commessa
 
@@ -27,7 +28,7 @@ const TrelloBoardSoftware = () => {
         setCards(boardCards);
       } catch (err) {
         console.error("Errore durante il recupero dei dati della board:", err.message);
-        setError("Errore durante il recupero dei dati.");
+           toast.error("Errore durante il recupero dei dati della board:", err.message);
       } finally {
         setLoading(false);
       }
@@ -46,6 +47,7 @@ const TrelloBoardSoftware = () => {
       await moveCardToList(card.id, targetListId);
     } catch (error) {
       console.error("Errore durante lo spostamento della scheda:", error);
+      toast.error("Errore durante lo spostamento della scheda:", error);
     }
   };
 
@@ -71,7 +73,7 @@ const TrelloBoardSoftware = () => {
       setEditingCard(null);
     } catch (error) {
       console.error("Errore durante l'aggiornamento della scheda:", error);
-      alert("Non è stato possibile aggiornare la scheda. Riprova più tardi.");
+      toast.error("Errore durante l'aggiornamento della scheda:", error);
     }
   };
 
@@ -104,6 +106,7 @@ const TrelloBoardSoftware = () => {
       )}
       <div className="header">
       <h1>Trello software</h1>
+       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
       <div className="filter-group">
       <input

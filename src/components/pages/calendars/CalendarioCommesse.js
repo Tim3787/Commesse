@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./CalendarioCommesse.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { fetchCommesse } from "../../services/API/commesse-api";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function CalendarioCommesse() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -72,6 +74,7 @@ function CalendarioCommesse() {
         setCommesse(data);
       } catch (error) {
         console.error("Errore durante il recupero delle commesse:", error);
+            toast.error("Errore durante il recupero delle commesse:", error);
       } finally {
         setLoading(false);
       }
@@ -164,6 +167,7 @@ function CalendarioCommesse() {
     <div>
       <div className="container-Scroll">
         <h1>Calendario Commesse</h1>
+         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

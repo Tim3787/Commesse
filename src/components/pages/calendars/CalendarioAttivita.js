@@ -5,10 +5,12 @@ import "./CalendarioAttivita.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
-
-
+import { getDaysInMonth } from "../../assets/date";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function CalendarioAttivita() {
+  
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState([]);
   const [resources, setResources] = useState([]);
@@ -24,45 +26,9 @@ function CalendarioAttivita() {
     18: false, // Reparto Service
   });
   const todayRef = useRef(null); // OGGI
+const daysInMonth = getDaysInMonth(currentMonth);
+  
 
-  
-  // Calcola i giorni del mese
-  const getDaysInMonth= () => {
-    const days = [];
-    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-  
-    // Trova il giorno della settimana del primo giorno del mese (0 = Domenica, 6 = Sabato)
-    const startDayOfWeek = startOfMonth.getDay();
-    const endDayOfWeek = endOfMonth.getDay();
-  
-    // Aggiungi i giorni del mese precedente fino all'inizio della settimana
-    if (startDayOfWeek !== 1) { // Se non è lunedì
-      for (let i = startDayOfWeek - 1; i >= 0; i--) {
-        const prevDate = new Date(startOfMonth);
-        prevDate.setDate(startOfMonth.getDate() - i - 1);
-        days.push(prevDate);
-      }
-    }
-  
-    // Aggiungi i giorni del mese corrente
-    for (let d = startOfMonth; d <= endOfMonth; d.setDate(d.getDate() + 1)) {
-      days.push(new Date(d));
-    }
-  
-    // Aggiungi i giorni del mese successivo fino a completare la settimana
-    if (endDayOfWeek !== 0) { // Se non è domenica
-      for (let i = 1; i <= 6 - endDayOfWeek; i++) {
-        const nextDate = new Date(endOfMonth);
-        nextDate.setDate(endOfMonth.getDate() + i);
-        days.push(nextDate);
-      }
-    }
-  
-    return days;
-  };
-  
-  const daysInMonth = getDaysInMonth();
 
   // Recupera dati iniziali
   useEffect(() => {
@@ -80,6 +46,7 @@ function CalendarioAttivita() {
         setResources(resourcesData);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
+         toast.error("Errore durante il recupero dei dati:", error);
       } finally {
         setLoading(false);
       }
@@ -117,27 +84,42 @@ function CalendarioAttivita() {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  const normalizeDate = (date) => {
-    const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0);
-    return normalized;
-  };
-
   const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const normalizedDay = normalizeDate(day);
-
+    const dayYear = day.getFullYear();
+    const dayMonth = day.getMonth();
+    const dayDate = day.getDate(); // Giorno del mese
+  
     return activities.filter((activity) => {
-      const startDate = normalizeDate(activity.data_inizio);
+      if (!activity.data_inizio) {
+
+        return false;
+      }
+  
+      // Parse della data di inizio attività e forziamo -1 giorno
+      const startDate = new Date(activity.data_inizio);
+      startDate.setDate(startDate.getDate() - 1); // Forza indietro di un giorno
+  
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + activity.durata - 1);
+  
+      // Confronto con anno, mese e giorno per evitare errori di fuso orario
+      const isDayWithinRange =
+        dayYear >= startDate.getFullYear() &&
+        dayMonth >= startDate.getMonth() &&
+        dayDate >= startDate.getDate() &&
+        (dayYear <= endDate.getFullYear() &&
+          dayMonth <= endDate.getMonth() &&
+          dayDate <= endDate.getDate());
 
+  
       return (
-        Number(activity.risorsa_id) === Number(resourceId) &&
-        normalizedDay >= startDate &&
-        normalizedDay <= endDate
+        Number(activity.risorsa_id) === Number(resourceId) && isDayWithinRange
       );
     });
   };
+  
+  
+  
 
   const toggleSectionVisibility = (repartoId) => {
     setVisibleSections((prev) => ({
@@ -208,7 +190,9 @@ function CalendarioAttivita() {
               <tr key={resource.id}>
                 <td>{resource.nome}</td>
                 {daysInMonth.map((day, index) => {
+                  
                   const activities = getActivitiesForResourceAndDay(resource.id, day);
+
                   return (
                     <ResourceCell
                       key={`${resource.id}-${index}`}
@@ -264,6 +248,7 @@ function CalendarioAttivita() {
     <div>
       <div className="container-Scroll">
         <h1>Calendario attività</h1>
+         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

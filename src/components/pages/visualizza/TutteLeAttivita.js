@@ -11,6 +11,7 @@ import {fetchRisorse} from "../../services/API/risorse-api";
 import {fetchAttivitaCommessa,deleteAttivitaCommessa} from "../../services/API/attivitaCommesse-api"
 import {fetchCommesse} from"../../services/API/commesse-api"
 
+
 function AssegnaAttivita() {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
   const [attivitaDefinite, setAttivitaDefinite] = useState([]);

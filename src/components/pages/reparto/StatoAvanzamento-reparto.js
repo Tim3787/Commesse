@@ -7,10 +7,15 @@ import { getBoardCards, getBoardLists } from "../../services/API/trello-api";
 import WarningDetails from "../../assets/WarningDetails";
 import UnfinishedActivities from "../../assets/UnfinishedActivities";
 import { useParams } from "react-router-dom"; 
-function StatoAvanzamentoReparti() {
-  const { reparto } = useParams();  // Leggi il parametro dinamico dall'URL
+import DraggableColumn from "../../assets/DraggableColumn"; // Assicurati del percorso corretto
+import { ordinaStatiAvanzamento } from "../../services/API/StatiAvanzamento-api";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
-  // Mappatura per ottenere i dati dinamici in base al reparto
+function StatoAvanzamentoReparti() {
+  const { reparto } = useParams();  // Legge il parametro dinamico dall'URL
+
+  // Configurazione per i reparti
   const repartoConfig = {
     software: {
       RepartoID: 1,
@@ -34,20 +39,19 @@ function StatoAvanzamentoReparti() {
       RepartoName: "elettrico",
       boardId: "606efd4d2898f5705163448f",
       accoppiamentoStati: {
-        "in entrata": ["E: In entrata","E: In entrata","E: Schema destinato a Luca","E: Schema destinato a Alan",
-      "E: Schema destinato a Alessio","E: Schema destinato a Simone"],
-    "analisi": ["E: Analisi documentazione"],
-    "sviluppo": ["E: Sviluppo"],
-    "controllo": ["E: Controllo schema prima del lancio", "E: Schema ok per BM", "E: Materiale impegnato da gestionale da ufficio acquisti", "E: Priorità commesse da prelevare"  ],
-    "bm in preparazione": ["E: Materiale BM in preparazione"],
-    "bm pronto": ["Materiale BM Completo"],
-    "completate": ["E: Completate","E: Documentazione da aggiornare","E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
-    "materiale elettrico in preparazione"	: ["	E: in lavorazione ordine materiale BM e QE","E: Materiale BM Ordinato",
-      "E: Materiale BM in preparazione","E: Materiale da sollecitare","E: Materiale già sollecitato","E: Materiale BM quasi completo","E: Materiale BM Completo" ],
-      "macchina in cablaggio"	 	: ["E: Montaggio bordo macchina"],
-     "macchina in pre-collaudo"	 	: ["E: Montaggio bordo macchina"],
-     "macchina in smontaggio"	 	: ["E: Completate","E: Documentazione da aggiornare", "E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
-
+        "in entrata": ["E: In entrata", "E: In entrata", "E: Schema destinato a Luca", "E: Schema destinato a Alan",
+        "E: Schema destinato a Alessio", "E: Schema destinato a Simone"],
+        "analisi": ["E: Analisi documentazione"],
+        "sviluppo": ["E: Sviluppo"],
+        "controllo": ["E: Controllo schema prima del lancio", "E: Schema ok per BM", "E: Materiale impegnato da gestionale da ufficio acquisti", "E: Priorità commesse da prelevare"],
+        "bm in preparazione": ["E: Materiale BM in preparazione"],
+        "bm pronto": ["Materiale BM Completo"],
+        "completate": ["E: Completate", "E: Documentazione da aggiornare", "E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
+        "materiale elettrico in preparazione": ["E: in lavorazione ordine materiale BM e QE", "E: Materiale BM Ordinato",
+        "E: Materiale BM in preparazione", "E: Materiale da sollecitare", "E: Materiale già sollecitato", "E: Materiale BM quasi completo", "E: Materiale BM Completo"],
+        "macchina in cablaggio": ["E: Montaggio bordo macchina"],
+        "macchina in pre-collaudo": ["E: Montaggio bordo macchina"],
+        "macchina in smontaggio": ["E: Completate", "E: Documentazione da aggiornare", "E: Documentazione aggiornata, ok a mauro per invio schema definitivo"],
       },
     },
     quadristi: {
@@ -55,12 +59,12 @@ function StatoAvanzamentoReparti() {
       RepartoName: "quadristi",
       boardId: "606efd4d2898f5705163448f",
       accoppiamentoStati: {
-       "analisi": ["E: Analisi documentazione"],
+        "analisi": ["E: Analisi documentazione"],
       },
     },
   };
 
-  const repartoData = repartoConfig[reparto] || {}; // Seleziona i dati in base al reparto
+  const repartoData = repartoConfig[reparto] || {};
   const { RepartoID, RepartoName, boardId, accoppiamentoStati } = repartoData;
   const [commesse, setCommesse] = useState([]);
   const [stati, setStati] = useState([]);
@@ -74,7 +78,7 @@ function StatoAvanzamentoReparti() {
   const [activities, setActivities] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const [resources, setResources] = useState([]);
-
+  const [columnOrder, setColumnOrder] = useState([]);
   const normalize = (str) => str?.trim().toLowerCase();
 
   const getListNameById = (listId) => {
@@ -105,10 +109,10 @@ function StatoAvanzamentoReparti() {
       console.error("Errore durante il recupero delle attività:", error);
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!RepartoID) return; // Se il reparto non è valido, interrompi
-
+      if (!RepartoID) return;
       setLoading(true);
       try {
         const response = await axios.get(`${apiUrl}/api/commesse`, {
@@ -117,16 +121,17 @@ function StatoAvanzamentoReparti() {
 
         const parsedCommesse = response.data.map((commessa) => ({
           ...commessa,
-          stati_avanzamento: typeof commessa.stati_avanzamento === "string"
-            ? JSON.parse(commessa.stati_avanzamento)
-            : commessa.stati_avanzamento,
+          stati_avanzamento:
+            typeof commessa.stati_avanzamento === "string"
+              ? JSON.parse(commessa.stati_avanzamento)
+              : commessa.stati_avanzamento,
         }));
         setCommesse(parsedCommesse);
 
         const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === RepartoID); //REPARTO
+        const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === RepartoID);
         setStati(statiValidi);
 
         const [boardLists, boardCards] = await Promise.all([
@@ -157,7 +162,7 @@ function StatoAvanzamentoReparti() {
         console.error("Errore durante il recupero delle risorse:", error);
       }
     };
-  
+
     fetchResources();
   }, [apiUrl, token]);
 
@@ -201,18 +206,76 @@ function StatoAvanzamentoReparti() {
     }
   };
 
-  
-  function DraggableCommessa({ commessa, repartoId, activities, resources }) {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "COMMESSA",
-    item: { commessaId: commessa.commessa_id, repartoId },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
+  // Imposta l'ordine iniziale delle colonne in base allo stato 'stati'
+  useEffect(() => {
+    if (stati.length > 0) {
+      const ordered = stati
+        .slice()
+        .sort((a, b) => a.ordine - b.ordine);
+      setColumnOrder(ordered);
+    }
+  }, [stati]);
 
-  
-    // Funzione per filtrare le attività che generano il warning
+  // Funzione per spostare una colonna da una posizione all'altra
+  const moveColumn = (fromIndex, toIndex) => {
+    setColumnOrder((prevOrder) => {
+      const updatedOrder = [...prevOrder];
+      const [removed] = updatedOrder.splice(fromIndex, 1);
+      updatedOrder.splice(toIndex, 0, removed);
+      return updatedOrder;
+    });
+  };
+
+ // Funzione per salvare il nuovo ordine sul backend
+const saveNewOrder = async () => {
+  try {
+    // Costruisci l'array degli stati con il nuovo ordine.
+    // Anche se il backend imposta l'ordine in base alla posizione, è utile
+    // inviare comunque l'ID di ogni stato.
+    const statiDaAggiornare = columnOrder.map((stato, index) => ({
+      stato_id: stato.id,      // Il backend usa questo per identificare il record
+      ordine: index + 1,         // Anche se la query imposta ordine = index+1,
+                                // qui lo includi per chiarezza (oppure puoi omettere questo campo se non serve)
+    }));
+
+    // Supponiamo di usare un id "dummy" per la rotta o magari un valore preso da un'altra variabile.
+    // In questo esempio, id può essere ad esempio "1" o un valore specifico.
+    const idDaUsare = 1; // Modifica questo valore in base alla tua logica
+
+    // Usa la funzione appena creata per aggiornare tutti gli stati in una sola chiamata
+    await ordinaStatiAvanzamento(idDaUsare, RepartoID, statiDaAggiornare);
+
+    // Aggiorna localmente l'ordine (opzionale)
+    setColumnOrder(prevOrder =>
+      prevOrder.map((stato, index) => ({ ...stato, ordine: index + 1 }))
+    );
+
+    toast.success("Ordine aggiornato con successo!");
+  } catch (error) {
+    console.error("Errore durante il salvataggio del nuovo ordine:", error);
+    toast.error("Errore durante l'aggiornamento dell'ordine.");
+  }
+};
+
+  // Filtra le commesse in base ai filtri
+  const filteredCommesse = commesse.filter((commessa) => {
+    const matchesNumeroCommessa = commessa.numero_commessa.toString().includes(numeroCommessaFilter);
+    const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
+    const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
+    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina;
+  });
+
+  // Componente DraggableCommessa (già definito nel tuo codice)
+  function DraggableCommessa({ commessa, repartoId, activities, resources }) {
+    const [{ isDragging }, drag] = useDrag(() => ({
+      type: "COMMESSA",
+      item: { commessaId: commessa.commessa_id, repartoId },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+    }));
+
+    // Warning e attività non completate
     const warningActivities = activities.filter(
       (activity) =>
         activity.stato === 2 &&
@@ -220,10 +283,10 @@ function StatoAvanzamentoReparti() {
         activity.commessa_id === commessa.commessa_id &&
         activity.reparto?.toLowerCase() === RepartoName
     );
-    // Attività non completate
+
     const unfinishedActivities = activities.filter(
       (activity) =>
-        activity.stato == 1 && // Stato non completato
+        activity.stato == 1 &&
         activity.commessa_id === commessa.commessa_id &&
         activity.reparto?.toLowerCase() === RepartoName
     );
@@ -232,140 +295,108 @@ function StatoAvanzamentoReparti() {
       const trelloNumero = extractCommessaNumber(card.name);
       return commessa.numero_commessa === trelloNumero;
     });
-  
-  
-    const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : "N/A";
 
+    const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : "N/A";
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
     const statoAttivo = statiAttivi.find((s) => s.reparto_nome.toLowerCase() === RepartoName);
 
+    const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
 
-  
-const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
+    const normalizeDate = (dateString) => {
+      if (!dateString) return null;
+      const date = new Date(dateString);
+      return date.toISOString().split("T")[0];
+    };
 
-  
-  const normalizeDate = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString); // Interpreta la data come UTC o locale (dipende dal formato)
-    return date.toISOString().split("T")[0]; // Ritorna solo la parte YYYY-MM-DD
-  };
-  
-  
-  const trelloDate = trelloCard?.due ? normalizeDate(trelloCard.due) : null;
-  const appDate = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
-  const isDateDifferent = trelloDate !== appDate;
-  
-  
-  const handleAlignDate = async (commessaId, trelloDate) => {
-    try {
-      const normalizedTrelloDate = normalizeDate(trelloDate);
-  
-      if (!normalizedTrelloDate) {
-        alert("La data fornita da Trello non è valida.");
-        return;
-      }
-  
-      // Trova la commessa corrente
-      const commessa = commesse.find((c) => c.commessa_id === commessaId);
-      if (!commessa) {
-        console.error("Commessa non trovata");
-        alert("Commessa non trovata.");
-        return;
-      }
-  
-      // Aggiorna la data in backend
-      await axios.put(
-        `${apiUrl}/api/commesse/${commessaId}`,
-        {
-          numero_commessa: commessa.numero_commessa,
-          tipo_macchina: commessa.tipo_macchina,
-          data_consegna: normalizedTrelloDate, // Usa la data normalizzata
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+    const trelloDate = trelloCard?.due ? normalizeDate(trelloCard.due) : null;
+    const appDate = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
+    const isDateDifferent = trelloDate !== appDate;
+
+    const handleAlignDate = async (commessaId, trelloDate) => {
+      try {
+        const normalizedTrelloDate = normalizeDate(trelloDate);
+        if (!normalizedTrelloDate) {
+          toast.error("La data fornita da Trello non è valida.");
+          return;
         }
-      );
-  
-      // Aggiorna localmente la data
-      setCommesse((prevCommesse) =>
-        prevCommesse.map((c) =>
-          c.commessa_id === commessaId ? { ...c, data_consegna: normalizedTrelloDate } : c
-        )
-      );
-  
-      alert("Data allineata con successo.");
-    } catch (error) {
-      console.error("Errore durante l'allineamento della data:", error);
-      alert("Errore durante l'allineamento della data.");
-    }
-  };
-  
-    
-  return (
-    <div
-      ref={drag}
-      className="commessa"
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
-        border: isListDifferent ? "2px solid red" : "2px solid black",
-      }}
-    >
-      <strong>{commessa.numero_commessa}</strong>
-      <div>{commessa.cliente}</div>
-  
-      {/* Mostra warning attività completate */}
-      {warningActivities.length > 0 && (
-        <WarningDetails warningActivities={warningActivities} resources={resources} />
-      )}
-  
-      {/* Mostra warning attività non completate */}
-      {unfinishedActivities.length > 0 && (
-        <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} />
-      )}
-  
-      {!trelloCard && (
-        <div style={{ color: "red", fontStyle: "italic" }}>
-          Non esiste su Trello
+        const commessa = commesse.find((c) => c.commessa_id === commessaId);
+        if (!commessa) {
+          console.error("Commessa non trovata");
+          toast.error("Commessa non trovata.");
+          return;
+        }
+        await axios.put(
+          `${apiUrl}/api/commesse/${commessaId}`,
+          {
+            numero_commessa: commessa.numero_commessa,
+            tipo_macchina: commessa.tipo_macchina,
+            data_consegna: normalizedTrelloDate,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setCommesse((prevCommesse) =>
+          prevCommesse.map((c) =>
+            c.commessa_id === commessaId ? { ...c, data_consegna: normalizedTrelloDate } : c
+          )
+        );
+        toast.error("Data allineata con successo.");
+      } catch (error) {
+        console.error("Errore durante l'allineamento della data:", error);
+        toast.error("Errore durante l'allineamento della data.");
+      }
+    };
+
+    return (
+      <div
+        ref={drag}
+        className="commessa"
+        style={{
+          opacity: isDragging ? 0.5 : 1,
+          backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
+          border: isListDifferent ? "2px solid red" : "2px solid black",
+        }}
+      >
+        <strong>{commessa.numero_commessa}</strong>
+        <div>{commessa.cliente}</div>
+
+        {warningActivities.length > 0 && (
+          <WarningDetails warningActivities={warningActivities} resources={resources} />
+        )}
+
+        {unfinishedActivities.length > 0 && (
+          <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} />
+        )}
+
+        {!trelloCard && (
+          <div style={{ color: "red", fontStyle: "italic" }}>
+            Non esiste su Trello
+          </div>
+        )}
+
+        <div>
+          {trelloCard && isDateDifferent && (
+            <div style={{ color: "red" }}>
+              Data App: {appDate}<br />
+              Data Trello: {trelloDate}<br />
+              <button onClick={() => handleAlignDate(commessa.commessa_id, trelloCard.due)}>
+                Allinea Data
+              </button>
+            </div>
+          )}
         </div>
-      )}
-  
-      <div>
-        
-        {trelloCard && isDateDifferent && (
-          
+
+        {trelloCard && isListDifferent && (
           <div style={{ color: "red" }}>
-            Data App: {appDate}<br />
-            Data Trello: {trelloDate}<br />
-            <button
-              onClick={() =>
-                handleAlignDate(commessa.commessa_id, trelloCard.due)
-              }
-            >
-              Allinea Data
-            </button>
+            <div>Lista Trello: {trelloListName}</div>
           </div>
         )}
       </div>
-  
-      {trelloCard && (
-        <>
-          
-          {isListDifferent && (
-            <div style={{ color: "red" }}>
-             <div>Lista Trello: {trelloListName}</div>
-             
-            
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-  
+    );
   }
-  
 
+  // Componente DropZone per il drag & drop sulle colonne
   function DropZone({ stato, commesse, repartoId }) {
     const [{ isOver }, drop] = useDrop(() => ({
       accept: "COMMESSA",
@@ -376,35 +407,24 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
     }));
 
     return (
-      
       <td ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
-
         {commesse.map((commessa) => (
           <DraggableCommessa
             key={commessa.commessa_id}
             commessa={commessa}
             repartoId={repartoId}
-            getListNameById={getListNameById}
-            activities={activities} 
+            activities={activities}
             resources={resources}
           />
         ))}
-
       </td>
-       
     );
   }
-
-  const filteredCommesse = commesse.filter((commessa) => {
-    const matchesNumeroCommessa = commessa.numero_commessa.toString().includes(numeroCommessaFilter);
-    const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
-    const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
-    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina;
-  });
 
   return (
     <div className="container-Scroll">
       <h1>Stato Avanzamento {RepartoName}</h1>
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       {loading && <div className="loading-overlay">Caricamento...</div>}
 
       <div className="filters">
@@ -427,42 +447,51 @@ const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_s
           onChange={(e) => setTipoMacchinaFilter(e.target.value)}
         />
       </div>
-
+      <button onClick={saveNewOrder}>Salva ordine colonne </button>
       <DndProvider backend={HTML5Backend}>
-      <div className="Gen-table-container">
-        <table className="software2-schedule">
-          <thead>
-            <tr>
-              {stati.sort((a, b) => a.ordine - b.ordine).map((stato) => (
-                <th key={stato.id}>{stato.nome_stato}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-            {stati.sort((a, b) => a.ordine - b.ordine).map((stato) => (
-  <DropZone
-    key={stato.id}
-    stato={stato}
-    repartoId={RepartoID}
-    commesse={filteredCommesse.filter((commessa) =>
-      commessa.stati_avanzamento.some(
-        (reparto) =>
-          reparto.reparto_id === RepartoID &&
-          reparto.stati_disponibili.some(
-            (s) => s.stato_id === stato.id && s.isActive
-          )
-      )
-    )}
-    activities={activities}
-    resources={resources}
-  />
-))}
-            </tr>
-          </tbody>
-        </table>
+        <div className="Gen-table-container">
+          <table className="software2-schedule">
+            <thead>
+              <tr>
+                {columnOrder.map((stato, index) => (
+                  <DraggableColumn
+                    key={stato.id}
+                    id={stato.id}
+                    index={index}
+                    moveColumn={moveColumn}
+                  >
+                    {stato.nome_stato}
+                  </DraggableColumn>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {columnOrder.map((stato) => (
+                  <td key={stato.id}>
+                    <DropZone
+                      stato={stato}
+                      repartoId={RepartoID}
+                      commesse={filteredCommesse.filter((commessa) =>
+                        commessa.stati_avanzamento.some(
+                          (reparto) =>
+                            reparto.reparto_id === RepartoID &&
+                            reparto.stati_disponibili.some(
+                              (s) => s.stato_id === stato.id && s.isActive
+                            )
+                        )
+                      )}
+                      activities={activities}
+                      resources={resources}
+                    />
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
       </DndProvider>
+     
     </div>
   );
 }

@@ -27,6 +27,7 @@ import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico
 import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
 import { getDeviceToken } from "./firebase";
 import { jwtDecode } from "jwt-decode";
+import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
@@ -97,16 +98,22 @@ function App() {
 
 
 // Funzione per gestire il login (chiamata API)
-const handleLoginRequest = async (username, password, token, role_id) => {
- 
-
+const handleLoginRequest = async (username, password) => {
   try {
-    handleLogin(token, role_id);  // ✅ Gestione corretta del token e del ruolo
+    const response = await apiClient.post("/api/users/login", {
+      username,
+      password,
+    });
+
+    console.log("Risposta dal server:", response.data);
+
+    handleLogin(response.data.token, response.data.role_id);  // ✅ Gestione corretta del token e del ruolo
   } catch (error) {
     console.error("Errore durante il login:", error);
-    alert("Errore durante il login. Controlla le credenziali.");
+    toast.error("Errore durante il login. Controlla le credenziali.");
   }
 };
+
 
 
 
@@ -149,23 +156,24 @@ useEffect(() => {
 
       if (timeToExpiration < 5 * 60 * 1000) {
         const response = await apiClient.post("/api/users/refresh-token");
-        if (response.data.accessToken) {
+        
+        if (response.data?.accessToken) {
           sessionStorage.setItem("token", response.data.accessToken);
-
         } else {
           console.error("Errore durante il rinnovo del token.");
-          handleLogout();
+          handleLogout();  // Logout in caso di token mancante o errore
         }
       }
     } catch (err) {
       console.error("Errore durante il rinnovo del token:", err);
-      handleLogout();
+      handleLogout();  // Logout se il token è scaduto o non valido
     }
   };
 
-  const interval = setInterval(refreshToken, 5 * 60 * 1000);
+  const interval = setInterval(refreshToken, 5 * 60 * 1000);  // Ogni 5 minuti
   return () => clearInterval(interval);
 }, []);
+
 
   
 

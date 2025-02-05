@@ -3,6 +3,8 @@ import { fetchCommesse } from "../services/API/commesse-api";
 import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api" ;
 import "./VisualizzaAttivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function VisualizzaAttivita() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -138,11 +140,11 @@ const daysInMonth = getDaysInMonth();
   };
 
   const normalizeDate = (date) => {
-    if (!date) return null; // Gestione di date mancanti
     const normalized = new Date(date);
-    normalized.setHours(0, 0, 0, 0); // Normalizza l'orario
+    normalized.setHours(0, 0, 0, 0); // Assicura che l'ora sia a mezzanotte
     return normalized;
   };
+  
   
 
 

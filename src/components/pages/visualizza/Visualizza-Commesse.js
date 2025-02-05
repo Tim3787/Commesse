@@ -4,6 +4,8 @@ import CommessaDettagli from "../../popup/CommessaDettagli";
 import logo from "../../img/Animation - 1738249246846.gif";
 import {  fetchStatiCommessa } from "../../services/API/statoCommessa-api";
 import { fetchCommesse} from "../../services/API/commesse-api"
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]); 
@@ -42,6 +44,7 @@ function VisualizzazioneCommesse() {
       setStatiCommessa(statiCommessaData);
     } catch (error) {
       console.error("Errore durante il caricamento dei dati:", error);
+      toast.error("Errore durante il caricamento dei dati:", error);
     } finally {
       setLoading(false);
     }
@@ -223,6 +226,7 @@ const getStatoNome = (id) => {
       )}
       <div className="header">
       <h1>Commesse</h1>
+       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
       <button onClick={toggleFilters} className="btn btn-filter">
           {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
