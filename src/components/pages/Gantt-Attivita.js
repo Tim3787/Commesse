@@ -28,6 +28,7 @@ function VisualizzaAttivita() {
         setSuggestions(await fetchCommesse());
       } catch (error) {
         console.error("Errore nel recupero dei suggerimenti:", error);
+        toast.error("Errore nel recupero dei suggerimenti:", error);
       }
     };
     fetchSuggestions();
@@ -186,6 +187,7 @@ const daysInMonth = getDaysInMonth();
       <thead>
         <tr>
           <th>Reparto</th>
+           <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
           {daysInMonth.map((day, index) => {
             const isToday = day.toDateString() === new Date().toDateString();
             const dayClass = isToday ? "Gen-today-date" : "";
