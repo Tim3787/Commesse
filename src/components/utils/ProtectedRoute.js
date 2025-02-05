@@ -4,14 +4,15 @@ import { jwtDecode } from "jwt-decode";
 
 const isTokenValid = (token) => {
   try {
-    const decoded = jwtDecode(token); // Decodifica il token
-    const currentTime = Date.now() / 1000; // Tempo corrente in secondi
-    return decoded.exp > currentTime; // Verifica che il token non sia scaduto
+    const decoded = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    return decoded.exp > currentTime;
   } catch (error) {
-    console.error("Errore nella decodifica del token:", error);
-    return false; // Il token non è valido
+    console.error("Errore nella decodifica del token JWT:", error);
+    return false;
   }
 };
+
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const token = sessionStorage.getItem("token");

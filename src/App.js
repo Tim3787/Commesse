@@ -34,13 +34,14 @@ function App() {
   const isTokenValid = (token) => {
     try {
       const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000; 
-      
-      return decoded.exp > currentTime; 
+      const currentTime = Date.now() / 1000;
+      return decoded.exp > currentTime;
     } catch (error) {
-      return false; 
+      console.error("Errore nella decodifica del token JWT:", error);
+      return false;
     }
   };
+  
 
   const registerDeviceToken = async () => {
     const permission = await Notification.requestPermission();
@@ -151,7 +152,7 @@ const handleLogout = async () => {
         }
       } catch (err) {
         console.error("Errore durante il rinnovo del token:", err);
-        //handleLogout();
+        handleLogout();
       }
     };
   
