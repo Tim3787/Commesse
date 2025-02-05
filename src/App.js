@@ -109,7 +109,7 @@ const handleLogin = async (token, role) => {
 };
 
 // Login con `apiClient`
-apiClient.post("api/users/login", { username: "user", password: "pass" })
+apiClient.post("/api/users/login", { username: "user", password: "pass" })
   .then(response => {
     console.log("Login riuscito:", response);
     // Chiama handleLogin per aggiornare lo stato
@@ -120,7 +120,7 @@ apiClient.post("api/users/login", { username: "user", password: "pass" })
 // Gestione logout
 const handleLogout = async () => {
   try {
-    await apiClient.post("api/users/logout", {}, {
+    await apiClient.post("/api/users/logout", {}, {
       withCredentials: true,  // Assicura l'invio dei cookie
     });
     sessionStorage.removeItem("token");
