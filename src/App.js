@@ -99,6 +99,23 @@ const handleLogin = async (token, role) => {
   await registerDeviceToken();
 };
 
+// Funzione per gestire il login (chiamata API)
+const handleLoginRequest = async (username, password) => {
+  try {
+    const response = await apiClient.post("/api/users/login", {
+      username,
+      password,
+    });
+
+    console.log("Login riuscito:", response);
+
+    // Chiama la funzione handleLogin passando il token e il ruolo
+    handleLogin(response.data.token, response.data.role_id);
+  } catch (error) {
+    console.error("Errore durante il login:", error);
+    alert("Errore durante il login. Controlla le credenziali.");
+  }
+};
 
 
 const handleLogout = async () => {
@@ -195,7 +212,7 @@ const handleLogout = async () => {
         )}
         <Routes>
   {/* Rotta di login */}
-  <Route path="/login" element={<LoginRegister onLogin={handleLogin} />} />
+  <Route path="/login" element={<LoginRegister onLogin={handleLoginRequest} />} />
 
   {/* Rotta di default */}
   <Route path="/" element={<Navigate to="/dashboard" />} />
