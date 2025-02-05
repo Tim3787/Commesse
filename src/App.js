@@ -151,7 +151,7 @@ const handleLogout = async () => {
         }
       } catch (err) {
         console.error("Errore durante il rinnovo del token:", err);
-        handleLogout();
+        //handleLogout();
       }
     };
   

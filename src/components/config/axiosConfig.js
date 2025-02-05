@@ -11,6 +11,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      console.error("Errore di autenticazione, logout forzato.");
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("role");
       window.location.href = "/login";
