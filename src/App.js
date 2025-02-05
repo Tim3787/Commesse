@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import apiClient from "../src/components/config/axiosConfig";
-
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import LoginRegister from "./components/pages/LoginRegister";
-
 import GestioneUtenti from "./components/pages/configuration/GestioneUtenti";
 import GestioneReparti from "./components/pages/configuration/GestioneReparti";
 import GestioneRisorse from "./components/pages/configuration/GestioneRisorse";
 import GestioneStati from "./components/pages/configuration/GestioneStati";
 import GestioneAttivita from "./components/pages/configuration/GestioneAttivita";
 import GestioneStatiCommessa from "./components/pages/configuration/GestioneStatiCommessa";
-
 import GestioneCommesse from "./components/pages/CreaCommesse";
 import Navbar from "./components/common/Navbar";
 import Dashboard from "./components/pages/Dashboard-user" ;
@@ -26,15 +21,13 @@ import StatoAvanzamentoReparti from "./components/pages/reparto/StatoAvanzamento
 import CalendarioCommesse from "./components/pages/calendars/CalendarioCommesse";
 import DashboardReparto from "./components/pages/reparto/Dashboard-reparto";
 import PrenotazioneSale from "./components/pages/PrenotazioneSale";
-
 import ProtectedRoute from "./components/utils/ProtectedRoute";
-
 import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
-
 import { getDeviceToken } from "./firebase";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,11 +35,11 @@ function App() {
   const isTokenValid = (token) => {
     try {
       const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000; // Tempo corrente in secondi
+      const currentTime = Date.now() / 1000; 
       
-      return decoded.exp > currentTime; // Controlla se il token è ancora valido
+      return decoded.exp > currentTime; 
     } catch (error) {
-      return false; // Il token non è valido
+      return false; 
     }
   };
 
@@ -57,7 +50,7 @@ function App() {
       return;
     }
   
-    const token = await getDeviceToken(); // Ottieni il token del dispositivo
+    const token = await getDeviceToken(); 
     if (!token) {
       console.error("Impossibile ottenere il device token.");
       return;
@@ -84,7 +77,7 @@ function App() {
   };
 
   
-  // Carica token e ruolo da sessionStorage all'avvio dell'app
+
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (token && isTokenValid(token)) {
@@ -97,31 +90,30 @@ function App() {
       setUserRole(null);
     }
   }, []);
-  /// Gestione login
+
 const handleLogin = async (token, role) => {
   sessionStorage.setItem("token", token);
   sessionStorage.setItem("role", role);
   setIsAuthenticated(true);
   setUserRole(parseInt(role, 10));
 
-  // Registra il device token dopo il login
   await registerDeviceToken();
 };
 
-// Login con `apiClient`
+
 apiClient.post("/api/users/login", { username: "user", password: "pass" })
   .then(response => {
     console.log("Login riuscito:", response);
-    // Chiama handleLogin per aggiornare lo stato
+    
     handleLogin(response.data.token, response.data.role_id);
   })
   .catch(error => console.error("Errore durante il login:", error));
 
-// Gestione logout
+
 const handleLogout = async () => {
   try {
     await apiClient.post("/api/users/logout", {}, {
-      withCredentials: true,  // Assicura l'invio dei cookie
+      withCredentials: true, 
     });
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
@@ -145,7 +137,7 @@ const handleLogout = async () => {
         const timeToExpiration = decoded.exp * 1000 - Date.now();
   
         if (timeToExpiration < 5 * 60 * 1000) {
-          // Effettua una richiesta per ottenere un nuovo access token
+          
           const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/refresh-token`);
           sessionStorage.setItem("token", response.data.accessToken);
         }
