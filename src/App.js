@@ -26,8 +26,7 @@ import TrelloBoardSoftware from "./components/pages/trello/TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/trello/TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
 import { getDeviceToken } from "./firebase";
-import jwtDecode from "jwt-decode";
-
+import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -100,14 +99,6 @@ const handleLogin = async (token, role) => {
   await registerDeviceToken();
 };
 
-
-apiClient.post("/api/users/login", { username: "user", password: "pass" })
-  .then(response => {
-    console.log("Login riuscito:", response);
-    
-    handleLogin(response.data.token, response.data.role_id);
-  })
-  .catch(error => console.error("Errore durante il login:", error));
 
 
 const handleLogout = async () => {
