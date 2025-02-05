@@ -265,7 +265,7 @@ function AssegnaAttivita() {
       setAttivitaFiltrate((prev) => prev.filter((attivita) => attivita.id !== id));
       setAttivitaProgrammate((prev) => prev.filter((attivita) => attivita.id !== id));
   
-      console.log("Attività eliminata con successo!");
+
     } catch (error) {
       console.error("Errore durante l'eliminazione dell'attività:", error);
       toast.error("Errore durante l'eliminazione dell'attività");

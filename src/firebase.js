@@ -26,7 +26,7 @@ export const getDeviceToken = async () => {
     });
 
     if (token) {
-      console.log("Token dispositivo ottenuto:", token);
+
       return token;
     } else {
       console.error("Nessun token disponibile.");

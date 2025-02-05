@@ -49,3 +49,17 @@ export const deleteStatoAvanzamento = async (id) => {
     throw error;
   }
 };
+
+// Funzione per aggiornare l'ordine di uno stato
+export const updateStatoOrdine = async (id, nuovoOrdine, repartoId) => {
+  try {
+    const response = await apiClient.put(`/api/stati-avanzamento/${id}/ordine`, {
+      nuovoOrdine,
+      repartoId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Errore durante l\'aggiornamento dell\'ordine:', error);
+    throw error;
+  }
+};

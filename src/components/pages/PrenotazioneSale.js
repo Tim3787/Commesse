@@ -14,12 +14,13 @@ function PrenotazioneSale() {
   const [loading, setLoading] = useState(false);
   const [highlightedId, setHighlightedId] = useState(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
-
+  const [showUtenteSuggestions, setShowUtenteSuggestions] = useState(false);
+  const [filteredUtenti, setFilteredUtenti] = useState([]);
   const [newPrenotazione, setNewPrenotazione] = useState({
     salaId: '1',
     dataOra: '',
-    durata: '',
-    descrizione: '',
+    durata: '60',
+    descrizione: 'Riunione interna',
     utente: '',
   });
 
@@ -36,6 +37,7 @@ function PrenotazioneSale() {
       ]);
       setPrenotazioni(prenotazioniResponse);
       setUtenti(utentiResponse);
+      console.log('utenti response:', utentiResponse);
     } catch (error) {
       toast.error('Errore durante il caricamento dei dati.');
     } finally {
@@ -47,10 +49,29 @@ function PrenotazioneSale() {
     const { name, value } = e.target;
     setNewPrenotazione((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value, // Imposta il campo corretto in base al nome
     }));
   };
-
+  
+  const handleUtenteInput = (input) => {
+    if (input.length > 0) {
+      const filtered = utenti.filter((utente) =>
+        utente.nome.toLowerCase().includes(input.toLowerCase())
+      );
+      setFilteredUtenti(filtered);
+      setShowUtenteSuggestions(true);
+    } else {
+      setShowUtenteSuggestions(false);
+    }
+  };
+  
+  const handleSelectUtente = (nome) => {
+    setNewPrenotazione((prev) => ({
+      ...prev,
+      utente: nome,
+    }));
+    setShowUtenteSuggestions(false);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -137,73 +158,91 @@ function PrenotazioneSale() {
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group-100">
-          <label>ID Sala:</label>
-          <select
-            name="salaId"
-            value={newPrenotazione.salaId}
-            onChange={handleChange}
-            required
+  <div className="form-group-100">
+    <label>ID Sala:</label>
+    <select
+      name="salaId"
+      value={newPrenotazione.salaId}
+      onChange={handleChange}
+      required
+    >
+      <option value="1">1 - Grande</option>
+      <option value="2">2 - Piccola</option>
+    </select>
+  </div>
+  
+  <div className="form-group-100">
+    <label>Data e Ora:</label>
+    <input
+      type="datetime-local"
+      name="dataOra"
+      value={newPrenotazione.dataOra}
+      onChange={handleChange}
+      required
+    />
+  </div>
+  
+  <div className="form-group-100">
+    <label>Durata (in minuti):</label>
+    <input
+      type="number"
+      name="durata"
+      value={newPrenotazione.durata}
+      onChange={handleChange}
+      required
+    />
+  </div>
+  
+  <div className="form-group-100">
+    <label>Descrizione:</label>
+    <input
+      type="text"
+      name="descrizione"
+      value={newPrenotazione.descrizione}
+      onChange={handleChange}
+      required
+    />
+  </div>
+  
+  <div className="form-group-100">
+    <label>Utente:</label>
+    <input
+      type="text"
+      name="utente"
+      value={newPrenotazione.utente}
+      onChange={(e) => {
+        handleChange(e);
+        handleUtenteInput(e.target.value);
+      }}
+      placeholder="Cerca utente..."
+      className="input-field"
+    />
+    {showUtenteSuggestions && (
+      <ul className="suggestions-list">
+        {filteredUtenti.map((utente) => (
+          <li
+            key={utente.id}
+            onClick={() => handleSelectUtente(utente.nome)}
+            className="suggestion-item"
           >
-            <option value="1">1 - Grande</option>
-            <option value="2">2 - Piccola</option>
-          </select>
-        </div>
-        <div className="form-group-100">
-          <label>Data e Ora:</label>
-          <input
-            type="datetime-local"
-            name="dataOra"
-            value={newPrenotazione.dataOra}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group-100">
-          <label>Durata (in minuti):</label>
-          <input
-            type="number"
-            name="durata"
-            value={newPrenotazione.durata}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group-100">
-          <label>Descrizione:</label>
-          <input
-            type="text"
-            name="descrizione"
-            value={newPrenotazione.descrizione}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group-100">
-          <label>Utente:</label>
-          <input
-            type="text"
-            name="utente"
-            value={newPrenotazione.utente}
-            onChange={handleChange}
-            list="suggested-users"
-            required
-          />
-          <datalist id="suggested-users">
-            {utenti.map((utente) => (
-              <option key={utente.id} value={utente.username} />
-            ))}
-          </datalist>
-        </div>
-        <button type="submit" className="btn-100" disabled={loading}>
-          {loading ? 'Salvataggio...' : isEditing ? 'Aggiorna Prenotazione' : 'Aggiungi Prenotazione'}
-        </button>
-        {isEditing && (
-          <button type="button" className="btn-100" onClick={resetForm}>
-            Annulla
-          </button>
-        )}
-      </form>
+            {utente.nome}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <button type="submit" className="btn-100" disabled={loading}>
+    {loading ? 'Salvataggio...' : isEditing ? 'Aggiorna Prenotazione' : 'Aggiungi Prenotazione'}
+  </button>
+
+  {isEditing && (
+    <button type="button" className="btn-100" onClick={resetForm}>
+      Annulla
+    </button>
+  )}
+</form>
+
 
       <table className="table">
         <thead>

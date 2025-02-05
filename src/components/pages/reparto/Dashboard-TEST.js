@@ -280,7 +280,7 @@ const toLocalISOString = (date) => {
           prevActivities.filter((activity) => activity.id !== id)
         );
   
-        console.log("Attività eliminata con successo!");
+
       } catch (error) {
         console.error("Errore durante l'eliminazione dell'attività:", error);
         alert("Si è verificato un errore durante l'eliminazione dell'attività.");

@@ -1,13 +1,13 @@
 import axios from "axios";
 
-const api = axios.create({
+const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   withCredentials: true,  //
 });
 
 
 
-api.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
@@ -20,4 +20,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default apiClient;

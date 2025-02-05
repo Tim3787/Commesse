@@ -25,19 +25,24 @@ function LoginRegister({ onLogin }) {
     }
     return null;
   };
-
-
   const makeRequest = async (endpoint, successMessage) => {
+  
     setIsLoading(true);
+  
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}${endpoint}`,
         formData
       );
+  
+
+  
       if (formType === "login") {
         sessionStorage.setItem("token", response.data.token);
         sessionStorage.setItem("role", response.data.role_id);
-        onLogin(response.data.token, response.data.role_id);
+        
+        // Passa correttamente i dati del form e NON il token come username
+        onLogin(formData.username, formData.password, response.data.token, response.data.role_id);
         navigate("/dashboard");
       } else {
         toast.success(successMessage);
@@ -50,7 +55,9 @@ function LoginRegister({ onLogin }) {
       setIsLoading(false);
     }
   };
-
+  
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

@@ -25,8 +25,7 @@ export const updateActivityStatusAPI = async (activityId, newStatus, token) => {
 };
 
 export const updateActivityNotes = async (activityId, note, token) => {
-  console.log("Dati inviati:", { activityId, note });
-  console.log("Dati inviati:", { note });  // Deve essere una stringa semplice
+
   try {
     const response = await apiClient.put(
       `/api/notifiche/${activityId}/note`,

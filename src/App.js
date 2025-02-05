@@ -28,9 +28,11 @@ import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
 import { getDeviceToken } from "./firebase";
 import { jwtDecode } from "jwt-decode";
 
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+
   const isTokenValid = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -69,7 +71,7 @@ function App() {
             },
           }
         );
-        console.log("Token dispositivo registrato con successo.");
+ 
       } catch (error) {
         console.error("Errore durante la registrazione del token dispositivo:", error);
       }
@@ -91,6 +93,23 @@ function App() {
     }
   }, []);
 
+
+
+
+// Funzione per gestire il login (chiamata API)
+const handleLoginRequest = async (username, password, token, role_id) => {
+ 
+
+  try {
+    handleLogin(token, role_id);  // ✅ Gestione corretta del token e del ruolo
+  } catch (error) {
+    console.error("Errore durante il login:", error);
+    alert("Errore durante il login. Controlla le credenziali.");
+  }
+};
+
+
+
 const handleLogin = async (token, role) => {
   sessionStorage.setItem("token", token);
   sessionStorage.setItem("role", role);
@@ -100,66 +119,54 @@ const handleLogin = async (token, role) => {
   await registerDeviceToken();
 };
 
-// Funzione per gestire il login (chiamata API)
-const handleLoginRequest = async (username, password) => {
-  try {
-    const response = await apiClient.post("/api/users/login", {
-      username,
-      password,
-    });
-
-    console.log("Login riuscito:", response);
-
-    // Chiama la funzione handleLogin passando il token e il ruolo
-    handleLogin(response.data.token, response.data.role_id);
-  } catch (error) {
-    console.error("Errore durante il login:", error);
-    alert("Errore durante il login. Controlla le credenziali.");
-  }
-};
 
 
 const handleLogout = async () => {
   try {
     await apiClient.post("/api/users/logout", {}, {
-      withCredentials: true, 
+      withCredentials: true,
     });
+  
+  } catch (error) {
+    console.warn("Errore durante il logout dal server, eseguo il logout locale:", error);
+  } finally {
+    // Esegui comunque il logout locale
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
     setIsAuthenticated(false);
     setUserRole(null);
-  } catch (error) {
-    console.error("Errore durante il logout:", error);
   }
 };
 
+useEffect(() => {
+  const refreshToken = async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
 
+    try {
+      const decoded = jwtDecode(token);
+      const timeToExpiration = decoded.exp * 1000 - Date.now();
 
-  useEffect(() => {
-    const refreshToken = async () => {
-      const token = sessionStorage.getItem("token");
-  
-      if (!token) return;
-  
-      try {
-        const decoded = jwtDecode(token);
-        const timeToExpiration = decoded.exp * 1000 - Date.now();
-  
-        if (timeToExpiration < 5 * 60 * 1000) {
-          
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/refresh-token`);
+      if (timeToExpiration < 5 * 60 * 1000) {
+        const response = await apiClient.post("/api/users/refresh-token");
+        if (response.data.accessToken) {
           sessionStorage.setItem("token", response.data.accessToken);
+
+        } else {
+          console.error("Errore durante il rinnovo del token.");
+          handleLogout();
         }
-      } catch (err) {
-        console.error("Errore durante il rinnovo del token:", err);
-        handleLogout();
       }
-    };
-  
-    const interval = setInterval(refreshToken, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-  
+    } catch (err) {
+      console.error("Errore durante il rinnovo del token:", err);
+      handleLogout();
+    }
+  };
+
+  const interval = setInterval(refreshToken, 5 * 60 * 1000);
+  return () => clearInterval(interval);
+}, []);
+
   
 
   

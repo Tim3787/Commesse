@@ -18,7 +18,7 @@ const messaging = firebase.messaging();
 
 // Mostra la notifica quando arriva un messaggio in background
 messaging.onBackgroundMessage((payload) => {
-  console.log('Messaggio ricevuto in background:', payload);
+
 
   // Mostra la notifica solo se contiene il titolo e il corpo
   if (payload.notification) {

@@ -12,7 +12,7 @@ const requestNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      console.log("Notifiche autorizzate.");
+
       await getToken(messaging, { vapidKey });
     } else {
       console.error("Permesso per le notifiche negato.");
@@ -35,7 +35,7 @@ if ("serviceWorker" in navigator) {
 
 // Ascolta i messaggi in arrivo
 onMessage(messaging, (payload) => {
-  console.log("Messaggio ricevuto in foreground:", payload);
+
   alert(`Nuova notifica: ${payload.notification.title}`);
 });
 
