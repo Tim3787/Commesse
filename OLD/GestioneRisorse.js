@@ -3,8 +3,8 @@ import "../../style.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchRisorse, createRisorsa, updateRisorsa, deleteRisorsa } from "../../services/API/risorse-api";
-import {  fetchReparti } from "../../services/API/reparti-api";
+import { fetchRisorse, createRisorsa, updateRisorsa, deleteRisorsa } from "../src/components/services/API/risorse-api";
+import {  fetchReparti } from "../src/components/services/API/reparti-api";
 
 function GestioneRisorse() {
   const [risorse, setRisorse] = useState([]);

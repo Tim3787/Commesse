@@ -83,6 +83,13 @@ form button {
 form button:hover {
   background-color: #2980b9;
 }
+.editing-row {
+  background-color: #fffae6;  /* un giallo molto chiaro */
+  border-left: 4px solid #f1c40f;  /* una barra laterale evidenziata */
+}
+.editing-icon {
+  margin-right: 0.5rem;
+}
 
 /* ==============================
 Table

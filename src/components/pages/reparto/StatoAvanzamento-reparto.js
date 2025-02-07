@@ -397,7 +397,7 @@ const saveNewOrder = async () => {
   }
 
   // Componente DropZone per il drag & drop sulle colonne
-  function DropZone({ stato, commesse, repartoId }) {
+  function DropZone({ stato, commesse, repartoId, activities, resources }) {
     const [{ isOver }, drop] = useDrop(() => ({
       accept: "COMMESSA",
       drop: (item) => handleActivityDrop(item.commessaId, repartoId, stato.id),
@@ -405,18 +405,24 @@ const saveNewOrder = async () => {
         isOver: !!monitor.isOver(),
       }),
     }));
-
+  
     return (
       <td ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
-        {commesse.map((commessa) => (
-          <DraggableCommessa
-            key={commessa.commessa_id}
-            commessa={commessa}
-            repartoId={repartoId}
-            activities={activities}
-            resources={resources}
-          />
-        ))}
+        {commesse.length === 0 ? (
+          <div className="dropzone-placeholder">
+            Drop here
+          </div>
+        ) : (
+          commesse.map((commessa) => (
+            <DraggableCommessa
+              key={commessa.commessa_id}
+              commessa={commessa}
+              repartoId={repartoId}
+              activities={activities}
+              resources={resources}
+            />
+          ))
+        )}
       </td>
     );
   }

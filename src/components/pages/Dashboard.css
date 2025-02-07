@@ -70,7 +70,14 @@
   }
   
 
-  
+  .dropzone-placeholder {
+    height: 100px;         /* Imposta l'altezza desiderata */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #aaa;
+    border: 1px dashed #ccc;
+  }
 
 .fat {
   background-color: #fff0f0; /* Rosa chiaro per i FAT */
@@ -136,10 +143,13 @@
     background-color: rgba(0, 255, 0, 0.2); /* Verde chiaro */
     transition: background-color 0.3s;
   }
-
+  .weekend-cell {
+    background-color: #ebf1f3;  /* Colore di sfondo per il weekend */
+  }
   .weekend {
 
     color: #b80505; /* Colore del testo per sabato e domenica */
+    background-color: #ebf1f3;
   }
   .weekend2 {
 
@@ -160,24 +170,40 @@
 
 
   .activity {
-
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
     padding: 10px 10px;
-    background: rgba(255, 255, 255, 0.8); /* Effetto trasparente */
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     border: 1px solid #ddd;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     max-width: 250px;
-    min-width: 200px;
-    word-wrap: break-word;
+    min-width: 150px;
+    white-space: normal;         /* Permette al testo di andare a capo */
+    overflow-wrap: break-word;   /* Gestisce il wrapping del testo in modo moderno */
+    /* Opzionale: se il testo è particolarmente lungo e vuoi spezzare le parole ovunque:
+    word-break: break-all; */
     backdrop-filter: blur(10px);
     cursor: pointer;
     font-size: 12px;
-  }
-  
+}
+
+.activity.compact {
+  /* Dimensioni fisse e centrate per la vista compatta */
+  width: 10px;
+  min-width:  10px;
+  height: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
   .activity:hover {
 
     box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.2);

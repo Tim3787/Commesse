@@ -3,7 +3,7 @@ import "../../style.css";
 import logo from "../../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchReparti, createReparto, updateReparto, deleteReparto } from "../../services/API/reparti-api";
+import { fetchReparti, createReparto, updateReparto, deleteReparto } from "../src/components/services/API/reparti-api";
 
 function GestioneReparti() {
   const [reparti, setReparti] = useState([]);

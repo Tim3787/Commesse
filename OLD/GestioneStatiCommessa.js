@@ -8,7 +8,7 @@ import {
   createStatoCommessa,
   updateStatoCommessa,
   deleteStatoCommessa,
-} from "../../services/API/statoCommessa-api";
+} from "../src/components/services/API/statoCommessa-api";
 
 function GestioneStatiCommessa() {
   const [statiCommessa, setStatiCommessa] = useState([]);

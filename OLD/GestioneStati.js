@@ -3,8 +3,8 @@ import logo from "../../img/Animation - 1738249246846.gif";
 import "../../style.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {fetchStatiAvanzamento,createStatoAvanzamento,updateStatoAvanzamento,deleteStatoAvanzamento,} from "../../services/API/StatiAvanzamento-api";
-import {fetchReparti} from "../../services/API/reparti-api";
+import {fetchStatiAvanzamento,createStatoAvanzamento,updateStatoAvanzamento,deleteStatoAvanzamento,} from "../src/components/services/API/StatiAvanzamento-api";
+import {fetchReparti} from "../src/components/services/API/reparti-api";
 
 function GestioneStati() {
   const [statiAvanzamento, setStatiAvanzamento] = useState([]);

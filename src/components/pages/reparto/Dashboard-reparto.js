@@ -30,6 +30,7 @@ const [reparti, setReparti] = useState([]);
 const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
 const [selectedServiceResource, setSelectedServiceResource] = useState(null);
 const hasScrolledToToday = useRef(false);
+const [activityViewMode, setActivityViewMode] = useState("full");
 const [formData, setFormData] = useState({
   commessa_id: "",
   reparto_id: "",
@@ -328,31 +329,32 @@ const toLocalISOString = (date) => {
   };
 
   
-  function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick }) {
+  function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick, isWeekend, viewMode }) {
     const normalizedDay = normalizeDate(day);
   
-    // Configurazione del drop
     const [{ isOver }, drop] = useDrop(() => ({
-      accept: "ACTIVITY", // Tipo accettato
-      drop: (item) => onActivityDrop(item, resourceId, normalizedDay), 
+      accept: "ACTIVITY",
+      drop: (item) => onActivityDrop(item, resourceId, normalizedDay),
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
     }));
   
+    // Se vuoi combinare eventuali classi (ad esempio se la cella è in evidenza o se è weekend)
+    const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${isOver ? "highlight" : ""}`;
+  
     return (
-      <td
-        ref={drop} 
-        className={isOver ? "highlight" : ""}
+      <td ref={drop} className={cellClasses}
         onDoubleClick={() =>
           activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
-        } 
+        }
       >
         {activities.map((activity) => (
           <DraggableActivity
             key={activity.id}
             activity={activity}
-            onDoubleClick={() => onActivityClick(activity)} 
+            onDoubleClick={() => onActivityClick(activity)}
+            viewMode={viewMode}  // Passa la modalità anche qui
           />
         ))}
       </td>
@@ -361,10 +363,9 @@ const toLocalISOString = (date) => {
   
   
   
-
-  function DraggableActivity({ activity, onDoubleClick }) {
+  function DraggableActivity({ activity, onDoubleClick, viewMode }) {
     const [{ isDragging }, drag] = useDrag(() => ({
-      type: "ACTIVITY", 
+      type: "ACTIVITY",
       item: { ...activity },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
@@ -378,9 +379,28 @@ const toLocalISOString = (date) => {
         ? "activity-started"
         : "activity-completed";
   
-                     
-                      const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
-                      
+    if (viewMode === "compact") {
+      return (
+        <div
+          ref={drag}
+          className={`activity compact ${activityClass}`}
+          style={{
+            opacity: isDragging ? 0.5 : 1,
+            cursor: "move",
+            width: "20px",
+            height: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onDoubleClick={onDoubleClick}
+          title={activity.nome_attivita}  // Mostra il nome completo come tooltip
+        >
+          {activity.nome_attivita ? activity.nome_attivita.charAt(0).toUpperCase() : "?"}
+        </div>
+      );
+    }
+    // Modalità "full": visualizza i dettagli completi
     return (
       <div
         ref={drag}
@@ -389,50 +409,42 @@ const toLocalISOString = (date) => {
         onDoubleClick={onDoubleClick}
       >
         {activity.stato === 2 && activity.note && (
-  <span className="warning-icon" title="Nota presente nell'attività completata">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      fill="#e60000"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
-    </svg>
-  </span>
-)}
-<br />
+          <span className="warning-icon" title="Nota presente nell'attività completata">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#e60000"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+            </svg>
+          </span>
+        )}
+        <br />
         <strong>Commessa: {activity.numero_commessa}</strong>
         <br />
         <strong>Attività: {activity.nome_attivita}</strong>
-        {isTrasferta && (
-              <span className="trasferta-icon" title="Trasferta">
-                🚗
-              </span>
-            )}
         <br />
-        <strong>Stato:{" "}
-        {activity.stato === 0
-          ? "Non iniziata"
-          : activity.stato === 1
-          ? "Iniziata"
-          : "Completata"}</strong>
+        <strong>
+          Stato:{" "}
+          {activity.stato === 0
+            ? "Non iniziata"
+            : activity.stato === 1
+            ? "Iniziata"
+            : "Completata"}
+        </strong>
         <br />
-  
-  {/** Mostra la descrizione solo se il reparto è "service" **/}
-  {activity.reparto?.toLowerCase() === "service" && (
-    <>
-      <br />
-      <strong>Descrizione: {activity.descrizione_attivita  || ""}</strong>
-      <br />
-    </>
-  )}
-        {/* Pulsanti per modificare lo stato */}
+        {activity.reparto?.toLowerCase() === "service" && (
+          <>
+            <br />
+            <strong>Descrizione: {activity.descrizione_attivita || ""}</strong>
+            <br />
+          </>
+        )}
         <div className="activity-actions">
-
           {activity.stato === 1 && (
             <>
-              
               <button
                 className="btn btn-complete"
                 onClick={() => updateActivityStatus(activity.id, 2)}
@@ -440,15 +452,11 @@ const toLocalISOString = (date) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-              <button
-    className="btn btn-danger"
-    onClick={() => handleDelete(activity.id)} 
-  >
-    Elimina
-  </button>
+              <button className="btn btn-danger" onClick={() => handleDelete(activity.id)}>
+                Elimina
+              </button>
             </>
           )}
-          
           {activity.stato === 0 && (
             <>
               <button
@@ -465,25 +473,22 @@ const toLocalISOString = (date) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-              <button
-    className="btn btn-danger"
-    onClick={() => handleDelete(activity.id)} 
-  >
-    Elimina
-  </button>
-
+              <button className="btn btn-danger" onClick={() => handleDelete(activity.id)}>
+                Elimina
+              </button>
             </>
           )}
         </div>
-        <div className="note"> Note: {activity.note}</div>
+        <div className="note">Note: {activity.note}</div>
         {activity.note && (
-        <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
-          Elimina Nota
-        </button>
-      )}
+          <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+            Elimina Nota
+          </button>
+        )}
       </div>
     );
   }
+  
   
   const handleReloadActivities = async () => {
     try {
@@ -554,6 +559,16 @@ const toLocalISOString = (date) => {
         <DndProvider backend={HTML5Backend}>
   <div className="Gen-table-container">
     <h2>Bacheca Attività</h2>
+    <div className="view-mode-toggle">
+  <label>Visualizzazione Attività: </label>
+  <select
+    value={activityViewMode}
+    onChange={(e) => setActivityViewMode(e.target.value)}
+  >
+    <option value="full">Completa</option>
+    <option value="compact">Compatta</option>
+  </select>
+</div>
 
     {/* Dropdown per selezionare una risorsa "Service" specifica */}
     {serviceResources.length > 0 && reparto !== "service" && (
@@ -578,31 +593,41 @@ const toLocalISOString = (date) => {
       <thead>
         <tr>
           <th>Risorsa</th>
-          {daysInMonth.map((day) => (
+        {daysInMonth.map((day) => {
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+          const isToday = day.toDateString() === new Date().toDateString(); 
+          return (
             <th
               key={day.toISOString()}
-              className={day.toDateString() === new Date().toDateString() ? "today" : ""}
+              className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+              ref={isToday ? todayRef : null}
             >
               {day.toLocaleDateString()}
             </th>
-          ))}
-        </tr>
+          );
+        })}
+      </tr>
       </thead>
       <tbody>
         {/** Mostra le risorse del reparto corrente */}
         {resources.map((resource) => (
           <tr key={resource.id}>
             <td>{resource.nome}</td>
-            {daysInMonth.map((day) => (
-              <ResourceCell
-                key={`${resource.id}-${day}`}
-                resourceId={resource.id}
-                day={day}
-                activities={getActivitiesForResourceAndDay(resource.id, day)}
-                onActivityDrop={handleActivityDrop}
-                onActivityClick={handleActivityClick}
-              />
-            ))}
+            {daysInMonth.map((day) => {
+  const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+  return (
+    <ResourceCell
+      key={`${resource.id}-${day.toISOString()}`}
+      resourceId={resource.id}
+      day={day}
+      isWeekend={isWeekend}
+      activities={getActivitiesForResourceAndDay(resource.id, day)}
+      onActivityDrop={handleActivityDrop}
+      onActivityClick={handleActivityClick}
+      viewMode={activityViewMode}  // Passa la modalità qui
+    />
+  );
+})}
           </tr>
         ))}
 
@@ -623,16 +648,21 @@ const toLocalISOString = (date) => {
                     ?.nome || "Risorsa non trovata"
                 }
               </td>
-              {daysInMonth.map((day) => (
-                <ResourceCell
-                  key={`${selectedServiceResource}-${day}`}
-                  resourceId={selectedServiceResource}
-                  day={day}
-                  activities={getActivitiesForResourceAndDay(selectedServiceResource, day)}
-                  onActivityDrop={handleActivityDrop}
-                  onActivityClick={handleActivityClick}
-                />
-              ))}
+              {daysInMonth.map((day) => {
+  const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+  return (
+    <ResourceCell
+    key={`${selectedServiceResource}-${day}`}
+    resourceId={selectedServiceResource}
+      day={day}
+      isWeekend={isWeekend}
+      activities={getActivitiesForResourceAndDay(selectedServiceResource, day)}
+      onActivityDrop={handleActivityDrop}
+      onActivityClick={handleActivityClick}
+      viewMode={activityViewMode}  // Passa la modalità qui
+    />
+  );
+})}
             </tr>
           </>
         )}

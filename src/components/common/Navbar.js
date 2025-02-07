@@ -11,11 +11,9 @@ import {
   faUsers,
   faProjectDiagram,
   faTools,
-  faUserCog,
   faCalendarAlt,
   faListCheck,
   faChartBar,
-  faBuilding,
   faBusinessTime,
   faGear,
   faBars,
@@ -105,11 +103,11 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const navLinks = {
     user: [
       { to: "/Dashboard", label: "Bacheca personale", icon: faUser },
-      { to: "/visualizzazione-commesse", label: "Visualizza dettagli commesse", icon: faClipboardList },
-      { to: "/calendario-attivita", label: "Calendario attività", icon: faCalendarAlt },
-      { to: "/CalendarioCommesse", label: "Calendario commesse", icon: faCalendarAlt },
-      { to: "/visualizzazione-attivita", label: "Attività commessa", icon: faTasks },
-      { to: "/PrenotazioneSale", label: "Prenotazione sale", icon: faBusinessTime },
+      { to: "/visualizzazione-commesse", label: "Visualizza i dettagli delle commesse", icon: faClipboardList },
+      { to: "/calendario-attivita", label: "Calendario delle attività", icon: faCalendarAlt },
+      { to: "/CalendarioCommesse", label: "Calendario cosegne e FAT commesse", icon: faCalendarAlt },
+      { to: "/visualizzazione-attivita", label: "Visualizza tutte le attività di una commessa", icon: faTasks },
+      { to: "/PrenotazioneSale", label: "Prenotazione sale riunioni", icon: faBusinessTime },
     ],
     manager: [
       {
@@ -147,12 +145,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     ],
     admin: [
       { to: "/utenti", label: "Gestione utenti", icon: faUsers },
-      { to: "/reparti", label: "Gestione reparti", icon: faBuilding },
-      { to: "/risorse", label: "Gestione risorse", icon: faUserCog },
-      { to: "/statiCommessa", label: "Stati commessa", icon: faClipboardList },
-      { to: "/stati", label: "Stati avanzamento", icon: faListCheck },
-      { to: "/attivita", label: "Gestione attività", icon: faTasks },
-      { to: "/MatchCommesse", label: "Commesse Trello", icon: faClipboardList },
+      { to: "/GestioneTabelle", label: "Gestione tabelle", icon: faClipboardList },
+      { to: "/MatchCommesse", label: "Commesse trello", icon: faClipboardList },
+      
     ],
   };
   
