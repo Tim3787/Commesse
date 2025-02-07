@@ -469,6 +469,7 @@ tr:nth-child(even) {
       max-height: 90%; /* Limita l'altezza massima */
       overflow-y: auto; /* Scorrimento verticale per contenuti lunghi */
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Migliora l'aspetto con un'ombra */
+      text-align: center; 
     }
     
     .popup-Big {
@@ -499,6 +500,7 @@ tr:nth-child(even) {
     
     .popup button {
       margin-top: 20px;
+      margin: 20px auto 0; 
       padding: 10px 20px;
       background-color: #007bff;
       color: white;
@@ -573,6 +575,8 @@ tr:nth-child(even) {
     .activities2-table th {
       background-color: #1d076e;
     }
+
+    
     
     /* ==============================
      select
@@ -581,7 +585,6 @@ tr:nth-child(even) {
 .container select {
 width: 100%;
 padding: 8px;
-margin: 10px 0;
 border: 1px solid #ddd;
 border-radius: 4px;
 font-size: 14px;
@@ -711,7 +714,6 @@ animation: spin 1s linear infinite;
     }
     .btn-100 {
 width: 100%;
-max-width: 400px;
     }
 
     button:hover, a:hover {
@@ -870,6 +872,8 @@ background-color: #0056b3;
 }
 
 .filter-group {
+  height: 30px;
+  position: relative; 
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -890,13 +894,16 @@ background-color: #0056b3;
 }
 
 .filter-group label {
+  padding: 8px 12px;
   font-size: 16px;
-  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: border-color 0.3s;
 }
 
 .filter-group select {
   padding: 8px 12px;
-  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
@@ -912,15 +919,15 @@ background-color: #0056b3;
   margin: 0;
   position: absolute; /* Necessario per posizionare la lista sotto l'input */
   top: 100%; /* Posiziona la lista immediatamente sotto l'input */
-  left: 0;
   z-index: 10; /* Assicura che la lista appaia sopra altri elementi */
   background-color: white;
   border: 1px solid #ccc;
   max-height: 150px;
-  width: calc(100% - 2px); /* Adatta la larghezza al contenitore */
+  width: calc(90% - 2px); /* Adatta la larghezza al contenitore */
   overflow-y: auto;
   border-radius: 4px; /* Opzionale, per arrotondare gli angoli */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Effetto ombra */
+  text-align: left;
 }
 
 .form-group label {
@@ -993,15 +1000,15 @@ background-color: #f0f0f0;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 16px;
-  color: #000000;
+
 }
 
 .dropdown-menu {
-  position: absolute; /* Posizionamento assoluto rispetto al contenitore padre */
+ position: absolute;
   top: 100%; /* Appare subito sotto l'elemento padre */
   background-color: white;
-  border: 1px solid #050505;
+  border: 1px solid #ccc;
+  left: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 10;
   width: 90%; /* Si adatta alla larghezza dell'elemento padre */

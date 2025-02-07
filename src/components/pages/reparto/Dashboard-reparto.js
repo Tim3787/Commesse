@@ -12,6 +12,7 @@ import repartoConfig from "../../config/repartoConfig";
 import { getDaysInMonth } from "../../assets/date";
 import {updateActivityNotes} from "../../services/API/notifiche-api";
 import {deleteAttivitaCommessa,fetchAttivitaCommessa} from "../../services/API/attivitaCommesse-api";
+import { Tooltip } from 'react-tooltip';
 
 
 function DashboardReparto() {
@@ -379,27 +380,44 @@ const toLocalISOString = (date) => {
         ? "activity-started"
         : "activity-completed";
   
-    if (viewMode === "compact") {
+    
+        if (viewMode === "compact") {
+          const tooltipContent = `
+      Attività: ${activity.nome_attivita}
+      Stato: ${
+            activity.stato === 0
+              ? "Non iniziata"
+              : activity.stato === 1
+              ? "Iniziata"
+              : "Completata"
+          }
+      Commessa: ${activity.numero_commessa}`;
+
       return (
-        <div
-          ref={drag}
-          className={`activity compact ${activityClass}`}
-          style={{
-            opacity: isDragging ? 0.5 : 1,
-            cursor: "move",
-            width: "20px",
-            height: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onDoubleClick={onDoubleClick}
-          title={activity.nome_attivita}  // Mostra il nome completo come tooltip
-        >
-          {activity.nome_attivita ? activity.nome_attivita.charAt(0).toUpperCase() : "?"}
-        </div>
-      );
-    }
+        <>
+          <div
+            ref={drag}
+            className={`activity compact ${activityClass}`}
+            style={{
+              opacity: isDragging ? 0.5 : 1,
+              cursor: "move",
+              width: "20px",
+              height: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onDoubleClick={onDoubleClick}
+            data-tooltip-id={`tooltip-${activity.id}`}
+          >
+            
+          </div>
+          <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid">
+            {tooltipContent}
+          </Tooltip>
+    </>
+  );
+}
     // Modalità "full": visualizza i dettagli completi
     return (
       <div

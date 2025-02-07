@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function AttivitaCrea({
@@ -105,7 +105,6 @@ function AttivitaCrea({
 
   return (
     <div className="popup">
-      <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
       <div className="popup-content">
         <h2>{isEditing ? "Modifica Attività" : "Aggiungi Attività"}</h2>
         <form onSubmit={handleSubmit}>
@@ -117,7 +116,7 @@ function AttivitaCrea({
               value={commessaSearch || ""}
               onChange={(e) => setCommessaSearch(e.target.value)}
               placeholder="Cerca per numero commessa"
-              className="input-field"
+              className="input-field-100"
             />
             {suggestedCommesse.length > 0 && (
               <ul className="suggestions-list" ref={suggestionsRef}>
@@ -137,7 +136,7 @@ function AttivitaCrea({
               value={formData.reparto_id}
               onChange={handleChange}
               required
-              className="input-field"
+              className="input-field-100"
             >
               <option value="">Seleziona un reparto</option>
               {reparti.map((reparto) => (

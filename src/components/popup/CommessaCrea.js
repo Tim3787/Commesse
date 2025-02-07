@@ -193,7 +193,7 @@ function CommessaCrea({
       <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
         <h2>{isEditing ? "Modifica Commessa" : "Crea Commessa"}</h2>
         <form onSubmit={handleSubmit}>
-          <div>
+          <div className="form-group">
             <label>Numero Commessa:</label>
             <input
               type="text"
@@ -252,15 +252,14 @@ function CommessaCrea({
               onChange={handleChange}
               className="input-field-100"
             />
-          </div>
-          {/* stato */}
-          <div className="form-group">
   <label>Stato:</label>
   <select
     name="stato"
     value={formData.stato}
     onChange={handleChange}
     required
+    className="input-field-100"
+    
   >
     <option value="">Seleziona uno stato</option>
     {stato.map((st) => (
