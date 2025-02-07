@@ -20,7 +20,6 @@ function GestioneCommesse() {
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState("");
@@ -112,15 +111,12 @@ function GestioneCommesse() {
 
       <div className="header">
         <h1>Gestione Commesse</h1>
-        <button onClick={handleCreateNewCommessa} className="btn btn-primary">
+        <button onClick={handleCreateNewCommessa} className="create-activity-btn">
           Crea Nuova Commessa
-        </button>
-        <button onClick={() => setShowFilters(!showFilters)} className="btn btn-filter">
-          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
         </button>
       </div>
 
-      {showFilters && (
+
         <div className="filters">
           <input
             type="text"
@@ -144,7 +140,7 @@ function GestioneCommesse() {
             className="input-field"
           />
         </div>
-      )}
+      
 
       <table>
         <thead>

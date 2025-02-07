@@ -24,8 +24,6 @@ function VisualizzazioneCommesse() {
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showOrder, setShowOrder] = useState(false);
   const [statoFilter, setStatoFilter] = useState(""); 
   const [statiCommessa, setStatiCommessa] = useState([]); 
   
@@ -202,14 +200,6 @@ function VisualizzazioneCommesse() {
 
 
 
-  const toggleFilters = () => {
-    setShowFilters((prev) => !prev);
-  };
-
-  const toggleOrder = () => {
-    setShowOrder((prev) => !prev);
-  };
-
 
 const getStatoNome = (id) => {
   const stato = statiCommessa.find(stato => stato.id === id);
@@ -228,16 +218,11 @@ const getStatoNome = (id) => {
       <h1>Commesse</h1>
        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
-      <button onClick={toggleFilters} className="btn btn-filter">
-          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
-        </button>
-
-      {showFilters && (
       <div className="filters">
         <div className="filter-group">
         <input
           type="text"
-          placeholder="Cerca per Numero Commessa"
+          placeholder="Filtra per commessa"
           value={commessaFilter}
           onChange={handleCommessaChange}
           onClick={(e) => e.stopPropagation()}
@@ -259,7 +244,7 @@ const getStatoNome = (id) => {
         <div className="filter-group">
         <input
           type="text"
-          placeholder="Filtra per Cliente"
+          placeholder="Filtra per cliente"
           value={clienteFilter}
           onChange={handleClienteChange}
           onClick={(e) => e.stopPropagation()}
@@ -280,7 +265,7 @@ const getStatoNome = (id) => {
         <div className="filter-group">
         <input
           type="text"
-          placeholder="Filtra per Tipo Macchina"
+          placeholder="Filtra per macchina"
           value={tipoMacchinaFilter}
           onChange={handleTipoMacchinaChange}
           onClick={(e) => e.stopPropagation()}
@@ -309,11 +294,8 @@ const getStatoNome = (id) => {
         </select>
         </div>
   </div>
-          )}
-      <button onClick={toggleOrder} className="btn btn-filter">
-          {showOrder ? "Nascondi Ordine" : "Mostra Ordine"}
-        </button>
-        {showOrder && (
+        
+
       <div className="filters">
       <div className="filter-group">
         <select onChange={handleSortChange} value={sortOrder}>
@@ -334,7 +316,7 @@ const getStatoNome = (id) => {
         </select>
       </div>
       </div>
-              )}
+            
       <table>
         <thead>
           <tr>

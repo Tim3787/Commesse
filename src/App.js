@@ -4,11 +4,6 @@ import apiClient from "../src/components/config/axiosConfig";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginRegister from "./components/pages/LoginRegister";
 import GestioneUtenti from "./components/pages/configuration/GestioneUtenti";
-//import GestioneReparti from "./components/pages/configuration/GestioneReparti";
-//import GestioneRisorse from "./components/pages/configuration/GestioneRisorse";
-//import GestioneStati from "./components/pages/configuration/GestioneStati";
-//import GestioneAttivita from "./components/pages/configuration/GestioneAttivita";
-//import GestioneStatiCommessa from "./components/pages/configuration/GestioneStatiCommessa";
 import GestioneCommesse from "./components/pages/CreaCommesse";
 import GestioneTabelle from "./components/pages/configuration/GestioneTabelle";
 import Navbar from "./components/common/Navbar";
@@ -209,13 +204,9 @@ useEffect(() => {
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
     { path: "/StatoAvanzamento/:reparto", component: <StatoAvanzamentoReparti />, requiredRole: 2 },
 
-    { path: "/StatoAvanzamento:", component: <StatiAvanzamento />, requiredRole: 2 },
+    { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
-    //{ path: "/reparti", component: <GestioneReparti />, requiredRole: 1 },
-    //{ path: "/risorse", component: <GestioneRisorse />, requiredRole: 1 },
-    //{ path: "/stati", component: <GestioneStati />, requiredRole: 1 },
-    //{ path: "/statiCommessa", component: <GestioneStatiCommessa />, requiredRole: 1 },
-    //{ path: "/attivita", component: <GestioneAttivita />, requiredRole: 1 },
+
     { path: "/TrelloBoardSoftware", component: <TrelloBoardSoftware />, requiredRole: 1 },
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico/>, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse/>, requiredRole: 1 },

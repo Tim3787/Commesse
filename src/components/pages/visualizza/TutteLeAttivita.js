@@ -22,7 +22,7 @@ function AssegnaAttivita() {
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
+
   const [showStateDropdown, setShowStateDropdown] = useState(false); 
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const activityDropdownRef = useRef(null);
@@ -291,9 +291,6 @@ function AssegnaAttivita() {
   };
 
 
-  const toggleFilters = () => {
-    setShowFilters((prev) => !prev);
-  };
 
   const toggleStateDropdown = () => {
     setShowStateDropdown((prev) => !prev);
@@ -344,10 +341,7 @@ function AssegnaAttivita() {
       <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
           Aggiungi Attività
         </button>
-      <button onClick={toggleFilters} className="btn btn-filter">
-          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
-        </button>
-        {showFilters && (
+
       <div className="filters">
         <div className="filter-group">
           <input
@@ -440,7 +434,7 @@ function AssegnaAttivita() {
 </div>
 
       </div>
-    )}
+
       {loading ? (
         <p>Caricamento in corso...</p>
       ) : (

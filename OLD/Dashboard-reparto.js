@@ -547,21 +547,16 @@ const toLocalISOString = (date) => {
       {resources.map((resource) => (
         <tr key={resource.id}>
           <td>{resource.nome}</td>
-          {daysInMonth.map((day) => {
-  const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
-  return (
-    <ResourceCell
-      key={`${resource.id}-${day.toISOString()}`}
-      resourceId={resource.id}
-      day={day}
-      isWeekend={isWeekend}
-      activities={getActivitiesForResourceAndDay(resource.id, day)}
-      onActivityDrop={handleActivityDrop}
-      onActivityClick={handleActivityClick}
-      viewMode={activityViewMode}  // Passa la modalità qui
-    />
-  );
-})}
+          {daysInMonth.map((day) => (
+            <ResourceCell
+              key={`${resource.id}-${day}`} 
+              resourceId={resource.id}
+              day={day}
+              activities={getActivitiesForResourceAndDay(resource.id, day)}
+              onActivityDrop={handleActivityDrop}
+              onActivityClick={handleActivityClick}
+            />
+          ))}
         </tr>
       ))}
     </tbody>

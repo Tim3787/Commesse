@@ -88,9 +88,9 @@
 
 .btn-Nav {
   background-color: #007bff;
+  padding: 5px;
   color: white;
   border: none;
-  padding: 10px 15px;
   margin: 5px;
   border-radius: 5px;
   cursor: pointer;
@@ -117,6 +117,6 @@ Responsive Design
 
   .btn-Nav {
     font-size: 14px;
-    padding: 8px 12px;
+
   }
 }

@@ -21,6 +21,7 @@ function DashboardReparto() {
   // Ottieni la configurazione per il reparto corrente
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
   const [activities, setActivities] = useState([]);
+  const [filteredActivities, setFilteredActivities] = useState([]);
   const [resources, setResources] = useState([]);
   const [serviceResources, setServiceResources] = useState([]); 
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,11 @@ const [loadingActivities, setLoadingActivities] = useState({});
 const todayRef = useRef(null);  
 const [currentMonth, setCurrentMonth] = useState(new Date());
 const daysInMonth = getDaysInMonth(currentMonth);
-
+const [filters, setFilters] = useState({
+  commessa: "",
+  risorsa: "",
+  attivita: ""
+});
 
 
   
@@ -148,24 +153,36 @@ const daysInMonth = getDaysInMonth(currentMonth);
   // };
   
   
-  
+  // Ogni volta che activities o filters cambiano, aggiorna il set di attività filtrate
+  useEffect(() => {
+    const fActivities = activities.filter(activity => {
+      const commessaMatch = filters.commessa
+        ? activity.numero_commessa.toString().toLowerCase().includes(filters.commessa.toLowerCase())
+        : true;
+      const risorsaMatch = filters.risorsa
+        ? (activity.risorsa && activity.risorsa.toLowerCase().includes(filters.risorsa.toLowerCase()))
+        : true;
+      const attivitaMatch = filters.attivita
+        ? (activity.nome_attivita && activity.nome_attivita.toLowerCase().includes(filters.attivita.toLowerCase()))
+        : true;
+      return commessaMatch && risorsaMatch && attivitaMatch;
+    });
+    setFilteredActivities(fActivities);
+  }, [activities, filters]);
   
 // Scorri automaticamente alla colonna di oggi 
 
 useEffect(() => {
-  // Scrolla al giorno di oggi solo se non è già stato fatto
   if (!hasScrolledToToday.current && todayRef.current) {
     todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    // Aggiungi un listener temporaneo per sapere quando lo scroll è finito
     const handleScrollEnd = () => {
-      hasScrolledToToday.current = true; // Segna che lo scroll è stato eseguito
-      window.removeEventListener("scroll", handleScrollEnd); // Rimuovi il listener
+      hasScrolledToToday.current = true;
+      window.removeEventListener("scroll", handleScrollEnd);
     };
-
     window.addEventListener("scroll", handleScrollEnd);
   }
-}, [daysInMonth]);
+}, []); // Eseguito una sola volta al mount
+
   // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -217,7 +234,7 @@ const toLocalISOString = (date) => {
   const getActivitiesForResourceAndDay = (resourceId, day) => {
     const normalizedDay = normalizeDate(day);
   
-    return activities.filter((activity) => {
+    return filteredActivities.filter((activity) => {
       const startDate = normalizeDate(activity.data_inizio);
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + activity.durata - 1);
@@ -557,27 +574,17 @@ const toLocalISOString = (date) => {
     <div>
       <div className="container-Scroll">
         <h1>Bacheca Reparto {RepartoName}</h1>
+        <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+          Aggiungi Attività
+        </button>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
+          
         )}
- <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
-          Aggiungi Attività
-        </button>
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
-          </button>
-        </div>
-        <DndProvider backend={HTML5Backend}>
-  <div className="Gen-table-container">
-    <h2>Bacheca Attività</h2>
-    <div className="view-mode-toggle">
+        <div className="view-mode-toggle">
   <label>Visualizzazione Attività: </label>
   <select
     value={activityViewMode}
@@ -587,9 +594,8 @@ const toLocalISOString = (date) => {
     <option value="compact">Compatta</option>
   </select>
 </div>
-
-    {/* Dropdown per selezionare una risorsa "Service" specifica */}
-    {serviceResources.length > 0 && reparto !== "service" && (
+{/* Dropdown per selezionare una risorsa "Service" specifica */}
+{serviceResources.length > 0 && reparto !== "service" && (
       <div>
       <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
       <select
@@ -606,7 +612,42 @@ const toLocalISOString = (date) => {
       </select>
     </div>
     )}
-
+{/* Sezione Filtri */}
+<div className="filters" style={{ margin: "20px 0", display: "flex", gap: "10px" }}>
+          <input
+            type="text"
+            placeholder="Filtra per commessa"
+            value={filters.commessa}
+            onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
+            className="input-field-100"
+          />
+          <input
+            type="text"
+            placeholder="Filtra per risorsa"
+            value={filters.risorsa}
+            onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
+            className="input-field-100"
+          />
+          <input
+            type="text"
+            placeholder="Filtra per attività"
+            value={filters.attivita}
+            onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
+            className="input-field-100"
+          />
+          
+        </div>
+        <div>
+        
+        <button onClick={goToPreviousMonth} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese Successivo →
+          </button>
+          </div>
+        <DndProvider backend={HTML5Backend}>
+  <div className="Gen-table-container">
     <table className="software-schedule">
       <thead>
         <tr>

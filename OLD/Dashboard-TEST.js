@@ -2,16 +2,16 @@ import React, { useEffect, useState, useRef } from "react"; //OGGI
 import axios from "axios";
 import "../Dashboard.css";
 import logo from "../../img/Animation - 1738249246846.gif";
-import AttivitaCrea from "../../popup/AttivitaCrea";
+import AttivitaCrea from "../src/components/popup/AttivitaCrea";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom"; 
-import repartoConfig from "../../config/repartoConfig";
-import { getDaysInMonth } from "../../assets/date";
-import {updateActivityNotes} from "../../services/API/notifiche-api";
-import {deleteAttivitaCommessa,fetchAttivitaCommessa} from "../../services/API/attivitaCommesse-api";
+import repartoConfig from "../src/components/config/repartoConfig";
+import { getDaysInMonth } from "../src/components/assets/date";
+import {updateActivityNotes} from "../src/components/services/API/notifiche-api";
+import {deleteAttivitaCommessa,fetchAttivitaCommessa} from "../src/components/services/API/attivitaCommesse-api";
 
 
 function DashboardTEST() {
