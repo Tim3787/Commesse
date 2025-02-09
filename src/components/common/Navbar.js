@@ -38,7 +38,6 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const token = sessionStorage.getItem("token");
   const [activeMenu, setActiveMenu] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  // State per la ricerca nella navbar
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [commesseList, setCommesseList] = useState([]);
