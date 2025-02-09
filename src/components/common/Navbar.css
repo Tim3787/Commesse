@@ -290,6 +290,28 @@ border-width: 2px;
   padding: 8px;
   margin-bottom: 5px;
 }
+/* Stili per il dropdown con transizione */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 500ms ease;
+}
+
+.dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms ease, transform 500ms ease;
+}
 
 
 /* Animazione apertura menu */

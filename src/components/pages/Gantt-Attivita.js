@@ -13,6 +13,7 @@ function VisualizzaAttivita() {
   const [numeroCommessa, setNumeroCommessa] = useState(""); // Numero di commessa inserito dall'utente
   const todayRef = useRef(null); // Per scorrere automaticamente a oggi
   const [suggestions, setSuggestions] = useState([]);
+  const suggestionsRef = useRef(null);
 
   const reparti = [
     { id: 1, name: "Reparto Software" },
@@ -109,7 +110,20 @@ const daysInMonth = getDaysInMonth();
     }
   };
   
-
+  const handleResetSearch = async () => {
+    setNumeroCommessa("");
+    try {
+      setLoading(true);
+      const activitiesData = await fetchAttivitaCommessa("");
+      setActivities(activitiesData);
+    } catch (error) {
+      console.error("Errore durante il recupero di tutte le attività:", error);
+      alert("Errore durante il recupero di tutte le attività!");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   
   // Scorri automaticamente alla colonna di oggi
   useEffect(() => {
@@ -131,6 +145,17 @@ const daysInMonth = getDaysInMonth();
     }
   }, [daysInMonth]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  
+  
   // Funzioni per navigare tra i mesi
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -181,17 +206,15 @@ const daysInMonth = getDaysInMonth();
   
   
   
-
   const renderCalendar = () => (
     <table className="Gen-schedule">
       <thead>
         <tr>
           <th>Reparto</th>
-           <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+          <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
           {daysInMonth.map((day, index) => {
             const isToday = day.toDateString() === new Date().toDateString();
             const dayClass = isToday ? "Gen-today-date" : "";
-  
             return (
               <th key={index} ref={isToday ? todayRef : null} className={dayClass}>
                 {day.toLocaleDateString()}
@@ -206,7 +229,6 @@ const daysInMonth = getDaysInMonth();
             <td>{reparto.name}</td>
             {daysInMonth.map((day, index) => {
               const activitiesForDay = getActivitiesForRepartoAndDay(reparto.id, day);
-  
               return (
                 <td key={index}>
                   {activitiesForDay.length > 0 ? (
@@ -216,11 +238,13 @@ const daysInMonth = getDaysInMonth();
                         className={`activity5 activity5-type-${activity.tipo_attivita || "default"}`}
                         title={`Tipo: ${activity.tipo_attivita || "Sconosciuto"} - Risorsa: ${activity.risorsa}`}
                       >
-                        {activity.nome_attivita || "Attività"}
+                        {numeroCommessa === ""
+                          ? `${activity.numero_commessa} - ${activity.nome_attivita || "Attività"}`
+                          : (activity.nome_attivita || "Attività")}
                       </div>
                     ))
                   ) : (
-                    <span className="no-activity5">-</span> // Segnaposto se non ci sono attività
+                    <span className="no-activity5">-</span>
                   )}
                 </td>
               );
@@ -230,6 +254,7 @@ const daysInMonth = getDaysInMonth();
       </tbody>
     </table>
   );
+  
   
   return (
     <div>
@@ -241,44 +266,43 @@ const daysInMonth = getDaysInMonth();
           </div>
         )}
 
-        <div className="calendar-navigation">
-
-
-  <input
-    type="text"
-    value={numeroCommessa}
-    onChange={(e) => setNumeroCommessa(e.target.value)}
-    placeholder="Inserisci numero commessa"
-    className="input-field"
-  />
-
-  {/* Suggerimenti */}
-  {numeroCommessa && filteredSuggestions.length > 0 && (
-  <ul className="suggestions-list2">
-    {filteredSuggestions.map((suggestion, index) => (
-      <li
-        key={index}
-        onClick={() => setNumeroCommessa(suggestion.numero_commessa.toString())}
-
-      >
-        {suggestion.numero_commessa} - {suggestion.cliente || "Nessuna descrizione"}
-      </li>
-
-    ))}
-  </ul>
-)}
-  <button onClick={handleSearchCommessa} className="btn-search-commessa" disabled={loading}>
-    {loading ? "Caricamento..." : "Cerca"}
-  </button>
-  <button onClick={goToPreviousMonth} className="btn-Nav">
+        
+<div className="calendar-navigation">
+          {/* Campo di ricerca con suggerimenti (senza pulsante "Cerca") */}
+          <input
+            type="text"
+            value={numeroCommessa}
+            onChange={(e) => setNumeroCommessa(e.target.value)}
+            placeholder="Inserisci numero commessa"
+            className="input-field"
+          />
+          {numeroCommessa && filteredSuggestions.length > 0 && (
+              <ul className="suggestions-list2" ref={suggestionsRef}>
+              {filteredSuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  onClick={() => {
+                    // Imposta il numero di commessa dal suggerimento e esegue automaticamente la ricerca
+                    setNumeroCommessa(suggestion.numero_commessa.toString());
+                    handleSearchCommessa();
+                  }}
+                >
+                  {suggestion.numero_commessa} - {suggestion.cliente || "Nessuna descrizione"}
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* Pulsante "Visualizza tutto" per resettare il filtro */}
+          <button onClick={handleResetSearch} className="btn-reset-search">
+            Visualizza tutto
+          </button>
+          <button onClick={goToPreviousMonth} className="btn-Nav">
             ← Mese
           </button>
           <button onClick={goToNextMonth} className="btn-Nav">
             Mese →
           </button>
-</div>
-
-
+        </div>
 
         <div className="Gen-table-container">{renderCalendar()}</div>
       </div>

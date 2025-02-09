@@ -24,7 +24,7 @@ import MatchCommesse from "./components/pages/trello/TrelloMatchCommesse";
 import { getDeviceToken } from "./firebase";
 import { jwtDecode } from "jwt-decode";
 import "react-toastify/dist/ReactToastify.css";
-
+import SimpleChatbot from './components/Chatbot';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

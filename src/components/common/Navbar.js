@@ -5,7 +5,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "react-toastify/dist/ReactToastify.css";
-import {  toast } from "react-toastify";
+//import SimpleChatbot from '../../components/Chatbot';
+
 import {
   faUser,
   faTasks,
@@ -22,10 +23,11 @@ import {
   faScrewdriverWrench,
   faRightFromBracket,
   faBell,
-  faSearch, // aggiunto
+  faSearch, // icona della lente
 } from "@fortawesome/free-solid-svg-icons";
-import { fetchCommesse } from "../services/API/commesse-api"; // import per caricare le commesse
-import CommessaDettagli from "../popup/CommessaDettagli"; // import per il popup dei dettagli
+import { CSSTransition } from "react-transition-group"; // Importa CSSTransition
+import { fetchCommesse } from "../services/API/commesse-api"; // per caricare le commesse
+import CommessaDettagli from "../popup/CommessaDettagli"; // popup dei dettagli
 
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -38,9 +40,10 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [commesseList, setCommesseList] = useState([]);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
 
-  // Decodifica il token e ottieni l'ID utente
+  // Decodifica il token
   const decodeToken = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -57,6 +60,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     console.error("Token non valido o scaduto.");
   }
 
+  // Effetto per le notifiche
   useEffect(() => {
     let interval;
     if (isAuthenticated) {
@@ -96,7 +100,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
-  // Effetto per caricare la lista delle commesse per la ricerca
+  // Carica la lista delle commesse per la ricerca
   useEffect(() => {
     const fetchCommesseList = async () => {
       try {
@@ -192,37 +196,44 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       );
     });
 
+  // Quando si apre un menu, chiudi gli altri dropdown (notifiche e ricerca)
   const toggleMenu = (menu) => {
     setActiveMenu((prevMenu) => (prevMenu === menu ? null : menu));
+    setIsSearchOpen(false);
+    setIsNotificationOpen(false);
   };
 
-  // FUNZIONI PER IL DROPDOWN DI RICERCA NELLA NAVBAR
-
-  // Apre o chiude il dropdown della ricerca
+  // Quando si apre il dropdown di ricerca, chiudi gli altri
   const toggleSearchDropdown = () => {
     setIsSearchOpen((prev) => !prev);
+    setActiveMenu(null);
+    setIsNotificationOpen(false);
   };
 
-  // Cerca una commessa in base al numero (match esatto)
-  const handleSearch = () => {
-    const trimmed = searchValue.trim();
-    if (!trimmed) {
-      toast.error("Inserisci un numero commessa valido.");
-      return;
-    }
-    const found = commesseList.find(
-      (c) => c.numero_commessa.toString() === trimmed
-    );
-    if (found) {
-      setSelectedCommessa(found);
-      setIsSearchOpen(false);
-      setSearchValue("");
+  // Quando si apre il dropdown delle notifiche, chiudi gli altri
+  const toggleNotification = () => {
+    setIsNotificationOpen((prev) => !prev);
+    setActiveMenu(null);
+    setIsSearchOpen(false);
+  };
+
+  // Aggiorna i suggerimenti in base al valore digitato
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    if (value.trim() !== "") {
+      const suggestionsFiltered = commesseList.filter((c) =>
+        c.numero_commessa.toString().includes(value.trim())
+      );
+      setSearchSuggestions(suggestionsFiltered);
     } else {
-      toast.error("Commessa non trovata.");
+      setSearchSuggestions([]);
     }
   };
 
-  // **Definizione della funzione mancante** per chiudere il popup di ricerca
+
+
+  // Funzione per chiudere il popup dei dettagli della commessa
   const closeSearchPopup = () => {
     setSelectedCommessa(null);
   };
@@ -245,10 +256,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
         )}
-        <button
-          className="menu-toggle"
-          onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-        >
+        <button className="menu-toggle" onClick={toggleNotification}>
           <FontAwesomeIcon icon={faBell} className="settings-icon" />
           {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
         </button>
@@ -260,33 +268,53 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             <FontAwesomeIcon icon={faGear} className="settings-icon" />
           </button>
         )}
+        <button className="menu-toggle" onClick={toggleSearchDropdown}>
+          <FontAwesomeIcon icon={faSearch} />
+        </button>
         <button className="menu-toggle" onClick={handleLogout}>
           <FontAwesomeIcon icon={faRightFromBracket} className="settings-icon-last" />
-        </button>
-        {/* Pulsante di ricerca con icona lente */}
-        <button className="search-button" onClick={toggleSearchDropdown}>
-          <FontAwesomeIcon icon={faSearch} />
         </button>
       </header>
 
       {/* Dropdown Menus */}
       <div className="dropdown-container-nav">
-        {activeMenu === "user" && (
+        {/* Usiamo CSSTransition per applicare un effetto di transizione */}
+        <CSSTransition
+          in={activeMenu === "user"}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.user)}</ul>
           </div>
-        )}
-        {activeMenu === "manager" && (
+        </CSSTransition>
+        <CSSTransition
+          in={activeMenu === "manager"}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.manager)}</ul>
           </div>
-        )}
-        {activeMenu === "admin" && (
+        </CSSTransition>
+        <CSSTransition
+          in={activeMenu === "admin"}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.admin)}</ul>
           </div>
-        )}
-        {isNotificationOpen && (
+        </CSSTransition>
+        <CSSTransition
+          in={isNotificationOpen}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <h4>Notifiche</h4>
             <ul>
@@ -305,25 +333,44 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
               <button onClick={markAllAsRead}>Segna tutte come lette</button>
             )}
           </div>
-        )}
+        </CSSTransition>
       </div>
 
-      {/* Dropdown di ricerca nella Navbar */}
-      {isSearchOpen && (
+      {/* Dropdown di ricerca nella Navbar con suggerimenti */}
+      <CSSTransition
+        in={isSearchOpen}
+        timeout={300}
+        classNames="dropdown"
+        unmountOnExit
+      >
         <div className="search-dropdown">
           <input
             type="text"
             placeholder="Inserisci numero commessa"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={handleSearchInputChange}
             className="input-field-100"
           />
-          <button onClick={handleSearch} className="btn btn-primary">
-            Cerca
-          </button>
+          {searchSuggestions.length > 0 && (
+            <ul className="search-suggestions">
+              {searchSuggestions.map((sugg) => (
+                <li
+                  key={sugg.commessa_id}
+                  onClick={() => {
+                    setSelectedCommessa(sugg);
+                    setIsSearchOpen(false);
+                    setSearchValue("");
+                    setSearchSuggestions([]);
+                  }}
+                >
+                  {sugg.numero_commessa} - {sugg.cliente}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      )}
-
+      </CSSTransition>
+   
       {/* Popup dei dettagli della commessa trovata */}
       {selectedCommessa && (
         <CommessaDettagli commessa={selectedCommessa} onClose={closeSearchPopup} />
