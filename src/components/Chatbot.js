@@ -21,29 +21,7 @@ const steps = [
     message: 'Ciao! Come posso aiutarti oggi?',
     trigger: 'userOptions',
   },
-  {
-    id: 'userOptions',
-    options: [
-      { value: 'commessaStatus', label: 'Verifica stato commessa', trigger: 'askCommessaId' },
-      { value: 'ritardo', label: 'Mostra ritardi', trigger: 'ritardoCommessa' },
-      { value: 'altro', label: 'Altro', trigger: 'otherOptions' },
-    ],
-  },
-  {
-    id: 'askCommessaId',
-    message: 'Inserisci l’ID della commessa:',
-    trigger: 'getCommessaId',
-  },
-  {
-    id: 'getCommessaId',
-    user: true,
-    trigger: 'fetchCommessaStatus',
-  },
-  {
-    id: 'otherOptions',
-    message: 'Puoi contattare il team tecnico per maggiori dettagli.',
-    end: true,
-  },
+
 ];
 
 // Componente chatbot

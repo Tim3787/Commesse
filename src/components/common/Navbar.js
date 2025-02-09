@@ -5,7 +5,9 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "react-toastify/dist/ReactToastify.css";
-//import SimpleChatbot from '../../components/Chatbot';
+import ChatGPTChatbot from "../../components/ChatGPTChatbot";
+
+
 
 import {
   faUser,
@@ -35,7 +37,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const token = sessionStorage.getItem("token");
   const [activeMenu, setActiveMenu] = useState(null);
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
   // State per la ricerca nella navbar
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -271,6 +273,12 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         <button className="menu-toggle" onClick={toggleSearchDropdown}>
           <FontAwesomeIcon icon={faSearch} />
         </button>
+        <button
+      className="menu-toggle"
+      onClick={() => setIsChatOpen((prev) => !prev)}
+    >
+      💬 ChatGPT
+    </button>
         <button className="menu-toggle" onClick={handleLogout}>
           <FontAwesomeIcon icon={faRightFromBracket} className="settings-icon-last" />
         </button>
@@ -334,6 +342,16 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             )}
           </div>
         </CSSTransition>
+        <CSSTransition
+  in={isChatOpen}
+  timeout={300}
+  classNames="dropdown"
+  unmountOnExit
+>
+  <div className="chatbot-container">
+    <ChatGPTChatbot />
+  </div>
+</CSSTransition>
       </div>
 
       {/* Dropdown di ricerca nella Navbar con suggerimenti */}
