@@ -219,7 +219,9 @@ useEffect(() => {
       <div>
         {isAuthenticated && userRole !== null && (
           <Navbar isAuthenticated={isAuthenticated} userRole={userRole} handleLogout={handleLogout} />
+          
         )}
+            
         <Routes>
   {/* Rotta di login */}
   <Route path="/login" element={<LoginRegister onLogin={handleLoginRequest} />} />

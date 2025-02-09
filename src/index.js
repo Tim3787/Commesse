@@ -5,6 +5,7 @@ import reportWebVitals from "./components/utils/reportWebVitals";
 import { messaging } from "./firebase"; 
 import { getToken, onMessage } from "firebase/messaging";
 
+
 const vapidKey = 'BEy_oianKnmIWUnHe-pmubXs0hXyeMeMdlFJeZ-KqMHSv6rfu1QizeAveFZSKgeuOFY6igPUXftwOeFgxPVchvs';
 
 // Funzione per richiedere il permesso per le notifiche

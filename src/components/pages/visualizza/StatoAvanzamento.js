@@ -20,7 +20,7 @@ function StatiAvanzamento() {
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
   const [statiCommessa, setStatiCommessa] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [showFilters, setShowFilters] = useState(false);
 
   
   useEffect(() => {
@@ -198,7 +198,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   };
   
   
-
+  
+  const toggleFilters = () => {
+    setShowFilters((prev) => !prev);
+  };
 
   
   const testNavigation = () => {
@@ -340,8 +343,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       <h1>Stati avanzamento</h1>
        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
-
-
+      <button onClick={toggleFilters} className="btn btn-filter">
+          {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}
+        </button>
+        {showFilters && (
       <div className="filters">
          <div className="filter-group">
         <input
@@ -410,7 +415,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
         )}
       </div>
       </div>
-
+  )}
       {/* Navigazione */}
       <div className="navigation">
         <button onClick={() => handleNavigation("prev")} className="btn-Nav">

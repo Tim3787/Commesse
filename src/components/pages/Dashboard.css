@@ -90,8 +90,6 @@
   .calendar-navigation {
     flex-shrink: 0; /* Mantiene fissa la dimensione della navigazione */
     padding: 2px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #ddd; /* Separatore visivo */
   }
   
   .today {
@@ -316,6 +314,42 @@
   position: sticky; /* Fissa l'intestazione */
   top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
   z-index: 1;       /* Assicurati che sia sopra le celle */
+}
+/* Esempio di stile per il pulsante burger */
+.burger-icon {
+  background: none;
+  color: #333;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* Stile per il menu a burger */
+.burger-menu {
+  position: fixed;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #e7e5e5;
+  padding: 20px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* Header del burger menu */
+.burger-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Pulsante per chiudere il menu */
+.close-burger {
+  background: none;
+  color: #333;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
 }
 
 

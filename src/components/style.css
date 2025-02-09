@@ -19,15 +19,31 @@ body {
   flex-direction: column; /* Disposizione verticale */
   justify-content: flex-start; /* Inizia in alto */
 }
+.page-wrapper {
+  position: relative;
+  background-color: white;
+}
+/* Contenitore principale (main content) */
+.main-container {
+  transition: margin-left 0.3s ease;
+  margin-left: 0;
+  padding: 20px;
+  padding-top: 0px;
+}
 
+
+/* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
+.main-container.shifted {
+  margin-left: 270px; /* Uguale alla larghezza del burger menu */
+  background-color: #e7e5e5;
+}
 /* ==============================
 Header
 ============================== */
 .header {
+  background-color: #e7e5e5;
   justify-content: space-between; /* Spaziatura uniforme */
   align-items: center; /* Allinea gli elementi verticalmente */
-  background-color: #fff; /* Sfondo del header */
-  padding: 10px 20px; /* Spaziatura interna */
   top: 0;
   z-index: 1000; /* Porta l'header sopra altri elementi */
   flex-wrap: wrap; /* Permette di andare a capo quando necessario */
@@ -73,7 +89,7 @@ form input, form textarea, form select, form button {
 }
 
 form button {
-  background-color: #3498db;
+
   color: #fff;
   border: none;
   cursor: pointer;
@@ -98,7 +114,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   overflow-x: auto;
-  white-space: nowrap;
+
   font-size: 14px;
 }
 
@@ -716,10 +732,7 @@ animation: spin 1s linear infinite;
 width: 100%;
     }
 
-    button:hover, a:hover {
-      background-color: #0056b3;
-      color: #fff;
-    }
+
 .create-activity-btn {
 background-color: #4c03d4;
 color: white;
@@ -1040,10 +1053,15 @@ background-color: #f0f0f0;
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
+
   .container {
-    max-width: 95%; /* Adatta alla larghezza dello schermo */
-    padding: 15px;  /* Riduci il padding per schermi piccoli */
+    max-width: 100%; /* Occupa tutta la larghezza */
+    padding: 10px;   /* Ulteriore riduzione del padding */
+    box-shadow: none; /* Rimuovi l'ombra per un design più piatto */
+    border-radius: 0; /* Rimuovi i bordi arrotondati */
   }
+
+
   .menu-toggle {
     display: block; /* Mostra il pulsante toggle */
   }
@@ -1102,7 +1120,7 @@ Responsive Design
     padding: 6px;
     font-size: 16px;
   }
-  
+
   .filter-label {
     font-size: 12px;
   }
@@ -1111,8 +1129,13 @@ Responsive Design
   }
   .input-field {
     font-size: 12px;
+   
   }
   
+  .filter-group {
+max-width: 200px;
+   
+  }
   
 .dropdown-label {
   font-size: 12px;
@@ -1141,6 +1164,8 @@ Responsive Design
   }
 }
 
+
+
 @media (max-width: 480px) {
   .popup-content {
     width: 95%; /* Ulteriore adattamento per schermi molto piccoli */
@@ -1156,14 +1181,7 @@ Responsive Design
 }
 
 @media (max-width: 480px) {
-  .container {
-    max-width: 100%; /* Occupa tutta la larghezza */
-    padding: 10px;   /* Ulteriore riduzione del padding */
-    box-shadow: none; /* Rimuovi l'ombra per un design più piatto */
-    border-radius: 0; /* Rimuovi i bordi arrotondati */
-  }
 
-  
   .header nav {
     display: none; /* Nasconde il menu su schermi piccoli */
     flex-direction: column; /* Disposizione verticale per il menu */
@@ -1191,12 +1209,7 @@ Responsive Design
     margin-bottom: 10px;
   }
 
-  .container {
-    margin: 5px auto;
-    padding: 10px;
-  }
+
 
 }
-
-
 

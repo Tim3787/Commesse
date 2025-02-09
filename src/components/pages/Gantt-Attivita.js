@@ -242,15 +242,8 @@ const daysInMonth = getDaysInMonth();
         )}
 
         <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
-          </button>
-        </div>
 
-        <div className="filter-group">
+
   <input
     type="text"
     value={numeroCommessa}
@@ -277,6 +270,12 @@ const daysInMonth = getDaysInMonth();
   <button onClick={handleSearchCommessa} className="btn-search-commessa" disabled={loading}>
     {loading ? "Caricamento..." : "Cerca"}
   </button>
+  <button onClick={goToPreviousMonth} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese Successivo →
+          </button>
 </div>
 
 

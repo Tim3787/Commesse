@@ -18,6 +18,8 @@ import {
   faGear,
   faBars,
   faScrewdriverWrench,
+  faRightFromBracket,
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 
 
@@ -50,7 +52,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   }
 
   useEffect(() => {
-    let interval;
+    let interval;isAuthenticated
     if (isAuthenticated) {
         fetchUnreadNotifications();
         // Controlla nuove notifiche ogni 60 secondi
@@ -179,6 +181,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       );
     });
   
+  
 
 
   const toggleMenu = (menu) => {
@@ -208,28 +211,24 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
         )}
-        
-                  {/* Icona notifiche */}
-                  <div
-            className="notification-icon"
+             
+             <button className="menu-toggle "
             onClick={() => setIsNotificationOpen(!isNotificationOpen)}
           >
-            🔔
+           <FontAwesomeIcon icon={faBell} className="settings-icon" />
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-          </div>
-        <button className="logout-button" onClick={handleLogout}>
-          Logout
-        </button>
-        {userRole === 1 && (
+            </button>
+            {userRole === 1 && (
           <button
             className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
-            onClick={() => toggleMenu("admin")}
-            
-          >
+            onClick={() => toggleMenu("admin")}>
             <FontAwesomeIcon icon={faGear} className="settings-icon" />
-          
           </button>
         )}
+        <button className="menu-toggle" onClick={handleLogout}>
+          <FontAwesomeIcon icon={faRightFromBracket} className="settings-icon-last" />
+        </button>
+
       </header>
 
       {/* Dropdown Menus */}

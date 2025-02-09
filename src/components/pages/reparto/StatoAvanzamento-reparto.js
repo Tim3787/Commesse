@@ -395,6 +395,11 @@ const saveNewOrder = async () => {
       </div>
     );
   }
+  // Stato per il burger menu per filtri ed opzioni
+  const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
+  const toggleBurgerMenu = () => {
+    setIsBurgerMenuOpen((prev) => !prev);
+  };
 
   // Componente DropZone per il drag & drop sulle colonne
   function DropZone({ stato, commesse, repartoId, activities, resources }) {
@@ -428,12 +433,34 @@ const saveNewOrder = async () => {
   }
 
   return (
-    <div className="container-Scroll">
-      <h1>Stato Avanzamento {RepartoName}</h1>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-      {loading && <div className="loading-overlay">Caricamento...</div>}
+    <div className="page-wrapper">
+      {/* Header */}
+      <div className="header">
+        <h1>Stato Avanzamento {RepartoName}</h1>
+        <div className="month-navigation">
+          <button className="burger-icon" onClick={toggleBurgerMenu}>
+            Filtri e opzioni
+          </button>
+          <button onClick={() => {}} className="btn-Nav">
+            ← Mese Precedente
+          </button>
+          <button onClick={() => {}} className="btn-Nav">
+            Mese Successivo →
+          </button>
+        </div>
+        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        {loading && <div className="loading-overlay">Caricamento...</div>}
+      </div>
 
-      <div className="filters">
+       {/* Burger Menu */}
+       {isBurgerMenuOpen && (
+        <div className="burger-menu">
+          <div className="burger-menu-header">
+            <button onClick={toggleBurgerMenu} className="close-burger">X</button>
+          </div>
+          <div className="burger-menu-content">
+            <div className="filters-burger">
+              <h3>Filtri</h3>
         <input
           type="text"
           placeholder="Numero Commessa"
@@ -452,8 +479,17 @@ const saveNewOrder = async () => {
           value={tipoMacchinaFilter}
           onChange={(e) => setTipoMacchinaFilter(e.target.value)}
         />
-      </div>
-      <button onClick={saveNewOrder}>Salva ordine colonne </button>
+        </div>
+            <div className="filters-burger">
+              <h3>Azioni</h3>
+              <button onClick={saveNewOrder}>Salva ordine colonne</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+            {/* Contenuto principale: spostato a destra se il burger menu è aperto */}
+            <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
       <DndProvider backend={HTML5Backend}>
         <div className="Gen-table-container">
           <table className="software2-schedule">
@@ -498,6 +534,7 @@ const saveNewOrder = async () => {
         </div>
       </DndProvider>
      
+    </div>
     </div>
   );
 }

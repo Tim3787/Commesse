@@ -1,0 +1,49 @@
+/* BurgerMenu.css */
+
+/* Puoi modificare il colore di sfondo del menu */
+.bm-menu {
+    background: #373a47;
+    padding: 2.5em 1.5em 0;
+    font-size: 1.15em;
+  }
+  
+  /* Stile per i link all'interno del menu */
+  .menu-item {
+    display: block;
+    color: #b8b7ad;
+    padding: 0.5em 0;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .menu-item:hover {
+    color: white;
+  }
+  
+  /* Se vuoi modificare il pulsante hamburger */
+  .bm-burger-button {
+    position: fixed;
+    width: 36px;
+    height: 30px;
+    left: 36px;
+    top: 36px;
+  }
+  
+  .bm-burger-bars {
+    background: #373a47;
+  }
+  
+  .bm-cross-button {
+    height: 24px;
+    width: 24px;
+  }
+  
+  .bm-cross {
+    background: #bdc3c7;
+  }
+  
+  /* Puoi anche personalizzare l'overlay (sfondo scuro quando il menu è aperto) */
+  .bm-overlay {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  

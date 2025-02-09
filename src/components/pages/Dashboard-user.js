@@ -3,7 +3,8 @@ import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/no
 import {fetchFATDates}  from "../services/API/commesse-api";
 import { fetchDashboardActivities} from "../services/API/dashboard-api";
 import { fetchUserName} from "../services/API/utenti-api";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import "./Dashboard.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
@@ -176,8 +177,12 @@ const deleteNote = async (activityId) => {
       <h1>Benvenuto, {userName}</h1>
          <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         <div className="calendar-navigation">
-        <button onClick={goToPreviousMonth} className="btn-nav">← Mese Precedente</button>
-        <button onClick={goToNextMonth} className="btn-nav">Mese Successivo →</button>
+           <button onClick={goToPreviousMonth} className="btn-Nav">
+             <FontAwesomeIcon icon={faChevronLeft} /> Mese Precedente
+           </button>
+           <button onClick={goToNextMonth} className="btn-Nav">
+             Mese Successivo <FontAwesomeIcon icon={faChevronRight} />
+           </button>
         </div>
         {loading && (
           <div className="loading-overlay">
