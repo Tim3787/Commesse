@@ -334,4 +334,17 @@ border-width: 2px;
   display: block;
   font-size: 14px;
 }
+
+
+.settings-icon {
+
+  font-size: 15px;
+  margin-right: 7px;
+  margin-left: 7px;
+}
+.settings-icon-last {
+  font-size: 15px;
+  margin-left: 10px;
+
+}
 }
