@@ -262,22 +262,26 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
         </button>
         {userRole === 1 && (
+            <>
           <button
             className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
             onClick={() => toggleMenu("admin")}
           >
             <FontAwesomeIcon icon={faGear} className="settings-icon" />
           </button>
+          <button
+          className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+          onClick={() => setIsChatOpen((prev) => !prev)}
+        >
+          💬
+        </button>
+           </>
         )}
-        <button className="menu-toggle" onClick={toggleSearchDropdown}>
+          <button className="menu-toggle" onClick={toggleSearchDropdown}>
           <FontAwesomeIcon icon={faSearch} />
         </button>
-        <button
-      className="menu-toggle"
-      onClick={() => setIsChatOpen((prev) => !prev)}
-    >
-      💬 ChatGPT
-    </button>
+        
+      
         <button className="menu-toggle" onClick={handleLogout}>
           <FontAwesomeIcon icon={faRightFromBracket} className="settings-icon-last" />
         </button>
