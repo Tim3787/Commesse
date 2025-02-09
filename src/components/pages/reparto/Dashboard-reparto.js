@@ -13,7 +13,10 @@ import { getDaysInMonth } from "../../assets/date";
 import { updateActivityNotes } from "../../services/API/notifiche-api";
 import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../../services/API/attivitaCommesse-api";
 import { Tooltip } from "react-tooltip";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 function DashboardReparto() {
   const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
@@ -518,10 +521,10 @@ function DashboardReparto() {
             Filtri e opzioni
           </button>
           <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
+            ← Mese
           </button>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
+            Mese →
           </button>
         </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
@@ -537,7 +540,7 @@ function DashboardReparto() {
         <div className="burger-menu">
           <div className="burger-menu-header">
             <button onClick={toggleBurgerMenu} className="close-burger">
-              X
+            <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
             </button>
           </div>
           <div className="burger-menu-content">

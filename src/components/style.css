@@ -35,13 +35,13 @@ body {
 /* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
 .main-container.shifted {
   margin-left: 270px; /* Uguale alla larghezza del burger menu */
-  background-color: #e7e5e5;
+  background-color: #ffffff;
 }
 /* ==============================
 Header
 ============================== */
 .header {
-  background-color: #e7e5e5;
+  background-color: white;
   justify-content: space-between; /* Spaziatura uniforme */
   align-items: center; /* Allinea gli elementi verticalmente */
   top: 0;

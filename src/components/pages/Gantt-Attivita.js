@@ -271,10 +271,10 @@ const daysInMonth = getDaysInMonth();
     {loading ? "Caricamento..." : "Cerca"}
   </button>
   <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese Precedente
+            ← Mese
           </button>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo →
+            Mese →
           </button>
 </div>
 

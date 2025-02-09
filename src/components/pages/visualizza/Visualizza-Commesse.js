@@ -6,6 +6,10 @@ import { fetchStatiCommessa } from "../../services/API/statoCommessa-api";
 import { fetchCommesse } from "../../services/API/commesse-api";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]); 
@@ -218,9 +222,8 @@ function VisualizzazioneCommesse() {
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <h2>Filtri e Opzioni</h2>
             <button onClick={toggleBurgerMenu} className="close-burger">
-              X
+              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
             </button>
           </div>
           <div className="burger-menu-content">

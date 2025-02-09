@@ -176,11 +176,11 @@ function CalendarioCommesse() {
 
 <div className="calendar-navigation">
   <button onClick={goToPreviousMonth} className="btn-Nav">
-    ← Mese Precedente
+    ← Mese
   </button>
   <span className="current-month">{getMonthName()}</span>
   <button onClick={goToNextMonth} className="btn-Nav">
-    Mese Successivo →
+    Mese →
   </button>
 </div>
 

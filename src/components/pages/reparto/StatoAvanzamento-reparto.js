@@ -11,6 +11,10 @@ import DraggableColumn from "../../assets/DraggableColumn"; // Assicurati del pe
 import { ordinaStatiAvanzamento } from "../../services/API/StatiAvanzamento-api";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 
 function StatoAvanzamentoReparti() {
   const { reparto } = useParams();  // Legge il parametro dinamico dall'URL
@@ -442,10 +446,10 @@ const saveNewOrder = async () => {
             Filtri e opzioni
           </button>
           <button onClick={() => {}} className="btn-Nav">
-            ← Mese Precedente
+            ← Mese
           </button>
           <button onClick={() => {}} className="btn-Nav">
-            Mese Successivo →
+            Mese →
           </button>
         </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
@@ -456,7 +460,10 @@ const saveNewOrder = async () => {
        {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <button onClick={toggleBurgerMenu} className="close-burger">X</button>
+            <button onClick={toggleBurgerMenu} className="close-burger"> 
+<FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+
+            </button>
           </div>
           <div className="burger-menu-content">
             <div className="filters-burger">

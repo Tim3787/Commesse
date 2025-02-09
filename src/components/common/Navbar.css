@@ -7,7 +7,7 @@
 }
 .navbar-header {
   top: 0;
-  background-color: #e7e5e5;
+  background-color: white;
   display: flex;
   align-items: center;
   padding: 5px ;
@@ -18,7 +18,7 @@ border-width: 2px;
 
 /* Pulsanti Menu */
 .menu-toggle {
-  background-color: #e7e5e5;
+  background-color: white;
   color: #007bff;
   border: none;
   padding: 5px 5px;
@@ -53,7 +53,7 @@ border-width: 2px;
 .dropdown-menu-nav {
 
   width: 100%;
-  background-color: #e7e5e5;
+  background-color: white;
   padding: 10px 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
