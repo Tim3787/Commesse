@@ -266,6 +266,31 @@ border-width: 2px;
 .dropdown-subgroup ul li a:hover {
   color: #007bff;
 }
+.search-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  margin-left: 10px;
+  color: #333;
+}
+
+.search-dropdown {
+  top: 60px; /* adatta in base al layout */
+  right: 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.input-field-100 {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 5px;
+}
+
 
 /* Animazione apertura menu */
 @keyframes slideDown {
