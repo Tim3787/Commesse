@@ -1,5 +1,6 @@
 .Comm-table-container {
   overflow-y: auto;
+  overflow-x: auto;
   max-height: 92vh;
   border: 1px solid #ddd;
   background-color: #f9f9f9;

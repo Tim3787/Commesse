@@ -146,6 +146,18 @@ const daysInMonth = getDaysInMonth();
   }, [daysInMonth]);
 
   useEffect(() => {
+    if (!hasScrolledToToday.current && todayRef.current) {
+      todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      const handleScrollEnd = () => {
+        hasScrolledToToday.current = true;
+        window.removeEventListener("scroll", handleScrollEnd);
+      };
+      window.addEventListener("scroll", handleScrollEnd);
+    }
+  }, []);
+
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
         setSuggestions([]);

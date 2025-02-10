@@ -47,6 +47,7 @@ function DashboardReparto() {
   const [editId, setEditId] = useState(null);
   const [loadingActivities, setLoadingActivities] = useState({});
   const todayRef = useRef(null);  
+  const containerRef = useRef(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const daysInMonth = getDaysInMonth(currentMonth);
   const [filters, setFilters] = useState({
@@ -150,16 +151,27 @@ function DashboardReparto() {
     setFilteredActivities(fActivities);
   }, [activities, filters]);
   
+  // UseEffect per scrollare il container in modo che la cella di oggi sia centrata
   useEffect(() => {
-    if (!hasScrolledToToday.current && todayRef.current) {
-      todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      const handleScrollEnd = () => {
-        hasScrolledToToday.current = true;
-        window.removeEventListener("scroll", handleScrollEnd);
-      };
-      window.addEventListener("scroll", handleScrollEnd);
+    if (todayRef.current && containerRef.current && !hasScrolledToToday.current) {
+      // Calcola la posizione della cella di oggi rispetto al container
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const todayRect = todayRef.current.getBoundingClientRect();
+      const offsetLeft = todayRect.left - containerRect.left;
+      const scrollLeft =
+        offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
+      
+      containerRef.current.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+      
+      hasScrolledToToday.current = true;
     }
-  }, []);
+  }, [daysInMonth]); // Ricalcola quando il mese (e quindi i giorni) cambia
+
+  // ... resto del componente (render, funzioni, etc.)
+
   
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -381,7 +393,8 @@ function DashboardReparto() {
           >
           </div>
           <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid">
-            {tooltipContent}
+          <span style={{ whiteSpace: "pre-wrap" }}>
+            {tooltipContent}</span>
           </Tooltip>
         </>
       );
@@ -612,14 +625,14 @@ function DashboardReparto() {
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         <DndProvider backend={HTML5Backend}>
           <div className="container-Scroll">
-            <div className="Gen-table-container">
+            <div className="Gen-table-container" ref={containerRef}>
               <table className="software-schedule">
                 <thead>
                   <tr>
                     <th>Risorsa</th>
                     {daysInMonth.map((day) => {
-                      const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
-                      const isToday = day.toDateString() === new Date().toDateString(); 
+                      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                      const isToday = day.toDateString() === new Date().toDateString();
                       return (
                         <th
                           key={day.toISOString()}
