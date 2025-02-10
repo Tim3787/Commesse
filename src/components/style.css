@@ -352,7 +352,7 @@ tr:nth-child(even) {
 
 /* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
 .main-container.shifted {
-  margin-left: 280px; /* Uguale alla larghezza del burger menu */
+  margin-left: 220px; /* Uguale alla larghezza del burger menu */
   background-color: #ffffff;
 }
 .title {
@@ -1098,10 +1098,6 @@ Responsive Design
     flex-direction: column;
     align-items: stretch;
     font-size: 12px;
-  }
-  table {
-
-    display: block;
   }
 
   /* Aggiungi spaziatura uniforme tra gli elementi */
