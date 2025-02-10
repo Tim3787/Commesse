@@ -75,7 +75,7 @@ function CommessaCrea({
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
-        stato: "",
+        stato: "1",
       });
   
       setSelezioniAttivita({}); 

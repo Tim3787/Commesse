@@ -31,7 +31,6 @@ function DashboardReparto() {
   const [reparti, setReparti] = useState([]);
   const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
   const [selectedServiceResource, setSelectedServiceResource] = useState(null);
-  const hasScrolledToToday = useRef(false);
   const [activityViewMode, setActivityViewMode] = useState("full");
   const [formData, setFormData] = useState({
     commessa_id: "",
@@ -151,28 +150,46 @@ function DashboardReparto() {
     setFilteredActivities(fActivities);
   }, [activities, filters]);
   
-  // UseEffect per scrollare il container in modo che la cella di oggi sia centrata
-  useEffect(() => {
-    if (todayRef.current && containerRef.current && !hasScrolledToToday.current) {
-      // Calcola la posizione della cella di oggi rispetto al container
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const todayRect = todayRef.current.getBoundingClientRect();
-      const offsetLeft = todayRect.left - containerRect.left;
-      const scrollLeft =
-        offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
-      
-      containerRef.current.scrollTo({
-        left: scrollLeft,
-        behavior: "smooth",
-      });
-      
-      hasScrolledToToday.current = true;
+  const scrollToToday = () => {
+    const today = new Date();
+    // Se il mese visualizzato non è quello attuale, aggiorna lo stato currentMonth
+    if (
+      currentMonth.getMonth() !== today.getMonth() ||
+      currentMonth.getFullYear() !== today.getFullYear()
+    ) {
+      setCurrentMonth(today);
+      // Attendi il re-render (ad es. 100ms) per far apparire le celle del mese attuale
+      setTimeout(() => {
+        if (todayRef.current && containerRef.current) {
+          const containerRect = containerRef.current.getBoundingClientRect();
+          const todayRect = todayRef.current.getBoundingClientRect();
+          const offsetLeft = todayRect.left - containerRect.left;
+          const additionalOffset = -50; // o -10, in base al comportamento osservato
+const scrollLeft =
+  offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2 + additionalOffset;
+containerRef.current.scrollTo({
+  left: scrollLeft,
+  behavior: "smooth",
+});
+        }
+      }, 100);
+    } else {
+      // Se il mese visualizzato è già quello attuale, scrolla direttamente
+      if (todayRef.current && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const todayRect = todayRef.current.getBoundingClientRect();
+        const offsetLeft = todayRect.left - containerRect.left;
+        const scrollLeft =
+          offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
+        containerRef.current.scrollTo({
+          left: scrollLeft,
+          behavior: "smooth"
+        });
+      }
     }
-  }, [daysInMonth]); // Ricalcola quando il mese (e quindi i giorni) cambia
-
-  // ... resto del componente (render, funzioni, etc.)
-
+  };
   
+
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
@@ -536,6 +553,10 @@ function DashboardReparto() {
           <button onClick={goToPreviousMonth} className="btn-Nav">
             ← Mese
           </button>
+          <button onClick={scrollToToday} className="btn-Nav">
+  OGGI
+</button>
+
           <button onClick={goToNextMonth} className="btn-Nav">
             Mese →
           </button>

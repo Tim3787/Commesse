@@ -1,7 +1,8 @@
 
 .Gen-table-container {
-  overflow-y: auto;  /* Scorrimento verticale */
-  overflow-y: auto;  /* Scorrimento verticale */
+  max-height: 82vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
+  overflow-x: auto; /* Abilita lo scroll orizzontale */
+  overflow-y: auto; /* Abilita lo scroll verticale se necessario */
   border: 1px solid #ddd;
 }
 

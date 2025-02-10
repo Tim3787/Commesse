@@ -17,8 +17,8 @@ function VisualizzazioneCommesse() {
   const [clienteFilter, setClienteFilter] = useState("");
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState(""); 
-  const [sortOrder, setSortOrder] = useState("data"); 
-  const [sortDirection, setSortDirection] = useState("asc"); 
+  const [sortOrder, ] = useState("data"); 
+  const [sortDirection, ] = useState("asc"); 
   const [dateSortDirection, setDateSortDirection] = useState("crescente"); 
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
@@ -28,7 +28,7 @@ function VisualizzazioneCommesse() {
   const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [statoFilter, setStatoFilter] = useState(""); 
+  const [statoFilter, setStatoFilter] = useState("2"); 
   const [statiCommessa, setStatiCommessa] = useState([]); 
 
   // Stato per il menu a burger
@@ -175,15 +175,6 @@ function VisualizzazioneCommesse() {
     }
   };
 
-  const handleSortChange = (e) => {
-    const { value } = e.target;
-    if (value === sortOrder) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortOrder(value);
-      setSortDirection("asc");
-    }
-  };
 
   const handleDateSortChange = (e) => {
     setDateSortDirection(e.target.value);
@@ -305,18 +296,7 @@ function VisualizzazioneCommesse() {
             </div>
             {/* Sezione Opzioni di ordinamento */}
             <div className="filters">
-              <div className="filter-group">
-                <select onChange={handleSortChange} value={sortOrder}>
-                  <option value="numero_commessa">Ordina per: Numero Commessa</option>
-                  <option value="data">Ordina per: Data Consegna</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <select onChange={handleSortChange} value={sortDirection}>
-                  <option value="asc">Numero commessa crescente</option>
-                  <option value="desc">Numero commessa decrescente</option>
-                </select>
-              </div>
+
               <div className="filter-group">
                 <select onChange={handleDateSortChange} value={dateSortDirection}>
                   <option value="crescente">Data di consegna crescente</option>
@@ -361,8 +341,13 @@ function VisualizzazioneCommesse() {
             ))}
           </tbody>
         </table>
-        {selectedCommessa && <CommessaDettagli commessa={selectedCommessa} onClose={handleClosePopup} />}
-      </div>
+        {selectedCommessa && (
+          <CommessaDettagli
+            commessa={selectedCommessa}
+            onClose={handleClosePopup}
+            onStatusUpdated={fetchData}
+          />
+        )} </div>
     </div>
   );
 }

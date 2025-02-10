@@ -84,36 +84,32 @@ const daysInMonth = getDaysInMonth(currentMonth);
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const dayYear = day.getFullYear();
-    const dayMonth = day.getMonth();
-    const dayDate = day.getDate(); // Giorno del mese
+  const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
   
+  const getActivitiesForResourceAndDay = (resourceId, day) => {
+    const normalizedDay = normalizeDate(day);
+    
     return activities.filter((activity) => {
       if (!activity.data_inizio) {
-
         return false;
       }
-  
-      // Parse della data di inizio attività e forziamo -1 giorno
-      const startDate = new Date(activity.data_inizio);
-      startDate.setDate(startDate.getDate() - 1); // Forza indietro di un giorno
-  
+      
+      // Calcola la data di inizio normalizzata
+      const startDate = normalizeDate(activity.data_inizio);
+      
+      // Calcola la data di fine, partendo dalla data di inizio
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata - 1);
-  
-      // Confronto con anno, mese e giorno per evitare errori di fuso orario
-      const isDayWithinRange =
-        dayYear >= startDate.getFullYear() &&
-        dayMonth >= startDate.getMonth() &&
-        dayDate >= startDate.getDate() &&
-        (dayYear <= endDate.getFullYear() &&
-          dayMonth <= endDate.getMonth() &&
-          dayDate <= endDate.getDate());
-
-  
+      endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
+      
+      // Confronta le date (usando getTime o direttamente, dato che sono normalizzate)
       return (
-        Number(activity.risorsa_id) === Number(resourceId) && isDayWithinRange
+        Number(activity.risorsa_id) === Number(resourceId) &&
+        normalizedDay.getTime() >= startDate.getTime() &&
+        normalizedDay.getTime() <= endDate.getTime()
       );
     });
   };

@@ -19,24 +19,7 @@ body {
   flex-direction: column; /* Disposizione verticale */
   justify-content: flex-start; /* Inizia in alto */
 }
-.page-wrapper {
-  position: relative;
-  background-color: white;
-}
-/* Contenitore principale (main content) */
-.main-container {
-  transition: margin-left 0.3s ease;
-  margin-left: 0;
-  padding: 20px;
-  padding-top: 0px;
-}
 
-
-/* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
-.main-container.shifted {
-  margin-left: 270px; /* Uguale alla larghezza del burger menu */
-  background-color: #ffffff;
-}
 /* ==============================
 Header
 ============================== */
@@ -347,14 +330,33 @@ tr:nth-child(even) {
 .container-Scroll{
   display: flex;
   flex-direction: column;
-  height: 92vh; 
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
 
 }
+.page-wrapper {
 
+  position: relative;
+  background-color: white;
+}
+/* Contenitore principale (main content) */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+  margin-left: 0;
+  padding: 10px;
+  padding-top: 0px;
+}
+
+
+/* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
+.main-container.shifted {
+  margin-left: 280px; /* Uguale alla larghezza del burger menu */
+  background-color: #ffffff;
+}
 .title {
   text-align: center;
   margin-bottom: 20px;
