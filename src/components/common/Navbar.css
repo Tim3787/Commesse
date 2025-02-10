@@ -180,7 +180,7 @@ border-width: 2px;
 
 }
 .notification-badge {
-  position: absolute;
+
   top: -5px;
   right: -5px;
   background: red;
