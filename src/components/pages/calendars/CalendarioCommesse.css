@@ -121,3 +121,11 @@ Responsive Design
 
   }
 }
+@media (max-width: 480px) {
+
+
+.Comm-event {
+  font-size: 12px;
+
+}
+}

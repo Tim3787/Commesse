@@ -284,6 +284,7 @@
   }
   
   .software-schedule th {
+    position: -webkit-sticky;
     position: sticky; /* Fissa l'intestazione */
     top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
     z-index: 1;       /* Assicurati che sia sopra le celle */
@@ -358,11 +359,25 @@
 /* ==============================
 Responsive Design
 ============================== */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .software-schedule td:first-child {
     border: 1px solid #ddd;
     max-width: 15px; /* Limita la larghezza massima */
     word-wrap: break-word; /* Consente al testo di andare a capo */
     white-space: normal; /* Permette di andare a capo se necessario */
   }
+
+.software-schedule th, 
+.software-schedule td {
+padding: 2px;
+  font-size: 13px;
+
+}
+
+.activity {
+  padding: 1px 3px;
+  font-size: 10px;
+
+  min-width: 100px;
+}
 }

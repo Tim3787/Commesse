@@ -14,7 +14,7 @@ function VisualizzaAttivita() {
   const todayRef = useRef(null); // Per scorrere automaticamente a oggi
   const [suggestions, setSuggestions] = useState([]);
   const suggestionsRef = useRef(null);
-
+  const hasScrolledToToday = useRef(false);
   const reparti = [
     { id: 1, name: "Reparto Software" },
     { id: 2, name: "Reparto Elettrico" },
