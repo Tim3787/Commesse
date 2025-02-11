@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "../../style.css";
-import logo from "../../img/Animation - 1738249246846.gif";
+import "../style.css";
+import logo from "../img/Animation - 1738249246846.gif";
+// Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -10,41 +11,41 @@ import {
   createStatoCommessa, 
   updateStatoCommessa, 
   deleteStatoCommessa 
-} from "../../services/API/statoCommessa-api";
+} from "../services/API/statoCommessa-api";
 
 import { 
   fetchReparti, 
   createReparto, 
   updateReparto, 
   deleteReparto 
-} from "../../services/API/reparti-api";
+} from "../services/API/reparti-api";
 
 import { 
   fetchAttivita, 
   createAttivita, 
   updateAttivita, 
   deleteAttivita 
-} from "../../services/API/attivita-api";
+} from "../services/API/attivita-api";
 
 import { 
   fetchRisorse, 
   createRisorsa, 
   updateRisorsa, 
   deleteRisorsa 
-} from "../../services/API/risorse-api";
+} from "../services/API/risorse-api";
 
 import { 
   fetchStatiAvanzamento, 
   createStatoAvanzamento, 
   updateStatoAvanzamento, 
   deleteStatoAvanzamento 
-} from "../../services/API/StatiAvanzamento-api";
+} from "../services/API/StatiAvanzamento-api";
 
 // Import per drag & drop
 import { DndProvider} from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import DraggableColumn from "../../assets/DraggableColumn"; // Assicurati del percorso corretto
-import { ordinaStatiAvanzamento } from "../../services/API/StatiAvanzamento-api";
+import DraggableColumn from "../assets/DraggableColumn"; // Assicurati del percorso corretto
+import { ordinaStatiAvanzamento } from "../services/API/StatiAvanzamento-api";
 
 function GestioneTabelle() {
   // ================================

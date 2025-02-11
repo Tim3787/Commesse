@@ -1,37 +1,55 @@
-import React, { useEffect, useState, useRef } from "react"; //OGGI
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import "../Dashboard.css";
-import logo from "../../img/Animation - 1738249246846.gif";
-import AttivitaCrea from "../../popup/AttivitaCrea";
+import "./00-Dashboard.css";
+import logo from "../img/Animation - 1738249246846.gif";
+import AttivitaCrea from "../popup/AttivitaCrea";
+
+// Import per il drag & drop
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+
+// Import per notifiche e tooltip
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useParams } from "react-router-dom"; 
-import repartoConfig from "../../config/repartoConfig";
-import { getDaysInMonth } from "../../assets/date";
-import { updateActivityNotes } from "../../services/API/notifiche-api";
-import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../../services/API/attivitaCommesse-api";
 import { Tooltip } from "react-tooltip";
+
+// Import per la navigazione e la configurazione del reparto
+import { useParams } from "react-router-dom";
+import repartoConfig from "../config/repartoConfig";
+import { getDaysInMonth } from "../assets/date";
+
+// Import API per le attività e le note
+import { updateActivityNotes } from "../services/API/notifiche-api";
+import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
+
+// Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEyeSlash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+
+// ============================
+// COMPONENTE: DashboardReparto
+// ============================
 function DashboardReparto() {
-  const { reparto } = useParams(); // Ottieni il nome del reparto dall'URL
+  // Estrae il nome del reparto dai parametri dell'URL e ottiene la configurazione associata
+  const { reparto } = useParams();
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
-  const [activities, setActivities] = useState([]);
-  const [filteredActivities, setFilteredActivities] = useState([]);
-  const [resources, setResources] = useState([]);
-  const [serviceResources, setServiceResources] = useState([]); 
-  const [loading, setLoading] = useState(false);
+
+  // ----------------------------
+  // Stati del componente
+  // ----------------------------
+  const [activities, setActivities] = useState([]); // Tutte le attività caricate
+  const [filteredActivities, setFilteredActivities] = useState([]); // Attività filtrate in base ai filtri
+  const [resources, setResources] = useState([]); // Risorse appartenenti al reparto
+  const [serviceResources, setServiceResources] = useState([]); // Risorse del reparto "service"
+  const [loading, setLoading] = useState(false); // Stato di caricamento generale
   const token = sessionStorage.getItem("token");
-  const [showPopup, setShowPopup] = useState(false);
-  const [commesse, setCommesse] = useState([]);
-  const [reparti, setReparti] = useState([]);
-  const [attivitaConReparto, setAttivitaConReparto] = useState([]); 
-  const [selectedServiceResource, setSelectedServiceResource] = useState(null);
-  const [activityViewMode, setActivityViewMode] = useState("full");
+  const [showPopup, setShowPopup] = useState(false); // Controlla la visualizzazione del popup per la creazione/modifica
+  const [commesse, setCommesse] = useState([]); // Elenco delle commesse
+  const [reparti, setReparti] = useState([]); // Elenco dei reparti
+  const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Attività definite per reparto
+  const [selectedServiceResource, setSelectedServiceResource] = useState(null); // Risorsa del service selezionata
+  const [activityViewMode, setActivityViewMode] = useState("full"); // Modalità di visualizzazione: "full" o "compact"
   const [formData, setFormData] = useState({
     commessa_id: "",
     reparto_id: "",
@@ -42,39 +60,49 @@ function DashboardReparto() {
     stato: "",
     descrizione: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [loadingActivities, setLoadingActivities] = useState({});
-  const todayRef = useRef(null);  
-  const containerRef = useRef(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const daysInMonth = getDaysInMonth(currentMonth);
+  const [isEditing, setIsEditing] = useState(false); // Indica se si sta modificando un'attività esistente
+  const [editId, setEditId] = useState(null); // ID dell'attività in modifica
+  const [loadingActivities, setLoadingActivities] = useState({}); // Stato di caricamento per le operazioni sulle attività
+  const todayRef = useRef(null); // Riferimento alla cella "oggi" per lo scroll
+  const containerRef = useRef(null); // Riferimento al contenitore della tabella
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
+  const daysInMonth = getDaysInMonth(currentMonth); // Array dei giorni del mese corrente
   const [filters, setFilters] = useState({
     commessa: "",
     risorsa: "",
-    attivita: ""
+    attivita: "",
   });
-
-  // Stato per la visibilità del burger menu
+  // Stato per il menu a burger (filtri e opzioni)
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
 
-  // Funzione per aprire/chiudere il burger menu
+  // ----------------------------
+  // Funzione per aprire/chiudere il menu a burger
+  // ----------------------------
   const toggleBurgerMenu = () => {
     setIsBurgerMenuOpen((prev) => !prev);
   };
 
-  // Recupera dati iniziali
+  // ========================================================
+  // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
+  // ========================================================
   useEffect(() => {
     const fetchData = async () => {
       if (!RepartoID || !RepartoName) {
         console.error("Reparto non valido.");
         return;
       }
-  
+
       try {
         setLoading(true);
-  
-        const [activitiesResponse, resourcesResponse, commesseResponse, repartiResponse, attivitaDefiniteResponse] = await Promise.all([
+
+        // Esegui le chiamate API in parallelo
+        const [
+          activitiesResponse,
+          resourcesResponse,
+          commesseResponse,
+          repartiResponse,
+          attivitaDefiniteResponse,
+        ] = await Promise.all([
           axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -91,28 +119,33 @@ function DashboardReparto() {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-  
+
+        // Imposta i dati negli stati
         setActivities(activitiesResponse.data);
         setCommesse(commesseResponse.data);
         setReparti(repartiResponse.data);
-  
+
+        // Mappa le attività definite per reparto in una struttura semplificata
         const attivitaConReparto = attivitaDefiniteResponse.data.map((attivita) => ({
           id: attivita.id,
           nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
           reparto_id: attivita.reparto_id,
         }));
         setAttivitaConReparto(attivitaConReparto);
-  
+
+        // Filtra le risorse appartenenti al reparto corrente
         const filteredResources = resourcesResponse.data.filter(
           (resource) => Number(resource.reparto_id) === RepartoID
         );
         setResources(filteredResources);
-  
+
+        // Filtra le risorse del reparto "service"
         const serviceFilteredResources = resourcesResponse.data.filter(
           (resource) => Number(resource.reparto_id) === repartoConfig.service.RepartoID
         );
         setServiceResources(serviceFilteredResources);
-  
+
+        // Se il reparto non è "service", imposta la risorsa del service (default o la prima disponibile)
         if (reparto !== "service") {
           const defaultServiceId = repartoConfig[reparto]?.defaultServiceResourceId || null;
           setSelectedServiceResource(
@@ -123,19 +156,21 @@ function DashboardReparto() {
         } else {
           setSelectedServiceResource(null);
         }
-  
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [RepartoID, RepartoName, reparto, token]);
-  
+
+  // ========================================================
+  // FILTRAGGIO DELLE ATTIVITÀ IN BASE A COMMESSA, RISORSA E ATTIVITÀ
+  // ========================================================
   useEffect(() => {
-    const fActivities = activities.filter(activity => {
+    const fActivities = activities.filter((activity) => {
       const commessaMatch = filters.commessa
         ? activity.numero_commessa.toString().toLowerCase().includes(filters.commessa.toLowerCase())
         : true;
@@ -149,32 +184,35 @@ function DashboardReparto() {
     });
     setFilteredActivities(fActivities);
   }, [activities, filters]);
-  
+
+  // ========================================================
+  // FUNZIONI DI SCROLLING PER IL SCHEDULE
+  // ========================================================
+  // Scrolla alla colonna corrispondente ad oggi
   const scrollToToday = () => {
     const today = new Date();
-    // Se il mese visualizzato non è quello attuale, aggiorna lo stato currentMonth
     if (
       currentMonth.getMonth() !== today.getMonth() ||
       currentMonth.getFullYear() !== today.getFullYear()
     ) {
+      // Se il mese visualizzato non corrisponde al mese corrente, aggiorna currentMonth
       setCurrentMonth(today);
-      // Attendi il re-render (ad es. 100ms) per far apparire le celle del mese attuale
       setTimeout(() => {
         if (todayRef.current && containerRef.current) {
           const containerRect = containerRef.current.getBoundingClientRect();
           const todayRect = todayRef.current.getBoundingClientRect();
           const offsetLeft = todayRect.left - containerRect.left;
-          const additionalOffset = -50; // o -10, in base al comportamento osservato
-const scrollLeft =
-  offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2 + additionalOffset;
-containerRef.current.scrollTo({
-  left: scrollLeft,
-  behavior: "smooth",
-});
+          const additionalOffset = -50; // Regola l'offset se necessario
+          const scrollLeft =
+            offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2 + additionalOffset;
+          containerRef.current.scrollTo({
+            left: scrollLeft,
+            behavior: "smooth",
+          });
         }
       }, 100);
     } else {
-      // Se il mese visualizzato è già quello attuale, scrolla direttamente
+      // Se il mese visualizzato è già quello corrente, scrolla direttamente
       if (todayRef.current && containerRef.current) {
         const containerRect = containerRef.current.getBoundingClientRect();
         const todayRect = todayRef.current.getBoundingClientRect();
@@ -183,26 +221,145 @@ containerRef.current.scrollTo({
           offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
         containerRef.current.scrollTo({
           left: scrollLeft,
-          behavior: "smooth"
+          behavior: "smooth",
         });
       }
     }
   };
-  
 
+  // Naviga al mese precedente
   const goToPreviousMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
+  // Naviga al mese successivo
   const goToNextMonth = () => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
+  // Rimuove la componente oraria dalla data (normalizza la data)
   const normalizeDate = (date) => {
     const localDate = new Date(date);
     return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
   };
 
+  // Converte una data in formato ISO locale (YYYY-MM-DD)
+  const toLocalISOString = (date) => {
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+    return localDate.toISOString().split("T")[0];
+  };
+
+  // Restituisce le attività di una risorsa per un dato giorno
+  const getActivitiesForResourceAndDay = (resourceId, day) => {
+    const normalizedDay = normalizeDate(day);
+    return filteredActivities.filter((activity) => {
+      const startDate = normalizeDate(activity.data_inizio);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + activity.durata - 1);
+      return (
+        Number(activity.risorsa_id) === Number(resourceId) &&
+        normalizedDay >= startDate &&
+        normalizedDay <= endDate
+      );
+    });
+  };
+
+  // ========================================================
+  // GESTIONE DELLE ATTIVITÀ (CLICK, DOPPIO CLICK, DELETE, UPDATE)
+  // ========================================================
+  // Apre il popup per modificare un'attività
+  const handleActivityClick = (activity) => {
+    const dataInizio = activity.data_inizio
+      ? new Date(activity.data_inizio).toISOString().split("T")[0]
+      : "";
+    setFormData({
+      commessa_id: activity.commessa_id || "",
+      reparto_id: reparti.find((reparto) => reparto.nome === activity.reparto)?.id || "",
+      risorsa_id: activity.risorsa_id || "",
+      attivita_id: activity.attivita_id || "",
+      data_inizio: dataInizio,
+      durata: activity.durata || "",
+      stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
+      descrizione: activity.descrizione_attivita || "",
+      note: activity.note || "",
+    });
+    setIsEditing(true);
+    setEditId(activity.id);
+    setShowPopup(true);
+  };
+
+  // Apre il popup per creare una nuova attività (doppio click su una cella vuota)
+  const handleEmptyCellDoubleClick = (resourceId, day) => {
+    const formattedDate = toLocalISOString(day);
+    const existingActivities = getActivitiesForResourceAndDay(resourceId, day);
+    if (existingActivities.length === 0) {
+      setFormData({
+        commessa_id: "",
+        reparto_id: RepartoID,
+        risorsa_id: resourceId,
+        data_inizio: formattedDate,
+        durata: 1,
+        stato: "",
+        descrizione: "",
+        note: "",
+      });
+      setIsEditing(false);
+      setShowPopup(true);
+    } else {
+      toast.warn("Cella già occupata.");
+    }
+  };
+
+  // Elimina un'attività dopo conferma
+  const handleDelete = async (id) => {
+    if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
+      try {
+        await deleteAttivitaCommessa(id);
+        setActivities((prevActivities) =>
+          prevActivities.filter((activity) => activity.id !== id)
+        );
+      } catch (error) {
+        console.error("Errore durante l'eliminazione dell'attività:", error);
+        toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
+      }
+    }
+  };
+
+  // Elimina la nota associata a un'attività
+  const deleteNote = async (activityId) => {
+    try {
+      await updateActivityNotes(activityId, null, token);
+      toast.success("Nota eliminata con successo!");
+      setActivities((prevActivities) =>
+        prevActivities.map((activity) =>
+          activity.id === activityId ? { ...activity, note: null } : activity
+        )
+      );
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della nota:", error);
+      toast.error("Errore durante l'eliminazione della nota.");
+    }
+  };
+
+  // Apre il popup per aggiungere una nuova attività
+  const handleAddNew = () => {
+    setFormData({
+      commessa_id: "",
+      reparto_id: RepartoID,
+      risorsa_id: "",
+      attivita_id: "",
+      data_inizio: "",
+      durata: 1,
+      stato: "",
+      descrizione: "",
+      note: "",
+    });
+    setIsEditing(false);
+    setShowPopup(true);
+  };
+
+  // Aggiorna lo stato di un'attività (ad esempio da "non iniziata" a "iniziata" o "completata")
   const updateActivityStatus = async (activityId, newStatus) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
@@ -224,115 +381,38 @@ containerRef.current.scrollTo({
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
-  
-  const toLocalISOString = (date) => {
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60 * 1000);
-    return localDate.toISOString().split("T")[0];
-  };
 
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const normalizedDay = normalizeDate(day);
-    return filteredActivities.filter((activity) => {
-      const startDate = normalizeDate(activity.data_inizio);
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata - 1);
-      return (
-        Number(activity.risorsa_id) === Number(resourceId) &&
-        normalizedDay >= startDate &&
-        normalizedDay <= endDate
-      );
-    });
-  };
-  
-  const handleActivityClick = (activity) => {
-    const dataInizio = activity.data_inizio
-      ? new Date(activity.data_inizio).toISOString().split("T")[0]
-      : "";
-  
-    setFormData({
-      commessa_id: activity.commessa_id || "",
-      reparto_id: reparti.find((reparto) => reparto.nome === activity.reparto)?.id || "",
-      risorsa_id: activity.risorsa_id || "",
-      attivita_id: activity.attivita_id || "",
-      data_inizio: dataInizio,
-      durata:  activity.durata || "",
-      stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
-      descrizione: activity.descrizione_attivita || "",
-      note: activity.note || "",
-    });
-    setIsEditing(true);
-    setEditId(activity.id);
-    setShowPopup(true);
-  };
-  
-  const handleEmptyCellDoubleClick = (resourceId, day) => {
-    const formattedDate = toLocalISOString(day);
-    const existingActivities = getActivitiesForResourceAndDay(resourceId, day);
-    
-    if (existingActivities.length === 0) {
-      setFormData({
-        commessa_id: "",
-        reparto_id: RepartoID,
-        risorsa_id: resourceId,
-        data_inizio: formattedDate,
-        durata: 1,
-        stato: "",
-        descrizione: "",
-        note: "",
-      });
-      setIsEditing(false);
-      setShowPopup(true);
-    } else {
-      toast.warn("Cella già occupata.");
-    }
-  };
-  
-  const handleDelete = async (id) => {
-    if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
-      try {
-        await deleteAttivitaCommessa(id);
-        setActivities((prevActivities) =>
-          prevActivities.filter((activity) => activity.id !== id)
-        );
-      } catch (error) {
-        console.error("Errore durante l'eliminazione dell'attività:", error);
-        toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
-      }
-    }
-  };
-  
-  const deleteNote = async (activityId) => {
+  // ========================================================
+  // GESTIONE DEL DRAG & DROP
+  // ========================================================
+  // Gestisce il drop di un'attività in una nuova cella (nuova risorsa e/o nuovo giorno)
+  const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
-      await updateActivityNotes(activityId, null, token);
-      toast.success("Nota eliminata con successo!");
-      setActivities((prevActivities) =>
-        prevActivities.map((activity) =>
-          activity.id === activityId ? { ...activity, note: null } : activity
+      const normalizedDate = normalizeDate(newDate);
+      const updatedActivity = {
+        ...activity,
+        risorsa_id: newResourceId,
+        data_inizio: toLocalISOString(normalizedDate),
+      };
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
+        updatedActivity,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setActivities((prev) =>
+        prev.map((act) =>
+          act.id === activity.id ? { ...act, ...updatedActivity } : act
         )
       );
     } catch (error) {
-      console.error("Errore durante l'eliminazione della nota:", error);
-      toast.error("Errore durante l'eliminazione della nota.");
+      console.error("Errore durante l'aggiornamento dell'attività:", error);
     }
   };
-  
-  const handleAddNew = () => {
-    setFormData({
-      commessa_id: "",
-      reparto_id: RepartoID, 
-      risorsa_id: "",
-      attivita_id: "",
-      data_inizio: "",
-      durata: 1,
-      stato: "",
-      descrizione: "",
-      note: "",
-    });
-    setIsEditing(false);
-    setShowPopup(true);
-  };
 
+  // ========================================================
+  // COMPONENTE: ResourceCell
+  // Rappresenta una cella della tabella per una risorsa in un determinato giorno
+  // ========================================================
   function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick, isWeekend, viewMode }) {
     const normalizedDay = normalizeDate(day);
     const [{ isOver }, drop] = useDrop(() => ({
@@ -362,7 +442,11 @@ containerRef.current.scrollTo({
       </td>
     );
   }
-  
+
+  // ========================================================
+  // COMPONENTE: DraggableActivity
+  // Rappresenta un'attività trascinabile con due modalità di visualizzazione
+  // ========================================================
   function DraggableActivity({ activity, onDoubleClick, viewMode }) {
     const [{ isDragging }, drag] = useDrag(() => ({
       type: "ACTIVITY",
@@ -371,14 +455,14 @@ containerRef.current.scrollTo({
         isDragging: !!monitor.isDragging(),
       }),
     }));
-  
     const activityClass =
       activity.stato === 0
         ? "activity-not-started"
         : activity.stato === 1
         ? "activity-started"
         : "activity-completed";
-  
+
+    // Modalità "compact": visualizzazione ridotta con tooltip
     if (viewMode === "compact") {
       const tooltipContent = `
         Attività: ${activity.nome_attivita}
@@ -407,15 +491,15 @@ containerRef.current.scrollTo({
             }}
             onDoubleClick={onDoubleClick}
             data-tooltip-id={`tooltip-${activity.id}`}
-          >
-          </div>
+          ></div>
           <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid">
-          <span style={{ whiteSpace: "pre-wrap" }}>
-            {tooltipContent}</span>
+            <span style={{ whiteSpace: "pre-wrap" }}>{tooltipContent}</span>
           </Tooltip>
         </>
       );
     }
+
+    // Modalità "full": visualizzazione dettagliata dell'attività
     return (
       <div
         ref={drag}
@@ -503,10 +587,13 @@ containerRef.current.scrollTo({
       </div>
     );
   }
-  
+
+  // ========================================================
+  // FUNZIONE PER RICARICARE LE ATTIVITÀ (es. dopo un aggiornamento)
+  // ========================================================
   const handleReloadActivities = async () => {
     try {
-      const updatedActivities = await fetchAttivitaCommessa(); 
+      const updatedActivities = await fetchAttivitaCommessa();
       setActivities(updatedActivities);
       toast.success("Attività ricaricate con successo.");
     } catch (error) {
@@ -514,36 +601,13 @@ containerRef.current.scrollTo({
       toast.error("Errore durante il ricaricamento delle attività.");
     }
   };
-  
-  const handleActivityDrop = async (activity, newResourceId, newDate) => {
-    try {
-      const normalizedDate = normalizeDate(newDate); 
-      const updatedActivity = {
-        ...activity,
-        risorsa_id: newResourceId,
-        data_inizio: toLocalISOString(normalizedDate),
-      };
-  
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
-        updatedActivity,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
-      setActivities((prev) =>
-        prev.map((act) =>
-          act.id === activity.id ? { ...act, ...updatedActivity } : act
-        )
-      );
-  
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dell'attività:", error);
-    }
-  };
-  
+
+  // ========================================================
+  // RENDER DEL COMPONENTE
+  // ========================================================
   return (
     <div className="page-wrapper">
-      {/* Header */}
+      {/* HEADER */}
       <div className="header">
         <h1>Bacheca Reparto {RepartoName}</h1>
         <div className="month-navigation">
@@ -554,9 +618,8 @@ containerRef.current.scrollTo({
             ← Mese
           </button>
           <button onClick={scrollToToday} className="btn-Nav">
-  OGGI
-</button>
-
+            OGGI
+          </button>
           <button onClick={goToNextMonth} className="btn-Nav">
             Mese →
           </button>
@@ -568,16 +631,17 @@ containerRef.current.scrollTo({
           </div>
         )}
       </div>
-  
-      {/* Burger Menu */}
+
+      {/* BURGER MENU (Filtri e Opzioni) */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
             <button onClick={toggleBurgerMenu} className="close-burger">
-            <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
             </button>
           </div>
           <div className="burger-menu-content">
+            {/* Opzioni di visualizzazione */}
             <div className="filters-burger">
               <h3>Opzioni</h3>
               <label>Visualizzazione Attività: </label>
@@ -589,6 +653,7 @@ containerRef.current.scrollTo({
                 <option value="compact">Compatta</option>
               </select>
             </div>
+            {/* Selezione della risorsa del Service (se applicabile) */}
             {serviceResources.length > 0 && reparto !== "service" && (
               <div>
                 <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
@@ -608,6 +673,7 @@ containerRef.current.scrollTo({
                 </select>
               </div>
             )}
+            {/* Filtri per commessa, risorsa e attività */}
             <div className="filters-burger">
               <h3>Filtri</h3>
               <input
@@ -632,6 +698,7 @@ containerRef.current.scrollTo({
                 className="input-field-100"
               />
             </div>
+            {/* Azioni */}
             <div className="filters-burger">
               <h3>Azioni</h3>
               <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
@@ -641,8 +708,8 @@ containerRef.current.scrollTo({
           </div>
         </div>
       )}
-  
-      {/* Contenuto principale: spostato a destra se il burger menu è aperto */}
+
+      {/* CONTENITORE PRINCIPALE */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         <DndProvider backend={HTML5Backend}>
           <div className="container-Scroll">
@@ -651,6 +718,7 @@ containerRef.current.scrollTo({
                 <thead>
                   <tr>
                     <th>Risorsa</th>
+                    {/* Genera una colonna per ogni giorno del mese */}
                     {daysInMonth.map((day) => {
                       const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                       const isToday = day.toDateString() === new Date().toDateString();
@@ -667,11 +735,12 @@ containerRef.current.scrollTo({
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Renderizza una riga per ogni risorsa */}
                   {resources.map((resource) => (
                     <tr key={resource.id}>
                       <td>{resource.nome}</td>
                       {daysInMonth.map((day) => {
-                        const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+                        const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                         return (
                           <ResourceCell
                             key={`${resource.id}-${day.toISOString()}`}
@@ -687,7 +756,8 @@ containerRef.current.scrollTo({
                       })}
                     </tr>
                   ))}
-  
+
+                  {/* Seleziona e renderizza la riga per le risorse del Service, se applicabile */}
                   {selectedServiceResource && (
                     <>
                       <tr>
@@ -700,7 +770,7 @@ containerRef.current.scrollTo({
                           {serviceResources.find((res) => res.id === selectedServiceResource)?.nome || "Risorsa non trovata"}
                         </td>
                         {daysInMonth.map((day) => {
-                          const isWeekend = day.getDay() === 0 || day.getDay() === 6; 
+                          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                           return (
                             <ResourceCell
                               key={`${selectedServiceResource}-${day.toISOString()}`}
@@ -722,7 +792,8 @@ containerRef.current.scrollTo({
             </div>
           </div>
         </DndProvider>
-  
+
+        {/* Popup per la creazione/modifica di un'attività */}
         {showPopup && (
           <AttivitaCrea
             formData={formData}

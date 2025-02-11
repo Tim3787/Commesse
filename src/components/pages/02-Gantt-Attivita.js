@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
+import "./02-Gantt-Attivita.css";
+import logo from "../img/Animation - 1738249246846.gif";
+
+// Import API per le varie entità
 import { fetchCommesse } from "../services/API/commesse-api"; 
 import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api" ;
-import "./VisualizzaAttivita.css";
-import logo from "../img/Animation - 1738249246846.gif";
-import "react-toastify/dist/ReactToastify.css";
+
+// Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function VisualizzaAttivita() {
   const [currentMonth, setCurrentMonth] = useState(new Date());

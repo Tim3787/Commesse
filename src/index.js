@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./components/utils/reportWebVitals";
-import { messaging } from "./firebase"; 
+import { messaging } from "./components/services/firebase"; 
 import { getToken, onMessage } from "firebase/messaging";
 
 
@@ -37,7 +37,7 @@ if ("serviceWorker" in navigator) {
 // Ascolta i messaggi in arrivo
 onMessage(messaging, (payload) => {
 
-  alert(`Nuova notifica: ${payload.notification.title}`);
+  alert(`Nuova notifica: ${payload.notification.body}`);
 });
 
 requestNotificationPermission();

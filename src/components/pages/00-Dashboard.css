@@ -317,14 +317,15 @@
   border: none;
   cursor: pointer;
   margin-right: 10px;
-  width: 200px;
+  width: fit-content;
 }
 
 /* Stile per il menu a burger */
 .burger-menu {
   position: fixed;
   left: 0;
-  width: 200px;
+  width: fit-content;
+  max-width: 280px;
   height: 100%;
   background-color: white;
   padding: 10px;

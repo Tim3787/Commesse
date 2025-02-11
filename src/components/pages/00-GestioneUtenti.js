@@ -1,32 +1,55 @@
 import React, { useState, useEffect } from "react";
-import "../../style.css";
-import logo from "../../img/Animation - 1738249246846.gif";
-import { ToastContainer, toast } from "react-toastify";  // Importa toast
-import "react-toastify/dist/ReactToastify.css";  // Stile per il toast
-import { deleteUser,assignResourceToUser,updateUserRole,fetchRoles,fetchUsers} from "../../services/API/utenti-api";
-import { fetchRisorse,} from "../../services/API/risorse-api";
+import "../style.css";
+import logo from "../img/Animation - 1738249246846.gif";
 
+// Import per Toastify (notifiche)
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Import delle API per la gestione degli utenti e delle risorse
+import {
+  deleteUser,
+  assignResourceToUser,
+  updateUserRole,
+  fetchRoles,
+  fetchUsers,
+} from "../services/API/utenti-api";
+import { fetchRisorse } from "../services/API/risorse-api";
+
+/**
+ * Componente GestioneUtenti
+ * Permette di visualizzare, modificare e cancellare gli utenti,
+ * nonché di assegnare loro ruoli e risorse.
+ */
 function GestioneUtenti() {
-  const [utenti, setUtenti] = useState([]);
-  const [ruoli, setRuoli] = useState([]);
-  const [risorse, setRisorse] = useState([]);
-  const [editedUsernames, setEditedUsernames] = useState({});
-  const [loading, setLoading] = useState(false);
+  // ------------------------------------------------------------------
+  // Stati del componente
+  // ------------------------------------------------------------------
+  const [utenti, setUtenti] = useState([]);             // Elenco degli utenti
+  const [ruoli, setRuoli] = useState([]);               // Elenco dei ruoli disponibili
+  const [risorse, setRisorse] = useState([]);           // Elenco delle risorse disponibili
+  const [editedUsernames, setEditedUsernames] = useState({}); // Stato per gestire eventuali modifiche al campo "username"
+  const [loading, setLoading] = useState(false);        // Stato di caricamento generale
 
+  // ------------------------------------------------------------------
+  // Effetto: Fetch iniziale dei dati (utenti, ruoli e risorse)
+  // ------------------------------------------------------------------
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Eseguiamo le chiamate in parallelo per migliorare le performance
         const [utentiResponse, ruoliResponse, risorseResponse] = await Promise.all([
           fetchUsers(),
           fetchRoles(),
           fetchRisorse(),
         ]);
+
         setUtenti(utentiResponse);
         setRuoli(ruoliResponse);
         setRisorse(risorseResponse);
       } catch (error) {
-        console.error("Errore nel caricamento dati:", error);
+        console.error("Errore nel caricamento dei dati:", error);
         toast.error("Errore nel caricamento dei dati.");
       } finally {
         setLoading(false);
@@ -36,16 +59,20 @@ function GestioneUtenti() {
     fetchData();
   }, []);
 
+  // ------------------------------------------------------------------
+  // Funzione: Gestione della modifica del ruolo di un utente
+  // ------------------------------------------------------------------
   const handleRoleChange = async (userId, newRoleId) => {
     try {
+      // Trova l'utente corrente dall'elenco
       const currentUser = utenti.find((utente) => utente.id === userId);
-  
       if (!currentUser) {
         console.error("Utente non trovato.");
         toast.error("Utente non trovato.");
         return;
       }
-  
+
+      // Richiama l'API per aggiornare il ruolo
       await updateUserRole(
         userId,
         newRoleId,
@@ -53,31 +80,30 @@ function GestioneUtenti() {
         currentUser.email,
         currentUser.risorsa_id
       );
-  
+
       toast.success("Ruolo aggiornato con successo!");
 
- // Aggiorna lo stato locale
- setUtenti((prev) =>
-  prev.map((utente) =>
-    utente.id === userId ? { ...utente, role_id: newRoleId } : utente
-  )
-);
-
+      // Aggiorna localmente lo stato degli utenti
+      setUtenti((prev) =>
+        prev.map((utente) =>
+          utente.id === userId ? { ...utente, role_id: newRoleId } : utente
+        )
+      );
     } catch (error) {
       console.error("Errore durante l'aggiornamento del ruolo:", error);
       toast.error("Errore durante l'aggiornamento del ruolo.");
     }
   };
-  
 
-  
-  
-
+  // ------------------------------------------------------------------
+  // Funzione: Assegna una risorsa ad un utente
+  // ------------------------------------------------------------------
   const handleAssignResource = async (userId, risorsaId) => {
     try {
+      // Richiama l'API per assegnare la risorsa
       await assignResourceToUser(userId, risorsaId);
 
-       // Aggiorna lo stato locale
+      // Aggiorna lo stato locale per riflettere l'assegnazione
       setUtenti((prev) =>
         prev.map((utente) =>
           utente.id === userId ? { ...utente, risorsa_id: risorsaId } : utente
@@ -90,30 +116,41 @@ function GestioneUtenti() {
     }
   };
 
+  // ------------------------------------------------------------------
+  // Funzione: Elimina un utente
+  // ------------------------------------------------------------------
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Sei sicuro di voler eliminare questo utente?")) {
-    try {
-      await deleteUser(userId);
+      try {
+        // Richiama l'API per eliminare l'utente
+        await deleteUser(userId);
 
-       // Aggiorna lo stato locale
-      setUtenti((prev) => prev.filter((utente) => utente.id !== userId));
-      toast.success("Utente eliminato con successo!");
-    } catch (error) {
-      console.error("Errore durante l'eliminazione dell'utente:", error);
-      toast.error("Errore durante l'eliminazione dell'utente.");
+        // Aggiorna lo stato locale filtrando l'utente eliminato
+        setUtenti((prev) => prev.filter((utente) => utente.id !== userId));
+        toast.success("Utente eliminato con successo!");
+      } catch (error) {
+        console.error("Errore durante l'eliminazione dell'utente:", error);
+        toast.error("Errore durante l'eliminazione dell'utente.");
+      }
     }
-  }
   };
 
+  // ------------------------------------------------------------------
+  // Rendering del componente GestioneUtenti
+  // ------------------------------------------------------------------
   return (
     <div className="container">
+      {/* Overlay di caricamento */}
       {loading && (
         <div className="loading-overlay">
           <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
+
       <h1>Gestione Utenti</h1>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />  
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+
+      {/* Tabella degli utenti */}
       <table className="table table-striped table-hover">
         <thead className="table-dark">
           <tr>
@@ -129,6 +166,8 @@ function GestioneUtenti() {
           {utenti.map((utente) => (
             <tr key={utente.id}>
               <td>{utente.id}</td>
+
+              {/* Campo per l'username modificabile */}
               <td>
                 <div className="input-group">
                   <input
@@ -144,7 +183,10 @@ function GestioneUtenti() {
                   />
                 </div>
               </td>
+
               <td>{utente.email}</td>
+
+              {/* Selezione del ruolo */}
               <td>
                 <select
                   className="form-select"
@@ -159,6 +201,8 @@ function GestioneUtenti() {
                   ))}
                 </select>
               </td>
+
+              {/* Selezione della risorsa */}
               <td>
                 <select
                   className="form-select"
@@ -173,6 +217,8 @@ function GestioneUtenti() {
                   ))}
                 </select>
               </td>
+
+              {/* Azioni: pulsante per eliminare l'utente */}
               <td>
                 <button
                   type="button"

@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 import axios from "axios";
+// Importa jwtDecode come default (assicurati che il pacchetto jwt-decode sia installato)
 import { jwtDecode } from "jwt-decode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "react-toastify/dist/ReactToastify.css";
-import ChatGPTChatbot from "../../components/ChatGPTChatbot";
+import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
-
-
+// Importa le icone di FontAwesome
 import {
   faUser,
   faTasks,
@@ -27,24 +27,42 @@ import {
   faBell,
   faSearch, // icona della lente
 } from "@fortawesome/free-solid-svg-icons";
-import { CSSTransition } from "react-transition-group"; // Importa CSSTransition
-import { fetchCommesse } from "../services/API/commesse-api"; // per caricare le commesse
-import CommessaDettagli from "../popup/CommessaDettagli"; // popup dei dettagli
 
+// Importa CSSTransition per le animazioni di transizione
+import { CSSTransition } from "react-transition-group";
+
+// Importa la funzione per il caricamento delle commesse e il popup dei dettagli
+import { fetchCommesse } from "../services/API/commesse-api";
+import CommessaDettagli from "../popup/CommessaDettagli";
+
+/**
+ * Componente Navbar
+ * Visualizza la barra di navigazione con i menu a tendina, le notifiche, il dropdown di ricerca e il chatbot.
+ *
+ * Props:
+ *  - isAuthenticated: boolean che indica se l'utente è autenticato.
+ *  - userRole: ruolo dell'utente (per determinare quali menu mostrare).
+ *  - handleLogout: funzione per eseguire il logout.
+ */
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
+  // -------------------------------------------------------------------
+  // Stati del componente
+  // -------------------------------------------------------------------
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const token = sessionStorage.getItem("token");
-  const [activeMenu, setActiveMenu] = useState(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null); // Menu attivo (user, manager, admin)
+  const [isChatOpen, setIsChatOpen] = useState(false); // Stato per il chatbot
+  const [isSearchOpen, setIsSearchOpen] = useState(false); // Stato per il dropdown di ricerca
   const [searchValue, setSearchValue] = useState("");
-  const [commesseList, setCommesseList] = useState([]);
+  const [commesseList, setCommesseList] = useState([]); // Elenco delle commesse per il motore di ricerca
   const [searchSuggestions, setSearchSuggestions] = useState([]);
-  const [selectedCommessa, setSelectedCommessa] = useState(null);
+  const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per visualizzare i dettagli
 
-  // Decodifica il token
+  // -------------------------------------------------------------------
+  // Decodifica e validazione del token
+  // -------------------------------------------------------------------
   const decodeToken = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -61,7 +79,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     console.error("Token non valido o scaduto.");
   }
 
-  // Effetto per le notifiche
+  // -------------------------------------------------------------------
+  // Effetto per il polling delle notifiche non lette (ogni 60 secondi)
+  // -------------------------------------------------------------------
   useEffect(() => {
     let interval;
     if (isAuthenticated) {
@@ -71,6 +91,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Recupera le notifiche non lette dal backend
   const fetchUnreadNotifications = async () => {
     try {
       const response = await axios.get(
@@ -84,6 +105,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
+  // Contrassegna tutte le notifiche come lette
   const markAllAsRead = async () => {
     try {
       const promises = notifications.map((notification) =>
@@ -101,7 +123,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
-  // Carica la lista delle commesse per la ricerca
+  // -------------------------------------------------------------------
+  // Caricamento delle commesse per il dropdown di ricerca
+  // -------------------------------------------------------------------
   useEffect(() => {
     const fetchCommesseList = async () => {
       try {
@@ -116,10 +140,14 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   }, [isAuthenticated]);
 
+  // Se l'utente non è autenticato, non renderizza nulla
   if (!isAuthenticated) {
     return null;
   }
 
+  // -------------------------------------------------------------------
+  // Definizione dei link di navigazione in base al ruolo
+  // -------------------------------------------------------------------
   const navLinks = {
     user: [
       { to: "/Dashboard", label: "Bacheca personale", icon: faUser },
@@ -170,6 +198,9 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     ],
   };
 
+  // -------------------------------------------------------------------
+  // Funzione per renderizzare i link di navigazione
+  // -------------------------------------------------------------------
   const renderLinks = (links) =>
     links.map((link, index) => {
       if (link.links) {
@@ -197,28 +228,31 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       );
     });
 
-  // Quando si apre un menu, chiudi gli altri dropdown (notifiche e ricerca)
+  // -------------------------------------------------------------------
+  // Gestione dei dropdown (menu, ricerca, notifiche, chatbot)
+  // -------------------------------------------------------------------
+  // Quando si apre un menu, chiudi gli altri dropdown
   const toggleMenu = (menu) => {
     setActiveMenu((prevMenu) => (prevMenu === menu ? null : menu));
     setIsSearchOpen(false);
     setIsNotificationOpen(false);
   };
 
-  // Quando si apre il dropdown di ricerca, chiudi gli altri
+  // Apertura/chiusura del dropdown di ricerca
   const toggleSearchDropdown = () => {
     setIsSearchOpen((prev) => !prev);
     setActiveMenu(null);
     setIsNotificationOpen(false);
   };
 
-  // Quando si apre il dropdown delle notifiche, chiudi gli altri
+  // Apertura/chiusura del dropdown delle notifiche
   const toggleNotification = () => {
     setIsNotificationOpen((prev) => !prev);
     setActiveMenu(null);
     setIsSearchOpen(false);
   };
 
-  // Aggiorna i suggerimenti in base al valore digitato
+  // Aggiorna i suggerimenti di ricerca in base al testo digitato
   const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -232,23 +266,27 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
-
-
-  // Funzione per chiudere il popup dei dettagli della commessa
+  // Chiude il popup dei dettagli della commessa selezionata
   const closeSearchPopup = () => {
     setSelectedCommessa(null);
   };
 
+  // -------------------------------------------------------------------
+  // Rendering del componente
+  // -------------------------------------------------------------------
   return (
     <>
       {/* Navbar Header */}
       <header className="navbar-header">
+        {/* Bottone per il menu "user" */}
         <button
           className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
           onClick={() => toggleMenu("user")}
         >
           <FontAwesomeIcon icon={faBars} className="settings-icon" />
         </button>
+
+        {/* Se l'utente è manager o inferiore, mostra il menu manager */}
         {userRole <= 2 && (
           <button
             className={`menu-toggle ${activeMenu === "manager" ? "active" : ""}`}
@@ -257,31 +295,37 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
         )}
+
+        {/* Bottone per le notifiche */}
         <button className="menu-toggle" onClick={toggleNotification}>
           <FontAwesomeIcon icon={faBell} className="settings-icon" />
           {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
         </button>
+
+        {/* Se l'utente è admin (userRole === 1), mostra anche il menu admin e il bottone per il chatbot */}
         {userRole === 1 && (
-            <>
-          <button
-            className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
-            onClick={() => toggleMenu("admin")}
-          >
-            <FontAwesomeIcon icon={faGear} className="settings-icon" />
-          </button>
-          <button
-          className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
-          onClick={() => setIsChatOpen((prev) => !prev)}
-        >
-          💬
-        </button>
-           </>
+          <>
+            <button
+              className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+              onClick={() => toggleMenu("admin")}
+            >
+              <FontAwesomeIcon icon={faGear} className="settings-icon" />
+            </button>
+            <button
+              className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+              onClick={() => setIsChatOpen((prev) => !prev)}
+            >
+              💬
+            </button>
+          </>
         )}
-          <button className="menu-toggle" onClick={toggleSearchDropdown}>
+
+        {/* Bottone per aprire il dropdown di ricerca */}
+        <button className="menu-toggle" onClick={toggleSearchDropdown}>
           <FontAwesomeIcon icon={faSearch} />
         </button>
-        
-      
+
+        {/* Bottone di logout */}
         <button className="menu-toggle" onClick={handleLogout}>
           <FontAwesomeIcon icon={faRightFromBracket} className="settings-icon-last" />
         </button>
@@ -289,43 +333,29 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
       {/* Dropdown Menus */}
       <div className="dropdown-container-nav">
-        {/* Usiamo CSSTransition per applicare un effetto di transizione */}
-        <CSSTransition
-          in={activeMenu === "user"}
-          timeout={300}
-          classNames="dropdown"
-          unmountOnExit
-        >
+        {/* Dropdown per il menu "user" */}
+        <CSSTransition in={activeMenu === "user"} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.user)}</ul>
           </div>
         </CSSTransition>
-        <CSSTransition
-          in={activeMenu === "manager"}
-          timeout={300}
-          classNames="dropdown"
-          unmountOnExit
-        >
+
+        {/* Dropdown per il menu "manager" */}
+        <CSSTransition in={activeMenu === "manager"} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.manager)}</ul>
           </div>
         </CSSTransition>
-        <CSSTransition
-          in={activeMenu === "admin"}
-          timeout={300}
-          classNames="dropdown"
-          unmountOnExit
-        >
+
+        {/* Dropdown per il menu "admin" */}
+        <CSSTransition in={activeMenu === "admin"} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <ul>{renderLinks(navLinks.admin)}</ul>
           </div>
         </CSSTransition>
-        <CSSTransition
-          in={isNotificationOpen}
-          timeout={300}
-          classNames="dropdown"
-          unmountOnExit
-        >
+
+        {/* Dropdown per le notifiche */}
+        <CSSTransition in={isNotificationOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <h4>Notifiche</h4>
             <ul>
@@ -345,25 +375,17 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
             )}
           </div>
         </CSSTransition>
-        <CSSTransition
-  in={isChatOpen}
-  timeout={300}
-  classNames="dropdown"
-  unmountOnExit
->
-  <div className="chatbot-container">
-    <ChatGPTChatbot />
-  </div>
-</CSSTransition>
+
+        {/* Dropdown per il chatbot */}
+        <CSSTransition in={isChatOpen} timeout={300} classNames="dropdown" unmountOnExit>
+          <div className="chatbot-container">
+            <ChatGPTChatbot />
+          </div>
+        </CSSTransition>
       </div>
 
-      {/* Dropdown di ricerca nella Navbar con suggerimenti */}
-      <CSSTransition
-        in={isSearchOpen}
-        timeout={300}
-        classNames="dropdown"
-        unmountOnExit
-      >
+      {/* Dropdown di ricerca */}
+      <CSSTransition in={isSearchOpen} timeout={300} classNames="dropdown" unmountOnExit>
         <div className="search-dropdown">
           <input
             type="text"
@@ -391,8 +413,8 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
           )}
         </div>
       </CSSTransition>
-   
-      {/* Popup dei dettagli della commessa trovata */}
+
+      {/* Popup dei dettagli della commessa (se selezionata) */}
       {selectedCommessa && (
         <CommessaDettagli commessa={selectedCommessa} onClose={closeSearchPopup} />
       )}

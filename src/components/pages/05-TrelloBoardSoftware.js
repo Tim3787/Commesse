@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getBoardCards, getBoardLists, moveCardToList } from "../../services/API/trello-api";
+import { getBoardCards, getBoardLists, moveCardToList } from "../services/API/trello-api";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 
-const TrelloBoardElettrico = () => {
+const TrelloBoardSoftware = () => {
   const [lists, setLists] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); // Stato per il filtro della commessa
 
-  const boardId = "606efd4d2898f5705163448f";
+  const boardId = "606e8f6e25edb789343d0871";
 
   useEffect(() => {
     const fetchBoardData = async () => {
@@ -28,7 +28,7 @@ const TrelloBoardElettrico = () => {
         setCards(boardCards);
       } catch (err) {
         console.error("Errore durante il recupero dei dati della board:", err.message);
-        toast.error("Errore durante il recupero dei dati della board:", err.message);
+           toast.error("Errore durante il recupero dei dati della board:", err.message);
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ const TrelloBoardElettrico = () => {
       setEditingCard(null);
     } catch (error) {
       console.error("Errore durante l'aggiornamento della scheda:", error);
-      alert("Non è stato possibile aggiornare la scheda. Riprova più tardi.");
+      toast.error("Errore durante l'aggiornamento della scheda:", error);
     }
   };
 
@@ -82,7 +82,7 @@ const TrelloBoardElettrico = () => {
   };
 
   if (loading) return <p>Caricamento...</p>;
-ì
+
 
   // Filtra le schede in base al filtro della commessa
   const filteredCardsByList = lists.map((list) => ({
@@ -90,34 +90,34 @@ const TrelloBoardElettrico = () => {
     cards: cards.filter(
       (card) =>
         card.idList === list.id &&
-        (!commessaFilter || card.name.toLowerCase().includes(commessaFilter.toLowerCase()))
+        (!commessaFilter || card.name.includes(commessaFilter)) // Filtro per commessa
     ),
   }));
 
   return (
-      
-      <DndProvider backend={HTML5Backend}>
-      
-        <div className="container">
-        {loading && (
-          <div className="loading-overlay">
-              <img src={logo} alt="Logo"  className="logo-spinner"/>
-          </div>
-        )}
-        <div className="header">
-        <h1>Trello elettrico</h1>
-         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+    
+    <DndProvider backend={HTML5Backend}>
+    
+      <div className="container">
+      {loading && (
+        <div className="loading-overlay">
+            <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
-        <div className="filter-group">
-        <input
-              id="commessaFilter"
-              type="text"
-              value={commessaFilter}
-              onChange={(e) => setCommessaFilter(e.target.value)}
-               placeholder="Filtra per commessa"
-              className="input-field"
-            />
-          </div>
+      )}
+      <div className="header">
+      <h1>Trello software</h1>
+       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      </div>
+      <div className="filter-group">
+      <input
+            id="commessaFilter"
+            type="text"
+            value={commessaFilter}
+            onChange={(e) => setCommessaFilter(e.target.value)}
+             placeholder="Filtra per commessa"
+            className="input-field"
+          />
+        </div>
         <div style={styles.board}>
           {filteredCardsByList.map((list) => (
             <List
@@ -167,7 +167,7 @@ const List = ({ list, onCardDrop, onEditCard }) => {
   );
 };
 
-const Card = ({ card}) => {
+const Card = ({ card }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "CARD",
     item: card,
@@ -194,7 +194,37 @@ const Card = ({ card}) => {
   );
 };
 
-// Gli stili rimangono invariati
+const EditCardPopup = ({ card, onSave, onCancel }) => {
+  const [dueDate, setDueDate] = useState(card.due || "");
+
+  const handleSave = () => {
+    if (!dueDate) {
+      alert("La data di scadenza non può essere vuota.");
+      return;
+    }
+
+    onSave({ ...card, due: dueDate });
+  };
+
+  return (
+    <div style={styles.popup}>
+      <h3>Modifica Scheda</h3>
+      <label>
+        Data di Scadenza:
+        <input
+          type="datetime-local"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+      </label>
+      <div style={styles.popupActions}>
+        <button onClick={handleSave}>Salva</button>
+        <button onClick={onCancel}>Annulla</button>
+      </div>
+    </div>
+  );
+};
+
 const styles = {
   filterContainer: {
     marginBottom: "20px",
@@ -254,4 +284,4 @@ const styles = {
   },
 };
 
-export default TrelloBoardElettrico;
+export default TrelloBoardSoftware;

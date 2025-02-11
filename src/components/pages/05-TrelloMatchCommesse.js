@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getBoardCards } from "../../services/API/trello-api";
+import { getBoardCards } from "../services/API/trello-api";
 import axios from "axios";
-import CommessaCrea from "../../popup/CommessaCrea";
-import logo from "../../img/Animation - 1738249246846.gif";
+import CommessaCrea from "../popup/CommessaCrea";
+import logo from "../img/Animation - 1738249246846.gif";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 

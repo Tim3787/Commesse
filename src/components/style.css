@@ -352,7 +352,7 @@ tr:nth-child(even) {
 
 /* Quando il burger menu è aperto, sposta il contenitore principale verso destra */
 .main-container.shifted {
-  margin-left: 220px; /* Uguale alla larghezza del burger menu */
+  margin-left: 300px; /* Uguale alla larghezza del burger menu */
   background-color: #ffffff;
 }
 .title {

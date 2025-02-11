@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../../style.css";
-import AttivitaCrea from "../../popup/AttivitaCrea";
-import logo from "../../img/Animation - 1738249246846.gif";
+import "../style.css";
+import AttivitaCrea from "../popup/AttivitaCrea";
+import logo from "../img/Animation - 1738249246846.gif";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { usePersistedFilters } from "../../assets/usePersistedFilters";
-import {fetchAttivita} from "../../services/API/attivita-api";
-import {fetchReparti} from "../../services/API/reparti-api";
-import {fetchRisorse} from "../../services/API/risorse-api";
-import {fetchAttivitaCommessa,deleteAttivitaCommessa} from "../../services/API/attivitaCommesse-api"
-import {fetchCommesse} from"../../services/API/commesse-api"
+import { usePersistedFilters } from "../assets/usePersistedFilters";
+import {fetchAttivita} from "../services/API/attivita-api";
+import {fetchReparti} from "../services/API/reparti-api";
+import {fetchRisorse} from "../services/API/risorse-api";
+import {fetchAttivitaCommessa,deleteAttivitaCommessa} from "../services/API/attivitaCommesse-api"
+import {fetchCommesse} from"../services/API/commesse-api"
 
 
 function AssegnaAttivita() {

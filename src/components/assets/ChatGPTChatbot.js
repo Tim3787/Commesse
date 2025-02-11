@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchChatGPTResponse } from "./services/openaiService";
+import { fetchChatGPTResponse } from "../services/openaiService";
 
 const ChatGPTChatbot = () => {
   const [userInput, setUserInput] = useState("");
