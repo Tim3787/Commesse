@@ -69,32 +69,37 @@ function AttivitaCrea({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-
+  
     if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata) {
       toast.error("Tutti i campi sono obbligatori.");
       return;
     }
-
+  
     try {
       setLoading(true);
       const endpoint = isEditing
         ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
         : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
       const method = isEditing ? "PUT" : "POST";
-
+  
       const response = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${sessionStorage.getItem("token")}`
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) throw new Error("Errore nella richiesta");
-
-      toast.success(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+  
+      toast.success(
+        isEditing
+          ? "Attività aggiornata con successo!"
+          : "Attività aggiunta con successo!"
+      );
       reloadActivities();
-     // setShowPopup(false);
+      // setShowPopup(false);
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
       toast.error("Errore durante l'aggiunta o modifica dell'attività.");
@@ -102,7 +107,7 @@ function AttivitaCrea({
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="popup">
       <div className="popup-content">
