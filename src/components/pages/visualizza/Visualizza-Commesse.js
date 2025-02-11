@@ -7,9 +7,8 @@ import { fetchCommesse } from "../../services/API/commesse-api";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEyeSlash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash, faExclamationTriangle,faCalendar,faCalendarWeek  } from "@fortawesome/free-solid-svg-icons";
+
 
 function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]); 
@@ -30,7 +29,9 @@ function VisualizzazioneCommesse() {
   const [loading, setLoading] = useState(false);
   const [statoFilter, setStatoFilter] = useState("2"); 
   const [statiCommessa, setStatiCommessa] = useState([]); 
-
+   const [ConsegnaMensile] = useState(true);
+   const [ConsegnaSettimanale] = useState(true);
+ 
   // Stato per il menu a burger
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
 
@@ -109,6 +110,30 @@ function VisualizzazioneCommesse() {
     });
   };
 
+  // Funzione helper per verificare se una data cade nella settimana corrente
+  const isThisWeek = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const now = new Date();
+    const firstDayOfWeek = new Date(now);
+    firstDayOfWeek.setDate(now.getDate() - now.getDay());
+    firstDayOfWeek.setHours(0, 0, 0, 0);
+    const lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+    lastDayOfWeek.setHours(23, 59, 59, 999);
+    return date >= firstDayOfWeek && date <= lastDayOfWeek;
+  };
+
+  // Funzione helper per verificare se una data cade nel mese corrente
+  const isThisMonth = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const now = new Date();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  };
   // Funzione per applicare i filtri
   const applyFilters = () => {
     return commesse.filter((commessa) => {
@@ -335,7 +360,46 @@ function VisualizzazioneCommesse() {
                 <td>{commessa.cliente}</td>
                 <td>{commessa.tipo_macchina}</td>
                 <td>{commessa.data_FAT ? new Date(commessa.data_FAT).toLocaleDateString() : "Non specificata"}</td>
-                <td>{commessa.data_consegna ? new Date(commessa.data_consegna).toLocaleDateString() : "N/A"}</td>
+                <td>
+                <div className="delivery-alerts">
+  {/* Visualizza la data di consegna, oppure "N/A" se non esiste */}
+  {commessa.data_consegna 
+    ? new Date(commessa.data_consegna).toLocaleDateString() 
+    : "N/A"}
+
+  {/* Se esiste una data di consegna, ed essa è passata, e lo stato non è "Completata", mostra il triangolo */}
+  {commessa.data_consegna &&
+    new Date(commessa.data_consegna) < new Date() &&
+    getStatoNome(commessa.stato) !== "Completata" && (
+      <FontAwesomeIcon
+        icon={faExclamationTriangle}
+        style={{ color: "red", marginLeft: "10px" }}
+      />
+    )}
+
+  {/* Visualizza le icone per consegna solo se la data di consegna NON è scaduta */}
+    {commessa.data_consegna && new Date(commessa.data_consegna) >= new Date() && (
+      <>
+        {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
+          <FontAwesomeIcon
+            icon={faCalendarWeek}
+            title="Consegna questa settimana"
+            style={{ marginLeft: "10px", color: "red" }}
+          />
+        )}
+        {/* Visualizza l'icona del mese solo se la data non è in questa settimana */}
+        {!isThisWeek(commessa.data_consegna) && ConsegnaMensile && isThisMonth(commessa.data_consegna) && (
+          <FontAwesomeIcon
+            icon={faCalendar}
+            title="Consegna questo mese"
+            style={{  marginLeft: "10px",color: "blue" }}
+          />
+        )}
+      </>
+    )}
+  </div>
+</td>
+
                 <td>{getStatoNome(commessa.stato)}</td> 
               </tr>
             ))}

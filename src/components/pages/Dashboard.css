@@ -71,7 +71,7 @@
   
 
   .dropzone-placeholder {
-    height: 100px;         /* Imposta l'altezza desiderata */
+    height: 100vh;         /* Imposta l'altezza desiderata */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -317,6 +317,7 @@
   border: none;
   cursor: pointer;
   margin-right: 10px;
+  width: 200px;
 }
 
 /* Stile per il menu a burger */

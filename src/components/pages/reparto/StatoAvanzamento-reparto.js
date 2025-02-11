@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../Dashboard.css";
+import CommessaDettagli from "../../popup/CommessaDettagli";  
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getBoardCards, getBoardLists } from "../../services/API/trello-api";
@@ -14,6 +15,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEyeSlash,
+  faCalendarWeek,   // <--- Importa icona per consegna settimana
+  faCalendar   
 } from "@fortawesome/free-solid-svg-icons";
 
 function StatoAvanzamentoReparti() {
@@ -84,12 +87,43 @@ function StatoAvanzamentoReparti() {
   const [resources, setResources] = useState([]);
   const [columnOrder, setColumnOrder] = useState([]);
   const normalize = (str) => str?.trim().toLowerCase();
-
+  const [confrontoConTrello, setConfrontoConTrello] = useState(true);
+  const [esisteSuTrello, setesisteSuTrello] = useState(false);
+  const [allarmiNote, setAllarmiNote] = useState(true);
+  const [allarmiAttivitaAperte, setAllarmiAttivitaAperte] = useState(true);
+  const [VediConsegnate, setVediConsegnate] = useState(false);
+  const [ConsegnaMensile, setConsegnaMensile] = useState(true);
+  const [ConsegnaSettimanale, setConsegnaSettimanale] = useState(true);
+  const [selectedCommessa, setSelectedCommessa] = useState(null);
   const getListNameById = (listId) => {
     const list = lists.find((list) => list.id === listId);
     return list ? list.name : "Lista sconosciuta";
   };
 
+  // Funzione helper per verificare se una data cade nella settimana corrente
+  const isThisWeek = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const now = new Date();
+    const firstDayOfWeek = new Date(now);
+    firstDayOfWeek.setDate(now.getDate() - now.getDay());
+    firstDayOfWeek.setHours(0, 0, 0, 0);
+    const lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+    lastDayOfWeek.setHours(23, 59, 59, 999);
+    return date >= firstDayOfWeek && date <= lastDayOfWeek;
+  };
+
+  // Funzione helper per verificare se una data cade nel mese corrente
+  const isThisMonth = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const now = new Date();
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  };
   const getStatiAttiviPerCommessa = (commessa) => {
     return commessa.stati_avanzamento
       ?.map((reparto) => {
@@ -174,7 +208,9 @@ function StatoAvanzamentoReparti() {
     const match = trelloName.match(/^\d{5}/);
     return match ? match[0] : null;
   };
-
+  const handleClosePopup = () => {
+    setSelectedCommessa(null);
+  };
   const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     try {
       await axios.put(
@@ -260,13 +296,24 @@ const saveNewOrder = async () => {
     toast.error("Errore durante l'aggiornamento dell'ordine.");
   }
 };
+const handleCommessaClick = (commessa) => {
+  setSelectedCommessa(commessa);
+};
 
   // Filtra le commesse in base ai filtri
   const filteredCommesse = commesse.filter((commessa) => {
     const matchesNumeroCommessa = commessa.numero_commessa.toString().includes(numeroCommessaFilter);
     const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
     const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
-    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina;
+    let notDelivered = true;
+    if (!VediConsegnate && commessa.data_consegna) {
+      const deliveryDate = new Date(commessa.data_consegna);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // Se la data di consegna è precedente a oggi, la commessa è considerata consegnata
+      notDelivered = deliveryDate >= today;
+    }
+    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && notDelivered;
   });
 
   // Componente DraggableCommessa (già definito nel tuo codice)
@@ -358,29 +405,46 @@ const saveNewOrder = async () => {
         className="commessa"
         style={{
           opacity: isDragging ? 0.5 : 1,
-          backgroundColor: trelloCard ? (isDateDifferent ? "#ffcccc" : "#fff") : "#f0f0f0",
-          border: isListDifferent ? "2px solid red" : "2px solid black",
+          backgroundColor: confrontoConTrello && trelloCard ? ( confrontoConTrello && isDateDifferent ? "#ffcccc" : "#fff") : "white",
+          border: esisteSuTrello && isListDifferent ? "2px solid red" : "1px solid black",
         }}
-      >
+        onClick={() => handleCommessaClick(commessa)}  // Aggiungi qui il click
+    >
         <strong>{commessa.numero_commessa}</strong>
         <div>{commessa.cliente}</div>
-
-        {warningActivities.length > 0 && (
+{/* Nuovo blocco: icone di alert per consegna questa settimana e questo mese */}
+<div className="delivery-alerts">
+          {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
+            <FontAwesomeIcon
+              icon={faCalendarWeek}
+              title="Consegna questa settimana"
+              style={{ marginRight: "5px", color: "RED" }}
+            />
+          )}
+            {!isThisWeek(commessa.data_consegna) && ConsegnaMensile && isThisMonth(commessa.data_consegna) && (
+            <FontAwesomeIcon
+              icon={faCalendar}
+              title="Consegna questo mese"
+              style={{ color: "blue" }}
+            />
+          )}
+        </div>
+        {allarmiNote && warningActivities.length > 0 && (
           <WarningDetails warningActivities={warningActivities} resources={resources} />
         )}
 
-        {unfinishedActivities.length > 0 && (
+        {allarmiAttivitaAperte &&unfinishedActivities.length > 0 && (
           <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} />
         )}
 
-        {!trelloCard && (
+        {esisteSuTrello && !trelloCard && (
           <div style={{ color: "red", fontStyle: "italic" }}>
             Non esiste su Trello
           </div>
         )}
 
         <div>
-          {trelloCard && isDateDifferent && (
+          {confrontoConTrello && trelloCard && isDateDifferent && (
             <div style={{ color: "red" }}>
               Data App: {appDate}<br />
               Data Trello: {trelloDate}<br />
@@ -391,7 +455,7 @@ const saveNewOrder = async () => {
           )}
         </div>
 
-        {trelloCard && isListDifferent && (
+        {confrontoConTrello && trelloCard && isListDifferent && (
           <div style={{ color: "red" }}>
             <div>Lista Trello: {trelloListName}</div>
           </div>
@@ -424,7 +488,7 @@ const saveNewOrder = async () => {
         ) : (
           commesse.map((commessa) => (
             <DraggableCommessa
-              key={commessa.commessa_id}
+              key={commessa.commessa_id} 
               commessa={commessa}
               repartoId={repartoId}
               activities={activities}
@@ -486,6 +550,77 @@ const saveNewOrder = async () => {
           value={tipoMacchinaFilter}
           onChange={(e) => setTipoMacchinaFilter(e.target.value)}
         />
+          <h3>Opzioni </h3>
+          <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={confrontoConTrello}
+                    onChange={(e) => setConfrontoConTrello(e.target.checked)}
+                  />
+                  Confronto con lista Trello
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={esisteSuTrello}
+                    onChange={(e) => setesisteSuTrello(e.target.checked)}
+                  />
+                  Confronto esistenza su Trello
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={allarmiNote}
+                    onChange={(e) => setAllarmiNote(e.target.checked)}
+                  />
+                  Allarmi Note
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={allarmiAttivitaAperte}
+                    onChange={(e) => setAllarmiAttivitaAperte(e.target.checked)}
+                  />
+                  Allarmi Attività Aperte
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={VediConsegnate}
+                    onChange={(e) => setVediConsegnate(e.target.checked)}
+                  />
+                  Vedi anche consegnate
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={ConsegnaMensile}
+                    onChange={(e) => setConsegnaMensile(e.target.checked)}
+                  />
+                  Allarme consegna nel mese
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={ConsegnaSettimanale}
+                    onChange={(e) => setConsegnaSettimanale(e.target.checked)}
+                  />
+                  Allarme consegna nella settimana
+                </label>
+              </div>
         </div>
             <div className="filters-burger">
               <h3>Azioni</h3>
@@ -538,6 +673,12 @@ const saveNewOrder = async () => {
               </tr>
             </tbody>
           </table>
+          {selectedCommessa && (
+          <CommessaDettagli
+            commessa={selectedCommessa}
+            onClose={handleClosePopup}
+          />
+        )}
         </div>
       </DndProvider>
      
