@@ -120,23 +120,39 @@ function CalendarioAttivita() {
    * Restituisce le attività per una data specifica e per una determinata risorsa.
    * Confronta la data normalizzata dell'attività (inizio e fine) con il giorno corrente.
    */
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const normalizedDay = normalizeDate(day);
-    return activities.filter((activity) => {
-      if (!activity.data_inizio) {
-        return false;
-      }
-      const startDate = normalizeDate(activity.data_inizio);
-      const endDate = new Date(startDate);
-      // Se la durata non è specificata, si assume 1 giorno
-      endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
-      return (
-        Number(activity.risorsa_id) === Number(resourceId) &&
-        normalizedDay.getTime() >= startDate.getTime() &&
-        normalizedDay.getTime() <= endDate.getTime()
-      );
-    });
-  };
+  /**
+ * Filtra le attività per una determinata risorsa e per un giorno specifico,
+ * spostando indietro l'intervallo di un giorno.
+ *
+ * In altre parole, viene sottratto un giorno (86400000 ms) sia al giorno da confrontare
+ * che alla data di inizio dell'attività, per correggere eventuali problemi di offset.
+ *
+ * @param {number} resourceId - L'ID della risorsa da filtrare.
+ * @param {Date} day - Il giorno (Date object) per il quale cercare le attività.
+ * @returns {Array} Un array di attività che soddisfano i criteri.
+ */
+const getActivitiesForResourceAndDay = (resourceId, day) => {
+  // Normalizza il giorno passato e sottrae un giorno (86400000 ms)
+  const normalizedDay = new Date(normalizeDate(day).getTime());
+
+  return activities.filter((activity) => {
+    if (!activity.data_inizio) {
+      return false;
+    }
+    // Normalizza la data di inizio dell'attività e sottrai un giorno per correggere l'offset
+    const startDate = new Date(normalizeDate(activity.data_inizio).getTime() - 86400000);
+    const endDate = new Date(startDate);
+    // Se la durata non è specificata, si assume che l'attività duri 1 giorno.
+    endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
+    
+    return (
+      Number(activity.risorsa_id) === Number(resourceId) &&
+      normalizedDay.getTime() >= startDate.getTime() &&
+      normalizedDay.getTime() <= endDate.getTime()
+    );
+  });
+};
+
 
   // ------------------------------------------------------------------
   // Gestione della Visibilità delle Sezioni per Reparto
