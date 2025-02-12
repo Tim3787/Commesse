@@ -17,20 +17,33 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // Mostra la notifica quando arriva un messaggio in background
+// Ascolta i messaggi in background
 messaging.onBackgroundMessage((payload) => {
+  console.log("Messaggio in background ricevuto:", payload);
 
+  // Definisci valori di fallback
+  let notificationTitle = "Nuova notifica";
+  let notificationBody = "Hai un nuovo messaggio.";
+  const notificationIcon = "/logo192.png";
 
-  // Mostra la notifica solo se contiene il titolo e il corpo
+  // Verifica se è presente il campo 'notification'
   if (payload.notification) {
-    const notificationTitle = payload.notification.title || "Nuova notifica";
-    const notificationOptions = {
-      body: payload.notification.body || "Hai un nuovo messaggio.",
-      icon: '/logo192.png'
-    };
-
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    notificationTitle = payload.notification.title || notificationTitle;
+    notificationBody = payload.notification.body || notificationBody;
+  } 
+  // Altrimenti, controlla se esistono dati personalizzati in 'data'
+  else if (payload.data) {
+    notificationTitle = payload.data.title || notificationTitle;
+    notificationBody = payload.data.body || notificationBody;
   } else {
     console.warn("Nessuna notifica da mostrare.");
+    return; // Esci se non ci sono dati utili
   }
+
+  // Mostra la notifica con i parametri definiti
+  self.registration.showNotification(notificationTitle, {
+    body: notificationBody,
+    icon: notificationIcon,
+  });
 });
 

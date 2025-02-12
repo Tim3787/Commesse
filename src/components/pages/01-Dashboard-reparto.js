@@ -315,7 +315,7 @@ function DashboardReparto() {
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
       try {
-        await deleteAttivitaCommessa(id);
+        await deleteAttivitaCommessa(id, token, { headers: { Authorization: `Bearer ${token}` } });
         setActivities((prevActivities) =>
           prevActivities.filter((activity) => activity.id !== id)
         );
@@ -325,11 +325,13 @@ function DashboardReparto() {
       }
     }
   };
+  
 
   // Elimina la nota associata a un'attività
   const deleteNote = async (activityId) => {
     try {
       await updateActivityNotes(activityId, null, token);
+      
       toast.success("Nota eliminata con successo!");
       setActivities((prevActivities) =>
         prevActivities.map((activity) =>

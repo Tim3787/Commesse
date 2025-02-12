@@ -13,7 +13,13 @@ export const fetchAttivitaCommessa = async () => {
 };
 
 // Funzione per eliminare un'attività
-export const deleteAttivitaCommessa = async (id) => {
-  if (!id) throw new Error("ID attività non valido.");
-  await apiClient.delete(`/api/attivita_commessa/${id}`);
+export const deleteAttivitaCommessa = async (id, token) => {
+  if (!id) {
+    throw new Error("ID attività non valido.");
+  }
+  
+  // Esegue la richiesta di DELETE, passando i headers nel secondo parametro
+  await apiClient.delete(`/api/attivita_commessa/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };

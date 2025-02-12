@@ -36,8 +36,13 @@ if ("serviceWorker" in navigator) {
 
 // Ascolta i messaggi in arrivo
 onMessage(messaging, (payload) => {
-
-  alert(`Nuova notifica: ${payload.notification.body}`);
+  if (payload.notification && payload.notification.body) {
+    alert(`Nuova notifica: ${payload.notification.body}`);
+  } else if (payload.data && payload.data.body) {
+    alert(`Nuova notifica: ${payload.data.body}`);
+  } else {
+    console.warn("Il payload non contiene 'notification.body' o 'data.body'.", payload);
+  }
 });
 
 requestNotificationPermission();
