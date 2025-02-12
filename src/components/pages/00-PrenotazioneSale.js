@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import "../style.css";
+import logo from "../img/Animation - 1738249246846.gif";
+
+// Import API per le varie entità
 import { fetchRisorse } from "../services/API/risorse-api";
 import {
   fetchPrenotazioniSale,
@@ -6,8 +10,6 @@ import {
   deletePrenotazioneSale,
   updatePrenotazioneSale,
 } from "../services/API/sale-api";
-import "../style.css";
-import logo from "../img/Animation - 1738249246846.gif";
 
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";

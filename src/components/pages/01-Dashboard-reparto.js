@@ -82,6 +82,13 @@ function DashboardReparto() {
     setIsBurgerMenuOpen((prev) => !prev);
   };
 
+  // ----------------------------
+  // opzioni
+  // ----------------------------
+const [ViewButtons, setViewButtons] = useState(true); 
+const [ViewNote, setViewNote] = useState(true); 
+const [ViewStato, setViewStato] = useState(true); 
+
   // ========================================================
   // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
   // ========================================================
@@ -527,14 +534,17 @@ function DashboardReparto() {
         <br />
         <strong>Attività: {activity.nome_attivita}</strong>
         <br />
-        <strong>
-          Stato:{" "}
-          {activity.stato === 0
+        {ViewStato && (
+          <strong>
+           Stato:{" "}
+           {activity.stato === 0
             ? "Non iniziata"
             : activity.stato === 1
             ? "Iniziata"
             : "Completata"}
-        </strong>
+          </strong>
+        )}
+
         <br />
         {activity.reparto?.toLowerCase() === "service" && (
           <>
@@ -544,7 +554,7 @@ function DashboardReparto() {
           </>
         )}
         <div className="activity-actions">
-          {activity.stato === 1 && (
+          {ViewButtons && activity.stato === 1 && (
             <>
               <button
                 className="btn btn-complete"
@@ -558,7 +568,7 @@ function DashboardReparto() {
               </button>
             </>
           )}
-          {activity.stato === 0 && (
+          {ViewButtons && activity.stato === 0 && (
             <>
               <button
                 className="btn btn-start"
@@ -580,11 +590,15 @@ function DashboardReparto() {
             </>
           )}
         </div>
-        <div className="note">Note: {activity.note}</div>
-        {activity.note && (
-          <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
-            Elimina Nota
-          </button>
+        {ViewNote && (
+         <>
+          <div className="note">Note: {activity.note}</div>
+           {activity.note && (
+            <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+             Elimina Nota
+            </button>
+           )}
+         </>
         )}
       </div>
     );
@@ -654,8 +668,7 @@ function DashboardReparto() {
                 <option value="full">Completa</option>
                 <option value="compact">Compatta</option>
               </select>
-            </div>
-            {/* Selezione della risorsa del Service (se applicabile) */}
+              {/* Selezione della risorsa del Service (se applicabile) */}
             {serviceResources.length > 0 && reparto !== "service" && (
               <div>
                 <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
@@ -675,6 +688,38 @@ function DashboardReparto() {
                 </select>
               </div>
             )}
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={ViewButtons}
+                    onChange={(e) => setViewButtons(e.target.checked)}
+                  />
+                  Vedi pulsanti
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={ViewStato}
+                    onChange={(e) => setViewStato(e.target.checked)}
+                  />
+                  Vedi stato
+                </label>
+              </div>
+              <div className="filters-burger">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={ViewNote}
+                    onChange={(e) => setViewNote(e.target.checked)}
+                  />
+                  Vedi note
+                </label>
+              </div>
+            </div>
+            
             {/* Filtri per commessa, risorsa e attività */}
             <div className="filters-burger">
               <h3>Filtri</h3>

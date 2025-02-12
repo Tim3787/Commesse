@@ -385,8 +385,9 @@ function VisualizzazioneCommesse() {
           Filtri ed Opzioni
         </button>
 
+         <div className="Gen-table-container" >
         {/* TABELLA DELLE COMMESSE */}
-        <table>
+        <table className="software-schedule">
           <thead>
             <tr>
               <th>Numero Commessa</th>
@@ -488,6 +489,8 @@ function VisualizzazioneCommesse() {
         )}
       </div>
     </div>
+  </div>
+
   );
 }
 

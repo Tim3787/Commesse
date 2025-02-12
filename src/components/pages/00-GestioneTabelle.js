@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
+
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Import API per le varie entità
+// API per Stati Commessa
 import { 
   fetchStatiCommessa, 
   createStatoCommessa, 
@@ -13,6 +14,7 @@ import {
   deleteStatoCommessa 
 } from "../services/API/statoCommessa-api";
 
+// API per Reparti
 import { 
   fetchReparti, 
   createReparto, 
@@ -20,6 +22,7 @@ import {
   deleteReparto 
 } from "../services/API/reparti-api";
 
+// API per Attività
 import { 
   fetchAttivita, 
   createAttivita, 
@@ -27,6 +30,7 @@ import {
   deleteAttivita 
 } from "../services/API/attivita-api";
 
+// API per Risorse
 import { 
   fetchRisorse, 
   createRisorsa, 
@@ -34,18 +38,19 @@ import {
   deleteRisorsa 
 } from "../services/API/risorse-api";
 
+// API per Stati Avanzamento
 import { 
   fetchStatiAvanzamento, 
   createStatoAvanzamento, 
   updateStatoAvanzamento, 
-  deleteStatoAvanzamento 
+  deleteStatoAvanzamento,
+  ordinaStatiAvanzamento
 } from "../services/API/StatiAvanzamento-api";
 
-// Import per drag & drop
-import { DndProvider} from "react-dnd";
+// Import per Drag & Drop
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import DraggableColumn from "../assets/DraggableColumn"; // Assicurati del percorso corretto
-import { ordinaStatiAvanzamento } from "../services/API/StatiAvanzamento-api";
+import DraggableColumn from "../assets/DraggableColumn"; // Assicurati che il percorso sia corretto
 
 function GestioneTabelle() {
   // ================================
@@ -100,7 +105,7 @@ function GestioneTabelle() {
   const [columnOrder, setColumnOrder] = useState([]);
 
   // ================================
-  // Effetti di caricamento iniziale
+  // Effetti di Caricamento Iniziale
   // ================================
   useEffect(() => {
     loadStatiCommessa();
@@ -116,18 +121,16 @@ function GestioneTabelle() {
     }
   }, [selectedReparto]);
 
-  // Quando gli stati avanzamento cambiano, inizializza il riordino
+  // Quando gli Stati Avanzamento cambiano, inizializza il riordino delle colonne
   useEffect(() => {
     if (statiAvanzamento.length > 0) {
-      const ordered = statiAvanzamento
-        .slice()
-        .sort((a, b) => a.ordine - b.ordine);
+      const ordered = statiAvanzamento.slice().sort((a, b) => a.ordine - b.ordine);
       setColumnOrder(ordered);
     }
   }, [statiAvanzamento]);
 
   // ================================
-  // Funzioni per Stati Commessa (Global)
+  // Funzioni per Stati Commessa
   // ================================
   const loadStatiCommessa = async () => {
     setStatiCommessaLoading(true);
@@ -202,7 +205,7 @@ function GestioneTabelle() {
   };
 
   // ================================
-  // Funzioni per Reparti (Global)
+  // Funzioni per Reparti
   // ================================
   const loadReparti = async () => {
     setRepartiLoading(true);
@@ -233,7 +236,7 @@ function GestioneTabelle() {
           prev.map((r) => (r.id === editRepartoId ? { ...r, ...repartiFormData } : r))
         );
       } else {
-        await createReparto(repartiFormData);
+        const newReparto = await createReparto(repartiFormData);
         toast.success("Reparto creato con successo!");
         setReparti((prev) => [...prev, newReparto]);
       }
@@ -287,10 +290,9 @@ function GestioneTabelle() {
   };
 
   useEffect(() => {
-    setAttivitaFormData(prev => ({ ...prev, reparto_id: selectedReparto }));
+    setAttivitaFormData((prev) => ({ ...prev, reparto_id: selectedReparto }));
   }, [selectedReparto]);
 
-  
   const handleAttivitaChange = (e) => {
     const { name, value } = e.target;
     setAttivitaFormData({ ...attivitaFormData, [name]: value });
@@ -298,12 +300,10 @@ function GestioneTabelle() {
 
   const handleAttivitaSubmit = async (e) => {
     e.preventDefault();
-    // Puoi controllare solo il nome, dato che reparto_id verrà preso da selectedReparto
     if (!attivitaFormData.nome_attivita) {
       toast.error("Tutti i campi sono obbligatori per le attività.");
       return;
     }
-    // Crea un oggetto dati che include il reparto selezionato
     const dataToSubmit = { ...attivitaFormData, reparto_id: selectedReparto };
     setAttivitaLoading(true);
     try {
@@ -328,7 +328,6 @@ function GestioneTabelle() {
       setAttivitaLoading(false);
     }
   };
-  
 
   const handleAttivitaEdit = (att) => {
     setAttivitaFormData({ nome_attivita: att.nome_attivita, reparto_id: att.reparto_id });
@@ -369,9 +368,8 @@ function GestioneTabelle() {
   };
 
   useEffect(() => {
-    setRisorseFormData(prev => ({ ...prev, reparto_id: selectedReparto }));
+    setRisorseFormData((prev) => ({ ...prev, reparto_id: selectedReparto }));
   }, [selectedReparto]);
-
 
   const handleRisorseChange = (e) => {
     const { name, value } = e.target;
@@ -380,12 +378,10 @@ function GestioneTabelle() {
 
   const handleRisorseSubmit = async (e) => {
     e.preventDefault();
-    // Controlla il nome; il reparto verrà sempre preso da selectedReparto
     if (!risorseFormData.nome) {
       toast.error("Il nome della risorsa è obbligatorio.");
       return;
     }
-    // Crea un oggetto dati unendo il form e selectedReparto
     const dataToSubmit = { ...risorseFormData, reparto_id: selectedReparto };
     setRisorseLoading(true);
     try {
@@ -402,7 +398,6 @@ function GestioneTabelle() {
         toast.success("Risorsa creata!");
         await loadRisorse(selectedReparto);
       }
-      // Resetta il form mantenendo il reparto selezionato
       setRisorseFormData({ nome: "", reparto_id: selectedReparto });
       setIsEditingRisorsa(false);
       setEditRisorsaId(null);
@@ -413,7 +408,6 @@ function GestioneTabelle() {
       setRisorseLoading(false);
     }
   };
-  
 
   const handleRisorseEdit = (risorsa) => {
     setRisorseFormData({ nome: risorsa.nome, reparto_id: risorsa.reparto_id });
@@ -438,8 +432,9 @@ function GestioneTabelle() {
   };
 
   // ================================
-  // Funzioni per Stati Avanzamento (Filtrati per Reparto)
+  // Funzioni per Stati Avanzamento e Riordino (Filtrati per Reparto)
   // ================================
+
   const loadStatiAvanzamento = async (repartoId) => {
     setStatiAvanzamentoLoading(true);
     try {
@@ -454,9 +449,8 @@ function GestioneTabelle() {
   };
 
   useEffect(() => {
-    setStatiAvanzamentoFormData(prev => ({ ...prev, reparto_id: selectedReparto }));
+    setStatiAvanzamentoFormData((prev) => ({ ...prev, reparto_id: selectedReparto }));
   }, [selectedReparto]);
-
 
   const handleStatiAvanzamentoChange = (e) => {
     const { name, value } = e.target;
@@ -469,7 +463,6 @@ function GestioneTabelle() {
       toast.error("Il nome dello stato avanzamento è obbligatorio.");
       return;
     }
-    // Unisci selectedReparto ai dati da inviare
     const dataToSubmit = { ...statiAvanzamentoFormData, reparto_id: selectedReparto };
     setStatiAvanzamentoLoading(true);
     try {
@@ -496,7 +489,6 @@ function GestioneTabelle() {
       setStatiAvanzamentoLoading(false);
     }
   };
-  
 
   const handleStatiAvanzamentoEdit = (stato) => {
     setStatiAvanzamentoFormData({ nome_stato: stato.nome_stato });
@@ -534,15 +526,12 @@ function GestioneTabelle() {
 
   const saveNewOrder = async () => {
     try {
-      // Costruisci l'array degli stati da aggiornare
       const statiDaAggiornare = columnOrder.map((stato, index) => ({
         stato_id: stato.id,
         ordine: index + 1,
       }));
-      const idDaUsare = 1; // Usa il valore necessario per la tua API
+      const idDaUsare = 1; // Modifica questo valore in base alla tua logica
       await ordinaStatiAvanzamento(idDaUsare, selectedReparto, statiDaAggiornare);
-
-      // Aggiorna localmente l'ordine
       setColumnOrder((prevOrder) =>
         prevOrder.map((stato, index) => ({ ...stato, ordine: index + 1 }))
       );
@@ -554,13 +543,13 @@ function GestioneTabelle() {
   };
 
   // ================================
-  // Render della Pagina
+  // Rendering della Pagina
   // ================================
   return (
     <div className="container">
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
 
-      {/* === Sezione Stati Commessa (Global) === */}
+      {/* === Sezione Stati Commessa === */}
       <section className="section-global">
         <h1>Gestione Stati Commessa</h1>
         {statiCommessaLoading && (
@@ -582,19 +571,19 @@ function GestioneTabelle() {
           <button type="submit" className="btn-100">
             {isEditingStatiCommessa ? "Aggiorna Stato Commessa" : "Aggiungi Stato Commessa"}
           </button>
-          {isEditingStatiCommessa  && (
-    <button
-      type="button"
-      className="btn-cancel"
-      onClick={() => {
-        setStatiCommessaFormData({ nome_stato: "", reparto_id: selectedReparto });
-        setIsEditingStatiCommessa(false);
-        setEditStatiCommessaId(null);
-      }}
-    >
-      Annulla
-    </button>
-  )}
+          {isEditingStatiCommessa && (
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => {
+                setStatiCommessaFormData({ nome_stato: "", reparto_id: selectedReparto });
+                setIsEditingStatiCommessa(false);
+                setEditStatiCommessaId(null);
+              }}
+            >
+              Annulla
+            </button>
+          )}
         </form>
         {statiCommessaLoading ? (
           <p>Caricamento stati commessa...</p>
@@ -611,14 +600,18 @@ function GestioneTabelle() {
             </thead>
             <tbody>
               {statiCommessa.map((s) => (
-                <tr key={s.id}
-                className={editStatiCommessaId === s.id ? "editing-row" : ""}
-                    >
-                  <td>{s.id} {editStatiCommessaId  === s.id && <span className="editing-icon">✏️</span>}</td>
+                <tr key={s.id} className={editStatiCommessaId === s.id ? "editing-row" : ""}>
+                  <td>
+                    {s.id} {editStatiCommessaId === s.id && <span className="editing-icon">✏️</span>}
+                  </td>
                   <td>{s.nome_stato}</td>
                   <td>
-                    <button onClick={() => handleStatiCommessaEdit(s)}>Modifica</button>
-                    <button onClick={() => handleStatiCommessaDelete(s.id)}>Elimina</button>
+                    <button onClick={() => handleStatiCommessaEdit(s)} className="btn-warning ">
+                      Modifica
+                    </button>
+                    <button onClick={() => handleStatiCommessaDelete(s.id)} className="btn-danger">
+                      Elimina
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -627,7 +620,7 @@ function GestioneTabelle() {
         )}
       </section>
 
-      {/* === Sezione Reparti (Global) === */}
+      {/* === Sezione Reparti === */}
       <section className="section-global">
         <h1>Gestione Reparti</h1>
         {repartiLoading && (
@@ -650,18 +643,18 @@ function GestioneTabelle() {
             {isEditingReparto ? "Aggiorna Reparto" : "Aggiungi Reparto"}
           </button>
           {isEditingReparto && (
-    <button
-      type="button"
-      className="btn-cancel"
-      onClick={() => {
-        setRepartiFormData({ nome: "" });
-        setIsEditingReparto(false);
-        setEditRepartoId(null);
-      }}
-    >
-      Annulla
-    </button>
-  )}
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => {
+                setRepartiFormData({ nome: "" });
+                setIsEditingReparto(false);
+                setEditRepartoId(null);
+              }}
+            >
+              Annulla
+            </button>
+          )}
         </form>
         <table className="table">
           <thead>
@@ -673,15 +666,18 @@ function GestioneTabelle() {
           </thead>
           <tbody>
             {reparti.map((r) => (
-              <tr
-              key={r.id}
-              className={editRepartoId === r.id ? "editing-row" : ""}
-               >
-                <td>{r.id} {editRepartoId === r.id && <span className="editing-icon">✏️</span>}</td>
+              <tr key={r.id} className={editRepartoId === r.id ? "editing-row" : ""}>
+                <td>
+                  {r.id} {editRepartoId === r.id && <span className="editing-icon">✏️</span>}
+                </td>
                 <td>{r.nome}</td>
                 <td>
-                  <button onClick={() => handleRepartiEdit(r)}>Modifica</button>
-                  <button onClick={() => handleRepartiDelete(r.id)}>Elimina</button>
+                  <button onClick={() => handleRepartiEdit(r)} className="btn-warning ">
+                    Modifica
+                  </button>
+                  <button onClick={() => handleRepartiDelete(r.id)} className="btn-danger">
+                    Elimina
+                  </button>
                 </td>
               </tr>
             ))}
@@ -689,7 +685,7 @@ function GestioneTabelle() {
         </table>
       </section>
 
-      {/* === Selezione del Reparto per le altre sezioni === */}
+      {/* === Sezione per Selezionare il Reparto === */}
       <section className="section-filter">
         <h2>Seleziona Reparto per Gestione</h2>
         <select value={selectedReparto} onChange={(e) => setSelectedReparto(e.target.value)}>
@@ -723,18 +719,18 @@ function GestioneTabelle() {
                 {isEditingAttivita ? "Aggiorna Attività" : "Aggiungi Attività"}
               </button>
               {isEditingAttivita && (
-    <button
-      type="button"
-      className="btn-cancel"
-      onClick={() => {
-        setAttivitaFormData({ nome_attivita: "", reparto_id: selectedReparto });
-        setIsEditingAttivita(false);
-        setEditAttivitaId(null);
-      }}
-    >
-      Annulla
-    </button>
-  )}
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => {
+                    setAttivitaFormData({ nome_attivita: "", reparto_id: selectedReparto });
+                    setIsEditingAttivita(false);
+                    setEditAttivitaId(null);
+                  }}
+                >
+                  Annulla
+                </button>
+              )}
             </form>
             {attivitaLoading ? (
               <p>Caricamento attività...</p>
@@ -751,15 +747,18 @@ function GestioneTabelle() {
                 </thead>
                 <tbody>
                   {attivita.map((a) => (
-                    <tr
-                    key={a.id}
-                    className={editAttivitaId === a.id ? "editing-row" : ""}
-                  >
-                      <td>{a.id} {editAttivitaId === a.id && <span className="editing-icon">✏️</span>}</td>
+                    <tr key={a.id} className={editAttivitaId === a.id ? "editing-row" : ""}>
+                      <td>
+                        {a.id} {editAttivitaId === a.id && <span className="editing-icon">✏️</span>}
+                      </td>
                       <td>{a.nome_attivita}</td>
                       <td>
-                        <button onClick={() => handleAttivitaEdit(a)}>Modifica</button>
-                        <button onClick={() => handleAttivitaDelete(a.id)}>Elimina</button>
+                        <button onClick={() => handleAttivitaEdit(s)} className="btn-warning ">
+                         Modifica
+                        </button>
+                        <button onClick={() => handleAttivitaDelete(s)} className="btn-danger">
+                        Elimina
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -787,18 +786,18 @@ function GestioneTabelle() {
                 {isEditingRisorsa ? "Aggiorna Risorsa" : "Aggiungi Risorsa"}
               </button>
               {isEditingRisorsa && (
-    <button
-      type="button"
-      className="btn-cancel"
-      onClick={() => {
-        setRisorseFormData({ nome: "", reparto_id: selectedReparto });
-        setIsEditingRisorsa(false);
-        setEditRisorsaId(null);
-      }}
-    >
-      Annulla
-    </button>
-  )}
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => {
+                    setRisorseFormData({ nome: "", reparto_id: selectedReparto });
+                    setIsEditingRisorsa(false);
+                    setEditRisorsaId(null);
+                  }}
+                >
+                  Annulla
+                </button>
+              )}
             </form>
             {risorseLoading ? (
               <p>Caricamento risorse...</p>
@@ -815,14 +814,18 @@ function GestioneTabelle() {
                 </thead>
                 <tbody>
                   {risorse.map((r) => (
-                    <tr key={r.id}
-                    className={editRisorsaId === r.id ? "editing-row" : ""}
-               >
-                      <td>{r.id} {editRisorsaId === r.id && <span className="editing-icon">✏️</span>}</td>
+                    <tr key={r.id} className={editRisorsaId === r.id ? "editing-row" : ""}>
+                      <td>
+                        {r.id} {editRisorsaId === r.id && <span className="editing-icon">✏️</span>}
+                      </td>
                       <td>{r.nome}</td>
                       <td>
-                        <button onClick={() => handleRisorseEdit(r)}>Modifica</button>
-                        <button onClick={() => handleRisorseDelete(r.id)}>Elimina</button>
+                        <button onClick={() => handleRisorseEdit(s)} className="btn-warning ">
+                         Modifica
+                        </button>
+                        <button onClick={() => handleRisorseDelete(s)} className="btn-danger">
+                        Elimina
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -831,7 +834,7 @@ function GestioneTabelle() {
             )}
           </div>
 
-          {/* === Sezione Stati Avanzamento (Filtrati per Reparto) e Riordino === */}
+          {/* === Sezione Stati Avanzamento e Riordino (Filtrati per Reparto) === */}
           <div className="section-box">
             <h2>Gestione Stati Avanzamento</h2>
             <form onSubmit={handleStatiAvanzamentoSubmit}>
@@ -849,18 +852,18 @@ function GestioneTabelle() {
                 {isEditingStatoAvanzamento ? "Aggiorna Stato Avanzamento" : "Aggiungi Stato Avanzamento"}
               </button>
               {isEditingStatoAvanzamento && (
-    <button
-      type="button"
-      className="btn-cancel"
-      onClick={() => {
-        setStatiAvanzamentoFormData({ nome_stato: "" });
-        setIsEditingStatoAvanzamento(false);
-        setEditStatoAvanzamentoId(null);
-      }}
-    >
-      Annulla
-    </button>
-  )}
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => {
+                    setStatiAvanzamentoFormData({ nome_stato: "" });
+                    setIsEditingStatoAvanzamento(false);
+                    setEditStatoAvanzamentoId(null);
+                  }}
+                >
+                  Annulla
+                </button>
+              )}
             </form>
             {statiAvanzamentoLoading ? (
               <p>Caricamento stati avanzamento...</p>
@@ -877,14 +880,18 @@ function GestioneTabelle() {
                 </thead>
                 <tbody>
                   {statiAvanzamento.map((s) => (
-                    <tr key={s.id}
-                    className={editStatoAvanzamentoId=== s.id  ? "editing-row" : ""}
-                    >
-                      <td>{s.id} {editStatoAvanzamentoId === s.id && <span className="editing-icon">✏️</span>}</td>
+                    <tr key={s.id} className={editStatoAvanzamentoId === s.id ? "editing-row" : ""}>
+                      <td>
+                        {s.id} {editStatoAvanzamentoId === s.id && <span className="editing-icon">✏️</span>}
+                      </td>
                       <td>{s.nome_stato}</td>
                       <td>
-                        <button onClick={() => handleStatiAvanzamentoEdit(s)}>Modifica</button>
-                        <button onClick={() => handleStatiAvanzamentoDelete(s.id)}>Elimina</button>
+                      <button onClick={() => handleStatiAvanzamentoEdit(s)} className="btn-warning ">
+                         Modifica
+                        </button>
+                        <button onClick={() => handleStatiAvanzamentoDelete(s)} className="btn-danger">
+                        Elimina
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -892,7 +899,7 @@ function GestioneTabelle() {
               </table>
             )}
 
-            {/* Sezione Drag & Drop per il Riordino */}
+            {/* Sezione Drag & Drop per il Riordino degli Stati Avanzamento */}
             <div className="drag-drop-section" style={{ marginTop: "2rem" }}>
               <h3>Ordina Colonne Stati Avanzamento</h3>
               <button onClick={saveNewOrder} className="btn-100" style={{ marginBottom: "1rem" }}>
@@ -930,12 +937,9 @@ function GestioneTabelle() {
             </div>
           </div>
         </section>
-      )}
-    </div>
+     )}
+   </div>
   );
 }
-
-
-
 
 export default GestioneTabelle;

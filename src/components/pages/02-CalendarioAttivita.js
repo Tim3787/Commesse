@@ -140,7 +140,7 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
       return false;
     }
     // Normalizza la data di inizio dell'attività e sottrai un giorno per correggere l'offset
-    const startDate = new Date(normalizeDate(activity.data_inizio).getTime() - 86400000);
+    const startDate = new Date(normalizeDate(activity.data_inizio).getTime() - 86400000); //DEBUG
     const endDate = new Date(startDate);
     // Se la durata non è specificata, si assume che l'attività duri 1 giorno.
     endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
