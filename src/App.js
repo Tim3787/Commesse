@@ -31,6 +31,7 @@ import PrenotazioneSale from "./components/pages/00-PrenotazioneSale";
 import TrelloBoardSoftware from "./components/pages/05-TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/05-TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/05-TrelloMatchCommesse";
+import Notifications from "./components/pages/Notifications";
 
 // Rotte protette
 import ProtectedRoute from "./components/utils/ProtectedRoute";
@@ -215,6 +216,7 @@ function App() {
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse /> },
     { path: "/PrenotazioneSale", component: <PrenotazioneSale /> },
+    { path: "/Notifications", component: <Notifications /> },
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2 },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },

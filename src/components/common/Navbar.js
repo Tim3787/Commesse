@@ -150,6 +150,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   // -------------------------------------------------------------------
   const navLinks = {
     user: [
+      { to: "/Notifications", label: "Storico notifiche", icon: faBell },
       { to: "/Dashboard", label: "Bacheca personale", icon: faUser },
       { to: "/visualizzazione-commesse", label: "Visualizza i dettagli delle commesse", icon: faClipboardList },
       { to: "/calendario-attivita", label: "Calendario delle attività", icon: faCalendarAlt },
