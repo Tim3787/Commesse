@@ -228,7 +228,7 @@ function App() {
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico />, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
-    { path: "/reset-password", component: <ResetPassword /> },
+  
   ];
 
   // ------------------------------------------------------
@@ -249,6 +249,7 @@ function App() {
         <Routes>
           {/* Rotta per il login */}
           <Route path="/login" element={<LoginRegister onLogin={handleLoginRequest} />} />
+          <Route path="/reset-password" element={<ResetPassword />} />  {/* <-- Route pubblica */}
           {/* Rotta di default: redirect a /dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
           {/* Rotte protette: vengono renderizzate tramite il componente ProtectedRoute */}
