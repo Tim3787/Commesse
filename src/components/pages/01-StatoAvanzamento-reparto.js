@@ -425,6 +425,22 @@ function StatoAvanzamentoReparti() {
       .includes(numeroCommessaFilter);
     const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
     const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
+  
+    const warningActivities = activities.filter(
+      (activity) =>
+        activity.stato === 2 &&
+        activity.note &&
+        activity.commessa_id === commessa.commessa_id &&
+        activity.reparto?.toLowerCase() === RepartoName
+    );
+  
+    const unfinishedActivities = activities.filter(
+      (activity) =>
+        activity.stato === 1 &&
+        activity.commessa_id === commessa.commessa_id &&
+        activity.reparto?.toLowerCase() === RepartoName
+    );
+  
     let notDelivered = true;
     if (!VediConsegnate && commessa.data_consegna) {
       const deliveryDate = new Date(commessa.data_consegna);
@@ -432,9 +448,13 @@ function StatoAvanzamentoReparti() {
       today.setHours(0, 0, 0, 0);
       notDelivered = deliveryDate >= today;
     }
-    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && notDelivered;
+  
+    // Mostra comunque le commesse completate con note attive o attività non completate
+    const shouldShow = warningActivities.length > 0 || unfinishedActivities.length > 0;
+  
+    return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && (notDelivered || shouldShow);
   });
-
+  
   // ----------------------------------------------------------------
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
