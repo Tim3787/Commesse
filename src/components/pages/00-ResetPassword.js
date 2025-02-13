@@ -33,7 +33,7 @@ function ResetPassword() {
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/api/users/reset-password`, {
         token,
-        password,
+        newPassword: password,
       });
       toast.success("Password reimpostata con successo! Ora puoi accedere.");
       navigate("/login");
