@@ -18,34 +18,31 @@ import "react-toastify/dist/ReactToastify.css";
  *  - onLogin: funzione chiamata al successo del login con i parametri (username, password, token, role)
  */
 function LoginRegister({ onLogin }) {
-  // ------------------------------------------------------------------
-  // Stati del componente
-  // ------------------------------------------------------------------
-  // Tipo di form attivo: "login", "register" oppure "recover"
+  // Stato che determina il tipo di form attivo: "login", "register" oppure "recover"
   const [formType, setFormType] = useState("login");
 
-  // Dati del form: username, email e password
+  // Stato che gestisce i dati del form
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
 
-  // Stato per il caricamento (per disabilitare il pulsante e mostrare "Caricamento...")
+  // Stato per il caricamento, utile per disabilitare il pulsante e mostrare "Caricamento..."
   const [isLoading, setIsLoading] = useState(false);
 
   // Hook per la navigazione (React Router)
   const navigate = useNavigate();
 
   // ------------------------------------------------------------------
-  // Funzione helper: Validazione del form
+  // Funzione Helper: Validazione del Form
   // ------------------------------------------------------------------
   const validateForm = () => {
-    // Per "register" e "recover" l'email è obbligatoria
+    // Se il form è per la registrazione o il recupero, l'email è obbligatoria
     if ((formType === "register" || formType === "recover") && !formData.email) {
       return "L'email è obbligatoria.";
     }
-    // Per "register" e "login" username e password sono obbligatori
+    // Se il form è per login o registrazione, username e password sono obbligatori
     if ((formType === "register" || formType === "login") && !formData.username) {
       return "L'username è obbligatorio.";
     }
@@ -56,7 +53,7 @@ function LoginRegister({ onLogin }) {
   };
 
   // ------------------------------------------------------------------
-  // Funzione helper: Effettua una richiesta HTTP all'endpoint specificato
+  // Funzione Helper: Effettua una Richiesta HTTP all'Endpoint Specificato
   // ------------------------------------------------------------------
   const makeRequest = async (endpoint, successMessage) => {
     setIsLoading(true);
@@ -67,23 +64,21 @@ function LoginRegister({ onLogin }) {
         formData
       );
 
-      // Se il form è di login, salva token e ruolo e chiama onLogin
+      // Se il form è di login, salva il token e il ruolo e chiama onLogin
       if (formType === "login") {
         sessionStorage.setItem("token", response.data.token);
         sessionStorage.setItem("role", response.data.role_id);
-
-        // Passa username, password, token e role al parent
+        // Chiamata di callback passando username, password, token e ruolo
         onLogin(formData.username, formData.password, response.data.token, response.data.role_id);
         navigate("/dashboard");
       } else {
-        // Se il form non è di login, mostra un messaggio di successo
+        // Per registrazione e recupero, mostra un messaggio di successo
         toast.success(successMessage);
-        // Dopo la registrazione, passa al form di login
+        // Dopo la registrazione, torna al form di login
         if (formType === "register") setFormType("login");
       }
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
-      // Mostra il messaggio di errore se presente, altrimenti un messaggio generico
       toast.error(error.response?.data?.message || "Errore durante l'operazione.");
     } finally {
       setIsLoading(false);
@@ -91,17 +86,15 @@ function LoginRegister({ onLogin }) {
   };
 
   // ------------------------------------------------------------------
-  // Funzione: Gestione del submit del form
+  // Gestione del Submit del Form
   // ------------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Validazione del form
+    // Esegue la validazione del form
     const validationError = validateForm();
     if (validationError) {
       toast.error(validationError);
-      setIsLoading(false);
       return;
     }
 
@@ -125,19 +118,15 @@ function LoginRegister({ onLogin }) {
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       toast.error("Errore durante l'operazione.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // ------------------------------------------------------------------
-  // Rendering del componente
+  // Rendering del Componente
   // ------------------------------------------------------------------
   return (
     <>
-      {/* Contenitore per i Toast (notifiche) */}
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-
       <div className="login-container">
         {/* Titolo del form in base al tipo */}
         <h1>
@@ -147,11 +136,10 @@ function LoginRegister({ onLogin }) {
             ? "Registrazione"
             : "Recupero Password"}
         </h1>
-
-        {/* Form di login/registrazione/recupero */}
+        {/* Form per login, registrazione e recupero password */}
         <form onSubmit={handleSubmit}>
-          {/* Mostra il campo username per login e registrazione */}
-          {(formType === "register" || formType === "login") && (
+          {/* Campo Username (solo per login e registrazione) */}
+          {(formType === "login" || formType === "register") && (
             <div>
               <label htmlFor="username">Username:</label>
               <input
@@ -165,8 +153,7 @@ function LoginRegister({ onLogin }) {
               />
             </div>
           )}
-
-          {/* Mostra il campo email per registrazione e recupero */}
+          {/* Campo Email (solo per registrazione e recupero) */}
           {(formType === "register" || formType === "recover") && (
             <div>
               <label htmlFor="email">Email:</label>
@@ -181,9 +168,8 @@ function LoginRegister({ onLogin }) {
               />
             </div>
           )}
-
-          {/* Mostra il campo password per login e registrazione */}
-          {(formType === "register" || formType === "login") && (
+          {/* Campo Password (solo per login e registrazione) */}
+          {(formType === "login" || formType === "register") && (
             <div>
               <label htmlFor="password">Password:</label>
               <input
@@ -197,8 +183,7 @@ function LoginRegister({ onLogin }) {
               />
             </div>
           )}
-
-          {/* Pulsante per il submit del form */}
+          {/* Pulsante per inviare il form */}
           <button type="submit" disabled={isLoading}>
             {isLoading
               ? "Caricamento..."
@@ -210,11 +195,9 @@ function LoginRegister({ onLogin }) {
           </button>
         </form>
 
-        {/* Pulsanti per cambiare tipo di form */}
+        {/* Pulsanti per cambiare il tipo di form */}
         {formType !== "recover" && (
-          <button
-            onClick={() => setFormType(formType === "login" ? "register" : "login")}
-          >
+          <button onClick={() => setFormType(formType === "login" ? "register" : "login")}>
             {formType === "login" ? "Vai alla Registrazione" : "Torna al Login"}
           </button>
         )}
@@ -225,12 +208,8 @@ function LoginRegister({ onLogin }) {
           <button onClick={() => setFormType("login")}>Torna al Login</button>
         )}
 
-        {/* Logo dell'app con animazione se il form è in caricamento */}
-        <img
-          src={logo}
-          alt="Logo"
-          className={`login-logo ${isLoading ? "pulsing" : ""}`}
-        />
+        {/* Logo dell'app con animazione durante il caricamento */}
+        <img src={logo} alt="Logo" className={`login-logo ${isLoading ? "pulsing" : ""}`} />
       </div>
     </>
   );

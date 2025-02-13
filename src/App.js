@@ -14,6 +14,7 @@ import {
 
 // Import delle pagine e dei componenti principali
 import LoginRegister from "./components/pages/00-LoginRegister";
+import ResetPassword from './components/pages/00-ResetPassword';
 import GestioneUtenti from "./components/pages/00-GestioneUtenti";
 import GestioneCommesse from "./components/pages/04-GestioneCommesse";
 import GestioneTabelle from "./components/pages/00-GestioneTabelle";
@@ -227,6 +228,7 @@ function App() {
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico />, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
+    <Route path="/reset-password" element={<ResetPassword />} />
   ];
 
   // ------------------------------------------------------
