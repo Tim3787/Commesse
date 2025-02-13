@@ -228,7 +228,7 @@ function App() {
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico />, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
-    <Route path="/reset-password" element={<ResetPassword />} />
+    { path: "/reset-password", component: <ResetPassword /> },
   ];
 
   // ------------------------------------------------------
