@@ -191,7 +191,7 @@ function GestioneCommesse() {
           setSelezioniAttivita={setSelezioniAttivita}
           fetchCommesse={loadData}
           editId={editId}
-          stato={statiCommessa}
+          stato_commessa={statiCommessa}
         />
       )}
     </div>

@@ -16,7 +16,7 @@ function CommessaCrea({
   setSelezioniAttivita,
   fetchCommesse,
   editId,
-  stato,
+  stato_commessa,
 }) {
   const [formData, setFormData] = useState({
     numero_commessa: "",
@@ -26,7 +26,7 @@ function CommessaCrea({
     data_FAT: "",
     altri_particolari: "",
     cliente: "",
-    stato: "",
+    stato_commessa: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ function CommessaCrea({
         data_FAT: formatDate(commessa.data_FAT),
         altri_particolari: commessa.altri_particolari,
         cliente: commessa.cliente,
-        stato: commessa.stato,
+        stato_commessa: commessa.stato_commessa,
       });
       // Controlla che commessa.attivita sia definito
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
@@ -75,7 +75,7 @@ function CommessaCrea({
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
-        stato: "1",
+        stato_commessa: "1",
       });
   
       setSelezioniAttivita({}); 
@@ -96,11 +96,12 @@ function CommessaCrea({
 
       const payload = {
         ...formData,
-        data_FAT: formatDate(formData.data_FAT), // Usa la funzione formatDate
-        data_consegna: formatDate(formData.data_consegna), // Usa la funzione formatDate
-        stato: formData.stato || null, // Gestisci lo stato vuoto
+        data_FAT: formatDate(formData.data_FAT),
+        data_consegna: formatDate(formData.data_consegna),
+        stato_commessa: formData.stato_commessa ? parseInt(formData.stato_commessa, 10) : null, // Usa lo stato_commessa corretto
       };
-
+      
+      console.log("Payload inviato:", payload);
       if (isEditing) {
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
@@ -150,7 +151,7 @@ function CommessaCrea({
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
-        stato: "",
+        stato_commessa: "",
       });
       setSelezioniAttivita({});
       toast.success("Commessa creata con successo!");
@@ -254,15 +255,15 @@ function CommessaCrea({
             />
   <label>Stato:</label>
   <select
-    name="stato"
-    value={formData.stato}
+    name="stato_commessa"
+    value={formData.stato_commessa}
     onChange={handleChange}
     required
     className="input-field-100"
     
   >
     <option value="">Seleziona uno stato</option>
-    {stato.map((st) => (
+    {stato_commessa.map((st) => (
       <option key={st.id} value={st.id}>
         {st.nome_stato} {/* Usa nome_stato invece di nome */}
       </option>

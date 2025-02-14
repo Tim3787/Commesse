@@ -753,10 +753,10 @@ function GestioneTabelle() {
                       </td>
                       <td>{a.nome_attivita}</td>
                       <td>
-                        <button onClick={() => handleAttivitaEdit(s)} className="btn-warning ">
+                        <button onClick={() => handleAttivitaEdit(a)} className="btn-warning ">
                          Modifica
                         </button>
-                        <button onClick={() => handleAttivitaDelete(s)} className="btn-danger">
+                        <button onClick={() => handleAttivitaDelete(a)} className="btn-danger">
                         Elimina
                         </button>
                       </td>
@@ -820,10 +820,10 @@ function GestioneTabelle() {
                       </td>
                       <td>{r.nome}</td>
                       <td>
-                        <button onClick={() => handleRisorseEdit(s)} className="btn-warning ">
+                        <button onClick={() => handleRisorseEdit(r)} className="btn-warning ">
                          Modifica
                         </button>
-                        <button onClick={() => handleRisorseDelete(s)} className="btn-danger">
+                        <button onClick={() => handleRisorseDelete(r)} className="btn-danger">
                         Elimina
                         </button>
                       </td>
