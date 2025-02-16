@@ -13,26 +13,44 @@ import {
 } from "react-router-dom";
 
 // Import delle pagine e dei componenti principali
+
+//Navbar
+import Navbar from "./components/common/Navbar";
+
+//Utente
 import LoginRegister from "./components/pages/00-LoginRegister";
 import ResetPassword from './components/pages/00-ResetPassword';
-import GestioneUtenti from "./components/pages/00-GestioneUtenti";
-import GestioneCommesse from "./components/pages/04-GestioneCommesse";
-import GestioneTabelle from "./components/pages/00-GestioneTabelle";
-import Navbar from "./components/common/Navbar";
+import Notifications from "./components/pages/00-Notifications";
 import Dashboard from "./components/pages/00-Dashboard-user";
-import VisualizzazioneCommesse from "./components/pages/03-VisualizzaTutteLeCommesse";
-import VisualizzazioneAttivita from "./components/pages/02-Gantt-Attivita";
-import CalendarioAttivita from "./components/pages/02-CalendarioAttivita";
-import AssegnaAttivita from "./components/pages/03-VisualizzaTutteLeAttivita";
-import StatiAvanzamento from "./components/pages/03-VisualizzaStatoAvanzamento";
-import StatoAvanzamentoReparti from "./components/pages/01-StatoAvanzamento-reparto";
-import CalendarioCommesse from "./components/pages/02-CalendarioCommesse";
-import DashboardReparto from "./components/pages/01-Dashboard-reparto";
-import PrenotazioneSale from "./components/pages/00-PrenotazioneSale";
-import TrelloBoardSoftware from "./components/pages/05-TrelloBoardSoftware";
-import TrelloBoardElettrico from "./components/pages/05-TrelloBoardElettrico";
-import MatchCommesse from "./components/pages/05-TrelloMatchCommesse";
-import Notifications from "./components/pages/Notifications";
+
+//Gestione tabelle ed utenti
+import GestioneTabelle from "./components/pages/01-GestioneTabelle";
+import GestioneUtenti from "./components/pages/01-GestioneUtenti";
+
+//Indicizzati per reparto
+import DashboardReparto from "./components/pages/02-Dashboard-reparto";
+import StatoAvanzamentoReparti from "./components/pages/02-StatoAvanzamento-reparto";
+
+//Calendari
+import CalendarioCommesse from "./components/pages/05-CalendarioCommesse";
+import CalendarioAttivita from "./components/pages/05-CalendarioAttivita";
+import VisualizzazioneAttivita from "./components/pages/05-Gantt-Attivita";
+
+//Visualizza tutto
+import VisualizzazioneCommesse from "./components/pages/06-VisualizzaTutteLeCommesse";
+import VisualizzaTutteLeAttivita from "./components/pages/06-VisualizzaTutteLeAttivita";
+import StatiAvanzamento from "./components/pages/06-VisualizzaStatoAvanzamento";
+
+//Attività e commesse
+import GestioneCommesse from "./components/pages/07-GestioneCommesse";
+
+// Trello
+import TrelloBoardSoftware from "./components/pages/08-TrelloBoardSoftware";
+import TrelloBoardElettrico from "./components/pages/08-TrelloBoardElettrico";
+import MatchCommesse from "./components/pages/08-TrelloMatchCommesse";
+
+//Varie
+import PrenotazioneSale from "./components/pages/09-PrenotazioneSale";
 
 // Rotte protette
 import ProtectedRoute from "./components/utils/ProtectedRoute";
@@ -220,7 +238,7 @@ function App() {
     { path: "/Notifications", component: <Notifications /> },
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2 },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
-    { path: "/assegna-attivita", component: <AssegnaAttivita />, requiredRole: 2 },
+    { path: "/VisualizzaTutteLeAttivita", component: <VisualizzaTutteLeAttivita />, requiredRole: 2 },
     { path: "/StatoAvanzamento/:reparto", component: <StatoAvanzamentoReparti />, requiredRole: 2 },
     { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },

@@ -926,6 +926,12 @@ background-color: #0056b3;
   display: flex;
   flex-wrap: wrap;
 }
+
+.filters-burger{
+  padding: 8px 12px;
+}
+
+
 .suggestions-list {
   padding: 0;
   margin: 0;

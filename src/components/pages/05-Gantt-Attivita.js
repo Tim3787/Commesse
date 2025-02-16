@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./02-Gantt-Attivita.css";
+import "./05-Gantt-Attivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // API per ottenere la lista delle commesse e le attività associate

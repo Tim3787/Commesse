@@ -1,41 +1,63 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
-import AttivitaCrea from "../popup/AttivitaCrea";
 import logo from "../img/Animation - 1738249246846.gif";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+// Import popup
+import AttivitaCrea from "../popup/AttivitaCrea";
+
+// Import sset per filtri
 import { usePersistedFilters } from "../assets/usePersistedFilters";
-import {fetchAttivita} from "../services/API/attivita-api";
-import {fetchReparti} from "../services/API/reparti-api";
-import {fetchRisorse} from "../services/API/risorse-api";
-import {fetchAttivitaCommessa,deleteAttivitaCommessa} from "../services/API/attivitaCommesse-api"
-import {fetchCommesse} from"../services/API/commesse-api"
+
+// Import per Toastify (notifiche)
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
+
+// Import API
+import { fetchAttivita } from "../services/API/attivita-api";
+import { fetchReparti } from "../services/API/reparti-api";
+import { fetchRisorse } from "../services/API/risorse-api";
+import {
+  fetchAttivitaCommessa,
+  deleteAttivitaCommessa,
+} from "../services/API/attivitaCommesse-api";
+import { fetchCommesse } from "../services/API/commesse-api";
 
 
-function AssegnaAttivita() {
+function VisualizzaTutteLeAttivita() {
+  /* ===============================
+     STATO DEL COMPONENTE
+  =============================== */
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
   const [attivitaDefinite, setAttivitaDefinite] = useState([]);
   const [commesse, setCommesse] = useState([]);
   const [risorse, setRisorse] = useState([]);
   const [reparti, setReparti] = useState([]);
+  const [attivitaConReparto, setattivitaConReparto] = useState([]);
+  
+  // Stati per i dati filtrati
   const [filteredRisorse, setFilteredRisorse] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
-  const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
 
-  const [showStateDropdown, setShowStateDropdown] = useState(false); 
+  // Stati per la gestione dei dropdown custom
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const activityDropdownRef = useRef(null);
   const stateDropdownRef = useRef(null);
-  const [filters, setFilters]  = usePersistedFilters("savedFilters_AssegnaAttivita", {
+
+  // Stato per i filtri persistenti
+  const [filters, setFilters] = usePersistedFilters("savedFilters_AssegnaAttivita", {
     reparto_id: "",
     commessa_id: "",
     risorsa_id: "",
-    attivita_id: [], 
-    stati: [], 
+    attivita_id: [],
+    stati: [],
   });
 
+  // Stato per i suggerimenti nella ricerca della commessa
   const [commessaSuggestions, setCommessaSuggestions] = useState([]);
+
+  // Stati per il caricamento e la gestione del popup/form
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,22 +73,24 @@ function AssegnaAttivita() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
- 
+  // useEffect per l'inizializzazione (quando si modifica un'attività)
   useEffect(() => {
     if (isEditing && editId) {
+      // Qui potresti aggiungere logica specifica per l'editing se necessario
     }
   }, [isEditing, editId]);
 
-
+  // Applica i filtri ogni volta che cambiano i filtri o le attività programmate
   useEffect(() => {
     applyFilters();
   }, [filters, attivitaProgrammate]);
 
+  // useEffect per il caricamento iniziale dei dati da API
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-  
+
         const [
           commesseData,
           risorseData,
@@ -80,7 +104,7 @@ function AssegnaAttivita() {
           fetchAttivita(),
           fetchAttivitaCommessa(),
         ]);
-  
+
         // Imposta i dati nello stato
         setCommesse(commesseData);
         setRisorse(risorseData);
@@ -89,7 +113,7 @@ function AssegnaAttivita() {
         setAttivitaProgrammate(attivitaProgrammateData);
         setAttivitaFiltrate(attivitaProgrammateData);
         setFilteredRisorse(risorseData);
-  
+
         // Trasforma le attività per includere reparto_id
         const attivitaConReparto = attivitaDefiniteData.map((attivita) => ({
           id: attivita.id,
@@ -97,59 +121,63 @@ function AssegnaAttivita() {
           reparto_id: attivita.reparto_id,
         }));
         setattivitaConReparto(attivitaConReparto);
-  
-        // Filtra attività uniche
+
+        // Filtra attività uniche basandosi sul nome
         const uniqueActivities = Array.from(
           new Set(attivitaDefiniteData.map((att) => att.nome_attivita))
         ).map((nome) => ({ nome }));
         setAttivitaDefinite(uniqueActivities);
         setFilteredActivities(uniqueActivities);
-  
-        // Imposta un ID di modifica iniziale (opzionale)
+
+        // Imposta un ID di modifica iniziale se esistono attività programmate
         if (attivitaProgrammateData.length > 0) {
           setEditId(attivitaProgrammateData[0].id);
         }
       } catch (error) {
         console.error("Errore durante il caricamento dei dati iniziali:", error);
-         toast.error("Errore nel caricamento dei dati.");
+        toast.error("Errore nel caricamento dei dati.");
       } finally {
         setLoading(false);
       }
     };
-  
+
     loadData();
   }, []);
-  
 
-    // Funzione per aprire il pop-up in modalità modifica
-    const handleEdit = (attivita) => {
-      // Controlla se `data_inizio` è una data valida
-      const dataInizio = attivita.data_inizio && attivita.data_inizio !== "Non specificata"
+  // Funzione per aprire il popup in modalità modifica
+  const handleEdit = (attivita) => {
+    // Controlla se data_inizio è una data valida e la formatta in YYYY-MM-DD
+    const dataInizio =
+      attivita.data_inizio && attivita.data_inizio !== "Non specificata"
         ? new Date(attivita.data_inizio).toISOString().split("T")[0]
-        : ""; 
-    
-      setFormData({
-        commessa_id: attivita.commessa_id || "",
-        reparto_id: reparti.find((reparto) => reparto.nome === attivita.reparto)?.id || "",
-        risorsa_id: risorse.find((risorsa) => risorsa.nome === attivita.risorsa)?.id || "",
-        attivita_id: attivita.attivita_id || "",
-        stato: attivita.stato|| "",
-        data_inizio: dataInizio,
-        durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "", 
-        descrizione: attivita.descrizione_attivita || "", 
-      });
- 
-  
-      setIsEditing(true);
-      setEditId(attivita.id);
-      setShowPopup(true);
-    };
-      
+        : "";
+
+    setFormData({
+      commessa_id: attivita.commessa_id || "",
+      reparto_id: reparti.find((reparto) => reparto.nome === attivita.reparto)?.id || "",
+      risorsa_id: risorse.find((risorsa) => risorsa.nome === attivita.risorsa)?.id || "",
+      attivita_id: attivita.attivita_id || "",
+      stato: attivita.stato || "",
+      data_inizio: dataInizio,
+      durata:
+        attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "",
+      descrizione: attivita.descrizione_attivita || "",
+    });
+
+    setIsEditing(true);
+    setEditId(attivita.id);
+    setShowPopup(true);
+  };
+
+  // Funzione per applicare i filtri alle attività programmate
   const applyFilters = () => {
     let filtered = attivitaProgrammate;
 
+    // Filtro per reparto
     if (filters.reparto_id) {
-      const repartoNome = reparti.find((reparto) => reparto.id === parseInt(filters.reparto_id))?.nome;
+      const repartoNome = reparti.find(
+        (reparto) => reparto.id === parseInt(filters.reparto_id)
+      )?.nome;
       if (repartoNome) {
         filtered = filtered.filter((att) => att.reparto === repartoNome);
         const relatedActivities = attivitaDefinite.filter((act) =>
@@ -159,47 +187,64 @@ function AssegnaAttivita() {
       }
     }
 
+    // Filtro per commessa
     if (filters.commessa_id) {
-      filtered = filtered.filter((att) => att.numero_commessa.includes(filters.commessa_id));
+      filtered = filtered.filter((att) =>
+        att.numero_commessa.includes(filters.commessa_id)
+      );
     }
 
+    // Filtro per risorsa
     if (filters.risorsa_id) {
-      filtered = filtered.filter((att) => att.risorsa_id === parseInt(filters.risorsa_id));
+      filtered = filtered.filter(
+        (att) => att.risorsa_id === parseInt(filters.risorsa_id)
+      );
     }
 
+    // Filtro per attività (nome attività)
     if (filters.attivita_id.length > 0) {
-      filtered = filtered.filter((att) => filters.attivita_id.includes(att.nome_attivita));
+      filtered = filtered.filter((att) =>
+        filters.attivita_id.includes(att.nome_attivita)
+      );
     }
+
+    // Filtro per stati
     if (filters.stati.length > 0) {
-      filtered = filtered.filter((att) => filters.stati.includes(att.stato.toString()));
-    } 
+      filtered = filtered.filter((att) =>
+        filters.stati.includes(att.stato.toString())
+      );
+    }
     setAttivitaFiltrate(filtered);
   };
 
+  // Gestione delle modifiche ai filtri
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
-  
+
     if (type === "checkbox" && name === "attivita_id") {
       setFilters((prev) => ({
         ...prev,
         attivita_id: checked
-          ? [...prev.attivita_id, value] 
-          : prev.attivita_id.filter((id) => id !== value), 
+          ? [...prev.attivita_id, value]
+          : prev.attivita_id.filter((id) => id !== value),
       }));
     } else if (type === "checkbox" && name === "stati") {
       setFilters((prev) => ({
         ...prev,
         stati: checked
-          ? [...prev.stati, value] 
-          : prev.stati.filter((stato) => stato !== value), 
+          ? [...prev.stati, value]
+          : prev.stati.filter((stato) => stato !== value),
       }));
     } else if (name === "reparto_id") {
       const repartoId = parseInt(value, 10);
-  
+
       if (repartoId) {
-        const filteredRisorse = risorse.filter((risorsa) => risorsa.reparto_id === repartoId);
+        // Filtra risorse e attività in base al reparto selezionato
+        const filteredRisorse = risorse.filter(
+          (risorsa) => risorsa.reparto_id === repartoId
+        );
         setFilteredRisorse(filteredRisorse);
-  
+
         const filteredActivities = attivitaDefinite.filter(
           (attivita) => attivita.reparto_id === repartoId
         );
@@ -208,7 +253,7 @@ function AssegnaAttivita() {
         setFilteredRisorse(risorse);
         setFilteredActivities(attivitaDefinite);
       }
-  
+
       setFilters((prev) => ({
         ...prev,
         reparto_id: value,
@@ -222,11 +267,8 @@ function AssegnaAttivita() {
       }));
     }
   };
-  
-  
-  
-  
 
+  // Gestione dell'input per la ricerca della commessa
   const handleCommessaInputChange = (e) => {
     const value = e.target.value;
     setFilters((prev) => ({ ...prev, commessa_id: value }));
@@ -237,11 +279,13 @@ function AssegnaAttivita() {
     );
   };
 
+  // Selezione di un suggerimento per la commessa
   const selectCommessaSuggestion = (numeroCommessa) => {
     setFilters((prev) => ({ ...prev, commessa_id: numeroCommessa }));
     setCommessaSuggestions([]);
   };
 
+  // Gestione del pulsante "Aggiungi Attività" per aprire il popup in modalità creazione
   const handleAddNew = () => {
     setFormData({
       commessa_id: "",
@@ -257,23 +301,27 @@ function AssegnaAttivita() {
     setShowPopup(true);
   };
 
+  // Gestione dell'eliminazione di un'attività programmata
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
-    try {
-      await deleteAttivitaCommessa(id);
-  
-      // Aggiorna lo stato locale eliminando l'attività dall'elenco
-      setAttivitaFiltrate((prev) => prev.filter((attivita) => attivita.id !== id));
-      setAttivitaProgrammate((prev) => prev.filter((attivita) => attivita.id !== id));
-  
+      try {
+        await deleteAttivitaCommessa(id);
 
-    } catch (error) {
-      console.error("Errore durante l'eliminazione dell'attività:", error);
-      toast.error("Errore durante l'eliminazione dell'attività");
+        // Aggiorna gli stati locali eliminando l'attività eliminata
+        setAttivitaFiltrate((prev) =>
+          prev.filter((attivita) => attivita.id !== id)
+        );
+        setAttivitaProgrammate((prev) =>
+          prev.filter((attivita) => attivita.id !== id)
+        );
+      } catch (error) {
+        console.error("Errore durante l'eliminazione dell'attività:", error);
+        toast.error("Errore durante l'eliminazione dell'attività");
+      }
     }
-  }
   };
-  
+
+  // Funzione per ricaricare le attività programmate da API
   const handleReloadActivities = async () => {
     try {
       const updatedActivities = await fetchAttivitaCommessa();
@@ -284,14 +332,18 @@ function AssegnaAttivita() {
       toast.error("Errore durante il ricaricamento delle attività");
     }
   };
+
+  // Funzione per chiudere i suggerimenti se si clicca fuori dalla lista
   const closeSuggestions = (e) => {
-    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
+    if (
+      !e.target.closest(".suggestions-list") &&
+      !e.target.closest("select")
+    ) {
       setCommessaSuggestions(false);
     }
   };
 
-
-
+  // Funzioni per il toggle dei dropdown (attività e stato)
   const toggleStateDropdown = () => {
     setShowStateDropdown((prev) => !prev);
   };
@@ -300,48 +352,50 @@ function AssegnaAttivita() {
     setShowActivityDropdown((prev) => !prev);
   };
 
-
-
+  // useEffect per chiudere i dropdown cliccando fuori
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
         activityDropdownRef.current &&
         !activityDropdownRef.current.contains(e.target)
       ) {
-        setShowActivityDropdown(false); 
+        setShowActivityDropdown(false);
       }
       if (
         stateDropdownRef.current &&
         !stateDropdownRef.current.contains(e.target)
       ) {
-        setShowStateDropdown(false); 
+        setShowStateDropdown(false);
       }
     };
-  
+
     document.addEventListener("click", handleClickOutside);
-  
+
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-  
 
   return (
     <div className="container" onClick={closeSuggestions}>
       {loading && (
         <div className="loading-overlay">
-            <img src={logo} alt="Logo"  className="logo-spinner"/>
+          <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
 
       <div className="header">
-              <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-      <h1>Attività</h1>
+        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <h1>Attività</h1>
       </div>
-      <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
-          Aggiungi Attività
-        </button>
+      <button
+        onClick={handleAddNew}
+        className="btn btn-primary create-activity-btn"
+      >
+        Aggiungi Attività
+      </button>
 
+      {/* Sezione dei filtri */}
       <div className="filters">
         <div className="filter-group">
           <input
@@ -356,7 +410,9 @@ function AssegnaAttivita() {
               {commessaSuggestions.map((commessa) => (
                 <li
                   key={commessa.id}
-                  onClick={() => selectCommessaSuggestion(commessa.numero_commessa)}
+                  onClick={() =>
+                    selectCommessaSuggestion(commessa.numero_commessa)
+                  }
                 >
                   {commessa.numero_commessa}
                 </li>
@@ -364,9 +420,14 @@ function AssegnaAttivita() {
             </ul>
           )}
         </div>
-  
+
         <div className="filter-group">
-          <select name="reparto_id" value={filters.reparto_id} onChange={handleFilterChange} className="input-field">
+          <select
+            name="reparto_id"
+            value={filters.reparto_id}
+            onChange={handleFilterChange}
+            className="input-field"
+          >
             <option value="">Seleziona reparto</option>
             {reparti.map((reparto) => (
               <option key={reparto.id} value={reparto.id}>
@@ -375,9 +436,14 @@ function AssegnaAttivita() {
             ))}
           </select>
         </div>
-  
+
         <div className="filter-group">
-          <select name="risorsa_id" value={filters.risorsa_id} onChange={handleFilterChange} className="input-field">
+          <select
+            name="risorsa_id"
+            value={filters.risorsa_id}
+            onChange={handleFilterChange}
+            className="input-field"
+          >
             <option value="">Seleziona risorsa</option>
             {filteredRisorse.map((risorsa) => (
               <option key={risorsa.id} value={risorsa.id}>
@@ -386,55 +452,55 @@ function AssegnaAttivita() {
             ))}
           </select>
         </div>
-  
+
         <div className="filter-group" ref={activityDropdownRef}>
-  <label onClick={toggleActivityDropdown} className="dropdown-label">
-    Seleziona attività
-  </label>
-  {showActivityDropdown && (
-    <div className="dropdown-menu">
-      {filteredActivities.map((attivita) => (
-        <label key={attivita.nome}>
-          <input
-            type="checkbox"
-            name="attivita_id"
-            value={attivita.nome}
-            checked={filters.attivita_id.includes(attivita.nome)}
-            onChange={handleFilterChange}
-          />
-          {attivita.nome}
-        </label>
-      ))}
-    </div>
-  )}
-</div>
+          <label onClick={toggleActivityDropdown} className="dropdown-label">
+            Seleziona attività
+          </label>
+          {showActivityDropdown && (
+            <div className="dropdown-menu">
+              {filteredActivities.map((attivita) => (
+                <label key={attivita.nome}>
+                  <input
+                    type="checkbox"
+                    name="attivita_id"
+                    value={attivita.nome}
+                    checked={filters.attivita_id.includes(attivita.nome)}
+                    onChange={handleFilterChange}
+                  />
+                  {attivita.nome}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="filter-group" ref={stateDropdownRef}>
-  <label onClick={toggleStateDropdown} className="dropdown-label">
-    Seleziona stato
-  </label>
-  {showStateDropdown && (
-    <div className="dropdown-menu">
-      {["0", "1", "2"].map((value) => (
-        <label key={value}>
-          <input
-            type="checkbox"
-            name="stati"
-            value={value}
-            checked={filters.stati.includes(value)}
-            onChange={handleFilterChange}
-          />
-          {value === "0" && "Non iniziata"}
-          {value === "1" && "Iniziata"}
-          {value === "2" && "Completata"}
-        </label>
-      ))}
-    </div>
-  )}
-</div>
-
+          <label onClick={toggleStateDropdown} className="dropdown-label">
+            Seleziona stato
+          </label>
+          {showStateDropdown && (
+            <div className="dropdown-menu">
+              {["0", "1", "2"].map((value) => (
+                <label key={value}>
+                  <input
+                    type="checkbox"
+                    name="stati"
+                    value={value}
+                    checked={filters.stati.includes(value)}
+                    onChange={handleFilterChange}
+                  />
+                  {value === "0" && "Non iniziata"}
+                  {value === "1" && "Iniziata"}
+                  {value === "2" && "Completata"}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Visualizzazione delle attività filtrate */}
       {loading ? (
         <p>Caricamento in corso...</p>
       ) : (
@@ -458,18 +524,28 @@ function AssegnaAttivita() {
                 <td>{attivita.risorsa}</td>
                 <td>{attivita.reparto}</td>
                 <td>{attivita.nome_attivita}</td>
-                <td>{attivita.data_inizio ? new Date(attivita.data_inizio).toLocaleDateString() : "Non definita"}</td>
+                <td>
+                  {attivita.data_inizio
+                    ? new Date(attivita.data_inizio).toLocaleDateString()
+                    : "Non definita"}
+                </td>
                 <td>{attivita.durata} giorni</td>
                 <td>
-                    {attivita.stato === 0 && "Non iniziata"}
-                    {attivita.stato === 1 && "Iniziata"}
-                    {attivita.stato === 2 && "Completata"}
-                  </td>
+                  {attivita.stato === 0 && "Non iniziata"}
+                  {attivita.stato === 1 && "Iniziata"}
+                  {attivita.stato === 2 && "Completata"}
+                </td>
                 <td>
-                  <button className="btn btn-warning" onClick={() => handleEdit(attivita)}>
+                  <button
+                    className="btn btn-warning"
+                    onClick={() => handleEdit(attivita)}
+                  >
                     Modifica
                   </button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(attivita.id)}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(attivita.id)}
+                  >
                     Elimina
                   </button>
                 </td>
@@ -477,25 +553,29 @@ function AssegnaAttivita() {
             ))}
           </tbody>
         </table>
-  )}
-    {/* Popup AttivitaCrea */}
-    {showPopup && (
-      <AttivitaCrea
-        formData={formData}
-        setFormData={setFormData}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-        editId={editId}
-        setShowPopup={setShowPopup}
-        commesse={commesse}
-        reparti={reparti}
-        risorse={risorse}
-        attivitaDefinite={attivitaDefinite}
-        attivitaConReparto={attivitaConReparto}
-        reloadActivities={handleReloadActivities} 
-      />
-    )}
-  </div>
-);
+      )}
+
+      {/* Popup per il form di creazione/modifica dell'attività */}
+      {showPopup && (
+        <AttivitaCrea
+          formData={formData}
+          setFormData={setFormData}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          editId={editId}
+          setShowPopup={setShowPopup}
+          commesse={commesse}
+          reparti={reparti}
+          risorse={risorse}
+          attivitaDefinite={attivitaDefinite}
+          attivitaConReparto={attivitaConReparto}
+          reloadActivities={handleReloadActivities}
+        />
+      )}
+    </div>
+  );
 }
-export default AssegnaAttivita;
+
+export default VisualizzaTutteLeAttivita;
+
+

@@ -189,7 +189,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         ],
       },
       { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
-      { to: "/assegna-attivita", label: "Tutte le attività", icon: faListCheck },
+      { to: "/VisualizzaTutteLeAttivita", label: "Tutte le attività", icon: faListCheck },
       { to: "/StatiAvanzamento", label: "Tutti gli stati avanzamento", icon: faChartBar },
     ],
     admin: [
