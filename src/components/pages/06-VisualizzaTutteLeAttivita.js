@@ -538,6 +538,7 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
           </div>
         </div>
       )}
+      
 
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
