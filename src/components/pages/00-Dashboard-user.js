@@ -36,6 +36,7 @@ function Dashboard() {
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const hasScrolledToToday = useRef(false);                          // Flag per evitare di scrollare ripetutamente
 
+  
   // ------------------------------------------------------------------
   // Funzione helper: calcola tutti i giorni del mese dato un oggetto Date
   // ------------------------------------------------------------------
