@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
  * Visualizza una dashboard con le attività del mese, organizzate in un calendario.
  * Permette di navigare tra i mesi, aggiornare lo stato delle attività e gestire note.
  */
+
 function Dashboard() {
   // ------------------------------------------------------------------
   // Stati e Ref
