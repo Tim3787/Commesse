@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style.css";
+
+// Import per Toastify (notifiche)
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -20,6 +22,19 @@ function AttivitaCrea({
   const suggestionsRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
+  // Imposta "stato" a 0 di default se non è presente
+  useEffect(() => {
+    if (
+      formData.stato === undefined ||
+      formData.stato === null ||
+      formData.stato === ""
+    ) {
+      setFormData((prevState) => ({ ...prevState, stato: 0 }));
+    }
+  }, [formData.stato, setFormData]);
+  
+
+  
   // Debounce della ricerca delle commesse
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -57,7 +72,12 @@ function AttivitaCrea({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: name === "stato" ? parseInt(value, 10) : value });
+    if (name === "stato") {
+      // Se l'utente seleziona l'opzione vuota, imposta comunque 1 di default
+      setFormData({ ...formData, stato: value === "" ? 0 : parseInt(value, 10) });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSelectCommessa = (commessa) => {
@@ -220,12 +240,11 @@ function AttivitaCrea({
             <label>Stato:</label>
             <select
               name="stato"
-              value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : ""}
+              value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : "1"}
               onChange={handleChange}
-                  className="input-field-100"
-              //required
+              className="input-field-100"
             >
-              <option value="">Seleziona uno stato</option>
+              {/* Rimuovo l'opzione vuota in modo che lo stato di default sia sempre 1 */}
               <option value="0">Non iniziata</option>
               <option value="1">Iniziata</option>
               <option value="2">Completata</option>
