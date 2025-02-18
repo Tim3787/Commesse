@@ -22,6 +22,7 @@ function AttivitaCrea({
   const suggestionsRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
+
   // Imposta "stato" a 0 di default se non è presente
   useEffect(() => {
     if (
@@ -34,6 +35,7 @@ function AttivitaCrea({
   }, [formData.stato, setFormData]);
   
 
+  
   
   // Debounce della ricerca delle commesse
   useEffect(() => {
