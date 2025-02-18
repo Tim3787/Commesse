@@ -535,6 +535,11 @@ function StatoAvanzamentoReparti() {
             numero_commessa: commessa.numero_commessa,
             tipo_macchina: commessa.tipo_macchina,
             data_consegna: normalizedTrelloDate,
+            data_FAT: commessa.data_FAT,            
+            cliente: commessa.cliente,                
+            descrizione: commessa.descrizione,       
+            altri_particolari: commessa.altri_particolari, 
+            stato_commessa: commessa.stato_commessa 
           },
           {
             headers: { Authorization: `Bearer ${token}` },
