@@ -82,7 +82,7 @@ const TrelloBoardElettrico = () => {
   };
 
   if (loading) return <p>Caricamento...</p>;
-ì
+
 
   // Filtra le schede in base al filtro della commessa
   const filteredCardsByList = lists.map((list) => ({
