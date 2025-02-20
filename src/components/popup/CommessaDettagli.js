@@ -231,6 +231,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                             <th>Durata (giorni)</th>
                             <th>Risorsa</th>
                             <th>Stato</th>
+                            <th>Descrizione</th>
                             <th>Note</th>
                           </tr>
                         </thead>
@@ -248,6 +249,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                                   ? "Iniziata"
                                   : "Completata"}
                               </td>
+                              <td>{activity.descrizione_attivita|| "Nessuna descrizione"}</td>
                               <td>{activity.note || "Nessuna nota"}</td>
                             </tr>
                           ))}
