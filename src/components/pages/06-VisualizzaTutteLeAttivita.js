@@ -37,7 +37,7 @@ function VisualizzaTutteLeAttivita() {
   const [reparti, setReparti] = useState([]);
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [showStateDropdown, setShowStateDropdown] = useState(false);
-const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
 
   /* ===============================
      STATO DEI FILTRI E DEI DATI FILTRATI
@@ -91,7 +91,7 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   // (Facoltativo) useEffect per eventuale logica in modalità modifica
   useEffect(() => {
     if (isEditing && editId) {
-      // Puoi aggiungere logica specifica per l'editing, se necessario
+      // Logica specifica per l'editing (se necessaria)
     }
   }, [isEditing, editId]);
 
@@ -165,7 +165,7 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   // Apertura del popup in modalità modifica: precompila il form con i dati dell'attività
   const handleEdit = (attivita) => {
     const dataInizio =
-      attivita.data_inizio && attivita.data_inizio !== "Non specificata"
+      attivita.data_inizio && attivita.data_inizio !== "-"
         ? new Date(attivita.data_inizio).toISOString().split("T")[0]
         : "";
 
@@ -176,7 +176,7 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
       attivita_id: attivita.attivita_id || "",
       stato: attivita.stato || "",
       data_inizio: dataInizio,
-      durata: attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "",
+      durata: attivita.durata && attivita.durata !== "-" ? attivita.durata : "",
       descrizione: attivita.descrizione_attivita || "",
     });
 
@@ -190,52 +190,54 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   =============================== */
   // Applica i filtri alle attività programmate
   const applyFilters = () => {
-    let filtered = attivitaProgrammate;
-
-    // Filtro per reparto
+    let filtered = Array.isArray(attivitaProgrammate) ? [...attivitaProgrammate] : [];
+  
+    // Rimuove attività nulle o senza ID
+    filtered = filtered.filter(att => att && att.id);
+  
     if (filters.reparto_id) {
       const repartoNome = reparti.find(
         (reparto) => reparto.id === parseInt(filters.reparto_id)
       )?.nome;
       if (repartoNome) {
         filtered = filtered.filter((att) => att.reparto === repartoNome);
-        const relatedActivities = attivitaDefinite.filter((act) =>
-          filtered.some((att) => att.nome_attivita === act.nome)
-        );
-        setFilteredActivities(relatedActivities);
       }
     }
-
-    // Filtro per commessa
-    if (filters.commessa_id) {
-      filtered = filtered.filter((att) =>
-        att.numero_commessa.includes(filters.commessa_id)
-      );
+  
+    if (filters.commessa_id && filters.commessa_id.trim() !== "") {
+      filtered = filtered.filter((att) => {
+        let numeroCommessa;
+        if (att.numero_commessa && typeof att.numero_commessa === "object") {
+          numeroCommessa = att.numero_commessa.numero_commessa;
+        } else {
+          numeroCommessa = att.numero_commessa;
+        }
+        return String(numeroCommessa).includes(String(filters.commessa_id));
+      });
     }
-
-    // Filtro per risorsa
+  
     if (filters.risorsa_id) {
       filtered = filtered.filter(
         (att) => att.risorsa_id === parseInt(filters.risorsa_id)
       );
     }
-
-    // Filtro per attività (nome attività)
+  
     if (filters.attivita_id.length > 0) {
       filtered = filtered.filter((att) =>
         filters.attivita_id.includes(att.nome_attivita)
       );
     }
-
-    // Filtro per stati
+  
     if (filters.stati.length > 0) {
       filtered = filtered.filter((att) =>
-        filters.stati.includes(att.stato.toString())
+        filters.stati.includes(String(att.stato))
       );
     }
-    setAttivitaFiltrate(filtered);
+  
+    console.log("Dati dopo i filtri (attivitaFiltrate):", filtered);
+    setAttivitaFiltrate(Array.isArray(filtered) ? filtered : []);
   };
-
+  
   // Gestione dei cambiamenti nei filtri
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -289,18 +291,24 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
     const value = e.target.value;
     setFilters((prev) => ({ ...prev, commessa_id: value }));
     setCommessaSuggestions(
-      commesse.filter((commessa) =>
-        commessa.numero_commessa.toLowerCase().includes(value.toLowerCase())
-      )
+      commesse.filter((commessa) => {
+        let numeroCommessa;
+        if (commessa.numero_commessa && typeof commessa.numero_commessa === "object") {
+          numeroCommessa = commessa.numero_commessa.numero_commessa;
+        } else {
+          numeroCommessa = commessa.numero_commessa;
+        }
+        return numeroCommessa.toLowerCase().includes(value.toLowerCase());
+      })
     );
   };
 
   // Selezione di un suggerimento per la commessa
   const selectCommessaSuggestion = (numeroCommessa) => {
-    setFilters((prev) => ({ ...prev, commessa_id: numeroCommessa }));
+    setFilters((prev) => ({ ...prev, commessa_id: String(numeroCommessa) }));
     setCommessaSuggestions([]);
   };
-
+  
   // Pulsante per aprire il popup in modalità creazione
   const handleAddNew = () => {
     setFormData({
@@ -351,7 +359,7 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   // Chiude i suggerimenti se si clicca fuori dalla lista
   const closeSuggestions = (e) => {
     if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
-      setCommessaSuggestions(false);
+      setCommessaSuggestions([]);
     }
   };
 
@@ -424,20 +432,20 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
             </button>
           </div>
           <div className="burger-menu-content">
-           <div className="filters-burger">
-            <h3>Azioni</h3>
-             {/* Bottone per aggiungere una nuova attività */}
-            <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
-             Aggiungi Attività
-            </button>
-          </div> 
-          <div className="filters-burger">
-          <h3>Filtri</h3>
-            {/* Sezione Filtri: sposta qui la sezione dei filtri */}
+            <div className="filters-burger">
+              <h3>Azioni</h3>
+              {/* Bottone per aggiungere una nuova attività */}
+              <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+                Aggiungi Attività
+              </button>
+            </div> 
+            <div className="filters-burger">
+              <h3>Filtri</h3>
+              {/* Sezione Filtri: sposta qui la sezione dei filtri */}
               <div className="filter-group">
                 <input
                   type="text"
-                  value={filters.commessa_id}
+                  value={filters.commessa_id ? String(filters.commessa_id) : ""}
                   onChange={handleCommessaInputChange}
                   placeholder="Cerca commessa..."
                   className="input-field"
@@ -445,12 +453,24 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
                 {commessaSuggestions.length > 0 && (
                   <ul className="suggestions-list">
                     {commessaSuggestions
-                      .filter((commessa) =>
-                        commessa.toString().includes(filters.commessa_id)
-                      )
+                      .filter((commessa) => {
+                        let numeroCommessa;
+                        if (commessa.numero_commessa && typeof commessa.numero_commessa === "object") {
+                          numeroCommessa = commessa.numero_commessa.numero_commessa;
+                        } else {
+                          numeroCommessa = commessa.numero_commessa;
+                        }
+                        return String(numeroCommessa).includes(String(filters.commessa_id));
+                      })
                       .map((commessa, index) => (
-                        <li key={index} onClick={() => selectCommessaSuggestion(commessa)}>
-                          {commessa}
+                        <li key={index} onClick={() => selectCommessaSuggestion(
+                          commessa.numero_commessa && typeof commessa.numero_commessa === "object"
+                            ? commessa.numero_commessa.numero_commessa
+                            : commessa.numero_commessa
+                        )}>
+                          {commessa.numero_commessa && typeof commessa.numero_commessa === "object"
+                            ? commessa.numero_commessa.numero_commessa
+                            : String(commessa.numero_commessa)}
                         </li>
                       ))}
                   </ul>
@@ -539,7 +559,6 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
         </div>
       )}
       
-
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
         {/* Bottone per aprire/chiudere il menu a burger */}
@@ -563,39 +582,52 @@ const [showActivityDropdown, setShowActivityDropdown] = useState(false);
               </tr>
             </thead>
             <tbody>
-              {attivitaFiltrate.map((attivita) => (
-                <tr key={attivita.id}>
-                  <td>{attivita.numero_commessa}</td>
-                  <td>{attivita.risorsa}</td>
-                  <td>{attivita.reparto}</td>
-                  <td>{attivita.nome_attivita}</td>
-                  <td>
-                    {attivita.data_inizio
-                      ? new Date(attivita.data_inizio).toLocaleDateString()
-                      : "Non definita"}
-                  </td>
-                  <td>{attivita.durata} giorni</td>
-                  <td>
-                    {attivita.stato === 0 && "Non iniziata"}
-                    {attivita.stato === 1 && "Iniziata"}
-                    {attivita.stato === 2 && "Completata"}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-warning"
-                      onClick={() => handleEdit(attivita)}
-                    >
-                      Modifica
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => handleDelete(attivita.id)}
-                    >
-                      Elimina
-                    </button>
-                  </td>
+              {Array.isArray(attivitaFiltrate) && attivitaFiltrate.length > 0 ? (
+                attivitaFiltrate.map((attivita) => {
+                  if (!attivita) return null;
+                  return (
+                    <tr key={attivita.id || Math.random()}>
+                      <td>
+                        {attivita.numero_commessa
+                          ? typeof attivita.numero_commessa === "object"
+                            ? attivita.numero_commessa.numero_commessa
+                            : String(attivita.numero_commessa)
+                          : "N/A"}
+                      </td>
+                      <td>{attivita.risorsa ? String(attivita.risorsa) : "N/A"}</td>
+                      <td>{attivita.reparto ? String(attivita.reparto) : "N/A"}</td>
+                      <td>{attivita.nome_attivita ? String(attivita.nome_attivita) : "N/A"}</td>
+                      <td>
+                        {attivita.data_inizio
+                          ? new Date(attivita.data_inizio).toLocaleDateString()
+                          : "Non definita"}
+                      </td>
+                      <td>{attivita.durata ? `${attivita.durata} giorni` : "N/A"}</td>
+                      <td>
+                        {attivita.stato === 0
+                          ? "Non iniziata"
+                          : attivita.stato === 1
+                          ? "Iniziata"
+                          : attivita.stato === 2
+                          ? "Completata"
+                          : "Sconosciuto"}
+                      </td>
+                      <td>
+                        <button className="btn btn-warning" onClick={() => handleEdit(attivita)}>
+                          Modifica
+                        </button>
+                        <button className="btn btn-danger" onClick={() => handleDelete(attivita.id)}>
+                          Elimina
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="8">Nessuna attività trovata</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

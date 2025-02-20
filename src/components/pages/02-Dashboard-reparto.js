@@ -501,7 +501,7 @@ const [ViewStato, setViewStato] = useState(true);
             onDoubleClick={onDoubleClick}
             data-tooltip-id={`tooltip-${activity.id}`}
           ></div>
-          <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid">
+          <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid"  style={{ zIndex: 9999 }}>
             <span style={{ whiteSpace: "pre-wrap" }}>{tooltipContent}</span>
           </Tooltip>
         </>

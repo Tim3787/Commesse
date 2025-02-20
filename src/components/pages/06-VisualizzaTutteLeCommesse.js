@@ -409,7 +409,7 @@ function VisualizzazioneCommesse() {
                 <td>
                   {commessa.data_FAT
                     ? new Date(commessa.data_FAT).toLocaleDateString()
-                    : "Non specificata"}
+                    : "-"}
                 </td>
                 <td>
                   <div className="delivery-alerts">
@@ -424,14 +424,14 @@ function VisualizzazioneCommesse() {
                     */}
                     {commessa.data_consegna &&
                       new Date(commessa.data_consegna) < new Date() &&
-                      getStatoNome(commessa.stato) !== "Completata" && (
+                      getStatoNome(commessa.stato) !== "Consegnata" && (
                         <>
                           <FontAwesomeIcon
                             icon={faExclamationTriangle}
                             style={{ color: "red", marginLeft: "10px" }}
                             data-tooltip-id={`tooltip-expired-${commessa.commessa_id}`}
                           />
-                          <Tooltip id={`tooltip-expired-${commessa.commessa_id}`} place="top" effect="solid">
+                          <Tooltip id={`tooltip-expired-${commessa.commessa_id}`} place="top" effect="solid" style={{ zIndex: 9999 }}>
                             <span style={{ whiteSpace: "pre-wrap" }}>Commessa scaduta</span>
                           </Tooltip>
                         </>
@@ -447,7 +447,7 @@ function VisualizzazioneCommesse() {
                               style={{ marginLeft: "10px", color: "red" }}
                               data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
                             />
-                            <Tooltip id={`tooltip-week-${commessa.commessa_id}`} place="top" effect="solid">
+                            <Tooltip id={`tooltip-week-${commessa.commessa_id}`} place="top" effect="solid"  style={{ zIndex: 9999 }} >
                               <span style={{ whiteSpace: "pre-wrap" }}>
                                 Commessa in scadenza questa settimana
                               </span>
@@ -464,7 +464,7 @@ function VisualizzazioneCommesse() {
                                 style={{ marginLeft: "10px", color: "blue" }}
                                 data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
                               />
-                              <Tooltip id={`tooltip-month-${commessa.commessa_id}`} place="top" effect="solid">
+                              <Tooltip id={`tooltip-month-${commessa.commessa_id}`} place="top" effect="solid"  style={{ zIndex: 9999 }}>
                                 <span style={{ whiteSpace: "pre-wrap" }}>
                                   Commessa in scadenza questo mese
                                 </span>

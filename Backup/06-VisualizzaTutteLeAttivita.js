@@ -148,7 +148,7 @@ function VisualizzaTutteLeAttivita() {
   const handleEdit = (attivita) => {
     // Controlla se data_inizio è una data valida e la formatta in YYYY-MM-DD
     const dataInizio =
-      attivita.data_inizio && attivita.data_inizio !== "Non specificata"
+      attivita.data_inizio && attivita.data_inizio !== "-"
         ? new Date(attivita.data_inizio).toISOString().split("T")[0]
         : "";
 
@@ -160,7 +160,7 @@ function VisualizzaTutteLeAttivita() {
       stato: attivita.stato || "",
       data_inizio: dataInizio,
       durata:
-        attivita.durata && attivita.durata !== "Non definita" ? attivita.durata : "",
+        attivita.durata && attivita.durata !== "-" ? attivita.durata : "",
       descrizione: attivita.descrizione_attivita || "",
     });
 

@@ -140,15 +140,15 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
           <strong>Tipo Macchina:</strong> {localCommessa.tipo_macchina}
         </p>
         <p>
-          <strong>Descrizione:</strong> {localCommessa.descrizione || "Nessuna descrizione"}
+          <strong>Descrizione:</strong> {localCommessa.descrizione || "-"}
         </p>
         <p>
           <strong>Data FAT:</strong>{" "}
-          {localCommessa.data_FAT ? new Date(localCommessa.data_FAT).toLocaleDateString() : "Nessuna data"}
+          {localCommessa.data_FAT ? new Date(localCommessa.data_FAT).toLocaleDateString() : "-"}
         </p>
         <p>
           <strong>Data Consegna:</strong>{" "}
-          {localCommessa.data_consegna ? new Date(localCommessa.data_consegna).toLocaleDateString() : "Nessuna data"}
+          {localCommessa.data_consegna ? new Date(localCommessa.data_consegna).toLocaleDateString() : "-"}
         </p>
         <p>
           <strong>Stato:</strong>{" "}
@@ -239,7 +239,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                           {groupedActivities[reparto].map((activity) => (
                             <tr key={activity.id}>
                               <td>{activity.nome_attivita || "N/A"}</td>
-                              <td>{new Date(activity.data_inizio).toLocaleDateString()}</td>
+                              <td> {activity.data_inizio  ? new Date(activity.data_inizio).toLocaleDateString() : "Non definita"}</td>
                               <td>{activity.durata || "1"}</td>
                               <td>{activity.risorsa || "Non assegnata"}</td>
                               <td>
@@ -249,8 +249,8 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                                   ? "Iniziata"
                                   : "Completata"}
                               </td>
-                              <td>{activity.descrizione_attivita|| "Nessuna descrizione"}</td>
-                              <td>{activity.note || "Nessuna nota"}</td>
+                              <td>{activity.descrizione_attivita|| "-"}</td>
+                              <td>{activity.note || "-"}</td>
                             </tr>
                           ))}
                         </tbody>

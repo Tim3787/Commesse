@@ -244,7 +244,7 @@ function GestioneCommesse() {
                 <td>
                   {commessa.data_FAT
                     ? new Date(commessa.data_FAT).toLocaleDateString()
-                    : "Non specificata"}
+                    : "-"}
                 </td>
                 <td>{getStatoNome(commessa.stato)}</td>
                 <td>

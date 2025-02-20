@@ -355,7 +355,7 @@ function VisualizzaAttivita() {
                     handleSearchCommessa();
                   }}
                 >
-                  {suggestion.numero_commessa} - {suggestion.cliente || "Nessuna descrizione"}
+                  {suggestion.numero_commessa} - {suggestion.cliente || "-"}
                 </li>
               ))}
             </ul>
