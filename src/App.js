@@ -153,7 +153,6 @@ function App() {
         username,
         password,
       });
-      console.log("Risposta dal server:", response.data);
       // Gestisce il login salvando token e ruolo
       handleLogin(response.data.token, response.data.role_id);
     } catch (error) {

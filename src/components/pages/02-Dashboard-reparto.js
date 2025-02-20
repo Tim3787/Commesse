@@ -72,6 +72,16 @@ function DashboardReparto() {
     risorsa: "",
     attivita: "",
   });
+
+    // Suggerimenti per filtri (autocomplete)
+    const [suggestionsRisorsa, setSuggestionsRisorsa] = useState([]);
+    const [suggestionsAttivita, setSuggestionsAttivita] = useState([]);
+    const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
+    const [showRisorsaSuggestions, setShowRisorsaSuggestions] = useState(false);
+    const [showAttivitaSuggestions, setShowAttivitaSuggestions] = useState(false);
+    const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
+  
+
   // Stato per il menu a burger (filtri e opzioni)
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
 
@@ -192,6 +202,52 @@ const [ViewStato, setViewStato] = useState(true);
     setFilteredActivities(fActivities);
   }, [activities, filters]);
 
+// Calcola i suggerimenti per "commessa" in base all'array delle commesse
+useEffect(() => {
+  const commessaSuggs = commesse
+    .map((c) => c.numero_commessa)
+    .filter((value, index, self) => self.indexOf(value) === index);
+  setSuggestionsCommessa(commessaSuggs);
+}, [commesse]);
+
+
+// Suggerimenti per "attività": usa attivitaConReparto e filtra in base al reparto corrente
+useEffect(() => {
+  const attivitaSuggs = attivitaConReparto
+    .filter((a) => a.reparto_id === RepartoID) // solo attività del reparto corrente
+    .map((a) => a.nome_attivita)
+    .filter((value, index, self) => self.indexOf(value) === index);
+  setSuggestionsAttivita(attivitaSuggs);
+}, [attivitaConReparto, RepartoID]);
+
+// Suggerimenti per "risorsa": usa l'array "resources" già filtrato per il reparto corrente
+useEffect(() => {
+  const risorsaSuggs = resources
+    .map((resource) => resource.nome)
+    .filter((value, index, self) => self.indexOf(value) === index);
+  setSuggestionsRisorsa(risorsaSuggs);
+}, [resources]);
+
+// Listener globale per chiudere i suggerimenti se si clicca fuori dagli input o dalle liste
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      !event.target.closest(".suggestions-list") &&
+      !event.target.closest(".input-field-100")
+    ) {
+      setShowCommessaSuggestions(false);
+      setShowRisorsaSuggestions(false);
+      setShowAttivitaSuggestions(false);
+    }
+  };
+  document.addEventListener("click", handleClickOutside);
+  return () => {
+    document.removeEventListener("click", handleClickOutside);
+  };
+}, []);
+
+
+
   // ========================================================
   // FUNZIONI DI SCROLLING PER IL SCHEDULE
   // ========================================================
@@ -271,6 +327,18 @@ const [ViewStato, setViewStato] = useState(true);
       );
     });
   };
+ // Restituisce il numero di settimana
+  const getWeekNumber = (d) => {
+    // Crea una copia della data in UTC
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Sposta la data al giovedì della settimana corrente (necessario per il calcolo ISO)
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    // Calcola il primo giorno dell'anno in UTC
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    // Calcola il numero di settimane (differenza in giorni diviso per 7)
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  };
+  
 
   // ========================================================
   // GESTIONE DELLE ATTIVITÀ (CLICK, DOPPIO CLICK, DELETE, UPDATE)
@@ -721,30 +789,98 @@ const [ViewStato, setViewStato] = useState(true);
             </div>
             
             {/* Filtri per commessa, risorsa e attività */}
-            <div className="filters-burger">
-              <h3>Filtri</h3>
-              <input
-                type="text"
-                placeholder="Filtra per commessa"
-                value={filters.commessa}
-                onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
-                className="input-field-100"
-              />
-              <input
-                type="text"
-                placeholder="Filtra per risorsa"
-                value={filters.risorsa}
-                onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
-                className="input-field-100"
-              />
-              <input
-                type="text"
-                placeholder="Filtra per attività"
-                value={filters.attivita}
-                onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
-                className="input-field-100"
-              />
-            </div>
+            <div className="filter-group">
+    <input
+      type="text"
+      placeholder="Filtra per commessa"
+      value={filters.commessa}
+      onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
+      onFocus={() => setShowCommessaSuggestions(true)}
+      className="input-field-100"
+    />
+    {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
+      <ul className="suggestions-list">
+        {suggestionsCommessa
+          .filter((value) =>
+            value.toString().toLowerCase().includes(filters.commessa.toLowerCase())
+          )
+          .map((value, index) => (
+            <li
+              key={index}
+              onClick={() => {
+                setFilters({ ...filters, commessa: value });
+                setShowCommessaSuggestions(false);
+              }}
+            >
+              {value}
+            </li>
+          ))}
+      </ul>
+    )}
+  </div>
+
+  {/* Filtro per risorsa */}
+  <div className="filter-group">
+    <input
+      type="text"
+      placeholder="Filtra per risorsa"
+      value={filters.risorsa}
+      onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
+      onFocus={() => setShowRisorsaSuggestions(true)}
+      className="input-field-100"
+    />
+    {showRisorsaSuggestions && suggestionsRisorsa.length > 0 && (
+      <ul className="suggestions-list">
+        {suggestionsRisorsa
+          .filter((value) =>
+            value.toLowerCase().includes(filters.risorsa.toLowerCase())
+          )
+          .map((value, index) => (
+            <li
+              key={index}
+              onClick={() => {
+                setFilters({ ...filters, risorsa: value });
+                setShowRisorsaSuggestions(false);
+              }}
+            >
+              {value}
+            </li>
+          ))}
+      </ul>
+    )}
+  </div>
+
+  {/* Filtro per attività */}
+  <div className="filter-group">
+    <input
+      type="text"
+      placeholder="Filtra per attività"
+      value={filters.attivita}
+      onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
+      onFocus={() => setShowAttivitaSuggestions(true)}
+      className="input-field-100"
+    />
+    {showAttivitaSuggestions && suggestionsAttivita.length > 0 && (
+      <ul className="suggestions-list">
+        {suggestionsAttivita
+          .filter((value) =>
+            value.toLowerCase().includes(filters.attivita.toLowerCase())
+          )
+          .map((value, index) => (
+            <li
+              key={index}
+              onClick={() => {
+                setFilters({ ...filters, attivita: value });
+                setShowAttivitaSuggestions(false);
+              }}
+            >
+              {value}
+            </li>
+          ))}
+      </ul>
+    )}
+  </div>
+
             {/* Azioni */}
             <div className="filters-burger">
               <h3>Azioni</h3>
@@ -762,25 +898,40 @@ const [ViewStato, setViewStato] = useState(true);
           <div className="container-Scroll">
             <div className="Gen-table-container" ref={containerRef}>
               <table className="software-schedule">
-                <thead>
-                  <tr>
-                    <th>Risorsa</th>
-                    {/* Genera una colonna per ogni giorno del mese */}
-                    {daysInMonth.map((day) => {
-                      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                      const isToday = day.toDateString() === new Date().toDateString();
-                      return (
-                        <th
-                          key={day.toISOString()}
-                          className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-                          ref={isToday ? todayRef : null}
-                        >
-                          {day.toLocaleDateString()}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
+              <thead>
+  <tr>
+    <th>Risorsa</th>
+    {daysInMonth.map((day, index) => {
+      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+      const isToday = day.toDateString() === new Date().toDateString();
+      const weekNumber = getWeekNumber(day);
+      // Mostra il numero settimana se è il primo elemento oppure se cambia rispetto al giorno precedente
+      let showWeekNumber = false;
+      if (index === 0) {
+        showWeekNumber = true;
+      } else {
+        const prevWeekNumber = getWeekNumber(daysInMonth[index - 1]);
+        if (weekNumber !== prevWeekNumber) {
+          showWeekNumber = true;
+        }
+      }
+      return (
+        <th
+          key={day.toISOString()}
+          className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+          ref={isToday ? todayRef : null}
+        >
+          <div>{day.toLocaleDateString()}</div>
+          {showWeekNumber && (
+            <div className="week-number">
+              Settimana {weekNumber}
+            </div>
+          )}
+        </th>
+      );
+    })}
+  </tr>
+</thead>
                 <tbody>
                   {/* Renderizza una riga per ogni risorsa */}
                   {resources.map((resource) => (

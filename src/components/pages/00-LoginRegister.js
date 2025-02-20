@@ -5,7 +5,7 @@ import "../style.css";
 import logo from "../img/unitech-packaging.png";
 
 // Import Toastify per le notifiche
-import { ToastContainer, toast } from "react-toastify";
+import { Zoom, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /**
@@ -58,32 +58,44 @@ function LoginRegister({ onLogin }) {
   const makeRequest = async (endpoint, successMessage) => {
     setIsLoading(true);
     try {
-      // Effettua una POST all'endpoint con i dati del form
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}${endpoint}`,
         formData
       );
-
-      // Se il form è di login, salva il token e il ruolo e chiama onLogin
+  
       if (formType === "login") {
         sessionStorage.setItem("token", response.data.token);
         sessionStorage.setItem("role", response.data.role_id);
-        // Chiamata di callback passando username, password, token e ruolo
         onLogin(formData.username, formData.password, response.data.token, response.data.role_id);
         navigate("/dashboard");
       } else {
-        // Per registrazione e recupero, mostra un messaggio di successo
         toast.success(successMessage);
-        // Dopo la registrazione, torna al form di login
         if (formType === "register") setFormType("login");
       }
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
-      toast.error(error.response?.data?.message || "Errore durante l'operazione.");
+  
+      let errorMessage = "Errore durante l'operazione.";
+      // Controlla se esiste una risposta dall'API
+      if (error.response) {
+        const { status, data } = error.response;
+        // Puoi personalizzare in base al codice di stato
+        if (status === 401) {
+          errorMessage = "Credenziali errate. Controlla username e password.";
+        } else if (status === 404) {
+          errorMessage = "Email non esistente.";
+        } else if (data && data.message) {
+          // Se l'API restituisce un messaggio di errore specifico
+          errorMessage = data.message;
+        }
+      }
+  
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   // ------------------------------------------------------------------
   // Gestione del Submit del Form
@@ -126,7 +138,7 @@ function LoginRegister({ onLogin }) {
   // ------------------------------------------------------------------
   return (
     <>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-center"  transition={Zoom} autoClose={3000} hideProgressBar />
       <div className="login-container">
         {/* Titolo del form in base al tipo */}
         <h1>
@@ -161,6 +173,7 @@ function LoginRegister({ onLogin }) {
                 id="email"
                 type="email"
                 value={formData.email}
+                placeholder="Inserisci un indirizzo email per il recupero password"
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }

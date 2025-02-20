@@ -155,6 +155,15 @@ function StatoAvanzamentoReparti() {
   const [ConsegnaSettimanale, setConsegnaSettimanale] = useState(true); // Abilita allarme consegna nella settimana
   const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per i dettagli
   const normalize = (str) => str?.trim().toLowerCase();
+
+// Suggerimenti per i filtri
+const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
+const [suggestionsCliente, setSuggestionsCliente] = useState([]);
+const [suggestionsTipoMacchina, setSuggestionsTipoMacchina] = useState([]);
+const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
+const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
+const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
+
   // ----------------------------------------------------------------
   // Funzioni Helper
   // ----------------------------------------------------------------
@@ -455,6 +464,48 @@ function StatoAvanzamentoReparti() {
     return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && (notDelivered || shouldShow);
   });
   
+  // Listener globale per chiudere i suggerimenti cliccando fuori
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        !event.target.closest(".suggestions-list") &&
+        !event.target.closest(".input-field-100")
+      ) {
+        setShowCommessaSuggestions(false);
+        setShowClienteSuggestions(false);
+        setShowTipoMacchinaSuggestions(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  // Aggiorna i suggerimenti per Numero Commessa basandosi sull'array delle commesse
+  useEffect(() => {
+    const commessaSuggs = commesse
+      .map((c) => c.numero_commessa)
+      .filter((value, index, self) => self.indexOf(value) === index);
+    setSuggestionsCommessa(commessaSuggs);
+  }, [commesse]);
+
+  // Suggerimenti per Cliente
+  useEffect(() => {
+    const clienteSuggs = commesse
+      .map((c) => c.cliente)
+      .filter((value, index, self) => self.indexOf(value) === index);
+    setSuggestionsCliente(clienteSuggs);
+  }, [commesse]);
+
+  // Suggerimenti per Tipo Macchina
+  useEffect(() => {
+    const tipoSuggs = commesse
+      .map((c) => c.tipo_macchina)
+      .filter((value, index, self) => self.indexOf(value) === index);
+    setSuggestionsTipoMacchina(tipoSuggs);
+  }, [commesse]);
+
   // ----------------------------------------------------------------
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
@@ -583,7 +634,7 @@ function StatoAvanzamentoReparti() {
             <FontAwesomeIcon
               icon={faCalendarWeek}
               title="Consegna questa settimana"
-              style={{ marginRight: "5px", color: "RED" }}
+              style={{ marginRight: "5px", color: "ORANGE" }}
             />
           )}
           {!isThisWeek(commessa.data_consegna) &&
@@ -709,26 +760,101 @@ function StatoAvanzamentoReparti() {
             </button>
           </div>
           <div className="burger-menu-content">
-            <div className="filters-burger">
-              <h3>Filtri</h3>
-              <input
-                type="text"
-                placeholder="Numero Commessa"
-                value={numeroCommessaFilter}
-                onChange={(e) => setNumeroCommessaFilter(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Cliente"
-                value={clienteFilter}
-                onChange={(e) => setClienteFilter(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Tipo Macchina"
-                value={tipoMacchinaFilter}
-                onChange={(e) => setTipoMacchinaFilter(e.target.value)}
-              />
+          <div className="filters-burger">
+        <h3>Filtri</h3>
+        {/* Filtro per Numero Commessa */}
+        <div className="filter-group">
+          <input
+            type="text"
+            placeholder="Numero Commessa"
+            value={numeroCommessaFilter}
+            onChange={(e) => setNumeroCommessaFilter(e.target.value)}
+            onFocus={() => setShowCommessaSuggestions(true)}
+            className="input-field-100"
+          />
+          {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
+            <ul className="suggestions-list">
+              {suggestionsCommessa
+                .filter((value) =>
+                  value.toString().toLowerCase().includes(numeroCommessaFilter.toLowerCase())
+                )
+                .map((value, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      setNumeroCommessaFilter(value.toString());
+                      setShowCommessaSuggestions(false);
+                    }}
+                  >
+                    {value}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Filtro per Cliente */}
+        <div className="filter-group">
+          <input
+            type="text"
+            placeholder="Cliente"
+            value={clienteFilter}
+            onChange={(e) => setClienteFilter(e.target.value)}
+            onFocus={() => setShowClienteSuggestions(true)}
+            className="input-field-100"
+          />
+          {showClienteSuggestions && suggestionsCliente.length > 0 && (
+            <ul className="suggestions-list">
+              {suggestionsCliente
+                .filter((value) =>
+                  value.toLowerCase().includes(clienteFilter.toLowerCase())
+                )
+                .map((value, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      setClienteFilter(value);
+                      setShowClienteSuggestions(false);
+                    }}
+                  >
+                    {value}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Filtro per Tipo Macchina */}
+        <div className="filter-group">
+          <input
+            type="text"
+            placeholder="Tipo Macchina"
+            value={tipoMacchinaFilter}
+            onChange={(e) => setTipoMacchinaFilter(e.target.value)}
+            onFocus={() => setShowTipoMacchinaSuggestions(true)}
+            className="input-field-100"
+          />
+          {showTipoMacchinaSuggestions && suggestionsTipoMacchina.length > 0 && (
+            <ul className="suggestions-list">
+              {suggestionsTipoMacchina
+                .filter((value) =>
+                  value.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
+                )
+                .map((value, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      setTipoMacchinaFilter(value);
+                      setShowTipoMacchinaSuggestions(false);
+                    }}
+                  >
+                    {value}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+
               <h3>Opzioni </h3>
               <div className="filters-burger">
                 <label>

@@ -44,6 +44,19 @@ function CalendarioAttivita() {
   // Calcola tutti i giorni del mese corrente utilizzando la funzione helper getDaysInMonth
   const daysInMonth = getDaysInMonth(currentMonth);
 
+ // Restituisce il numero di settimana
+ const getWeekNumber = (d) => {
+  // Crea una copia della data in UTC
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  // Sposta la data al giovedì della settimana corrente (necessario per il calcolo ISO)
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  // Calcola il primo giorno dell'anno in UTC
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  // Calcola il numero di settimane (differenza in giorni diviso per 7)
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+};
+
+
   // ------------------------------------------------------------------
   // Effetto: Fetch iniziale dei dati (attività e risorse)
   // ------------------------------------------------------------------
@@ -200,9 +213,26 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
                   : isWeekend
                   ? "Gen-weekend-date"
                   : "";
+                  const weekNumber = getWeekNumber(day);
+      // Mostra il numero settimana se è il primo elemento oppure se cambia rispetto al giorno precedente
+      let showWeekNumber = false;
+      if (index === 0) {
+        showWeekNumber = true;
+      } else {
+        const prevWeekNumber = getWeekNumber(daysInMonth[index - 1]);
+        if (weekNumber !== prevWeekNumber) {
+          showWeekNumber = true;
+        }
+      }
                 return (
                   <th key={index} ref={isToday ? todayRef : null}>
                     <span className={dateClass}>{day.toLocaleDateString()}</span>
+                    
+          {showWeekNumber && (
+            <div className="week-number">
+              Settimana {weekNumber}
+            </div>
+          )}
                   </th>
                 );
               })}

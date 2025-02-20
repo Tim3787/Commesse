@@ -19,7 +19,7 @@ const messaging = firebase.messaging();
 // Mostra la notifica quando arriva un messaggio in background
 // Ascolta i messaggi in background
 messaging.onBackgroundMessage((payload) => {
-  console.log("Messaggio in background ricevuto:", payload);
+
 
   // Definisci valori di fallback
   let notificationTitle = "Nuova notifica";

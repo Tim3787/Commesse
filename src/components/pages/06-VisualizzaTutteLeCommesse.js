@@ -152,6 +152,26 @@ function VisualizzazioneCommesse() {
     setSuggestionsCommessa(commessaSuggestions);
   }, [commessaFilter, clienteFilter, tipoMacchinaFilter, commesse]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Se il click NON avviene su un elemento con la classe "suggestions-list"
+      // oppure sull'input (o eventuali elementi di filtro)
+      if (
+        !event.target.closest(".suggestions-list") &&
+        !event.target.closest(".input-field")
+      ) {
+        setShowClienteSuggestions(false);
+        setShowTipoMacchinaSuggestions(false);
+        setShowCommessaSuggestions(false);
+      }
+    };
+  
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+  
   /* ===============================
      FUNZIONI HELPER PER LE DATE
   =============================== */
@@ -444,7 +464,7 @@ function VisualizzazioneCommesse() {
                           <>
                             <FontAwesomeIcon
                               icon={faCalendarWeek}
-                              style={{ marginLeft: "10px", color: "red" }}
+                              style={{ marginLeft: "10px", color: "orange" }}
                               data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
                             />
                             <Tooltip id={`tooltip-week-${commessa.commessa_id}`} place="top" effect="solid"  style={{ zIndex: 9999 }} >

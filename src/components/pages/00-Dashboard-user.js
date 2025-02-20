@@ -238,10 +238,10 @@ function Dashboard() {
         {/* Navigazione tra i mesi */}
         <div className="calendar-navigation">
           <button onClick={goToPreviousMonth} className="btn-Nav">
-            <FontAwesomeIcon icon={faChevronLeft} /> Mese Precedente
+            <FontAwesomeIcon icon={faChevronLeft} /> Mese
           </button>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo <FontAwesomeIcon icon={faChevronRight} />
+            Mese <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
 

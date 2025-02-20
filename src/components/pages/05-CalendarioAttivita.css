@@ -54,6 +54,11 @@
   border-bottom: 1px solid #ddd;
   color: rgb(255, 255, 255);
 }
+.week-number {
+  text-align: center;
+  margin-top: 10px;
+  color: rgb(53, 53, 53);
+}
 
 /* Mantiene il pulsante sempre visibile */
 .toggle-button {

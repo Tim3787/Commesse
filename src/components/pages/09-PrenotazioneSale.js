@@ -63,7 +63,6 @@ function PrenotazioneSale() {
       ]);
       setPrenotazioni(prenotazioniResponse);
       setUtenti(utentiResponse);
-      console.log("utenti response:", utentiResponse);
     } catch (error) {
       toast.error("Errore durante il caricamento dei dati.");
     } finally {

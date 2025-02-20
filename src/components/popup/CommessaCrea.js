@@ -135,7 +135,6 @@ function CommessaCrea({
               stato_commessa: parseInt(formData.stato_commessa, 10) || 1,
             };
 
-      console.log("Payload inviato:", payload);
       if (isEditing) {
         // Chiamata API per aggiornare la commessa esistente
         await axios.put(
@@ -205,7 +204,7 @@ function CommessaCrea({
       // Se il campo è "stato_commessa", converte il valore in numero
       [name]: name === "stato_commessa" ? Number(value) : value,
     });
-    console.log("formData handle change:", formData);
+
   };
 
   // Gestione della selezione/deselezione delle attività (checkbox)

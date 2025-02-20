@@ -38,7 +38,7 @@ function VisualizzaTutteLeAttivita() {
   const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [showStateDropdown, setShowStateDropdown] = useState(false);
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
-
+  const token = sessionStorage.getItem("token");
   /* ===============================
      STATO DEI FILTRI E DEI DATI FILTRATI
   =============================== */
@@ -234,7 +234,6 @@ function VisualizzaTutteLeAttivita() {
       );
     }
   
-    console.log("Dati dopo i filtri (attivitaFiltrate):", filtered);
     setAttivitaFiltrate(Array.isArray(filtered) ? filtered : []);
   };
   
@@ -329,17 +328,14 @@ function VisualizzaTutteLeAttivita() {
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
       try {
-        await deleteAttivitaCommessa(id);
-        // Aggiorna gli stati eliminando l'attività cancellata
-        setAttivitaFiltrate((prev) =>
-          prev.filter((attivita) => attivita.id !== id)
-        );
-        setAttivitaProgrammate((prev) =>
-          prev.filter((attivita) => attivita.id !== id)
-        );
+        await deleteAttivitaCommessa(id, token, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Dopo la cancellazione, ricarica le attività
+        await handleReloadActivities();
       } catch (error) {
         console.error("Errore durante l'eliminazione dell'attività:", error);
-        toast.error("Errore durante l'eliminazione dell'attività");
+        toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
       }
     }
   };

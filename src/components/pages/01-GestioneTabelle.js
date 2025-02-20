@@ -563,18 +563,19 @@ function GestioneTabelle() {
             <input
               type="text"
               name="nome_stato"
+              placeholder="Inserisci un nuovo stato"
               value={statiCommessaFormData.nome_stato}
               onChange={handleStatiCommessaChange}
               required
             />
           </div>
-          <button type="submit" className="btn-100">
+          <button type="submit" className="btn-new-comm">
             {isEditingStatiCommessa ? "Aggiorna Stato Commessa" : "Aggiungi Stato Commessa"}
           </button>
           {isEditingStatiCommessa && (
             <button
               type="button"
-              className="btn-cancel"
+              className="btn-danger"
               onClick={() => {
                 setStatiCommessaFormData({ nome_stato: "", reparto_id: selectedReparto });
                 setIsEditingStatiCommessa(false);
@@ -634,18 +635,19 @@ function GestioneTabelle() {
             <input
               type="text"
               name="nome"
+              placeholder="Inserisci un nuovo reparto"
               value={repartiFormData.nome}
               onChange={handleRepartiChange}
               required
             />
           </div>
-          <button type="submit" className="btn-100">
+          <button type="submit" className="btn-new-comm">
             {isEditingReparto ? "Aggiorna Reparto" : "Aggiungi Reparto"}
           </button>
           {isEditingReparto && (
             <button
               type="button"
-              className="btn-cancel"
+              className="btn-danger"
               onClick={() => {
                 setRepartiFormData({ nome: "" });
                 setIsEditingReparto(false);
@@ -709,19 +711,20 @@ function GestioneTabelle() {
                 <input
                   type="text"
                   name="nome_attivita"
+                  placeholder="Inserisci una nuova attivtà"
                   value={attivitaFormData.nome_attivita}
                   onChange={handleAttivitaChange}
                   required
                 />
               </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-100">
+              <button type="submit" className="btn-new-comm">
                 {isEditingAttivita ? "Aggiorna Attività" : "Aggiungi Attività"}
               </button>
               {isEditingAttivita && (
                 <button
                   type="button"
-                  className="btn-cancel"
+                  className="btn-danger"
                   onClick={() => {
                     setAttivitaFormData({ nome_attivita: "", reparto_id: selectedReparto });
                     setIsEditingAttivita(false);
@@ -776,19 +779,20 @@ function GestioneTabelle() {
                 <input
                   type="text"
                   name="nome"
+                  placeholder="Inserisci una nuova risorsa"
                   value={risorseFormData.nome}
                   onChange={handleRisorseChange}
                   required
                 />
               </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-100">
+              <button type="submit" className="btn-new-comm">
                 {isEditingRisorsa ? "Aggiorna Risorsa" : "Aggiungi Risorsa"}
               </button>
               {isEditingRisorsa && (
                 <button
                   type="button"
-                  className="btn-cancel"
+                  className="btn-danger"
                   onClick={() => {
                     setRisorseFormData({ nome: "", reparto_id: selectedReparto });
                     setIsEditingRisorsa(false);
@@ -843,18 +847,19 @@ function GestioneTabelle() {
                 <input
                   type="text"
                   name="nome_stato"
+                  placeholder="Inserisci un nuovo stato"
                   value={statiAvanzamentoFormData.nome_stato}
                   onChange={handleStatiAvanzamentoChange}
                   required
                 />
               </div>
-              <button type="submit" className="btn-100">
+              <button type="submit" className="btn-new-comm">
                 {isEditingStatoAvanzamento ? "Aggiorna Stato Avanzamento" : "Aggiungi Stato Avanzamento"}
               </button>
               {isEditingStatoAvanzamento && (
                 <button
                   type="button"
-                  className="btn-cancel"
+                  className="btn-danger"
                   onClick={() => {
                     setStatiAvanzamentoFormData({ nome_stato: "" });
                     setIsEditingStatoAvanzamento(false);
@@ -901,8 +906,8 @@ function GestioneTabelle() {
 
             {/* Sezione Drag & Drop per il Riordino degli Stati Avanzamento */}
             <div className="drag-drop-section" style={{ marginTop: "2rem" }}>
-              <h3>Ordina Colonne Stati Avanzamento</h3>
-              <button onClick={saveNewOrder} className="btn-100" style={{ marginBottom: "1rem" }}>
+              <h2>Ordina Colonne Stati Avanzamento</h2>
+              <button onClick={saveNewOrder} className="btn-new-comm" style={{ marginBottom: "1rem" }}>
                 Salva ordine colonne
               </button>
               <DndProvider backend={HTML5Backend}>
@@ -926,7 +931,7 @@ function GestioneTabelle() {
                       <tr>
                         {columnOrder.map((stato) => (
                           <td key={stato.id}>
-                            <small>Ordine: {stato.ordine}</small>
+                           Ordine: {stato.ordine}
                           </td>
                         ))}
                       </tr>
