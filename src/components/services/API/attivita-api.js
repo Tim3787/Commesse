@@ -7,7 +7,7 @@ const apiClient = axios.create({
 });
 
 console.log(`Server in esecuzione TEST21  ${ process.env.REACT_APP_API_URL}`);
-
+// Funzione per ottenere le attività
 // Funzione per ottenere le attività
 export const fetchAttivita = async () => {
   const response = await apiClient.get("/api/attivita");
