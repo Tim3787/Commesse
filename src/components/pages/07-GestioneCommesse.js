@@ -14,6 +14,7 @@ import { fetchCommesse, deleteCommessa } from "../services/API/commesse-api";
 import { fetchReparti } from "../services/API/reparti-api";
 import { fetchAttivita } from "../services/API/attivita-api";
 import { fetchStatiCommessa } from "../services/API/statoCommessa-api";
+import { fetchStatiAvanzamento } from "../services/API/StatiAvanzamento-api";
 
 // Import icone per il menu a burger
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -28,6 +29,7 @@ function GestioneCommesse() {
   const [reparti, setReparti] = useState([]);
   const [attivita, setAttivita] = useState([]);
   const [statiCommessa, setStatiCommessa] = useState([]);
+  const [statiAvanzamento, setStatiAvanzamento] = useState([]);
 
   // Stati per la gestione della commessa selezionata (per modifica/creazione)
   const [selectedCommessa, setSelectedCommessa] = useState(null);
@@ -59,16 +61,18 @@ function GestioneCommesse() {
     setLoading(true);
     try {
       // Esecuzione parallela delle chiamate API
-      const [commesseData, repartiData, attivitaData, statiData] = await Promise.all([
+      const [commesseData, repartiData, attivitaData, statiData, statiAvanzamentoData] = await Promise.all([
         fetchCommesse(),
         fetchReparti(),
         fetchAttivita(),
         fetchStatiCommessa(),
+        fetchStatiAvanzamento(),
       ]);
       setCommesse(commesseData);
       setReparti(repartiData);
       setAttivita(attivitaData);
       setStatiCommessa(statiData);
+      setStatiAvanzamento(statiAvanzamentoData);
     } catch (error) {
       console.error("Errore durante il caricamento dei dati:", error);
       toast.error("Errore durante il caricamento dei dati.");
@@ -76,7 +80,8 @@ function GestioneCommesse() {
       setLoading(false);
     }
   };
-
+  
+  
   /* ===============================
      GESTIONE DELLA CREAZIONE/MODIFICA
   =============================== */
@@ -277,6 +282,7 @@ function GestioneCommesse() {
             fetchCommesse={loadData}
             editId={editId}
             stato_commessa={statiCommessa}
+            stati_avanzamento={statiAvanzamento}
           />
         )}
       </div>

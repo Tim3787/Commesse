@@ -25,7 +25,7 @@ import {
   faScrewdriverWrench,
   faRightFromBracket,
   faBell,
-  faSearch, // icona della lente
+  faSearch, 
 } from "@fortawesome/free-solid-svg-icons";
 
 // Importa CSSTransition per le animazioni di transizione

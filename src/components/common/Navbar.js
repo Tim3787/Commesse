@@ -3,10 +3,15 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "react-toastify/dist/ReactToastify.css";
+import { CSSTransition } from "react-transition-group";
+import CommessaDettagli from "../popup/CommessaDettagli";
 import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
+// Import per Toastify (notifiche)
+import "react-toastify/dist/ReactToastify.css";
+
+// Import icone FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
   faTasks,
@@ -28,9 +33,10 @@ import {
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { CSSTransition } from "react-transition-group";
+
+
+// Import API per le varie entità
 import { fetchCommesse } from "../services/API/commesse-api";
-import CommessaDettagli from "../popup/CommessaDettagli";
 
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   // -------------------------------------------------------------------
@@ -168,6 +174,7 @@ const navLinks = {
   manager: [
     {
       label: "Rep. Software",
+      icon: faScrewdriverWrench,
       links: [
         { to: "/StatoAvanzamento/software", label: "Stato avanzamento", icon: faChartBar },
         { to: "/Dashboard/software", label: "Attività", icon: faTasks },
@@ -176,6 +183,7 @@ const navLinks = {
     },
     {
       label: "Rep. Elettrico",
+      icon: faScrewdriverWrench,
       links: [
         { to: "/StatoAvanzamento/elettrico", label: "Stato avanzamento", icon: faChartBar },
         { to: "/Dashboard/elettrico", label: "Attività", icon: faTasks },
@@ -184,6 +192,7 @@ const navLinks = {
     },
     {
       label: "Rep. QE",
+      icon: faScrewdriverWrench,
       links: [
         { to: "/StatoAvanzamento/quadristi", label: "Stato avanzamento", icon: faChartBar },
         { to: "/Dashboard/quadristi", label: "Attività", icon: faTasks },
@@ -191,6 +200,7 @@ const navLinks = {
     },
     {
       label: "Rep. Service",
+      icon: faScrewdriverWrench,
       links: [{ to: "/Dashboard/service", label: "Attività", icon: faTools }],
     },
     { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
