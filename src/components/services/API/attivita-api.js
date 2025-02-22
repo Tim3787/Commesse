@@ -14,6 +14,7 @@ export const fetchAttivita = async () => {
   return response.data;
 };
 
+  
 
 // Funzione per eliminare un'attività
 export const deleteAttivita= async (id) => {
