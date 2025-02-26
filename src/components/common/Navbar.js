@@ -203,7 +203,16 @@ const navLinks = {
       icon: faScrewdriverWrench,
       links: [{ to: "/Dashboard/service", label: "Attività", icon: faTools }],
     },
-    { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
+    {
+      label: "Gestione commesse",
+      icon: faCalendarAlt,
+      links: [
+        { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
+        { to: "/commesse-dettagli", label: "Gestisci componenti", icon: faProjectDiagram },
+        { to: "/Assegna-Machina-Componenti", label: "Assegnazione macchine e componenti", icon: faProjectDiagram },
+    
+      ],
+    },
     { to: "/VisualizzaTutteLeAttivita", label: "Tutte le attività", icon: faListCheck },
     { to: "/StatiAvanzamento", label: "Tutti gli stati avanzamento", icon: faChartBar },
   ],

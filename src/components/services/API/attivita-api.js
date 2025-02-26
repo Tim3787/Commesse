@@ -6,15 +6,13 @@ const apiClient = axios.create({
   timeout: 10000, // Timeout di 10 secondi
 });
 
-console.log(`Server in esecuzione TEST21  ${ process.env.REACT_APP_API_URL}`);
+console.log(`Server in esecuzione  ${ process.env.REACT_APP_API_URL}`);
 // Funzione per ottenere le attività
 
 export const fetchAttivita = async () => {
   const response = await apiClient.get("/api/attivita");
   return response.data;
 };
-
-  
 
 // Funzione per eliminare un'attività
 export const deleteAttivita= async (id) => {

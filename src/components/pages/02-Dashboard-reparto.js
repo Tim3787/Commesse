@@ -465,26 +465,28 @@ useEffect(() => {
   // Gestisce il drop di un'attività in una nuova cella (nuova risorsa e/o nuovo giorno)
   const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
-      const normalizedDate = normalizeDate(newDate);
-      const updatedActivity = {
-        ...activity,
-        risorsa_id: newResourceId,
-        data_inizio: toLocalISOString(normalizedDate),
-      };
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
-        updatedActivity,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setActivities((prev) =>
-        prev.map((act) =>
-          act.id === activity.id ? { ...act, ...updatedActivity } : act
-        )
-      );
+        const normalizedDate = normalizeDate(newDate);
+        const updatedActivity = {
+            ...activity,
+            risorsa_id: newResourceId,
+            data_inizio: toLocalISOString(normalizedDate),
+            descrizione: activity.descrizione_attivita || "",
+        };
+
+        await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
+            updatedActivity,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Dopo l'aggiornamento, ricarica l'attività dal server
+        const updatedActivities = await fetchAttivitaCommessa();
+        setActivities(updatedActivities);
     } catch (error) {
-      console.error("Errore durante l'aggiornamento dell'attività:", error);
+        console.error("Errore durante l'aggiornamento dell'attività:", error);
     }
-  };
+};
+
 
   // ========================================================
   // COMPONENTE: ResourceCell

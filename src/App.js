@@ -41,8 +41,10 @@ import VisualizzazioneCommesse from "./components/pages/06-VisualizzaTutteLeComm
 import VisualizzaTutteLeAttivita from "./components/pages/06-VisualizzaTutteLeAttivita";
 import StatiAvanzamento from "./components/pages/06-VisualizzaStatoAvanzamento";
 
-//Attività e commesse
+//Commesse e dattagli
 import GestioneCommesse from "./components/pages/07-GestioneCommesse";
+import CommesseDettagli from "./components/pages/07-Commesse_Dettagli";
+import AssegnazioneMacchinaComponenti from "./components/pages/07-Assegna-Machina-Componenti.js";
 
 // Trello
 import TrelloBoardSoftware from "./components/pages/08-TrelloBoardSoftware";
@@ -237,6 +239,8 @@ function App() {
     { path: "/Notifications", component: <Notifications /> },
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2 },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
+    { path: "/commesse-dettagli", component: <CommesseDettagli />, requiredRole: 2 },
+    { path: "/Assegna-Machina-Componenti", component: <AssegnazioneMacchinaComponenti />, requiredRole: 2 },
     { path: "/VisualizzaTutteLeAttivita", component: <VisualizzaTutteLeAttivita />, requiredRole: 2 },
     { path: "/StatoAvanzamento/:reparto", component: <StatoAvanzamentoReparti />, requiredRole: 2 },
     { path: "/StatiAvanzamento", component: <StatiAvanzamento />, requiredRole: 2 },
