@@ -27,6 +27,7 @@ function VisualizzazioneCommesse() {
   const [commesse, setCommesse] = useState([]);              // Tutte le commesse
   const [filteredCommesse, setFilteredCommesse] = useState([]);  // Commesse filtrate/ordinate
   const [statiCommessa, setStatiCommessa] = useState([]);       // Stati disponibili per le commesse
+  const [isVisible, setIsVisible] = useState(false); 
 
   // Filtri di ricerca
   const [clienteFilter, setClienteFilter] = useState("");
@@ -272,6 +273,10 @@ function VisualizzazioneCommesse() {
     return stato ? stato.nome_stato : "Non assegnato";
   };
 
+  const toggleSectionVisibility = () => {
+    setIsVisible((prev) => !prev);
+  };
+
   /* ===============================
      RENDER DEL COMPONENTE
   =============================== */
@@ -279,7 +284,6 @@ function VisualizzazioneCommesse() {
     <div className="page-wrapper">
       {/* HEADER */}
       <div className="header">
-        <h1>Commesse</h1>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
@@ -287,7 +291,116 @@ function VisualizzazioneCommesse() {
           </div>
         )}
       </div>
+      <div className="Commesse-completate">
+      {/* Bottone per espandere/nascondere la tabella */}
+      <button className="toggle-button-comm" onClick={toggleSectionVisibility}>
+        {isVisible ? "▼" : "▶"} {" Commesse completate in attesa di consegna"}
+      </button>
+      </div>
+      {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
+      {isVisible && (
+        <div className="Gen-table-container">
+          <table className="software-schedule">
+            <thead>
+              <tr>
+                <th>Numero Commessa</th>
+                <th>Cliente</th>
+                <th>Tipo Macchina</th>
+                <th>Data Consegna</th>
+              </tr>
+            </thead>
+            <tbody>
+              {commesse
+                .filter((commessa) => getStatoNome(commessa.stato) === "Completata")
+                .sort((a, b) => new Date(a.data_consegna) - new Date(b.data_consegna))
+                .map((commessa) => (
+                  <tr key={commessa.commessa_id} onClick={() => handleCommessaClick(commessa)}>
+                    <td>{commessa.numero_commessa}</td>
+                    <td>{commessa.cliente}</td>
+                    <td>{commessa.tipo_macchina}</td>
+                    <td>
+                      <div className="delivery-alerts">
+                        {commessa.data_consegna
+                          ? new Date(commessa.data_consegna).toLocaleDateString()
+                          : "N/A"}
 
+                        {commessa.data_consegna &&
+                          new Date(commessa.data_consegna) < new Date() &&
+                          getStatoNome(commessa.stato) !== "Consegnata" && (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faExclamationTriangle}
+                                style={{ color: "red", marginLeft: "10px" }}
+                                data-tooltip-id={`tooltip-expired-${commessa.commessa_id}`}
+                              />
+                              <Tooltip
+                                id={`tooltip-expired-${commessa.commessa_id}`}
+                                place="top"
+                                effect="solid"
+                                style={{ zIndex: 9999 }}
+                              >
+                                <span style={{ whiteSpace: "pre-wrap" }}>Commessa scaduta</span>
+                              </Tooltip>
+                            </>
+                          )}
+
+                        {commessa.data_consegna && new Date(commessa.data_consegna) >= new Date() && (
+                          <>
+                            {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
+                              <>
+                                <FontAwesomeIcon
+                                  icon={faCalendarWeek}
+                                  style={{ marginLeft: "10px", color: "orange" }}
+                                  data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
+                                />
+                                <Tooltip
+                                  id={`tooltip-week-${commessa.commessa_id}`}
+                                  place="top"
+                                  effect="solid"
+                                  style={{ zIndex: 9999 }}
+                                >
+                                  <span style={{ whiteSpace: "pre-wrap" }}>
+                                    Commessa in scadenza questa settimana
+                                  </span>
+                                </Tooltip>
+                              </>
+                            )}
+
+                            {!isThisWeek(commessa.data_consegna) &&
+                              ConsegnaMensile &&
+                              isThisMonth(commessa.data_consegna) && (
+                                <>
+                                  <FontAwesomeIcon
+                                    icon={faCalendar}
+                                    style={{ marginLeft: "10px", color: "blue" }}
+                                    data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
+                                  />
+                                  <Tooltip
+                                    id={`tooltip-month-${commessa.commessa_id}`}
+                                    place="top"
+                                    effect="solid"
+                                    style={{ zIndex: 9999 }}
+                                  >
+                                    <span style={{ whiteSpace: "pre-wrap" }}>
+                                      Commessa in scadenza questo mese
+                                    </span>
+                                  </Tooltip>
+                                </>
+                              )}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+
+
+        
       {/* MENU A BURGER PER FILTRI E OPZIONI */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -406,7 +519,7 @@ function VisualizzazioneCommesse() {
         <button onClick={toggleBurgerMenu} className="burger-icon">
           Filtri ed Opzioni
         </button>
-
+        <h1>Tutte le commesse</h1>
          <div className="Gen-table-container" >
         {/* TABELLA DELLE COMMESSE */}
         <table className="software-schedule">

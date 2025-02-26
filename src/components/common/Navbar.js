@@ -416,17 +416,20 @@ const navLinks = {
   };
 
   const handleSearchInputChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase().trim();
     setSearchValue(value);
-    if (value.trim() !== "") {
+  
+    if (value !== "") {
       const suggestionsFiltered = commesseList.filter((c) =>
-        c.numero_commessa.toString().includes(value.trim())
+        c.numero_commessa.toString().includes(value) || // Cerca per numero commessa
+        c.cliente.toLowerCase().includes(value) // Cerca per nome cliente
       );
       setSearchSuggestions(suggestionsFiltered);
     } else {
       setSearchSuggestions([]);
     }
   };
+  
 
   const closeSearchPopup = () => {
     setSelectedCommessa(null);
@@ -540,7 +543,7 @@ const navLinks = {
         <div className="search-dropdown">
           <input
             type="text"
-            placeholder="Inserisci numero commessa"
+            placeholder="Inserisci commessa o cliente"
             value={searchValue}
             onChange={handleSearchInputChange}
             className="input-field-100"

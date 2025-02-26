@@ -255,17 +255,20 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
   // Aggiorna i suggerimenti di ricerca in base al testo digitato
   const handleSearchInputChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase().trim();
     setSearchValue(value);
-    if (value.trim() !== "") {
+  
+    if (value !== "") {
       const suggestionsFiltered = commesseList.filter((c) =>
-        c.numero_commessa.toString().includes(value.trim())
+        c.numero_commessa.toString().includes(value) || // Cerca per numero commessa
+        c.cliente.toLowerCase().includes(value) // Cerca per nome cliente
       );
       setSearchSuggestions(suggestionsFiltered);
     } else {
       setSearchSuggestions([]);
     }
   };
+  
 
   // Chiude il popup dei dettagli della commessa selezionata
   const closeSearchPopup = () => {
@@ -390,7 +393,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         <div className="search-dropdown">
           <input
             type="text"
-            placeholder="Inserisci numero commessa"
+            placeholder="Inserisci numero commessa o cliente"
             value={searchValue}
             onChange={handleSearchInputChange}
             className="input-field-100"
