@@ -759,7 +759,7 @@ function GestioneTabelle() {
                         <button onClick={() => handleAttivitaEdit(a)} className="btn-warning ">
                          Modifica
                         </button>
-                        <button onClick={() => handleAttivitaDelete(a)} className="btn-danger">
+                        <button onClick={() => handleAttivitaDelete(a.id)} className="btn-danger">
                         Elimina
                         </button>
                       </td>
@@ -827,7 +827,7 @@ function GestioneTabelle() {
                         <button onClick={() => handleRisorseEdit(r)} className="btn-warning ">
                          Modifica
                         </button>
-                        <button onClick={() => handleRisorseDelete(r)} className="btn-danger">
+                        <button onClick={() => handleRisorseDelete(r.id)} className="btn-danger">
                         Elimina
                         </button>
                       </td>
@@ -894,7 +894,7 @@ function GestioneTabelle() {
                       <button onClick={() => handleStatiAvanzamentoEdit(s)} className="btn-warning ">
                          Modifica
                         </button>
-                        <button onClick={() => handleStatiAvanzamentoDelete(s)} className="btn-danger">
+                        <button onClick={() => handleStatiAvanzamentoDelete(s.id)} className="btn-danger">
                         Elimina
                         </button>
                       </td>
