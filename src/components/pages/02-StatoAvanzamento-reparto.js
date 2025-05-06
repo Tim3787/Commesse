@@ -246,12 +246,11 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
       if (!RepartoID) return;
       setLoading(true);
       try {
-        // Recupera le commesse dal backend
+        // Recupera le commesse
         const response = await axios.get(`${apiUrl}/api/commesse`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        // Se la proprietà "stati_avanzamento" è una stringa, viene parsata in JSON
+    
         const parsedCommesse = response.data.map((commessa) => ({
           ...commessa,
           stati_avanzamento:
@@ -260,33 +259,37 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
               : commessa.stati_avanzamento,
         }));
         setCommesse(parsedCommesse);
-
-        // Recupera gli stati di avanzamento validi per il reparto
+    
+        // Stati di avanzamento
         const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === RepartoID);
         setStati(statiValidi);
-
-        // Recupera liste e cards dalla board di Trello
+    
+        // Liste e cards da Trello (può fallire)
         const [boardLists, boardCards] = await Promise.all([
           getBoardLists(boardId),
           getBoardCards(boardId),
         ]);
         setLists(boardLists);
         setCards(boardCards);
-
-        // Recupera le attività
-        await fetchActivities();
+    
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
       } finally {
-        setLoading(false);
+        try {
+          await fetchActivities(); // 👈 prova a recuperare le attività
+        } catch (activityError) {
+          console.error("Errore durante il recupero delle attività:", activityError);
+          toast.error("Attenzione: non è stato possibile recuperare le attività.");
+        }
+        setLoading(false); // ✅ comunque chiudi il loading
       }
     };
-
     fetchData();
-  }, [RepartoID, boardId, apiUrl, token]);
+}, [RepartoID, boardId, apiUrl, token]);
+
 
   /**
    * Recupera le risorse dal backend.
@@ -420,6 +423,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     setSelectedCommessa(commessa);
   };
 
+
   // ----------------------------------------------------------------
   // Filtraggio delle commesse
   // ----------------------------------------------------------------
@@ -451,13 +455,17 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     );
   
     let notDelivered = true;
-    if (!VediConsegnate && commessa.data_consegna) {
-      const deliveryDate = new Date(commessa.data_consegna);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      notDelivered = deliveryDate >= today;
+    //if (!VediConsegnate && commessa.data_consegna) {
+     // const deliveryDate = new Date(commessa.data_consegna);
+     //// today.setHours(0, 0, 0, 0);
+     // notDelivered = deliveryDate >= today;
+    //}
+
+ 
+    if (!VediConsegnate) {
+      notDelivered = Number(commessa.stato) !== 3;
     }
-  
+    
     // Mostra comunque le commesse completate con note attive o attività non completate
     const shouldShow = warningActivities.length > 0 || unfinishedActivities.length > 0;
   
@@ -574,35 +582,28 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
           toast.error("La data fornita da Trello non è valida.");
           return;
         }
+    
         const commessa = commesse.find((c) => c.commessa_id === commessaId);
         if (!commessa) {
           console.error("Commessa non trovata");
           toast.error("Commessa non trovata.");
           return;
         }
+    
         await axios.put(
-          `${apiUrl}/api/commesse/${commessaId}`,
-          {
-            numero_commessa: commessa.numero_commessa,
-            tipo_macchina: commessa.tipo_macchina,
-            data_consegna: normalizedTrelloDate,
-            data_FAT: commessa.data_FAT,            
-            cliente: commessa.cliente,                
-            descrizione: commessa.descrizione,       
-            altri_particolari: commessa.altri_particolari, 
-            stato_commessa: commessa.stato_commessa 
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `${apiUrl}/api/commesse/${commessaId}/data-consegna`,
+          { data_consegna: normalizedTrelloDate },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+        
         // Aggiorna la data di consegna localmente
         setCommesse((prevCommesse) =>
           prevCommesse.map((c) =>
             c.commessa_id === commessaId ? { ...c, data_consegna: normalizedTrelloDate } : c
           )
         );
-        toast.error("Data allineata con successo.");
+    
+        toast.success("Data allineata con successo.");
       } catch (error) {
         console.error("Errore durante l'allineamento della data:", error);
         toast.error("Errore durante l'allineamento della data.");
