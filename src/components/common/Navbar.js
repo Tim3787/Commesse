@@ -155,7 +155,10 @@ const navLinks = {
       label: "Commesse",
       icon: faClipboardList,
       submenu: [
-        { to: "/visualizzazione-commesse", label: "Visualizza dettagli", icon: faClipboardList },
+        { to: "/visualizzazione-Tutte-commesse", label: "Visualizza tutte le commesse", icon: faClipboardList },
+        { to: "/visualizzazione-commesse-Produzione", label: "Visualizza commesse produzione", icon: faClipboardList },
+        { to: "/visualizzazione-commesse-R", label: "Visualizza commesse R-", icon: faClipboardList },
+        { to: "/visualizzazione-commesse-M", label: "Visualizza commesse M-", icon: faClipboardList },
         { to: "/visualizzazione-attivita", label: "Visualizza attivita", icon: faTasks },
       ],
     },

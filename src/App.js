@@ -37,7 +37,10 @@ import CalendarioAttivita from "./components/pages/05-CalendarioAttivita";
 import VisualizzazioneAttivita from "./components/pages/05-Gantt-Attivita";
 
 //Visualizza tutto
-import VisualizzazioneCommesse from "./components/pages/06-VisualizzaTutteLeCommesse";
+import VisualizzazioneCommesse from "./components/pages/06-VisualizzaCommesse";
+import VisualizzazioneCommesseProduzione from "./components/pages/06-VisualizzaCommesseProduzione";
+import VisualizzazioneCommesseR from "./components/pages/06-VisualizzaCommesseR";
+import VisualizzazioneCommesseM from "./components/pages/06-VisualizzaCommesseM";
 import VisualizzaTutteLeAttivita from "./components/pages/06-VisualizzaTutteLeAttivita";
 import StatiAvanzamento from "./components/pages/06-VisualizzaStatoAvanzamento";
 
@@ -231,7 +234,10 @@ function App() {
   // ------------------------------------------------------
   const routes = [
     { path: "/dashboard", component: <Dashboard /> },
-    { path: "/visualizzazione-commesse", component: <VisualizzazioneCommesse /> },
+    { path: "/visualizzazione-Tutte-commesse", component: <VisualizzazioneCommesse /> },
+    { path: "/visualizzazione-commesse-Produzione", component: <VisualizzazioneCommesseProduzione /> },
+    { path: "/visualizzazione-commesse-R", component: <VisualizzazioneCommesseR /> },
+    { path: "/visualizzazione-commesse-M", component: <VisualizzazioneCommesseM /> },
     { path: "/visualizzazione-attivita", component: <VisualizzazioneAttivita /> },
     { path: "/calendario-attivita", component: <CalendarioAttivita /> },
     { path: "/CalendarioCommesse", component: <CalendarioCommesse /> },
