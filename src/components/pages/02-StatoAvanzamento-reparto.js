@@ -50,24 +50,69 @@ function StatoAvanzamentoReparti() {
       RepartoName: "software",
       boardId: "606e8f6e25edb789343d0871",
       accoppiamentoStati: {
-        "in entrata": [
+         //Colonna APP
+        "in entrata": 
+         //Colonne Trello
+        [
           "S: In entrata",
           "S-Ribo in entrata",
           "S: Modifiche su macchina old",
         ],
-        analisi: ["S: Analisi", "S: Modifiche su macchina old"],
-        "sviluppo programmato": ["S: In entrata", "S: Analisi"],
-        sviluppo: ["S: Sviluppo"],
-        "pronta per collaudo": [
+        analisi: 
+         //Colonne Trello
+        [
+          "S: Analisi", "S: Modifiche su macchina old"
+        ],
+         //Colonna APP
+        "sviluppo programmato":
+        //Colonne Trello
+         [
+          "S: In entrata", "S: Analisi"
+        ],
+        sviluppo:
+        //Colonne Trello
+         [
+          "S: Sviluppo"
+        ],
+         //Colonna APP
+        "pronta per collaudo":
+        //Colonne Trello
+         [
           "S: pronto per messa in servizio",
           "S: Macchina quasi pronta per inizio collaudo (vedi data di massima inserita da Massimo)",
         ],
-        collaudo: ["S: Collaudo"],
-        "avviamento terminato": ["S: Completate"],
-        "avviamento iniziato": ["S: Completate"],
-        "collaudo terminato": ["S: Completate"],
-        "no software": ["S: Nessun lavoro software"],
+        collaudo:
+        //Colonne Trello
+         [
+          "S: Collaudo"
+        ],
+         //Colonna APP
+        "avviamento terminato": 
+        //Colonne Trello
+        [
+          "S: Completate"
+        ],
+         //Colonna APP
+        "avviamento iniziato":
+        //Colonne Trello
+         [
+          "S: Completate"
+        ],
+         //Colonna APP
+        "collaudo terminato":
+        //Colonne Trello
+         [
+          "S: Completate"
+        ],
+        //Colonna APP
+        "no software":
+        //Colonne Trello
+         [
+          "S: Nessun lavoro software",
+          "S-Ribo in entrata"
+        ],
       },
+
     },
     elettrico: {
       RepartoID: 2,
@@ -152,6 +197,8 @@ function StatoAvanzamentoReparti() {
   const [allarmiAttivitaAperte, setAllarmiAttivitaAperte] = useState(true); // Abilita allarmi per attività aperte
   const [VediConsegnate, setVediConsegnate] = useState(false); // Visualizza anche le commesse consegnate
   const [ConsegnaMensile, setConsegnaMensile] = useState(true); // Abilita allarme consegna nel mese
+  const [filterR, setFilterR] = useState(false); // Mostra R-
+  const [filterM, setFilterM] = useState(false); // Mostra M-
   const [ConsegnaSettimanale, setConsegnaSettimanale] = useState(true); // Abilita allarme consegna nella settimana
   const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per i dettagli
   const normalize = (str) => str?.trim().toLowerCase();
@@ -469,6 +516,16 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     // Mostra comunque le commesse completate con note attive o attività non completate
     const shouldShow = warningActivities.length > 0 || unfinishedActivities.length > 0;
   
+// Escludi commesse R- e M- se disabilitate e siamo nel reparto software
+if (RepartoName === "software") {
+  if (commessa.numero_commessa.startsWith("R-") && !filterR) {
+    return false;
+  }
+  if (commessa.numero_commessa.startsWith("M-") && !filterM) {
+    return false;
+  }
+}
+
     return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && (notDelivered || shouldShow);
   });
   
@@ -927,6 +984,32 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
                   Allarme consegna nella settimana
                 </label>
               </div>
+              {RepartoName === "software" && (
+  <>
+    <div className="filters-burger">
+      <label>
+        <input
+          type="checkbox"
+          checked={filterR}
+          onChange={(e) => setFilterR(e.target.checked)}
+        />
+        Visualizza commesse R-
+      </label>
+    </div>
+    <div className="filters-burger">
+      <label>
+        <input
+          type="checkbox"
+          checked={filterM}
+          onChange={(e) => setFilterM(e.target.checked)}
+        />
+        Visualizza commesse M-
+      </label>
+    </div>
+  </>
+)}
+
+
             </div>
             <div className="filters-burger">
               <h3>Azioni</h3>
