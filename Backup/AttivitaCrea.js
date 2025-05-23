@@ -22,22 +22,6 @@ function AttivitaCrea({
   const suggestionsRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
-  // Funzione helper per formattare una Date in YYYY-MM-DD senza shift di fuso
-  const formatDateOnly = (dateObj) => {
-    const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const d = String(dateObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
-
-  // Stati per le opzioni di weekend (sabati e domeniche)
-  const [weekendOptions, setWeekendOptions] = useState([]);
-
-  // Helper per normalizzare date (Date object senza orario)
-  const normalizeDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  };
 
   // Imposta "stato" a 0 di default se non è presente
   useEffect(() => {
@@ -49,50 +33,22 @@ function AttivitaCrea({
       setFormData((prevState) => ({ ...prevState, stato: 0 }));
     }
   }, [formData.stato, setFormData]);
+  
 
-  // Genera le opzioni di weekend in base a data_inizio e durata
-  useEffect(() => {
-    const { data_inizio, durata } = formData;
-    if (!data_inizio || !durata) {
-      setWeekendOptions([]);
-      return;
-    }
-    const startDate = normalizeDate(data_inizio);
-    const days = [];
-    const total = Number(durata) || 0;
-    for (let i = 0; i < total; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      const wd = d.getDay(); // 0=Dom,6=Sab
-      if (wd === 6 || wd === 0) {
-        days.push({
-          date: formatDateOnly(d),
-          dayName: wd === 6 ? "Sabato" : "Domenica",
-        });
-      }
-    }
-    setWeekendOptions(days);
-
-    // Inizializza includedWeekends se non definito
-    if (formData.includedWeekends === undefined) {
-      setFormData((prev) => ({ ...prev, includedWeekends: [] }));
-    }
-  }, [formData.data_inizio, formData.durata, setFormData]);
-
+  
+  
   // Debounce della ricerca delle commesse
   useEffect(() => {
     const timer = setTimeout(() => {
       if (commessaSearch.trim()) {
         const filteredCommesse = commesse.filter((commessa) =>
-          String(commessa.numero_commessa || "")
-            .toLowerCase()
-            .includes(commessaSearch.toLowerCase())
+          String(commessa.numero_commessa || "").toLowerCase().includes(commessaSearch.toLowerCase())
         );
         setSuggestedCommesse(filteredCommesse);
       } else {
         setSuggestedCommesse([]);
       }
-    }, 300);
+    }, 300); // Ritardo di 300ms
     return () => clearTimeout(timer);
   }, [commessaSearch, commesse]);
 
@@ -109,9 +65,7 @@ function AttivitaCrea({
 
   useEffect(() => {
     if (isEditing && formData.commessa_id) {
-      const commessa = commesse.find(
-        (c) => c.commessa_id === parseInt(formData.commessa_id, 10)
-      );
+      const commessa = commesse.find((c) => c.commessa_id === parseInt(formData.commessa_id, 10));
       if (commessa) {
         setCommessaSearch(commessa.numero_commessa);
       }
@@ -121,6 +75,7 @@ function AttivitaCrea({
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "stato") {
+      // Se l'utente seleziona l'opzione vuota, imposta comunque 1 di default
       setFormData({ ...formData, stato: value === "" ? 0 : parseInt(value, 10) });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -136,36 +91,37 @@ function AttivitaCrea({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
-
+  
     if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata) {
       toast.error("Tutti i campi sono obbligatori.");
       return;
     }
-
+  
     try {
       setLoading(true);
       const endpoint = isEditing
         ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
         : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
       const method = isEditing ? "PUT" : "POST";
-
+  
       const response = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          "Authorization": `Bearer ${sessionStorage.getItem("token")}`
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) throw new Error("Errore nella richiesta");
-
+  
       toast.success(
         isEditing
           ? "Attività aggiornata con successo!"
           : "Attività aggiunta con successo!"
       );
       reloadActivities();
+      // setShowPopup(false);
     } catch (error) {
       console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
       toast.error("Errore durante l'aggiunta o modifica dell'attività.");
@@ -173,7 +129,7 @@ function AttivitaCrea({
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="popup">
       <div className="popup-content">
@@ -229,7 +185,7 @@ function AttivitaCrea({
             >
               <option value="">Seleziona una risorsa</option>
               {risorse
-                .filter((risorsa) => risorsa.reparto_id === parseInt(formData.reparto_id, 10))
+                .filter((risorsa) => risorsa.reparto_id === parseInt(formData.reparto_id))
                 .map((risorsa) => (
                   <option key={risorsa.id} value={risorsa.id}>
                     {risorsa.nome}
@@ -245,7 +201,7 @@ function AttivitaCrea({
               value={formData.attivita_id}
               onChange={handleChange}
               required
-              className="input-field-100"
+                  className="input-field-100"
             >
               <option value="">Seleziona un'attività</option>
               {attivitaConReparto
@@ -266,7 +222,7 @@ function AttivitaCrea({
               value={formData.data_inizio}
               onChange={handleChange}
               required
-              className="input-field-100"
+                  className="input-field-100"
             />
           </div>
 
@@ -278,7 +234,7 @@ function AttivitaCrea({
               value={formData.durata}
               onChange={handleChange}
               required
-              className="input-field-100"
+                  className="input-field-100"
             />
           </div>
 
@@ -290,6 +246,7 @@ function AttivitaCrea({
               onChange={handleChange}
               className="input-field-100"
             >
+              {/* Rimuovo l'opzione vuota in modo che lo stato di default sia sempre 1 */}
               <option value="0">Non iniziata</option>
               <option value="1">Iniziata</option>
               <option value="2">Completata</option>
@@ -304,44 +261,14 @@ function AttivitaCrea({
               onChange={handleChange}
               placeholder="Inserisci una descrizione (opzionale)"
               rows="4"
-              className="input-field-100"
+                  className="input-field-100"
             />
           </div>
 
-          {/* Selezione dei weekend specifici */}
-          {weekendOptions.length > 0 && (
-            <fieldset className="weekend-selector">
-              <legend>Scegli quali giorni del weekend includere</legend>
-              {weekendOptions.map((opt) => {
-                const checked = formData.includedWeekends?.includes(opt.date);
-                return (
-                  <label key={opt.date}>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => {
-                        setFormData((fd) => {
-                          const setDates = new Set(fd.includedWeekends || []);
-                          if (e.target.checked) {
-                            setDates.add(opt.date);
-                          } else {
-                            setDates.delete(opt.date);
-                          }
-                          return { ...fd, includedWeekends: Array.from(setDates) };
-                        });
-                      }}
-                    />
-                    {opt.dayName} {opt.date}
-                  </label>
-                );
-              })}
-            </fieldset>
-          )}
-
-          <button type="submit" className="btn-100" disabled={loading}>
+          <button type="submit" className="btn-100"disabled={loading}>
             {isEditing ? "Aggiorna" : "Aggiungi"}
           </button>
-          <button type="button" className="btn-100" onClick={() => setShowPopup(false)}>
+          <button type="button"className="btn-100" onClick={() => setShowPopup(false)}>
             Annulla
           </button>
         </form>

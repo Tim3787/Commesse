@@ -59,6 +59,7 @@ function DashboardReparto() {
     durata: "",
     stato: "",
     descrizione: "",
+    includedWeekends: [],  
   });
   const [isEditing, setIsEditing] = useState(false); // Indica se si sta modificando un'attività esistente
   const [editId, setEditId] = useState(null); // ID dell'attività in modifica
@@ -306,27 +307,59 @@ useEffect(() => {
     return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
   };
 
-  // Converte una data in formato ISO locale (YYYY-MM-DD)
-  const toLocalISOString = (date) => {
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60 * 1000);
-    return localDate.toISOString().split("T")[0];
-  };
+
+// Restituisce YYYY-MM-DD puro, senza alcuno shift di fuso
+function formatDateOnly(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const d = String(dateObj.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Restituisce l'array di Date (inclusi o esclusi i weekend
+ * in base a includedWeekends) corrispondenti ai giorni
+ * contati nella durata dell'attività.
+ */
+function getActivityDates(activity) {
+  const dates = [];
+  const durata = Number(activity.durata) || 0;
+  const start  = normalizeDate(activity.data_inizio);
+  let cursor   = new Date(start);
+
+  while (dates.length < durata) {
+    const wd = cursor.getDay(); // 0=dom,6=sab
+
+    if (wd >= 1 && wd <= 5) {
+      // feriale → includi sempre
+      dates.push(new Date(cursor));
+    } else {
+      // weekend → includi solo se l'utente lo ha spuntato in AttivitaCrea
+      const iso = formatDateOnly(cursor);
+
+      if (activity.includedWeekends?.includes(iso)) {
+        dates.push(new Date(cursor));
+      }
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return dates;
+}
+
 
   // Restituisce le attività di una risorsa per un dato giorno
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const normalizedDay = normalizeDate(day);
-    return filteredActivities.filter((activity) => {
-      const startDate = normalizeDate(activity.data_inizio);
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata - 1);
-      return (
-        Number(activity.risorsa_id) === Number(resourceId) &&
-        normalizedDay >= startDate &&
-        normalizedDay <= endDate
-      );
-    });
-  };
+const getActivitiesForResourceAndDay = (resourceId, day) => {
+  const isoDay = normalizeDate(day).toISOString().split("T")[0];
+  return filteredActivities.filter(act => {
+    if (Number(act.risorsa_id) !== Number(resourceId)) return false;
+    // ricava tutte le date valide di questa attività
+    const activityDates = getActivityDates(act)
+      .map(d => d.toISOString().split("T")[0]);
+    return activityDates.includes(isoDay);
+  });
+};
  // Restituisce il numero di settimana
   const getWeekNumber = (d) => {
     // Crea una copia della data in UTC
@@ -358,6 +391,7 @@ useEffect(() => {
       stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
       descrizione: activity.descrizione_attivita || "",
       note: activity.note || "",
+      includedWeekends: activity.includedWeekends || [] 
     });
     setIsEditing(true);
     setEditId(activity.id);
@@ -378,6 +412,7 @@ useEffect(() => {
         stato: "",
         descrizione: "",
         note: "",
+        includedWeekends: [],  
       });
       setIsEditing(false);
       setShowPopup(true);
@@ -431,6 +466,7 @@ useEffect(() => {
       stato: "",
       descrizione: "",
       note: "",
+      includedWeekends: [],  
     });
     setIsEditing(false);
     setShowPopup(true);
