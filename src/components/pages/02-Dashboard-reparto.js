@@ -308,6 +308,12 @@ useEffect(() => {
   };
 
 
+  const toLocalISOString = (date) => {
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().split("T")[0];
+};
+
 // Restituisce YYYY-MM-DD puro, senza alcuno shift di fuso
 function formatDateOnly(dateObj) {
   const y = dateObj.getFullYear();
