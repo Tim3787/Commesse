@@ -36,7 +36,6 @@ function Dashboard() {
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const hasScrolledToToday = useRef(false);                          // Flag per evitare di scrollare ripetutamente
 
-  
   // ------------------------------------------------------------------
   // Funzione helper: calcola tutti i giorni del mese dato un oggetto Date
   // ------------------------------------------------------------------
@@ -49,6 +48,61 @@ function Dashboard() {
     return days;
   };
   const daysInMonth = getDaysInMonth(currentMonth);
+
+  // ------------------------------------------------------------------
+  // Helper per formattare date in YYYY-MM-DD senza shift
+  // ------------------------------------------------------------------
+  function formatDateOnly(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const d = String(dateObj.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  // ------------------------------------------------------------------
+  // Helper per normalizzare date
+  // ------------------------------------------------------------------
+  const normalizeDate = (dateObj) => {
+    return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+  };
+
+  // ------------------------------------------------------------------
+  // Calcola le date valide di un'attività includendo weekend selezionati
+  // ------------------------------------------------------------------
+  const getActivityDates = (activity) => {
+    const dates = [];
+    const start = normalizeDate(new Date(activity.data_inizio));
+    const total = Number(activity.durata) || 0;
+    let cursor = new Date(start);
+
+    while (dates.length < total) {
+      const wd = cursor.getDay(); // 0=Dom,6=Sab
+      if (wd >= 1 && wd <= 5) {
+        dates.push(new Date(cursor));
+      } else {
+        // weekend: includi solo se nel campo includedWeekends
+        const iso = formatDateOnly(cursor);
+        if (activity.includedWeekends?.includes(iso)) {
+          dates.push(new Date(cursor));
+        }
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+  };
+
+  // ------------------------------------------------------------------
+  // Funzione helper: restituisce le attività per un determinato giorno
+  // ------------------------------------------------------------------
+  const getActivitiesForDay = (day) => {
+    const isoDay = formatDateOnly(normalizeDate(day));
+    return monthlyActivities.filter((activity) => {
+      if (activity.risorsa_id !== activity.risorsa_id) return false; // placeholder risorsa check
+      return getActivityDates(activity)
+        .map((d) => formatDateOnly(d))
+        .includes(isoDay);
+    });
+  };
 
   // ------------------------------------------------------------------
   // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
@@ -67,6 +121,7 @@ function Dashboard() {
       }
     }
   }, [daysInMonth, today]);
+
 
   // ------------------------------------------------------------------
   // Effetto: Carica le attività della dashboard per il mese corrente
@@ -134,21 +189,6 @@ function Dashboard() {
     setCurrentMonth((prev) =>
       new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
     );
-  };
-
-  // ------------------------------------------------------------------
-  // Funzione helper: restituisce le attività per un determinato giorno
-  // ------------------------------------------------------------------
-  const getActivitiesForDay = (day) => {
-    const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-    return monthlyActivities.filter((activity) => {
-      const startDate = new Date(activity.data_inizio);
-      // Sposta la data d'inizio di 1 giorno indietro (logica applicativa specifica)
-      startDate.setDate(startDate.getDate() - 1);
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + activity.durata);
-      return startOfDay >= startDate && startOfDay <= endDate;
-    });
   };
 
   // ------------------------------------------------------------------

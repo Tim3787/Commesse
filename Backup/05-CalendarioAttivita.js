@@ -55,48 +55,7 @@ function CalendarioAttivita() {
   // Calcola il numero di settimane (differenza in giorni diviso per 7)
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 };
- const formatDateOnly = dateObj => {
-    const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const d = String(dateObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
 
-  const normalizeDate = date => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  };
-
-  const getActivityDates = activity => {
-    const dates = [];
-    const start = normalizeDate(new Date(activity.data_inizio));
-    const total = Number(activity.durata) || 0;
-    let cursor = new Date(start);
-    while (dates.length < total) {
-      const wd = cursor.getDay();
-      const clone = new Date(cursor.getTime());
-      if (wd >= 1 && wd <= 5) {
-        dates.push(clone);
-      } else {
-        const iso = formatDateOnly(cursor);
-        if (activity.includedWeekends?.includes(iso)) {
-          dates.push(clone);
-        }
-      }
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    return dates;
-  };
-
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const isoDay = formatDateOnly(normalizeDate(day));
-    return activities.filter((activity) => {
-      if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
-      const dates = getActivityDates(activity).map((d) => formatDateOnly(d));
-      return dates.includes(isoDay);
-    });
-  };
 
   // ------------------------------------------------------------------
   // Effetto: Fetch iniziale dei dati (attività e risorse)
@@ -162,7 +121,15 @@ function CalendarioAttivita() {
   // Funzioni Helper per Gestire le Date e le Attività
   // ------------------------------------------------------------------
   /**
+   * Normalizza una data impostando le ore a 0 (inizio della giornata)
+   */
+  const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
 
+  /**
    * Restituisce le attività per una data specifica e per una determinata risorsa.
    * Confronta la data normalizzata dell'attività (inizio e fine) con il giorno corrente.
    */
@@ -177,6 +144,28 @@ function CalendarioAttivita() {
  * @param {Date} day - Il giorno (Date object) per il quale cercare le attività.
  * @returns {Array} Un array di attività che soddisfano i criteri.
  */
+const getActivitiesForResourceAndDay = (resourceId, day) => {
+  // Normalizza il giorno passato e sottrae un giorno (86400000 ms)
+  const normalizedDay = new Date(normalizeDate(day).getTime());
+
+  return activities.filter((activity) => {
+    if (!activity.data_inizio) {
+      return false;
+    }
+    // Normalizza la data di inizio dell'attività e sottrai un giorno per correggere l'offset
+    const startDate = new Date(normalizeDate(activity.data_inizio).getTime() - 86400000); //DEBUG
+    const endDate = new Date(startDate);
+    // Se la durata non è specificata, si assume che l'attività duri 1 giorno.
+    endDate.setDate(startDate.getDate() + (activity.durata || 1) - 1);
+    
+    return (
+      Number(activity.risorsa_id) === Number(resourceId) &&
+      normalizedDay.getTime() >= startDate.getTime() &&
+      normalizedDay.getTime() <= endDate.getTime()
+    );
+  });
+};
+
 
   // ------------------------------------------------------------------
   // Gestione della Visibilità delle Sezioni per Reparto
