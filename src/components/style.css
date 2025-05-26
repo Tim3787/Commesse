@@ -804,6 +804,31 @@ background-color: #0056b3;
   background-color: #e0a800;
 }
 
+.btn-M{
+  color: rgb(255, 255, 255);
+  background-color: #0056b3;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-M:hover {
+  background-color: #497aaf;
+}
+
+.btn-R{
+  color:rgb(255, 255, 255);
+  background-color: #0056b3;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-R:hover {
+  background-color:#497aaf;
+}
+
+
 .btn-Order{
   background-color: #e0a800;
 }

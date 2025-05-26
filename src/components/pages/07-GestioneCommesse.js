@@ -271,8 +271,8 @@ function GestioneCommesse() {
   !commessa.numero_commessa.startsWith("M-") &&
   !commessa.numero_commessa.startsWith("R-") && (
     <>
-      <button onClick={() => handleCreateDerivata(commessa, "M")}>Crea M-</button>
-      <button onClick={() => handleCreateDerivata(commessa, "R")}>Crea R-</button>
+      <button className="btn btn-M" onClick={() => handleCreateDerivata(commessa, "M")}>Crea M-</button>
+      <button className="btn btn-R" onClick={() => handleCreateDerivata(commessa, "R")}>Crea R-</button>
     </>
   )
 }
