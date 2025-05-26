@@ -4,7 +4,7 @@ import logo from "../img/Animation - 1738249246846.gif";
 
 // Import del popup per la creazione/modifica della commessa
 import CommessaCrea from "../popup/CommessaCrea";
-
+import CommessaDerivataCrea from "../popup/CommessaDerivataCrea";
 // Import Toastify per le notifiche
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -37,6 +37,7 @@ function GestioneCommesse() {
   const [isEditing, setIsEditing] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [selezioniAttivita, setSelezioniAttivita] = useState({});
+  const [modalDerivata, setModalDerivata] = useState({ show: false, tipo: null, commessa: null });
 
   // Stati per il caricamento e per il pulsante di eliminazione
   const [loading, setLoading] = useState(false);
@@ -124,6 +125,9 @@ function GestioneCommesse() {
     }
   };
 
+  const handleCreateDerivata = (commessa, tipo) => {
+  setModalDerivata({ show: true, tipo, commessa });
+};
   /* ===============================
      FILTRAGGIO DEI DATI
   =============================== */
@@ -185,8 +189,8 @@ function GestioneCommesse() {
               {/* Bottone per aggiungere una nuova commessa*/}
           <button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
           Crea Nuova Commessa
-        </button>
-        </div> 
+          </button>
+          </div> 
             <div className="filters-burger">
             <h3>Filtri</h3>
             {/* Sezione Filtri: sposta qui la sezione dei filtri */}
@@ -263,7 +267,16 @@ function GestioneCommesse() {
                   >
                     {deleteLoadingId === commessa.commessa_id ? "Eliminazione..." : "Elimina"}
                   </button>
-                </td>
+{
+  !commessa.numero_commessa.startsWith("M-") &&
+  !commessa.numero_commessa.startsWith("R-") && (
+    <>
+      <button onClick={() => handleCreateDerivata(commessa, "M")}>Crea M-</button>
+      <button onClick={() => handleCreateDerivata(commessa, "R")}>Crea R-</button>
+    </>
+  )
+}
+            </td>
               </tr>
             ))}
           </tbody>
@@ -285,6 +298,18 @@ function GestioneCommesse() {
             stati_avanzamento={statiAvanzamento}
           />
         )}
+        {modalDerivata.show && (
+  <CommessaDerivataCrea
+  commessaBase={modalDerivata.commessa}
+  tipoDerivata={modalDerivata.tipo}
+  onClose={() => setModalDerivata({ show: false, tipo: null, commessa: null })}
+  fetchCommesse={loadData}
+  reparti={reparti}
+  stati_avanzamento={statiAvanzamento}
+  attivita={attivita}
+  stato_commessa={statiCommessa}
+/>
+)}
       </div>
     </div>
   );

@@ -505,28 +505,53 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
   // GESTIONE DEL DRAG & DROP
   // ========================================================
   // Gestisce il drop di un'attività in una nuova cella (nuova risorsa e/o nuovo giorno)
-  const handleActivityDrop = async (activity, newResourceId, newDate) => {
-    try {
-        const normalizedDate = normalizeDate(newDate);
-        const updatedActivity = {
-            ...activity,
-            risorsa_id: newResourceId,
-            data_inizio: toLocalISOString(normalizedDate),
-            descrizione: activity.descrizione_attivita || "",
-        };
+const handleActivityDrop = async (activity, newResourceId, newDate) => {
+  try {
+    const newStart = normalizeDate(newDate);
+    const isoDate = toLocalISOString(newStart);
+    const durata = Number(activity.durata) || 0;
+    const originalIncluded = activity.includedWeekends || [];
 
-        await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
-            updatedActivity,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+    const updatedIncludedWeekends = [];
+    let cursor = new Date(newStart);
 
-        // Dopo l'aggiornamento, ricarica l'attività dal server
-        const updatedActivities = await fetchAttivitaCommessa();
-        setActivities(updatedActivities);
-    } catch (error) {
-        console.error("Errore durante l'aggiornamento dell'attività:", error);
+    for (let i = 0; i < durata; i++) {
+      const iso = formatDateOnly(cursor);
+      const day = cursor.getDay(); // 0 = domenica, 6 = sabato
+
+      // Aggiungi solo se il giorno è sabato o domenica e presente negli originali
+      if ((day === 0 || day === 6) && originalIncluded.includes(iso)) {
+        updatedIncludedWeekends.push(iso);
+      }
+
+      cursor.setDate(cursor.getDate() + 1);
     }
+
+    // Se la nuova data è sabato o domenica, e non è già dentro, aggiungila
+    const newStartDay = newStart.getDay();
+    if ((newStartDay === 0 || newStartDay === 6) && !updatedIncludedWeekends.includes(isoDate)) {
+      updatedIncludedWeekends.push(isoDate);
+    }
+
+    const updatedActivity = {
+      ...activity,
+      risorsa_id: newResourceId,
+      data_inizio: isoDate,
+      descrizione: activity.descrizione_attivita || "",
+      includedWeekends: updatedIncludedWeekends,
+    };
+
+    await axios.put(
+      `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
+      updatedActivity,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const updatedActivities = await fetchAttivitaCommessa();
+    setActivities(updatedActivities);
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento dell'attività:", error);
+  }
 };
 
 
