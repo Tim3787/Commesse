@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
-import logo from "../img/unitech-packaging.png";
+import logo from "../img/logoBW.webp";
 
 // Import Toastify per le notifiche
 import { Zoom, ToastContainer, toast } from "react-toastify";
@@ -27,6 +27,14 @@ function LoginRegister({ onLogin }) {
     email: "",
     password: "",
   });
+
+  // Background
+  useEffect(() => {
+    document.body.classList.add("login-page-background");
+    return () => {
+      document.body.classList.remove("login-page-background");
+    };
+  }, []);
 
   // Stato per il caricamento, utile per disabilitare il pulsante e mostrare "Caricamento..."
   const [isLoading, setIsLoading] = useState(false);
@@ -139,6 +147,18 @@ function LoginRegister({ onLogin }) {
   return (
     <>
       <ToastContainer position="top-center"  transition={Zoom} autoClose={3000} hideProgressBar />
+      <div className="video-overlay"></div>
+      <video
+  className="background-video"
+  autoPlay
+  muted
+  loop
+  playsInline
+>
+  <source src="/home.mp4" type="video/mp4" />
+  Il tuo browser non supporta il video.
+</video>
+
       <div className="login-container">
         {/* Titolo del form in base al tipo */}
         <h1>

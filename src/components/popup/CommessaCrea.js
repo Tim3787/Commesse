@@ -11,6 +11,7 @@ function CommessaCrea({
   commessa,             // Oggetto commessa (usato in modalità modifica)
   onClose,              // Funzione per chiudere il popup
   isEditing,            // Booleano: true se si sta modificando, false se si sta creando
+  matchTrello,
   reparti,              // Array dei reparti
   attivita,             // Array delle attività disponibili
   selezioniAttivita,    // Stato per le attività predefinite selezionate
@@ -52,11 +53,43 @@ const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
     return date.toISOString().split("T")[0];
   };
 
+
+
+  // FStato per raparti se completata"
+  const statiFissiPerReparto = {
+  software: "Avviamento terminato",
+  elettrico: "Completate",
+  quadristi: "Consegnato",
+ 
+};
+
+const aggiornaStatiInizialiSeConsegnata = (statoId) => {
+  const statoSelezionato = stato_commessa.find(
+    (st) => st.id === Number(statoId)
+  );
+
+  if (
+    statoSelezionato &&
+    statoSelezionato.nome_stato.toLowerCase().includes("consegnat")
+  ) {
+    const nuoviStati = {};
+    reparti.forEach((rep) => {
+      const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
+      if (statoFisico) {
+        nuoviStati[rep.id] = statoFisico;
+      }
+    });
+    setDefaultStateSelections(nuoviStati);
+    setDefaultStatesVisible(true);
+  }
+};
+
+
   // useEffect per inizializzare il form:
   // - Se in modalità modifica, precompila i campi con i dati della commessa esistente.
   // - Altrimenti, imposta i valori di default.
   useEffect(() => {
-    if (isEditing && commessa) {
+      if ((isEditing || matchTrello) && commessa) {
       setFormData({
         numero_commessa: commessa.numero_commessa,
         tipo_macchina: commessa.tipo_macchina,
@@ -67,6 +100,7 @@ const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
         cliente: commessa.cliente,
         stato_commessa: parseInt(commessa.stato, 10) || 1,
       });
+aggiornaStatiInizialiSeConsegnata(commessa.stato);
 
       // Inizializza le attività già assegnate alla commessa, se presenti
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
@@ -93,19 +127,57 @@ const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
       });
       setSelezioniAttivita({});
     }
-  }, [isEditing, commessa, setSelezioniAttivita]);
+  }, [isEditing, matchTrello,commessa, setSelezioniAttivita]);
 
 // Inizializza il dropdown per gli stati per ogni reparto (modalità creazione)
 useEffect(() => {
-  if (!isEditing && Array.isArray(reparti) && reparti.length > 0) {
+  if (!isEditing && !matchTrello && Array.isArray(reparti) && reparti.length > 0) {
     const initialSelections = {};
     reparti.forEach((rep) => {
-      // Per default, impostiamo "In Entrata"
       initialSelections[rep.id] = "In Entrata";
     });
     setDefaultStateSelections(initialSelections);
   }
-}, [isEditing, reparti]);
+}, [isEditing, matchTrello, reparti]);
+
+ // useEffect per commessa completata:
+useEffect(() => {
+  if (
+    stato_commessa.length > 0 &&
+    formData.stato_commessa
+  ) {
+    const statoSelezionato = stato_commessa.find(
+      (st) => st.id === Number(formData.stato_commessa)
+    );
+
+    if (
+      statoSelezionato &&
+      statoSelezionato.nome_stato.toLowerCase().includes("consegnat")
+    ) {
+      const nuoviStati = {};
+      reparti.forEach((rep) => {
+        const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
+        if (statoFisico) {
+          nuoviStati[rep.id] = statoFisico;
+        }
+      });
+      setDefaultStateSelections(nuoviStati);
+      setDefaultStatesVisible(true);
+    }
+  }
+}, [
+  formData.stato_commessa,
+  stato_commessa,
+  reparti,
+]);
+
+useEffect(() => {
+  if (stato_commessa.length > 0 && formData.stato_commessa) {
+    aggiornaStatiInizialiSeConsegnata(formData.stato_commessa);
+  }
+}, [formData.stato_commessa, stato_commessa, reparti]);
+
+
 
   // Gestione dell'invio del form
   const handleSubmit = async (e) => {
@@ -212,9 +284,6 @@ useEffect(() => {
         }
       });
 
-
-
-      console.log("Payload inviato:", payload);
       if (attivitaDaAggiungere.length > 0) {
         await axios.post(
           `${process.env.REACT_APP_API_URL}/api/commesse/assegna-attivita-predefinite`,

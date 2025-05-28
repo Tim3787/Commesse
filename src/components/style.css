@@ -444,32 +444,64 @@ select[multiple] option:checked {
     /* ==============================
      Login
      ============================== */
+     
+body.login-page-background {
+  background: transparent;
+  min-height: 100vh;
+}
+.video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(3, 3, 3, 0.3);
+
+}
+     .background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  
+}
 .login-container {
+   position: relative;
   max-width: 400px;
   margin: auto;
   margin-top: 50px;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 25px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  background-color:rgb(3 7 18/0.95) 
 }
 .login-container button {
   display: block; /* Imposta i pulsanti come blocchi per evitare sovrapposizioni */
   width: 100%; /* Rende i pulsanti uniformi */
   margin-top: 10px; /* Spazio tra i pulsanti */
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px; /* completamente arrotondato */
+  background-image: linear-gradient(to right, #094785, #0D5FA4, #1168B4);
+  color: #ffffff;
+  padding: 0.75rem 2rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
   border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .login-container button:hover {
-  background-color: #0056b3;
+filter: brightness(1.1);
 }
 
 .login-container .error {
@@ -481,6 +513,18 @@ select[multiple] option:checked {
   color: green;
   margin-top: 10px;
 }
+
+.login-container h1{
+  color: rgb(209 213 219);
+
+}
+.login-container label{
+  color: rgb(209 213 219);
+
+}
+
+
+
     /* ==============================
      pop up
      ============================== */

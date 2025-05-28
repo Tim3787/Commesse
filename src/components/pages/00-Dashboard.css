@@ -78,7 +78,10 @@
     color: #aaa;
     border: 1px dashed #ccc;
   }
-
+  .dropzone{
+    height: 100vh;         /* Imposta l'altezza desiderata */
+ background-color: #eceaea; 
+  }
 .fat {
   background-color: #fff0f0; /* Rosa chiaro per i FAT */
   border: 1px solid #cc0000;

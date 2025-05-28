@@ -1,0 +1,37 @@
+.scroll-zone {
+  position: absolute;
+  pointer-events: none;
+  z-index: 9999; /* molto alto */
+}
+
+.top-zone {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 300px;
+  background-color: rgba(255, 0, 0, 0.4); /* rosso visibile */
+}
+
+.bottom-zone {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-color: rgba(0, 255, 0, 0.4); /* verde visibile */
+}
+
+.left-zone {
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100px;
+  background-color: rgba(0, 0, 255, 0.4); /* blu visibile */
+}
+
+.right-zone {
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100px;
+  background-color: rgba(255, 255, 0, 0.4); /* giallo visibile */
+}

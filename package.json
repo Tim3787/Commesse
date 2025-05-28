@@ -30,7 +30,6 @@
     "react-burger-menu": "^3.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
-    "react-dnd-scrollzone": "^5.0.0",
     "react-dom": "^18.3.1",
     "react-pro-sidebar": "^1.1.0",
     "react-router-dom": "^7.1.1",

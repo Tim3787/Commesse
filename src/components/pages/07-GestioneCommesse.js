@@ -288,6 +288,7 @@ function GestioneCommesse() {
             commessa={selectedCommessa}
             onClose={handleClosePopup}
             isEditing={isEditing}
+            matchTrello={false}
             reparti={reparti}
             attivita={attivita}
             selezioniAttivita={selezioniAttivita}

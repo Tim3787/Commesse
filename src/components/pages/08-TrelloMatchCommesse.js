@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { getBoardCards } from "../services/API/trello-api";
 import axios from "axios";
 import CommessaCrea from "../popup/CommessaCrea";
 import logo from "../img/Animation - 1738249246846.gif";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { fetchCommesse } from "../services/API/commesse-api";
+import { fetchReparti } from "../services/API/reparti-api";
+import { fetchAttivita } from "../services/API/attivita-api";
+import { fetchStatiCommessa } from "../services/API/statoCommessa-api";
+import { fetchStatiAvanzamento } from "../services/API/StatiAvanzamento-api";
 
 const MatchCommesse = () => {
   const [cards, setCards] = useState([]);
@@ -14,10 +19,15 @@ const MatchCommesse = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
   const [filterCommessa, setFilterCommessa] = useState(""); // Stato per il filtro delle commesse
-  const [stati, setStati] = useState([]);
+  const [setStati] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const boardIds = { software: "606e8f6e25edb789343d0871" };
   const today = new Date(); // Data di oggi
+  const [cardsIgnorate, setCardsIgnorate] = useState([]);
+  const [reparti, setReparti] = useState([]);
+  const [attivita, setAttivita] = useState([]);
+const [statiCommessa, setStatiCommessa] = useState([]);
+const [statiAvanzamento, setStatiAvanzamento] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,33 +63,75 @@ const MatchCommesse = () => {
     fetchData();
   }, [selectedReparto]);
   
+ useEffect(() => {
+    loadData();
+  }, []);
 
-  const extractCommessaNumber = (trelloName) => {
-    const match = trelloName.match(/^\d{5}/);
-    return match ? match[0] : null;
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Esecuzione parallela delle chiamate API
+      const [commesseData, repartiData, attivitaData, statiData, statiAvanzamentoData] = await Promise.all([
+        fetchCommesse(),
+        fetchReparti(),
+        fetchAttivita(),
+        fetchStatiCommessa(),
+        fetchStatiAvanzamento(),
+      ]);
+      setCommesse(commesseData);
+      setReparti(repartiData);
+      setAttivita(attivitaData);
+      setStatiCommessa(statiData);
+      setStatiAvanzamento(statiAvanzamentoData);
+    } catch (error) {
+      console.error("Errore durante il caricamento dei dati:", error);
+      toast.error("Errore durante il caricamento dei dati.");
+    } finally {
+      setLoading(false);
+    }
+  };
+const extractCommessaData = (trelloName) => {
+  const numeroMatch = trelloName.match(/([A-Z]-)?\d{4,8}(\s*[-–]\s*\d{1,2})?/);
+  const numero_commessa = numeroMatch
+    ? numeroMatch[0].replace(/\s*/g, "").toUpperCase()
+    : null;
+
+  const parts = trelloName.split(" - ").map((p) => p.trim());
+
+  const numeroIndex = parts.findIndex((p) =>
+    numero_commessa ? p.replace(/\s*/g, "").toUpperCase().startsWith(numero_commessa) : false
+  );
+
+  const cliente = parts[numeroIndex + 1] || "";
+  const tipo_macchina = parts.slice(numeroIndex + 2).join(" - ");
+
+  return {
+    numero_commessa,
+    cliente,
+    tipo_macchina,
+  };
+};
+
+
+
+
+const handleOpenPopup = (card) => {
+  const { numero_commessa, cliente, tipo_macchina } = extractCommessaData(card.name);
+
+  const commessaData = {
+    numero_commessa,
+    cliente,
+    tipo_macchina,
+    data_consegna: card.due
+      ? new Date(card.due).toISOString().split("T")[0]
+      : null,
+    note: card.desc || "",
   };
 
-  const extractClienteName = (trelloName) => {
-    const match = trelloName.match(/^\d{5}\s*(.*)/);
-    return match ? match[1].trim() : "";
-  };
+  setSelectedCommessa(commessaData);
+  setShowPopup(true);
+};
 
-  const handleOpenPopup = (card) => {
-    const numeroCommessa = extractCommessaNumber(card.name);
-    const clienteName = extractClienteName(card.name);
-
-    const commessaData = {
-      numero_commessa: numeroCommessa,
-      cliente: clienteName,
-      data_consegna: card.due
-        ? new Date(card.due).toISOString().split("T")[0]
-        : null,
-      note: card.desc || "",
-    };
-
-    setSelectedCommessa(commessaData);
-    setShowPopup(true);
-  };
 
   const handleClosePopup = () => {
     setShowPopup(false);
@@ -87,13 +139,39 @@ const MatchCommesse = () => {
   };
 
   // Filtro per commessa
-  const filteredCards = cards.filter((card) => {
-    const trelloNumero = extractCommessaNumber(card.name);
-    const matchesFilter = !filterCommessa || card.name.includes(filterCommessa);
-    return (
-      !commesse.find((c) => c.numero_commessa === trelloNumero) && matchesFilter
+const { filteredCards, ignorateCards } = useMemo(() => {
+  const filtered = [];
+  const ignorate = [];
+
+  cards.forEach((card) => {
+    const { numero_commessa } = extractCommessaData(card.name);
+    
+
+    if (!numero_commessa) {
+      ignorate.push(card);
+      return;
+    }
+
+    const existsInDb = commesse.find(
+      (c) =>
+        String(c.numero_commessa).trim().toUpperCase() ===
+        String(numero_commessa).trim().toUpperCase()
     );
+
+    if (!existsInDb) {
+      filtered.push(card);
+    }
   });
+
+  return { filteredCards: filtered, ignorateCards: ignorate };
+}, [cards, commesse, filterCommessa]);
+
+useEffect(() => {
+  setCardsIgnorate(ignorateCards);
+}, [ignorateCards]);
+
+
+
 
   // Separare le commesse in base alla data di consegna
   const pastOrTodayCards = filteredCards.filter((card) => {
@@ -170,6 +248,24 @@ const MatchCommesse = () => {
             </div>
           ))}
         </div>
+{cardsIgnorate.length > 0 && (
+  <div style={{ marginTop: "30px" }}>
+    <h2 style={{ color: "red" }}>⚠️ Commesse escluse (numero non estratto)</h2>
+    {cardsIgnorate.map((card) => (
+      <div
+        key={card.id}
+        style={{
+          padding: "15px",
+          border: "1px dashed red",
+          marginBottom: "10px",
+          background: "#ffeaea",
+        }}
+      >
+        <p><strong>{card.name}</strong></p>
+      </div>
+    ))}
+  </div>
+)}
 
         
       </div>
@@ -178,13 +274,15 @@ const MatchCommesse = () => {
         <CommessaCrea
           commessa={selectedCommessa}
           onClose={handleClosePopup}
-          isEditing={true}
-          reparti={[]} // Puoi passare i reparti, se necessari
-          attivita={[]} // Puoi passare le attività, se necessarie
+          isEditing={false}
+          matchTrello={true}
+            reparti={reparti}
+            attivita={attivita}
           selezioniAttivita={{}}
           setSelezioniAttivita={() => {}}
           fetchCommesse={() => {}}
-          stato={stati} // 
+          stato_commessa={statiCommessa}
+          stati_avanzamento={statiAvanzamento}
         />
       )}
     </div>

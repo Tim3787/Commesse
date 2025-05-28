@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -75,6 +75,14 @@ const handleDurationChange = (attivitaId, value) => {
     return date.toISOString().split("T")[0];
   };
 
+  // FStato per raparti se completata"
+  const statiFissiPerReparto = {
+  software: "Avviamento terminato",
+  elettrico: "Completate",
+  quadristi: "Consegnato",
+ 
+};
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -82,6 +90,7 @@ const handleDurationChange = (attivitaId, value) => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
 
 
 
@@ -190,6 +199,39 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+
+useEffect(() => {
+  if (Array.isArray(reparti) && reparti.length > 0) {
+    const initialSelections = {};
+    reparti.forEach((rep) => {
+      initialSelections[rep.id] = "In Entrata";
+    });
+    setDefaultStateSelections(initialSelections);
+  }
+}, [ reparti]);
+
+useEffect(() => {
+  if (stato_commessa.length > 0 && formData.stato_commessa) {
+    const statoSelezionato = stato_commessa.find(
+      (st) => st.id === Number(formData.stato_commessa)
+    );
+
+    if (
+      statoSelezionato &&
+      statoSelezionato.nome_stato.toLowerCase().includes("consegnat")
+    ) {
+      const nuoviStati = {};
+      reparti.forEach((rep) => {
+        const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
+        if (statoFisico) {
+          nuoviStati[rep.id] = statoFisico;
+        }
+      });
+      setDefaultStateSelections(nuoviStati);
+      setDefaultStatesVisible(true); // apri visivamente la sezione
+    }
+  }
+}, [formData.stato_commessa, stato_commessa, reparti]);
 
   return (
     <div className="popup">
