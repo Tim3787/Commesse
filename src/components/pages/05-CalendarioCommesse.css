@@ -3,35 +3,32 @@
   overflow-x: auto;
   max-height: 92vh;
   border: 1px solid #ddd;
-  background-color: #f9f9f9;
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.Comm-schedule {
+.Comm-calendar {
   width: 100%;
   border-collapse: collapse;
 }
 
-.Comm-schedule th {
+.Comm-calendar  th {
   padding: 10px;
-  background-color: #007bff;
   color: white;
   text-align: center;
 }
 
-.Comm-schedule td {
+.Comm-calendar  td {
   border: 1px solid #ddd;
   padding: 15px;
   vertical-align: top;
-  background-color: #fff;
   position: relative;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.Comm-schedule td:hover {
-  background-color: #e9f7fd;
+.Comm-calendar  td:hover {
+  background-color: #0b3d52;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -54,11 +51,6 @@
   transform: translateY(-3px);
 }
 
-.Comm-event.fat {
-  background-color: #ffcc00;
-  color: #333;
-}
-
 .Comm-event.scadenza {
   background-color: #007bff;
   color: white;
@@ -69,7 +61,7 @@
 }
 
 .Comm-today-cell {
-  background-color: #baf2fc;
+  background-color: #01c3f3;;
   border: 2px solid #000000;
   box-shadow: 0px 2px 8px rgba(0, 123, 255, 0.3);
 }
@@ -106,8 +98,8 @@
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-  .Comm-schedule th,
-  .Comm-schedule td {
+  .Comm-calendar  th,
+  .Comm-calendar  td {
     font-size: 12px;
     padding: 8px;
   }

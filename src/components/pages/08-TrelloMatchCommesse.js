@@ -18,8 +18,6 @@ const MatchCommesse = () => {
   const [selectedReparto, setSelectedReparto] = useState("software");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
-  const [filterCommessa, setFilterCommessa] = useState(""); // Stato per il filtro delle commesse
-  const [setStati] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const boardIds = { software: "606e8f6e25edb789343d0871" };
   const today = new Date(); // Data di oggi
@@ -34,7 +32,7 @@ const [statiAvanzamento, setStatiAvanzamento] = useState([]);
       try {
         setLoading(true);
         const boardId = boardIds[selectedReparto];
-        const [boardCards, statoResponse] = await Promise.all([
+        const [boardCards] = await Promise.all([
           getBoardCards(boardId),
           axios.get(`${apiUrl}/api/stato-commessa`), // Recupera i dati degli stati
         ]);
@@ -51,7 +49,6 @@ const [statiAvanzamento, setStatiAvanzamento] = useState([]);
               : commessa.stati_avanzamento,
         }));
         setCommesse(parsedCommesse);
-        setStati(statoResponse.data); // Imposta gli stati
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
          toast.error("Errore durante il recupero dei dati:", error);
@@ -164,7 +161,7 @@ const { filteredCards, ignorateCards } = useMemo(() => {
   });
 
   return { filteredCards: filtered, ignorateCards: ignorate };
-}, [cards, commesse, filterCommessa]);
+}, [cards, commesse]);
 
 useEffect(() => {
   setCardsIgnorate(ignorateCards);
@@ -194,21 +191,11 @@ useEffect(() => {
       <div className="header">
         <h1>Commesse esistenti solo su Trello</h1>
          <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-        <div style={{ marginBottom: "20px" }}>
-          <label htmlFor="filterCommessa" style={{ marginRight: "10px" }}>
-            Filtra per commessa:
-          </label>
-          <input
-            id="filterCommessa"
-            type="text"
-            value={filterCommessa}
-            onChange={(e) => setFilterCommessa(e.target.value)}
-            placeholder="Inserisci numero commessa"
-          />
-        </div>
       </div>
       <div className="commessa-container">
-      <div>
+        
+      {futureCards.length > 0 && (
+  <div>
           <h2>Commesse con data di consegna futura</h2>
           {futureCards.map((card) => (
             <div
@@ -228,6 +215,8 @@ useEffect(() => {
             </div>
           ))}
         </div>
+        )}
+        {pastOrTodayCards.length > 0 && (
         <div>
           <h2>Commesse con data di consegna fino a oggi</h2>
           {pastOrTodayCards.map((card) => (
@@ -248,6 +237,7 @@ useEffect(() => {
             </div>
           ))}
         </div>
+        )}
 {cardsIgnorate.length > 0 && (
   <div style={{ marginTop: "30px" }}>
     <h2 style={{ color: "red" }}>⚠️ Commesse escluse (numero non estratto)</h2>
@@ -258,7 +248,7 @@ useEffect(() => {
           padding: "15px",
           border: "1px dashed red",
           marginBottom: "10px",
-          background: "#ffeaea",
+     
         }}
       >
         <p><strong>{card.name}</strong></p>

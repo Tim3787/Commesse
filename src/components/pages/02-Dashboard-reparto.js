@@ -24,7 +24,7 @@ import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../services/API/a
 
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash,faChevronLeft, faChevronRight  } from "@fortawesome/free-solid-svg-icons";
 
 
 // ============================
@@ -68,6 +68,9 @@ function DashboardReparto() {
   const containerRef = useRef(null); // Riferimento al contenitore della tabella
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
   const daysInMonth = getDaysInMonth(currentMonth); // Array dei giorni del mese corrente
+  const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
   const [filters, setFilters] = useState({
     commessa: "",
     risorsa: "",
@@ -763,18 +766,17 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       {/* HEADER */}
       <div className="header">
         <h1>Bacheca Reparto {RepartoName}</h1>
-        <div className="month-navigation">
-          <button className="burger-icon" onClick={toggleBurgerMenu}>
-            Filtri e opzioni
-          </button>
+        <div className="calendar-navigation">
+
           <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese
+            <FontAwesomeIcon icon={faChevronLeft} /> Mese
           </button>
           <button onClick={scrollToToday} className="btn-Nav">
             OGGI
           </button>
+         <div className="month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese →
+            Mese <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
@@ -784,7 +786,12 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           </div>
         )}
       </div>
-
+                   {/* Bottone per aprire/chiudere il menu */}
+            <div className="Commesse-completate" >
+        <button onClick={toggleBurgerMenu} className="burger-icon">
+          Filtri ed Opzioni
+        </button>
+        </div>
       {/* BURGER MENU (Filtri e Opzioni) */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">

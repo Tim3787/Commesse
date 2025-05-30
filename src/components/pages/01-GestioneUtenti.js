@@ -151,8 +151,8 @@ function GestioneUtenti() {
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
 
       {/* Tabella degli utenti */}
-      <table className="table table-striped table-hover">
-        <thead className="table-dark">
+      <table className="Commesse-table-container">
+        <thead >
           <tr>
             <th>ID</th>
             <th>Username</th>

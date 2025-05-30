@@ -5,7 +5,9 @@ import CommessaDettagli from "../popup/CommessaDettagli";
 
 // Import API per le varie entità
 import { fetchCommesse } from "../services/API/commesse-api";
-
+// Import icone FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -49,17 +51,6 @@ function CalendarioCommesse() {
   };
 
   /**
-   * Restituisce il nome del mese e l'anno correnti.
-   */
-  const getMonthName = () => {
-    const monthNames = [
-      "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-      "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
-    ];
-    return `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
-  };
-
-  /**
    * Organizza i giorni del mese in settimane. Aggiunge celle vuote all'inizio e alla fine
    * per completare la settimana.
    */
@@ -89,9 +80,12 @@ function CalendarioCommesse() {
       return [...emptyCellsStart, ...week, ...emptyCellsEnd];
     });
   };
-
+  const daysInMonth = getDaysInMonth(currentMonth);
   const weeksInMonth = getWeeksInMonth();
-
+  const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
+  
   /**
    * Normalizza una data impostando le ore a zero.
    */
@@ -250,30 +244,30 @@ function CalendarioCommesse() {
   // Rendering Principale
   // ------------------------------------------------------------------
   return (
-    <div>
-      <div className="container-Scroll">
-        <h1>Calendario Commesse</h1>
+   <div className="page-wrapper">
+      {/* HEADER */}
+      <div className="header">
+        <h1>Calendario commesse e FAT </h1>
+        <div className="calendar-navigation">
+
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            <FontAwesomeIcon icon={faChevronLeft} /> Mese
+          </button>
+         <div className="month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-
-        {/* Navigazione tra i mesi */}
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese →
-          </button>
-          <span className="current-month">{getMonthName()}</span>
-        </div>
-
+      </div>
         {/* Container scrollabile per il calendario */}
         <div ref={containerRef} className="Comm-table-container">
-          <table className="Comm-schedule">
+          <table className="Comm-calendar ">
             <thead>
               <tr>
                 <th>Domenica</th>
@@ -303,7 +297,6 @@ function CalendarioCommesse() {
           )}
         </div>
       </div>
-    </div>
   );
 }
 

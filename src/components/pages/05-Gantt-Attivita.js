@@ -9,7 +9,9 @@ import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+// Import icone FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight  } from "@fortawesome/free-solid-svg-icons";
 /**
  * Componente VisualizzaAttivita
  * 
@@ -25,7 +27,8 @@ function VisualizzaAttivita() {
   const [activities, setActivities] = useState([]);               // Attività (filtrate) da visualizzare
   const [loading, setLoading] = useState(false);                    // Stato di caricamento
   const [numeroCommessa, setNumeroCommessa] = useState("");         // Numero di commessa inserito per la ricerca
-  const [suggestions, setSuggestions] = useState([]);               // Suggerimenti (lista delle commesse)
+const [suggestions, setSuggestions] = useState([]);       // Tutte le commesse
+const [showSuggestions, setShowSuggestions] = useState(false);  // Mostra/nascondi la lista
   const suggestionsRef = useRef(null);                              // Ref per il box dei suggerimenti
   const todayRef = useRef(null);                                    // Ref per la cella del giorno corrente (usata per lo scroll)
   const hasScrolledToToday = useRef(false);                         // Flag per evitare scroll multipli
@@ -92,17 +95,9 @@ function VisualizzaAttivita() {
   };
 
   const daysInMonth = getDaysInMonth();
-
-  /**
-   * Restituisce il nome del mese e l'anno correnti, ad esempio "Marzo 2025".
-   */
-  const getMonthName = () => {
-    const monthNames = [
-      "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-      "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
-    ];
-    return `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
-  };
+  const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
 
   /**
    * Normalizza una data impostando le ore a mezzanotte (0:00:00.000).
@@ -161,16 +156,15 @@ function VisualizzaAttivita() {
   }, []);
 
   // Effetto: Chiude il box dei suggerimenti se si clicca fuori dal contenitore
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
-        setSuggestions([]);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
+      setShowSuggestions(false); // invece di svuotare la lista
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
 
   // ------------------------------------------------------------------
   // Funzioni di Ricerca e Navigazione
@@ -325,57 +319,71 @@ function VisualizzaAttivita() {
   // Rendering Principale del Componente
   // ------------------------------------------------------------------
   return (
-    <div>
-      <div className="container-Scroll">
-        <h1>Bacheca Attività</h1>
+    <div className="page-wrapper">
+      {/* HEADER */}
+      <div className="header">
+        <h1>VISUALIZZA LE ATTIVITA' DI</h1>
+                <div className="calendar-navigation">
+
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            <FontAwesomeIcon icon={faChevronLeft} /> Mese
+          </button>
+         <div className="month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
+          <h1>SCEGLI UNA COMMESSA</h1>
+             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                  <input
+            type="text"
+            value={numeroCommessa}
+            onChange={(e) => {
+  setNumeroCommessa(e.target.value);
+  setShowSuggestions(true);
+}}
+            placeholder="Inserisci numero commessa"
+            className="input-field"
+          />
+          {/* Se ci sono suggerimenti, mostra il box dei suggerimenti */}
+{numeroCommessa && filteredSuggestions.length > 0 && showSuggestions && (
+  <ul className="suggestions-list2" ref={suggestionsRef}>
+    {filteredSuggestions.map((suggestion, index) => (
+      <li
+        key={index}
+        onClick={() => {
+          setNumeroCommessa(suggestion.numero_commessa.toString());
+          setShowSuggestions(false);
+          handleSearchCommessa();
+        }}
+      >
+        {suggestion.numero_commessa} - {suggestion.cliente || "-"}
+      </li>
+    ))}
+  </ul>
+)}
+</div>
+   <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA'</h1>
+          {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+  <button onClick={handleResetSearch} className="btn-Nav">
+    Visualizza tutto
+  </button>
+</div>
+
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-        <div className="calendar-navigation">
-          {/* Campo di ricerca per il numero di commessa */}
-          <input
-            type="text"
-            value={numeroCommessa}
-            onChange={(e) => setNumeroCommessa(e.target.value)}
-            placeholder="Inserisci numero commessa"
-            className="input-field"
-          />
-          {/* Se ci sono suggerimenti, mostra il box dei suggerimenti */}
-          {numeroCommessa && filteredSuggestions.length > 0 && (
-            <ul className="suggestions-list2" ref={suggestionsRef}>
-              {filteredSuggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  onClick={() => {
-                    // Imposta il numero di commessa dal suggerimento e avvia automaticamente la ricerca
-                    setNumeroCommessa(suggestion.numero_commessa.toString());
-                    handleSearchCommessa();
-                  }}
-                >
-                  {suggestion.numero_commessa} - {suggestion.cliente || "-"}
-                </li>
-              ))}
-            </ul>
-          )}
-          {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
-          <button onClick={handleResetSearch} className="btn-reset-search">
-            Visualizza tutto
-          </button>
-          {/* Pulsanti per navigare tra i mesi */}
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            ← Mese
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese →
-          </button>
-          <span className="current-month">{getMonthName()}</span>
-        </div>
+      </div>
+
+
+
         <div className="Gen-table-container">{renderCalendar()}</div>
       </div>
-    </div>
+
   );
 }
 

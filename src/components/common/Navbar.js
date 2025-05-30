@@ -152,77 +152,81 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 const navLinks = {
   user: [
     {
-      label: "Commesse",
+      label: "COMMESSE",
       icon: faClipboardList,
       submenu: [
-        { to: "/visualizzazione-Tutte-commesse", label: "Visualizza tutte le commesse", icon: faClipboardList },
-        { to: "/visualizzazione-commesse-Produzione", label: "Visualizza commesse produzione", icon: faClipboardList },
-        { to: "/visualizzazione-commesse-R", label: "Visualizza commesse R-", icon: faClipboardList },
-        { to: "/visualizzazione-commesse-M", label: "Visualizza commesse M-", icon: faClipboardList },
-        { to: "/visualizzazione-attivita", label: "Visualizza attivita", icon: faTasks },
+     
+        { to: "/visualizzazione-commesse-Produzione", label: "PRODUZIONE", icon: faClipboardList },
+        { to: "/visualizzazione-commesse-R", label: "R-", icon: faClipboardList },
+        { to: "/visualizzazione-commesse-M", label: "M-", icon: faClipboardList },
+        { to: "/visualizzazione-Tutte-commesse", label: "TUTTE", icon: faClipboardList },
       ],
     },
     {
-      label: "Calendari",
+      label: "CALENDARI",
       icon: faCalendarAlt,
       submenu: [
-        { to: "/calendario-attivita", label: "Calendario delle attività", icon: faCalendarAlt },
-        { to: "/CalendarioCommesse", label: "Calendario consegne e FAT commesse", icon: faCalendarAlt },
+        { to: "/calendario-attivita", label: "CALENDARIO ATTIVITA'", icon: faCalendarAlt },
+        { to: "/CalendarioCommesse", label: "CALENDARIO CONSEGNE E FAT", icon: faCalendarAlt },
       ],
     },
-    { to: "/Notifications", label: "Storico notifiche", icon: faBell },
-    { to: "/Dashboard", label: "Bacheca personale", icon: faUser },
-    { to: "/PrenotazioneSale", label: "Prenotazione sale riunioni", icon: faBusinessTime },
+    { to: "/visualizzazione-attivita", label: "ATTIVITA'", icon: faTasks },
+    { to: "/Notifications", label: "NOTIFICHE", icon: faBell },
+    { to: "/Dashboard", label: "BACHECA", icon: faUser },
+    { to: "/PrenotazioneSale", label: "PRENOTAZIONE SALE RIUNIONI", icon: faBusinessTime },
   ],
   manager: [
     {
-      label: "Rep. Software",
+      label: "REP.SOFTWARE",
       icon: faScrewdriverWrench,
       links: [
-        { to: "/StatoAvanzamento/software", label: "Stato avanzamento", icon: faChartBar },
-        { to: "/Dashboard/software", label: "Attività", icon: faTasks },
-        { to: "/TrelloBoardSoftware", label: "Bacheca Trello", icon: faClipboardList },
+        { to: "/StatoAvanzamento/software", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/software", label: "ATTIVITA'", icon: faTasks },
+        { to: "/TrelloBoardSoftware", label: "TRELLO", icon: faClipboardList },
       ],
     },
     {
-      label: "Rep. Elettrico",
+      label: "REP.ELETTRICO",
       icon: faScrewdriverWrench,
       links: [
-        { to: "/StatoAvanzamento/elettrico", label: "Stato avanzamento", icon: faChartBar },
-        { to: "/Dashboard/elettrico", label: "Attività", icon: faTasks },
-        { to: "/TrelloBoardElettrico", label: "Bacheca Trello", icon: faClipboardList },
+        { to: "/StatoAvanzamento/elettrico", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/elettrico", label: "ATTIVITA'", icon: faTasks },
+        { to: "/TrelloBoardElettrico", label: "TRELLO", icon: faClipboardList },
       ],
     },
     {
-      label: "Rep. QE",
+      label: "REP.QE",
       icon: faScrewdriverWrench,
       links: [
-        { to: "/StatoAvanzamento/quadristi", label: "Stato avanzamento", icon: faChartBar },
-        { to: "/Dashboard/quadristi", label: "Attività", icon: faTasks },
+        { to: "/StatoAvanzamento/quadristi", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/quadristi", label: "ATTIVITA'", icon: faTasks },
       ],
     },
     {
-      label: "Rep. Service",
+      label: "REP.SERVICE",
       icon: faScrewdriverWrench,
-      links: [{ to: "/Dashboard/service", label: "Attività", icon: faTools }],
+      links: [
+         { to: "/StatoAvanzamento/service", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/service", label: "ATTIVITA'", icon: faTools }
+      ],
     },
     {
-      label: "Gestione commesse",
+      label: "GESTIONE COMMESSE",
       icon: faCalendarAlt,
       links: [
-        { to: "/gestione-commesse", label: "Crea o modifica commessa", icon: faProjectDiagram },
-        { to: "/commesse-dettagli", label: "Gestisci componenti", icon: faProjectDiagram },
-        { to: "/Assegna-Machina-Componenti", label: "Assegnazione macchine e componenti", icon: faProjectDiagram },
+        { to: "/gestione-commesse", label: "CREA O MODIFICA COMMESSE", icon: faProjectDiagram },
+        { to: "/commesse-dettagli", label: "GESTISCI COMPONENTI", icon: faProjectDiagram },
+        { to: "/Assegna-Machina-Componenti", label: "ASSEGNAZIONE MACCHINE E COMPONENTI", icon: faProjectDiagram },
     
       ],
     },
-    { to: "/VisualizzaTutteLeAttivita", label: "Tutte le attività", icon: faListCheck },
-    { to: "/StatiAvanzamento", label: "Tutti gli stati avanzamento", icon: faChartBar },
+    { to: "/VisualizzaTutteLeAttivita", label: "TUTTE LE ATTIVITA'", icon: faListCheck },
+    { to: "/StatiAvanzamento", label: "TUTTI GLI STATI AVANZAMENTO", icon: faChartBar },
   ],
   admin: [
-    { to: "/utenti", label: "Gestione utenti", icon: faUsers },
-    { to: "/GestioneTabelle", label: "Gestione tabelle", icon: faClipboardList },
-    { to: "/MatchCommesse", label: "Commesse trello", icon: faClipboardList },
+    { to: "/utenti", label: "GESTIONE UTENTI", icon: faUsers },
+    { to: "/GestioneTabelle", label: "GESTIONE TABELLE", icon: faClipboardList },
+    { to: "/MatchCommesse", label: "COMMESSE TRELLO", icon: faClipboardList },
   ],
 };
 
@@ -303,7 +307,7 @@ const navLinks = {
                   handleLogout();
                 }}
               >
-                <FontAwesomeIcon icon={faRightFromBracket} className="menu-icon" /> Logout
+                <FontAwesomeIcon icon={faRightFromBracket} className="menu-icon" /> LOGOUT
               </a>
             </li>
           </>
@@ -418,20 +422,30 @@ const navLinks = {
     setIsSearchOpen(false);
   };
 
-  const handleSearchInputChange = (e) => {
-    const value = e.target.value.toLowerCase().trim();
-    setSearchValue(value);
-  
-    if (value !== "") {
-      const suggestionsFiltered = commesseList.filter((c) =>
-        c.numero_commessa.toString().includes(value) || // Cerca per numero commessa
-        c.cliente.toLowerCase().includes(value) // Cerca per nome cliente
-      );
-      setSearchSuggestions(suggestionsFiltered);
-    } else {
-      setSearchSuggestions([]);
-    }
-  };
+const handleSearchInputChange = (e) => {
+  const value = e.target.value.trim(); // Niente .toLowerCase, perché lavoriamo con numeri
+  setSearchValue(value);
+
+  if (value !== "") {
+    const suggestionsFiltered = commesseList.filter((c) => {
+      const numeroOriginale = c.numero_commessa?.toString() || "";
+      const cliente = c.cliente?.toLowerCase() || "";
+
+      // Rimuove il prefisso e prende la prima parte numerica
+      const numeroPulito = numeroOriginale.replace(/^\D+/, ""); // es. M-2401 -> 2401
+      const primiDueNumeri = numeroPulito.slice(0, 2); // solo i primi due numeri
+
+      return primiDueNumeri === value || cliente.includes(value.toLowerCase());
+    });
+
+    setSearchSuggestions(suggestionsFiltered);
+  } else {
+    setSearchSuggestions([]);
+  }
+};
+
+
+
   
 
   const closeSearchPopup = () => {
@@ -553,7 +567,12 @@ const navLinks = {
           />
           {searchSuggestions.length > 0 && (
             <ul className="search-suggestions">
-              {searchSuggestions.map((sugg) => (
+             {[...searchSuggestions]
+  .sort((a, b) => {
+    const getNum = (val) => parseInt(val.numero_commessa.replace(/[^0-9]/g, ''), 10);
+    return getNum(b) - getNum(a);
+  })
+  .map((sugg) => (
                 <li
                   key={sugg.commessa_id}
                   onClick={() => {

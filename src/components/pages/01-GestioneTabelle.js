@@ -569,7 +569,7 @@ function GestioneTabelle() {
               required
             />
           </div>
-          <button type="submit" className="btn-new-comm">
+          <button type="submit" className="btn-Nav">
             {isEditingStatiCommessa ? "Aggiorna Stato Commessa" : "Aggiungi Stato Commessa"}
           </button>
           {isEditingStatiCommessa && (
@@ -641,7 +641,7 @@ function GestioneTabelle() {
               required
             />
           </div>
-          <button type="submit" className="btn-new-comm">
+          <button type="submit" className="btn-Nav">
             {isEditingReparto ? "Aggiorna Reparto" : "Aggiungi Reparto"}
           </button>
           {isEditingReparto && (
@@ -718,7 +718,7 @@ function GestioneTabelle() {
                 />
               </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-new-comm">
+              <button type="submit" className="btn-Nav">
                 {isEditingAttivita ? "Aggiorna Attività" : "Aggiungi Attività"}
               </button>
               {isEditingAttivita && (
@@ -786,7 +786,7 @@ function GestioneTabelle() {
                 />
               </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-new-comm">
+              <button type="submit" className="btn-Nav">
                 {isEditingRisorsa ? "Aggiorna Risorsa" : "Aggiungi Risorsa"}
               </button>
               {isEditingRisorsa && (
@@ -853,7 +853,7 @@ function GestioneTabelle() {
                   required
                 />
               </div>
-              <button type="submit" className="btn-new-comm">
+              <button type="submit" className="btn-Nav">
                 {isEditingStatoAvanzamento ? "Aggiorna Stato Avanzamento" : "Aggiungi Stato Avanzamento"}
               </button>
               {isEditingStatoAvanzamento && (

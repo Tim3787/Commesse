@@ -132,7 +132,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   return (
     <div className="popup-Big">
       <div className="popup-Big-content">
-        <h2>Dettagli Commessa {localCommessa.numero_commessa}</h2>
+        <h2>DETTAGLI COMMESSA: {localCommessa.numero_commessa}</h2>
         <p>
           <strong>Cliente:</strong> {localCommessa.cliente}
         </p>
@@ -178,7 +178,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
 
         <div className="collapsible-section">
           <h3 onClick={() => setShowStati(!showStati)}>
-            Stati Avanzamento Attuali {showStati ? "▲" : "▼"}
+            STATI AVANZAMENTO {showStati ? "▲" : "▼"}
           </h3>
           {showStati && (
             <ul>
@@ -203,7 +203,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
 
         <div className="collapsible-section">
           <h3 onClick={() => setShowAttivita(!showAttivita)}>
-            Attività della Commessa {showAttivita ? "▲" : "▼"}
+            ATTIVITA' {showAttivita ? "▲" : "▼"}
           </h3>
           {showAttivita && (
             <>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./00-Dashboard.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
+
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
@@ -32,9 +33,10 @@ function Dashboard() {
   const token = sessionStorage.getItem("token");                   // Token JWT salvato in sessionStorage
   const [allFATDates, setAllFATDates] = useState([]);                // Elenco delle commesse con FAT
   const daysRefs = useRef([]);                                       // Ref per ogni giorno della dashboard (per lo scroll)
-  const today = new Date().toLocaleDateString();                     // Data di oggi in formato locale
+  const today = formatDateOnly(new Date());                  // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
-  const hasScrolledToToday = useRef(false);                          // Flag per evitare di scrollare ripetutamente
+  const calendarRef = useRef();
+
 
   // ------------------------------------------------------------------
   // Funzione helper: calcola tutti i giorni del mese dato un oggetto Date
@@ -48,7 +50,9 @@ function Dashboard() {
     return days;
   };
   const daysInMonth = getDaysInMonth(currentMonth);
-
+const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
   // ------------------------------------------------------------------
   // Helper per formattare date in YYYY-MM-DD senza shift
   // ------------------------------------------------------------------
@@ -107,20 +111,26 @@ function Dashboard() {
   // ------------------------------------------------------------------
   // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
   // ------------------------------------------------------------------
-  useEffect(() => {
-    if (!hasScrolledToToday.current) {
-      const todayIndex = daysInMonth.findIndex(
-        (day) => day.toLocaleDateString() === today
-      );
-      if (todayIndex !== -1 && daysRefs.current[todayIndex]) {
-        daysRefs.current[todayIndex].scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        hasScrolledToToday.current = true;
-      }
-    }
-  }, [daysInMonth, today]);
+useEffect(() => {
+  const todayIndex = daysInMonth.findIndex(
+    (d) => formatDateOnly(d) === formatDateOnly(new Date())
+  );
+
+  if (todayIndex !== -1 && daysRefs.current[todayIndex]) {
+    const todayEl = daysRefs.current[todayIndex];
+    const scrollContainer = calendarRef.current;
+
+    const offset = 200; // altezza approssimativa di header/navbar
+
+    scrollContainer.scrollTo({
+      top: todayEl.offsetTop - offset,
+      behavior: "smooth",
+    });
+  }
+}, [daysInMonth]);
+
+
+
 
 
   // ------------------------------------------------------------------
@@ -270,9 +280,11 @@ function Dashboard() {
   // ------------------------------------------------------------------
   return (
     <div>
+
       <div className="container">
         {/* Intestazione */}
-        <h1>Benvenuto, {userName}</h1>
+        <h1>BENVENUTRO NELLA TUA BACHECA PERSONALE</h1>
+         <h1> {userName}</h1>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         
         {/* Navigazione tra i mesi */}
@@ -280,6 +292,7 @@ function Dashboard() {
           <button onClick={goToPreviousMonth} className="btn-Nav">
             <FontAwesomeIcon icon={faChevronLeft} /> Mese
           </button>
+         <div className="month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn-Nav">
             Mese <FontAwesomeIcon icon={faChevronRight} />
           </button>
@@ -291,13 +304,13 @@ function Dashboard() {
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-
+      
         {/* Calendario: per ogni giorno del mese viene renderizzata una "cella" */}
-        <div className="calendar">
+        <div className="calendar" ref={calendarRef}>
           {daysInMonth.map((day, index) => {
             // Determina se il giorno è weekend e/o oggi
             const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            const isToday = day.toLocaleDateString() === today;
+            const isToday = formatDateOnly(day) === today;
             return (
               <div
                 key={index}
@@ -307,7 +320,8 @@ function Dashboard() {
                 ref={(el) => (daysRefs.current[index] = el)}
               >
                 <div className="day-header">
-                  <strong>{day.toLocaleDateString()}</strong>
+                  <strong>{day.toLocaleDateString("it-IT", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</strong>
+
                 </div>
 
                 {/* Sezione attività: per il giorno corrente vengono mostrate le attività associate */}
@@ -418,7 +432,6 @@ function Dashboard() {
                     <div></div>
                   )}
                 </div>
-
                 {/* Sezione FAT: visualizza le commesse con FAT se la data FAT corrisponde al giorno */}
                 <div className="fat-dates">
                   {allFATDates

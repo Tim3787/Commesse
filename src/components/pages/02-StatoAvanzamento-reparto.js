@@ -169,6 +169,14 @@ function StatoAvanzamentoReparti() {
         analisi: ["E: Analisi documentazione"],
       },
     },
+        service: {
+      RepartoID: 18,
+      RepartoName: "service",
+      boardId: "606efd4d2898f5705163448f",
+      accoppiamentoStati: {
+        analisi: ["E: Analisi documentazione"],
+      },
+    },
   };
 
   // Legge il parametro dinamico "reparto" dall'URL e imposta i dati del reparto
@@ -286,6 +294,12 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     }
   };
 
+  useEffect(() => {
+  if (RepartoName === "service") {
+    setConfrontoConTrello(false);
+  }
+}, [RepartoName]);
+
   /**
    * Recupera dati relativi alle commesse, agli stati e alle board di Trello.
    */
@@ -337,6 +351,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     };
     fetchData();
 }, [RepartoID, boardId, apiUrl, token]);
+
 
 
   /**
@@ -526,7 +541,13 @@ if (RepartoName === "software") {
     return false;
   }
 }
-
+ // 🔹 Nuova condizione per il reparto "Service"
+  if (
+    RepartoName.toLowerCase() === "service" &&
+    !(commessa.numero_commessa.startsWith("M-") || commessa.numero_commessa.startsWith("R-"))
+  ) {
+    return false; // esclude le commesse che non iniziano con M- o R-
+  }
     return matchesNumeroCommessa && matchesCliente && matchesTipoMacchina && (notDelivered || shouldShow);
   });
   
@@ -795,21 +816,15 @@ if (RepartoName === "software") {
       {/* HEADER */}
       <div className="header">
         <h1>Stato Avanzamento {RepartoName}</h1>
-        <div className="month-navigation">
-          <button className="burger-icon" onClick={toggleBurgerMenu}>
-            Filtri e opzioni
-          </button>
-          <button onClick={() => {}} className="btn-Nav">
-            ← Mese
-          </button>
-          <button onClick={() => {}} className="btn-Nav">
-            Mese →
-          </button>
-        </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && <div className="loading-overlay">Caricamento...</div>}
       </div>
-
+                   {/* Bottone per aprire/chiudere il menu */}
+            <div className="Commesse-completate" >
+        <button onClick={toggleBurgerMenu} className="burger-icon">
+          Filtri ed Opzioni
+        </button>
+        </div>
       {/* BURGER MENU */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">

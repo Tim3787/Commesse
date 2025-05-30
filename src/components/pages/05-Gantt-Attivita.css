@@ -1,3 +1,7 @@
+
+
+
+
 .activity5 {
     padding: 5px;
     margin: 2px;
@@ -44,13 +48,13 @@
   top: 100%; /* Posiziona la lista immediatamente sotto l'input */
   left: 0;
   z-index: 10; /* Assicura che la lista appaia sopra altri elementi */
-  background-color: white;
   border: 1px solid #ccc;
   max-height: 150px;
   width: calc(100% - 2px); /* Adatta la larghezza al contenitore */
   overflow-y: auto;
   border-radius: 4px; /* Opzionale, per arrotondare gli angoli */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Effetto ombra */
+  color: rgb(255, 255, 255);
 }
 .suggestions-list2 li {
   padding: 10px;
@@ -58,7 +62,7 @@
   }
   
   .suggestions-list2 li:hover {
-  background-color: #f0f0f0;
+  background-color: #1e263a;
   }
 .btn-search-commessa{
   background-color: #007bff;

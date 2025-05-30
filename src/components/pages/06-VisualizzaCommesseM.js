@@ -333,8 +333,8 @@ function VisualizzazioneCommesseM() {
       </div>
       {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
       {isVisible && (
-        <div className="Gen-table-container">
-          <table className="software-schedule">
+        <div className="Commesse-table-container">
+          <table className="comm-schedule">
             <thead>
               <tr>
                 <th>Numero Commessa</th>
@@ -436,7 +436,12 @@ function VisualizzazioneCommesseM() {
           </table>
         </div>
       )}
-
+                   {/* Bottone per aprire/chiudere il menu */}
+            <div className="Commesse-completate" >
+        <button onClick={toggleBurgerMenu} className="burger-icon">
+          Filtri ed Opzioni
+        </button>
+        </div>
       {/* MENU A BURGER PER FILTRI E OPZIONI */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -553,13 +558,9 @@ function VisualizzazioneCommesseM() {
       {/* CONTENITORE PRINCIPALE (si sposta a destra se il menu è aperto) */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
-                {/* Bottone per aprire/chiudere il menu */}
-        <button onClick={toggleBurgerMenu} className="burger-icon">
-          Filtri ed Opzioni
-        </button>
-         <div className="Gen-table-container" >
+         <div className="Commesse-table-container" >
         {/* TABELLA DELLE COMMESSE */}
-        <table className="software-schedule">
+        <table className="comm-schedule">
           <thead>
             <tr>
               <th>Numero Commessa</th>
@@ -573,14 +574,7 @@ function VisualizzazioneCommesseM() {
   <select
     value={repartoSelezionato}
     onChange={(e) => setRepartoSelezionato(e.target.value)}
-    style={{
-      fontSize: "0.9rem",
-      padding: "2px 6px",
-      marginLeft: "6px",
-      borderRadius: "4px",
-      border: "1px solid #ccc",
-      background: "#f9f9f9",
-    }}
+
   >
     {repartiDisponibili.map((reparto) => (
   <option key={reparto} value={reparto}>

@@ -41,32 +41,50 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     background-color: #0056b3;
   }
-  .calendar {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+.calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* ✅ Stretch per evitare larghezza fissa dei figli */
+  width: 100%;          /* ✅ Impedisce overflow orizzontale */
+  height: calc(100vh - 220px); /* adatta in base a header+navbar */
+  overflow-y: auto;
+  overflow-x: hidden;   /* ✅ Blocca lo scroll orizzontale */
+  padding: 1rem;
+  gap: 1rem;
+  box-sizing: border-box; /* ✅ Assicura che padding non causi overflow */
+}
+
+.month{
+font-size: 2rem;
+padding-left: 30px;
+padding-right: 30px;
   }
   
-  .calendar-day {
-    margin-bottom: 2px;
-    margin-left: 2px;
-    padding: 2px;
-    border-bottom: 1px solid #ccc;
-    width: 100%;
-    display: flex; /* Abilita flexbox */
-    align-items: flex-start; /* Allinea gli elementi in alto */
-
+.calendar-day {
+  margin-bottom: 2px;
+  margin-left: 2px;
+  padding: 2px;
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+  display: flex;
+  flex-direction: column; /* colonna per header + attività */
+  align-items: center; /* centra tutto in orizzontale */
   }
   
   .day-header {
     font-weight: bold;
-
+max-width: fit-content;
+max-height: fit-content;
+text-align: center;
   }
   
   .activities {
-    margin-top: 10px;
+    padding-top: 10px;
     margin-left: 20px;
     max-width: fit-content;
+  flex: 0 1 auto;
+      display: flex;
+    flex-wrap: wrap;
   }
   
 
@@ -83,33 +101,64 @@
  background-color: #eceaea; 
   }
 .fat {
-  background-color: #fff0f0; /* Rosa chiaro per i FAT */
-  border: 1px solid #cc0000;
-  padding: 5px;
-  margin-bottom: 5px;
+  background-image: var( --color-blue-shiny);
+  border: 1px solid #8b8b8b;
+  padding: 10px;
+  margin-bottom: 15px;
+   margin-left: 10px;
+   margin-top: 15px;
   border-radius: 4px;
+  color: rgb(255, 255, 255);
+  position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
   .calendar-navigation {
-    flex-shrink: 0; /* Mantiene fissa la dimensione della navigazione */
-    padding: 2px;
+   display: flex;
+  justify-content: center; /* ✅ centra orizzontalmente */
+  align-items: center;     /* ✅ centra verticalmente */
+  margin-bottom: 10px;
+  margin-top: 10px;
+    border-bottom: 3px solid #8b8b8b;
+    padding-bottom: 5px;
   }
-  
+
+
   .today {
-    background-color: #014a61;
-    color: #2bff00; /* Verde chiaro */
+    background-color:  #01c3f3;
     font-weight: bold;
   }
 
   .today2 .day-header{
-
-    color: #2836f7; /* Verde chiaro */
+    padding-top: 30px;
+    font-size: 2rem;
+    color: #01c3f3; /* Verde chiaro */
     font-weight: bold;
     text-decoration: underline;
     text-decoration-thickness: 2px; /* Spessore della sottolineatura */
     text-underline-offset: 3px; /* Distanza tra testo e sottolineatura */
-    text-decoration-color: rgb(25, 9, 247); /* Colore della sottolineatura */
+    text-decoration-color: #01c3f3; /* Colore della sottolineatura */
   }
+  
+  .today2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0,0,0,0.3); /* overlay scuro */
+  z-index: 0;
+}
+  .today2 {
+  min-height: 80vh;
+  position: relative;
+  background-image:  url("../img/30anni.svg");
+  z-index: 1;
+  background-size: 500px; /* larghezza e altezza */
+  background-repeat: no-repeat;
+  background-position: bottom;
+}
 
 
 
@@ -138,16 +187,17 @@
     transition: background-color 0.3s;
   }
   .weekend-cell {
-    background-color: #ebf1f3;  /* Colore di sfondo per il weekend */
+     background-color: #1e263a; /* Colore di sfondo per il weekend */
   }
   .weekend {
 
     color: #b80505; /* Colore del testo per sabato e domenica */
-    background-color: #ebf1f3;
+     background-color: #1e263a;
   }
   .weekend2 {
 
-    color: #d9534f; /* Colore del testo per sabato e domenica */
+    color: #b80505; /* Colore del testo per sabato e domenica */
+     background-color: #1e263a;
     font-weight: bold; /* Facoltativo, rende il testo più evidente */
   }
 
@@ -168,12 +218,12 @@
     align-items: flex-start;
     justify-content: space-between;
     padding: 10px 10px;
+    margin: 20px;
     background: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     border: 1px solid #ddd;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    max-width: 250px;
     min-width: 150px;
     white-space: normal;         /* Permette al testo di andare a capo */
     overflow-wrap: break-word;   /* Gestisce il wrapping del testo in modo moderno */
@@ -182,6 +232,7 @@
     backdrop-filter: blur(10px);
     cursor: pointer;
     font-size: 12px;
+    color: black;
 }
 
 .activity.compact {
@@ -205,13 +256,15 @@
   
   /* Stato attività */
   .activity-started {
-    border-left: 6px solid #f5a623;
-    background-color: rgba(255, 214, 156, 0.2); /* Arancione chiaro trasparente */
+  border: 1px solid #f8c82c;
+  border-left: 6px solid #f8c82c;
+  background-image: linear-gradient(to right, #f7ecc9,#f5edd4,  #ffffff);
   }
   
   .activity-completed {
-    border-left: 6px solid #28a745;
-    background-color: rgba(201, 250, 201, 0.2); /* Verde chiaro trasparente */
+  border: 1px solid #1168B4;
+  border-left: 6px solid #1168B4;
+  background-image: linear-gradient(to right, #b7dcfc, #daeaf7,  #ffffff);
   }
   
   /* Struttura interna */
@@ -267,6 +320,7 @@
   
   .software-schedule {
     width: 100%;
+
     border-collapse: collapse;
   }
   
@@ -275,7 +329,6 @@
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
-
     text-align: left;
   }
   
@@ -284,17 +337,20 @@
     position: sticky; /* Fissa l'intestazione */
     top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
     z-index: 1;       /* Assicurati che sia sopra le celle */
+    
   }
 
   .software-schedule td:first-child {
     position: sticky;
     left: 0;
     z-index: 2; /* Più alto per sovrapporsi alle celle */
-    background-color: #3498db;
-    color: white;
+    background-color:  var(--bg-dark);
+     border: 1px solid #ddd;
   }
 
-
+  .software-schedule tr {
+  background-color:var(--bg-dark);
+}
 .software2-schedule {
   width: 100%;
   border-collapse: collapse;
@@ -306,34 +362,46 @@
   font-size: 16px;
   border: 1px solid #ddd;
   text-align: left;
+     background-color:  var(--bg-dark);
 }
 
 .software2-schedule th {
   position: sticky; /* Fissa l'intestazione */
   top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
   z-index: 1;       /* Assicurati che sia sopra le celle */
+  
 }
+
+
 /* Esempio di stile per il pulsante burger */
 .burger-icon {
-  background: none;
-  color: #333;
+  text-align: center;
+  background-color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(  --btn-border-radius-pill);
+  background-image: var( --color-blue-shiny);
+  color: #ffffff;
+  padding: 0.75rem 2rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-family: var( --font-pb);
   border: none;
   cursor: pointer;
-  margin-right: 10px;
-  width: fit-content;
+  transition: all 0.3s ease;
 }
 
 /* Stile per il menu a burger */
 .burger-menu {
-  position: fixed;
+   position: fixed; 
   left: 0;
   width: fit-content;
   max-width: 280px;
-  height: 100%;
-  background-color: white;
   padding: 10px;
-  z-index: 1000;
   overflow-y: auto;
+  height: calc(100vh - 200px);
 }
 
 /* Header del burger menu */
@@ -346,7 +414,6 @@
 /* Pulsante per chiudere il menu */
 .close-burger {
   background: none;
-  color: #333;
   border: none;
   font-size: 1.2em;
   cursor: pointer;

@@ -418,7 +418,12 @@ function VisualizzaTutteLeAttivita() {
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         <h1>Attività</h1>
       </div>
-
+                   {/* Bottone per aprire/chiudere il menu */}
+            <div className="Commesse-completate" >
+        <button onClick={toggleBurgerMenu} className="burger-icon">
+          Filtri ed Opzioni
+        </button>
+        </div>
       {/* MENU A BURGER PER FILTRI ED OPZIONI */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -557,10 +562,6 @@ function VisualizzaTutteLeAttivita() {
       
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
-        {/* Bottone per aprire/chiudere il menu a burger */}
-        <button onClick={toggleBurgerMenu} className="burger-icon">
-          Filtri ed Opzioni
-        </button>
 
         {/* Tabella delle attività filtrate */}
         <div className="Gen-table-container">

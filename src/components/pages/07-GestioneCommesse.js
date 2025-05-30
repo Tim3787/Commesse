@@ -173,7 +173,12 @@ function GestioneCommesse() {
         <h1>Gestione Commesse</h1>
         
       </div>
-
+                   {/* Bottone per aprire/chiudere il menu */}
+            <div className="Commesse-completate" >
+        <button onClick={toggleBurgerMenu} className="burger-icon">
+          Filtri ed Opzioni
+        </button>
+        </div>
       {/* MENU A BURGER: pannello dei filtri (visibile solo se aperto) */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -226,10 +231,6 @@ function GestioneCommesse() {
 
       {/* CONTAINER PRINCIPALE: la tabella si sposta se il menu a burger è aperto */}
       <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
-        {/* Bottone per aprire/chiudere il burger menu */}
-      <button onClick={toggleBurgerMenu} className="burger-icon">
-        Filtri ed Opzioni
-      </button>
         {/* Tabella delle commesse */}
         <table>
           <thead>

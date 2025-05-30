@@ -43,6 +43,9 @@ function CalendarioAttivita() {
   const todayRef = useRef(null);
   // Calcola tutti i giorni del mese corrente utilizzando la funzione helper getDaysInMonth
   const daysInMonth = getDaysInMonth(currentMonth);
+  const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
 
  // Restituisce il numero di settimana
  const getWeekNumber = (d) => {
@@ -207,7 +210,7 @@ function CalendarioAttivita() {
           <tr>
             <th colSpan={daysInMonth.length + 1}>
               <button
-                className="toggle-button"
+                className="toggle-button-comm"
                 onClick={() => toggleSectionVisibility(repartoId)}
               >
                 {isVisible ? "▼" : "▶"} {repartoName}
@@ -321,26 +324,27 @@ function CalendarioAttivita() {
   // Rendering Principale
   // ------------------------------------------------------------------
   return (
-    <div>
-      <div className="container-Scroll">
-        <h1>Calendario attività</h1>
+   <div className="page-wrapper">
+      {/* HEADER */}
+      <div className="header">
+        <h1>Calendario attività </h1>
+        <div className="calendar-navigation">
+
+          <button onClick={goToPreviousMonth} className="btn-Nav">
+            <FontAwesomeIcon icon={faChevronLeft} /> Mese
+          </button>
+         <div className="month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn-Nav">
+            Mese <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-
-        {/* Pulsanti di navigazione per il mese */}
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
-            <FontAwesomeIcon icon={faChevronLeft} /> Mese Precedente
-          </button>
-          <button onClick={goToNextMonth} className="btn-Nav">
-            Mese Successivo <FontAwesomeIcon icon={faChevronRight} />
-          </button>
-        </div>
-
+      </div>
         {/* Tabella con il calendario e le sezioni per ciascun reparto */}
         <div className="Gen-table-container">
           <table className="Gen-schedule">
@@ -354,7 +358,6 @@ function CalendarioAttivita() {
           </table>
         </div>
       </div>
-    </div>
   );
 }
 
