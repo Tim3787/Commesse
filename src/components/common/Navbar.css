@@ -292,9 +292,11 @@ margin-top: 15px;
 .search-dropdown {
   top: 60px; /* adatta in base al layout */
   right: 20px;
+  margin-left: 20px;
   padding: 10px;
   z-index: 1100;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  max-width: 80%;
 }
 
 .input-field-100 {

@@ -423,19 +423,15 @@ const navLinks = {
   };
 
 const handleSearchInputChange = (e) => {
-  const value = e.target.value.trim(); // Niente .toLowerCase, perché lavoriamo con numeri
+  const value = e.target.value.toLowerCase().trim();
   setSearchValue(value);
 
   if (value !== "") {
     const suggestionsFiltered = commesseList.filter((c) => {
-      const numeroOriginale = c.numero_commessa?.toString() || "";
+      const numero = c.numero_commessa?.toString().toLowerCase() || "";
       const cliente = c.cliente?.toLowerCase() || "";
-
-      // Rimuove il prefisso e prende la prima parte numerica
-      const numeroPulito = numeroOriginale.replace(/^\D+/, ""); // es. M-2401 -> 2401
-      const primiDueNumeri = numeroPulito.slice(0, 2); // solo i primi due numeri
-
-      return primiDueNumeri === value || cliente.includes(value.toLowerCase());
+      const numeri = numero.match(/\d+/)?.[0] || ""; // prende solo la parte numerica
+      return numeri.startsWith(value) || cliente.includes(value);
     });
 
     setSearchSuggestions(suggestionsFiltered);
@@ -443,6 +439,7 @@ const handleSearchInputChange = (e) => {
     setSearchSuggestions([]);
   }
 };
+
 
 
 

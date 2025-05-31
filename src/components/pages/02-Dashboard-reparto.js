@@ -769,14 +769,14 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
         <div className="calendar-navigation">
 
           <button onClick={goToPreviousMonth} className="btn-Nav">
-            <FontAwesomeIcon icon={faChevronLeft} /> Mese
+            <FontAwesomeIcon icon={faChevronLeft} />
           </button>
           <button onClick={scrollToToday} className="btn-Nav">
             OGGI
           </button>
          <div className="month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese <FontAwesomeIcon icon={faChevronRight} />
+            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />

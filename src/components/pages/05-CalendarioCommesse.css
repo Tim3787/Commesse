@@ -79,20 +79,6 @@
   color: #007bff;
 }
 
-.btn-Nav {
-  background-color: #007bff;
-  padding: 5px;
-  color: white;
-  border: none;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-Nav:hover {
-  background-color: #0056b3;
-}
 
 /* ==============================
 Responsive Design
@@ -108,10 +94,6 @@ Responsive Design
     font-size: 18px;
   }
 
-  .btn-Nav {
-    font-size: 14px;
-
-  }
 }
 @media (max-width: 480px) {
 

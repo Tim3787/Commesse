@@ -46,7 +46,7 @@
   flex-direction: column;
   align-items: stretch; /* ✅ Stretch per evitare larghezza fissa dei figli */
   width: 100%;          /* ✅ Impedisce overflow orizzontale */
-  height: calc(100vh - 220px); /* adatta in base a header+navbar */
+  height: calc(100vh - 300px); /* adatta in base a header+navbar */
   overflow-y: auto;
   overflow-x: hidden;   /* ✅ Blocca lo scroll orizzontale */
   padding: 1rem;
@@ -56,8 +56,8 @@
 
 .month{
 font-size: 2rem;
-padding-left: 30px;
-padding-right: 30px;
+padding-left: 15px;
+padding-right: 15px;
   }
   
 .calendar-day {
@@ -151,7 +151,7 @@ text-align: center;
   z-index: 0;
 }
   .today2 {
-  min-height: 80vh;
+  min-height: 75vh;
   position: relative;
   background-image:  url("../img/30anni.svg");
   z-index: 1;
@@ -384,7 +384,7 @@ text-align: center;
   border-radius: var(  --btn-border-radius-pill);
   background-image: var( --color-blue-shiny);
   color: #ffffff;
-  padding: 0.75rem 2rem;
+  padding: 0.55rem 1rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-family: var( --font-pb);
@@ -445,4 +445,22 @@ padding: 2px;
 
   min-width: 100px;
 }
+.burger-icon {
+    font-size: 10px;
+}
+.toggle-button-comm {
+    font-size: 10px;
+}
+  .today2 {
+  min-height: 62vh;
+  background-size: 400px; /* larghezza e altezza */
+}
+.calendar {
+  height: calc(100vh - 280px); /* adatta in base a header+navbar */
+}
+.month{
+  font-size: 20px;
+  }
+  
+
 }

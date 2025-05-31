@@ -1,6 +1,6 @@
 
 .Gen-table-container {
-  max-height: 80vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
+  max-height: 78vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
   overflow-x: auto; /* Abilita lo scroll orizzontale */
   overflow-y: auto; /* Abilita lo scroll verticale se necessario */
   border: 1px solid #ddd;
@@ -141,4 +141,10 @@
 .Gen-weekend-date {
   color: #ff3b3b; /* Rosso chiaro */
   font-weight: bold;
+}
+@media (max-width: 480px) {
+.Gen-table-container {
+  max-height: 68vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
+
+}
 }

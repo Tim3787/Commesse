@@ -160,7 +160,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                 handleStatoChange(Number(localCommessa.commessa_id), Number(e.target.value))
               }
               required
-              className="input-field-100"
+              className="input-field"
             >
               <option value="">Seleziona uno stato</option>
               {statiCommessa.map((st) => (

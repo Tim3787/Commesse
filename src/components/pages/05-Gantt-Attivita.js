@@ -326,11 +326,11 @@ useEffect(() => {
                 <div className="calendar-navigation">
 
           <button onClick={goToPreviousMonth} className="btn-Nav">
-            <FontAwesomeIcon icon={faChevronLeft} /> Mese
+            <FontAwesomeIcon icon={faChevronLeft} />
           </button>
          <div className="month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn-Nav">
-            Mese <FontAwesomeIcon icon={faChevronRight} />
+            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
           <h1>SCEGLI UNA COMMESSA</h1>
