@@ -299,11 +299,7 @@ margin-top: 15px;
   max-width: 80%;
 }
 
-.input-field-100 {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 5px;
-}
+
 /* Stili per il dropdown con transizione */
 .dropdown-enter {
   opacity: 0;

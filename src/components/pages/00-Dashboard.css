@@ -98,8 +98,9 @@ text-align: center;
   }
   .dropzone{
     height: 100vh;         /* Imposta l'altezza desiderata */
- background-color: #eceaea; 
+   background-color:var(--bg-dark);
   }
+
 .fat {
   background-image: var( --color-blue-shiny);
   border: 1px solid #8b8b8b;
@@ -183,7 +184,7 @@ text-align: center;
   }
 
   .highlight {
-    background-color: rgba(0, 255, 0, 0.2); /* Verde chiaro */
+    background-color: var(--hover-dark);
     transition: background-color 0.3s;
   }
   .weekend-cell {
@@ -362,7 +363,7 @@ text-align: center;
   font-size: 16px;
   border: 1px solid #ddd;
   text-align: left;
-     background-color:  var(--bg-dark);
+
 }
 
 .software2-schedule th {
@@ -402,6 +403,7 @@ text-align: center;
   padding: 10px;
   overflow-y: auto;
   height: calc(100vh - 200px);
+  gap: 20px;
 }
 
 /* Header del burger menu */
@@ -446,14 +448,19 @@ padding: 2px;
   min-width: 100px;
 }
 .burger-icon {
-    font-size: 10px;
+    padding: 0.4rem 0.4rem;
+  font-size: 10px;
 }
-.toggle-button-comm {
-    font-size: 10px;
+
+.toggle-button-comm{
+
+  padding: 0.4rem 0.4rem;
+  font-size: 10px;
 }
+
   .today2 {
   min-height: 62vh;
-  background-size: 400px; /* larghezza e altezza */
+  background-size: 300px; /* larghezza e altezza */
 }
 .calendar {
   height: calc(100vh - 280px); /* adatta in base a header+navbar */

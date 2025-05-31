@@ -62,7 +62,7 @@
   }
   
   .suggestions-list2 li:hover {
-  background-color: #1e263a;
+   background-color: var(--hover-dark);
   }
 .btn-search-commessa{
   background-color: #007bff;

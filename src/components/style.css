@@ -181,7 +181,7 @@ form button:hover {
   background-color: #2980b9;
 }
 .editing-row {
-  background-color: #fffae6;  /* un giallo molto chiaro */
+  background-color: var(--hover-dark) ;/* un giallo molto chiaro */
   border-left: 4px solid #f1c40f;  /* una barra laterale evidenziata */
 }
 .editing-icon {
@@ -561,11 +561,19 @@ body.login-page-background {
   border-radius: 25px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  align-items: center;
+        display: flex;
+      flex-direction: column;
+        border-color: #80bdff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
   background-color:rgb(3 7 18/0.95) 
+  
+  
 }
 .login-container button {
   display: block; /* Imposta i pulsanti come blocchi per evitare sovrapposizioni */
-  width: 100%; /* Rende i pulsanti uniformi */
+  width: 100px; /* Rende i pulsanti uniformi */
   margin-top: 10px; /* Spazio tra i pulsanti */
   display: flex;
   align-items: center;
@@ -1083,6 +1091,7 @@ color: var(--text-light);
 
 .filter-group {
   height: 30px;
+  width: 250px;
   position: relative; 
   display: flex;
   flex-direction: column;
@@ -1122,15 +1131,14 @@ color: var(--text-light);
 .filters-burger{
   padding: 8px 12px;
 }
-.filters-burger label {
 
-color: var(--text-light);
-}
 
 .filters-burger select {
-
-color: var(--text-light);
+width: 250px;
+ margin-top: 10px;
+ margin-bottom:  10px;
 }
+
 
 .suggestions-list {
   padding: 0;
@@ -1195,7 +1203,7 @@ cursor: pointer;
 }
 
 .suggestions-list li:hover {
-  background-color: #1e263a;
+  background-color: var(--hover-dark);
 }
 .form-group {
   position: relative; /* Importante per far sì che la lista `.suggestions-list` si posizioni rispetto al contenitore */
@@ -1359,8 +1367,17 @@ max-width: 200px;
     padding: 12px; /* Spaziatura maggiore per rendere più semplice il clic */
     font-size: 16px; /* Aumenta il font per una migliore leggibilità */
   }
+  .login-container {
+   position: relative;
+  max-width: 250px;
+  margin: auto;
+  margin-top: 50px;
+  padding: 15px;
+  
+  
 }
 
+}
 
 
 @media (max-width: 480px) {
@@ -1379,6 +1396,17 @@ max-width: 200px;
 .btn {
 
   font-size: 12px;
+}
+.login-container button {
+  padding: 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  width: 200PX;
+}
+
+.Commesse-completate{
+padding-top: 5px;
+padding-bottom: 5px;
+
 }
 
 @media (max-width: 480px) {
