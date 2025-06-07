@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
+import  "../style/00-Dashboard-user.css";
 
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -558,7 +558,7 @@ function GestioneTabelle() {
           </div>
         )}
         <form onSubmit={handleStatiCommessaSubmit}>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Nome Stato Commessa:</label>
             <input
               type="text"
@@ -568,14 +568,13 @@ function GestioneTabelle() {
               onChange={handleStatiCommessaChange}
               required
             />
-          </div>
-          <button type="submit" className="btn-Nav">
+          <button type="submit" className="btn w-200 btn--shiny btn--pill">
             {isEditingStatiCommessa ? "Aggiorna Stato Commessa" : "Aggiungi Stato Commessa"}
           </button>
           {isEditingStatiCommessa && (
             <button
               type="button"
-              className="btn-danger"
+              className="btn w-200 btn--danger btn--pill"
               onClick={() => {
                 setStatiCommessaFormData({ nome_stato: "", reparto_id: selectedReparto });
                 setIsEditingStatiCommessa(false);
@@ -585,6 +584,7 @@ function GestioneTabelle() {
               Annulla
             </button>
           )}
+          </div>
         </form>
         {statiCommessaLoading ? (
           <p>Caricamento stati commessa...</p>
@@ -607,10 +607,10 @@ function GestioneTabelle() {
                   </td>
                   <td>{s.nome_stato}</td>
                   <td>
-                    <button onClick={() => handleStatiCommessaEdit(s)} className="btn-warning ">
+                    <button onClick={() => handleStatiCommessaEdit(s)} className="btn w-100 btn--warning  btn--pill">
                       Modifica
                     </button>
-                    <button onClick={() => handleStatiCommessaDelete(s.id)} className="btn-danger">
+                    <button onClick={() => handleStatiCommessaDelete(s.id)} className="btn w-100 btn--danger btn--pill">
                       Elimina
                     </button>
                   </td>
@@ -630,7 +630,7 @@ function GestioneTabelle() {
           </div>
         )}
         <form onSubmit={handleRepartiSubmit}>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Nome Reparto:</label>
             <input
               type="text"
@@ -640,14 +640,13 @@ function GestioneTabelle() {
               onChange={handleRepartiChange}
               required
             />
-          </div>
-          <button type="submit" className="btn-Nav">
+          <button type="submit" className="btn w-200 btn--shiny btn--pill">
             {isEditingReparto ? "Aggiorna Reparto" : "Aggiungi Reparto"}
           </button>
           {isEditingReparto && (
             <button
               type="button"
-              className="btn-danger"
+              className="btn w-200 btn--danger btn--pill"
               onClick={() => {
                 setRepartiFormData({ nome: "" });
                 setIsEditingReparto(false);
@@ -657,6 +656,7 @@ function GestioneTabelle() {
               Annulla
             </button>
           )}
+        </div>
         </form>
         <table className="table">
           <thead>
@@ -674,10 +674,10 @@ function GestioneTabelle() {
                 </td>
                 <td>{r.nome}</td>
                 <td>
-                  <button onClick={() => handleRepartiEdit(r)} className="btn-warning ">
+                  <button onClick={() => handleRepartiEdit(r)} className="btn w-100 btn--warning btn--pill ">
                     Modifica
                   </button>
-                  <button onClick={() => handleRepartiDelete(r.id)} className="btn-danger">
+                  <button onClick={() => handleRepartiDelete(r.id)} className="btn w-100 btn--danger btn--pill">
                     Elimina
                   </button>
                 </td>
@@ -688,7 +688,7 @@ function GestioneTabelle() {
       </section>
 
       {/* === Sezione per Selezionare il Reparto === */}
-      <section className="section-filter">
+      <section className="flex-column-center">
         <h2>Seleziona Reparto per Gestione</h2>
         <select value={selectedReparto} onChange={(e) => setSelectedReparto(e.target.value)}>
           <option value="">-- Seleziona --</option>
@@ -703,10 +703,10 @@ function GestioneTabelle() {
       {selectedReparto && (
         <section className="section-detail">
           {/* === Sezione Attività (Filtrate per Reparto) === */}
-          <div className="section-box">
+          <div className="flex-column-center">
             <h2>Gestione Attività</h2>
             <form onSubmit={handleAttivitaSubmit}>
-              <div className="form-group-100">
+              <div className="flex-column-center">
                 <label>Nome Attività:</label>
                 <input
                   type="text"
@@ -716,15 +716,14 @@ function GestioneTabelle() {
                   onChange={handleAttivitaChange}
                   required
                 />
-              </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-Nav">
+              <button type="submit" className="btn w-200 btn--shiny btn--pill">
                 {isEditingAttivita ? "Aggiorna Attività" : "Aggiungi Attività"}
               </button>
               {isEditingAttivita && (
                 <button
                   type="button"
-                  className="btn-danger"
+                  className="btn w-200 btn--danger btn--pill"
                   onClick={() => {
                     setAttivitaFormData({ nome_attivita: "", reparto_id: selectedReparto });
                     setIsEditingAttivita(false);
@@ -734,6 +733,7 @@ function GestioneTabelle() {
                   Annulla
                 </button>
               )}
+             </div>
             </form>
             {attivitaLoading ? (
               <p>Caricamento attività...</p>
@@ -756,10 +756,10 @@ function GestioneTabelle() {
                       </td>
                       <td>{a.nome_attivita}</td>
                       <td>
-                        <button onClick={() => handleAttivitaEdit(a)} className="btn-warning ">
+                        <button onClick={() => handleAttivitaEdit(a)} className="btn w-100 btn--warning btn--pill ">
                          Modifica
                         </button>
-                        <button onClick={() => handleAttivitaDelete(a.id)} className="btn-danger">
+                        <button onClick={() => handleAttivitaDelete(a.id)} className="btn w-100 btn--danger btn--pill">
                         Elimina
                         </button>
                       </td>
@@ -771,10 +771,10 @@ function GestioneTabelle() {
           </div>
 
           {/* === Sezione Risorse (Filtrate per Reparto) === */}
-          <div className="section-box">
+          <div className="flex-column-center">
             <h2>Gestione Risorse</h2>
             <form onSubmit={handleRisorseSubmit}>
-              <div className="form-group-100">
+              <div className="flex-column-center">
                 <label>Nome Risorsa:</label>
                 <input
                   type="text"
@@ -784,15 +784,14 @@ function GestioneTabelle() {
                   onChange={handleRisorseChange}
                   required
                 />
-              </div>
               <input type="hidden" name="reparto_id" value={selectedReparto} />
-              <button type="submit" className="btn-Nav">
+              <button type="submit" className="btn w-200 btn--shiny btn--pill">
                 {isEditingRisorsa ? "Aggiorna Risorsa" : "Aggiungi Risorsa"}
               </button>
               {isEditingRisorsa && (
                 <button
                   type="button"
-                  className="btn-danger"
+                  className="btn w-200 btn--danger btn--pilln--danger"
                   onClick={() => {
                     setRisorseFormData({ nome: "", reparto_id: selectedReparto });
                     setIsEditingRisorsa(false);
@@ -802,6 +801,7 @@ function GestioneTabelle() {
                   Annulla
                 </button>
               )}
+             </div>
             </form>
             {risorseLoading ? (
               <p>Caricamento risorse...</p>
@@ -824,10 +824,10 @@ function GestioneTabelle() {
                       </td>
                       <td>{r.nome}</td>
                       <td>
-                        <button onClick={() => handleRisorseEdit(r)} className="btn-warning ">
+                        <button onClick={() => handleRisorseEdit(r)} className="btn w-100 btn--warning btn--pill">
                          Modifica
                         </button>
-                        <button onClick={() => handleRisorseDelete(r.id)} className="btn-danger">
+                        <button onClick={() => handleRisorseDelete(r.id)} className="btn w-100 btn--danger btn--pill">
                         Elimina
                         </button>
                       </td>
@@ -839,10 +839,10 @@ function GestioneTabelle() {
           </div>
 
           {/* === Sezione Stati Avanzamento e Riordino (Filtrati per Reparto) === */}
-          <div className="section-box">
+          <div className="flex-column-center">
             <h2>Gestione Stati Avanzamento</h2>
             <form onSubmit={handleStatiAvanzamentoSubmit}>
-              <div className="form-group-100">
+              <div className="flex-column-center">
                 <label>Nome Stato Avanzamento:</label>
                 <input
                   type="text"
@@ -852,14 +852,13 @@ function GestioneTabelle() {
                   onChange={handleStatiAvanzamentoChange}
                   required
                 />
-              </div>
-              <button type="submit" className="btn-Nav">
+              <button type="submit" className="btn w-200 btn--shiny btn--pill">
                 {isEditingStatoAvanzamento ? "Aggiorna Stato Avanzamento" : "Aggiungi Stato Avanzamento"}
               </button>
               {isEditingStatoAvanzamento && (
                 <button
                   type="button"
-                  className="btn-danger"
+                  className="btn w-200 btn--danger btn--pill"
                   onClick={() => {
                     setStatiAvanzamentoFormData({ nome_stato: "" });
                     setIsEditingStatoAvanzamento(false);
@@ -869,6 +868,7 @@ function GestioneTabelle() {
                   Annulla
                 </button>
               )}
+             </div>
             </form>
             {statiAvanzamentoLoading ? (
               <p>Caricamento stati avanzamento...</p>
@@ -891,10 +891,10 @@ function GestioneTabelle() {
                       </td>
                       <td>{s.nome_stato}</td>
                       <td>
-                      <button onClick={() => handleStatiAvanzamentoEdit(s)} className="btn-warning ">
+                      <button onClick={() => handleStatiAvanzamentoEdit(s)} className="btn w-100 btn--warning btn--pill ">
                          Modifica
                         </button>
-                        <button onClick={() => handleStatiAvanzamentoDelete(s.id)} className="btn-danger">
+                        <button onClick={() => handleStatiAvanzamentoDelete(s.id)} className="btn w-100 btn--danger btn--pill">
                         Elimina
                         </button>
                       </td>
@@ -905,9 +905,9 @@ function GestioneTabelle() {
             )}
 
             {/* Sezione Drag & Drop per il Riordino degli Stati Avanzamento */}
-            <div className="drag-drop-section" style={{ marginTop: "2rem" }}>
+            <div className="flex-column-center" style={{ marginTop: "2rem" }}>
               <h2>Ordina Colonne Stati Avanzamento</h2>
-              <button onClick={saveNewOrder} className="btn-new-comm" style={{ marginBottom: "1rem" }}>
+              <button onClick={saveNewOrder} className="btn w-200 btn--blue btn--pill" style={{ marginBottom: "1rem" }}>
                 Salva ordine colonne
               </button>
               <DndProvider backend={HTML5Backend}>

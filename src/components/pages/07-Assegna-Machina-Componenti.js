@@ -57,7 +57,7 @@ function AssignedComponentsTable({ assignedComponents, availableComponents, onUp
               <td>{comp.componente || "Sconosciuto"}</td>
               <td>
                 {editRow === comp.componente_id ? (
-                  <select value={editedType} onChange={(e) => setEditedType(e.target.value)}>
+                  <select value={editedType} onChange={(e) => setEditedType(e.target.value)}className="w-200">
                     <option value="">Seleziona tipo</option>
                     {tipiDisponibili.map(option => (
                       <option key={option} value={option}>{option}</option>

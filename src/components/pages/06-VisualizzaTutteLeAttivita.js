@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import popup per la gestione/creazione/modifica dell'attività
@@ -138,11 +137,12 @@ function VisualizzaTutteLeAttivita() {
         setattivitaConReparto(attivitaConReparto);
 
         // Filtra le attività uniche (basandosi sul nome)
-        const uniqueActivities = Array.from(
-          new Set(attivitaDefiniteData.map((att) => att.nome_attivita))
-        ).map((nome) => ({ nome }));
-        setAttivitaDefinite(uniqueActivities);
-        setFilteredActivities(uniqueActivities);
+setAttivitaDefinite(attivitaDefiniteData); // mantiene tutto, incluso reparto_id
+
+const uniqueActivities = Array.from(
+  new Set(attivitaDefiniteData.map((att) => att.nome_attivita))
+).map((nome) => ({ nome }));
+setFilteredActivities(uniqueActivities); // usato solo per il rendering
 
         // Imposta un ID di modifica iniziale se esistono attività programmate
         if (attivitaProgrammateData.length > 0) {
@@ -354,7 +354,8 @@ function VisualizzaTutteLeAttivita() {
 
   // Chiude i suggerimenti se si clicca fuori dalla lista
   const closeSuggestions = (e) => {
-    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
+    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")&&
+  !e.target.closest(".dropdown-menu")) {
       setCommessaSuggestions([]);
     }
   };
@@ -375,18 +376,15 @@ function VisualizzaTutteLeAttivita() {
   // useEffect per chiudere i dropdown cliccando fuori
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (
-        activityDropdownRef.current &&
-        !activityDropdownRef.current.contains(e.target)
-      ) {
-        setShowActivityDropdown(false);
-      }
-      if (
-        stateDropdownRef.current &&
-        !stateDropdownRef.current.contains(e.target)
-      ) {
-        setShowStateDropdown(false);
-      }
+if (
+  !e.target.closest(".suggestions-list") &&
+  !e.target.closest("select") &&
+  !e.target.closest(".dropdown-menu") &&
+  !e.target.closest(".dropdown-label") // <--- aggiunto
+) {
+  setShowActivityDropdown(false);
+}
+
     };
     document.addEventListener("click", handleClickOutside);
     return () => {
@@ -414,13 +412,13 @@ function VisualizzaTutteLeAttivita() {
       )}
 
       {/* HEADER */}
-      <div className="header">
+      <div className="flex-center header-row">
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         <h1>Attività</h1>
       </div>
                    {/* Bottone per aprire/chiudere il menu */}
-            <div className="Commesse-completate" >
-        <button onClick={toggleBurgerMenu} className="burger-icon">
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
@@ -428,31 +426,27 @@ function VisualizzaTutteLeAttivita() {
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <button onClick={toggleBurgerMenu} className="close-burger">
-              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
             </button>
           </div>
           <div className="burger-menu-content">
-            <div className="filters-burger">
               <h3>Azioni</h3>
               {/* Bottone per aggiungere una nuova attività */}
-              <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+              <button onClick={handleAddNew} className="btn w-200 btn--blue btn--pill">
                 Aggiungi Attività
               </button>
-            </div> 
-            <div className="filters-burger">
               <h3>Filtri</h3>
-              {/* Sezione Filtri: sposta qui la sezione dei filtri */}
-              <div className="filter-group">
+               <div className="suggestion-wrapper w-200 ">
                 <input
                   type="text"
                   value={filters.commessa_id ? String(filters.commessa_id) : ""}
                   onChange={handleCommessaInputChange}
                   placeholder="Cerca commessa..."
-                  className="input-field"
+                  className="w-200"
                 />
                 {commessaSuggestions.length > 0 && (
-                  <ul className="suggestions-list">
+                  <ul className="suggestions-list w-200">
                     {commessaSuggestions
                       .filter((commessa) => {
                         let numeroCommessa;
@@ -476,14 +470,13 @@ function VisualizzaTutteLeAttivita() {
                       ))}
                   </ul>
                 )}
-              </div>
+ </div>
 
-              <div className="filter-group">
                 <select
                   name="reparto_id"
                   value={filters.reparto_id}
                   onChange={handleFilterChange}
-                  className="input-field"
+                  className="w-200"
                 >
                   <option value="">Seleziona reparto</option>
                   {reparti.map((reparto) => (
@@ -492,31 +485,29 @@ function VisualizzaTutteLeAttivita() {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="filter-group">
                 <select
                   name="risorsa_id"
                   value={filters.risorsa_id}
                   onChange={handleFilterChange}
-                  className="input-field"
+                  className="w-200 "
+           
                 >
                   <option value="">Seleziona risorsa</option>
                   {filteredRisorse.map((risorsa) => (
-                    <option key={risorsa.id} value={risorsa.id}>
+                    <option  key={risorsa.id} value={risorsa.id}>
                       {risorsa.nome}
                     </option>
                   ))}
                 </select>
-              </div>
 
-              <div className="filter-group" ref={activityDropdownRef}>
-                <label onClick={toggleActivityDropdown} className="dropdown-label">
+              <div className="suggestion-wrapper w-200" ref={activityDropdownRef}>
+                <label onClick={toggleActivityDropdown} className="dropdown-label w-200">
                   Seleziona attività
                 </label>
                 {showActivityDropdown && (
-                  <div className="dropdown-menu">
+                  <div className="dropdown-menu w-200" >
                     {filteredActivities.map((attivita) => (
+                      
                       <label key={attivita.nome}>
                         <input
                           type="checkbox"
@@ -532,12 +523,12 @@ function VisualizzaTutteLeAttivita() {
                 )}
               </div>
 
-              <div className="filter-group" ref={stateDropdownRef}>
-                <label onClick={toggleStateDropdown} className="dropdown-label">
+              <div className="suggestion-wrapper w-200" ref={stateDropdownRef}>
+                <label onClick={toggleStateDropdown} className="dropdown-label w-200">
                   Seleziona stato
                 </label>
                 {showStateDropdown && (
-                  <div className="dropdown-menu">
+                  <div className="dropdown-menu w-200">
                     {["0", "1", "2"].map((value) => (
                       <label key={value}>
                         <input
@@ -557,15 +548,14 @@ function VisualizzaTutteLeAttivita() {
               </div>
             </div>
           </div>
-        </div>
       )}
       
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
-      <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
         {/* Tabella delle attività filtrate */}
-        <div className="Gen-table-container">
-          <table className="software-schedule">
+         <div className= "Reparto-table-container ">
+          <table>
             <thead>
               <tr>
                 <th>Commessa</th>
@@ -610,10 +600,10 @@ function VisualizzaTutteLeAttivita() {
                           : "Sconosciuto"}
                       </td>
                       <td>
-                        <button className="btn btn-warning" onClick={() => handleEdit(attivita)}>
+                        <button className="btn w-100 btn--warning btn--pill" onClick={() => handleEdit(attivita)}>
                           Modifica
                         </button>
-                        <button className="btn btn-danger" onClick={() => handleDelete(attivita.id)}>
+                        <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(attivita.id)}>
                           Elimina
                         </button>
                       </td>

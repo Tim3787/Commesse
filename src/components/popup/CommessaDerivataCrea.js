@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../style.css";
+
 
 function CommessaDerivataCrea({ 
     commessaBase, 
@@ -235,11 +235,12 @@ useEffect(() => {
 
   return (
     <div className="popup">
+     <div className="popup-background">
       <div className="popup-content">
         <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
         <h2>Crea Commessa Derivata ({tipoDerivata})</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="flex-column-center">
             <label>Numero Commessa:</label>
             <input
               type="text"
@@ -247,7 +248,7 @@ useEffect(() => {
               value={formData.numero_commessa}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
             <label>Tipo Macchina:</label>
             <input
@@ -256,7 +257,7 @@ useEffect(() => {
               value={formData.tipo_macchina}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
             <label>Cliente:</label>
             <input
@@ -265,14 +266,14 @@ useEffect(() => {
               value={formData.cliente}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
             <label>Descrizione:</label>
             <textarea
               name="descrizione"
               value={formData.descrizione}
               onChange={handleChange}
-              className="input-field-100"
+              className="textarea w-400"
             />
             <label>Data Consegna:</label>
             <input
@@ -281,7 +282,7 @@ useEffect(() => {
               value={formData.data_consegna}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
             <label>Stato:</label>
             <select
@@ -289,7 +290,7 @@ useEffect(() => {
               value={formData.stato_commessa}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             >
               <option value={0}>Seleziona uno stato</option>
               {stato_commessa.map((st) => (
@@ -302,10 +303,10 @@ useEffect(() => {
   
           {/* Nuova sezione: Stati Iniziali per Reparti (collapsible) */}
           <h2>Stato Iniziale per Reparti</h2>
-            <div className="default-states-section">
+            <div className="flex-column-center">
               <button
                type="button" 
-                className="toggle-button"
+                className="btn w-200 btn--blue btn--pill"
                 onClick={() => setDefaultStatesVisible((prev) => !prev)}
               >
                 {defaultStatesVisible ? "▼" : "▶"} Seleziona stato iniziale per ogni reparto
@@ -319,14 +320,14 @@ useEffect(() => {
                         (st) => String(st.reparto_id) === String(rep.id)
                       );
                       return (
-                        <div key={rep.id} className="state-selection-group">
+                        <div key={rep.id} className="flex-column-center">
                           <label>{rep.nome}:</label>
                           <select
                             value={defaultStateSelections[rep.id] || "In Entrata"}
                             onChange={(e) =>
                               handleStateSelectionChange(rep.id, e.target.value)
                             }
-                            className="input-field-100"
+                            className="w-400"
                           >
                             {statiPerRep.map((st) => (
                               <option key={st.id} value={st.nome_stato}>
@@ -346,10 +347,10 @@ useEffect(() => {
           
           {/* Sezione per aggiungere attività predefinite (collapsible) */}
        {/*    <h2>Aggiungi attività default</h2>
-<div className="default-activities-section">
+<div className="flex-column-center">
   <button
     type="button"
-    className="toggle-button"
+    className="btn w-200 btn--blue btn--pill"
     onClick={() => setDefaultActivitiesVisible((prev) => !prev)}
   >
     {defaultActivitiesVisible ? "▼" : "▶"} Aggiungi attività default
@@ -401,16 +402,19 @@ useEffect(() => {
     </>
   )}
 </div>*/}
-
-          <button type="submit" className="btn-100" disabled={loading}>
+<div className="flex-column-center">
+          <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
             {loading ? "Salvataggio..." : "Crea"}
           </button>
+          </div>
         </form>
-  
-        <button onClick={onClose} className="btn-100">
+<div className="flex-column-center">
+        <button onClick={onClose} className="btn w-400 btn--danger btn--pill">
           Chiudi
         </button>
+        </div>
       </div>
+    </div>
     </div>
   );
   }

@@ -1,0 +1,852 @@
+
+/* ==============================
+da controllare
+============================== */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.85), rgba(17, 24, 39, 0.95));
+  z-index: 0;
+  }
+
+.commesse-list{
+  list-style: none;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+
+
+.container.gestione-utenti {
+  margin-top: 20px;
+}
+  .table-container {
+    max-height: 720px; /* Altezza massima per lo scrolling */
+    overflow-y: auto;  /* Scorrimento verticale */
+    border: 1px solid #ddd;
+  }
+
+
+.reparto-container {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+
+}
+
+.reparto-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.attivita-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.attivita-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+
+
+.table-hover tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+  .dropzone-placeholder {
+    height: 100vh;         /* Imposta l'altezza desiderata */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #aaa;
+    border: 1px dashed #ccc;
+  }
+  .dropzone{
+    height: 100vh;         /* Imposta l'altezza desiderata */
+   background-color:var(--bg-dark);
+  }
+
+
+
+   
+
+  
+  .software-schedule {
+    width: 100%;
+
+    border-collapse: collapse;
+  }
+  
+  .software-schedule th, 
+  .software-schedule td {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .software-schedule th {
+    position: -webkit-sticky;
+    position: sticky; /* Fissa l'intestazione */
+    top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
+    z-index: 1;       /* Assicurati che sia sopra le celle */
+    
+  }
+
+  .software-schedule td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2; /* Più alto per sovrapporsi alle celle */
+    background-color:  var(--bg-dark);
+     border: 1px solid #ddd;
+  }
+
+  .software-schedule tr {
+  background-color:var(--bg-dark);
+}
+.software2-schedule {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.software2-schedule th, 
+.software2-schedule td {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  text-align: left;
+
+}
+
+.software2-schedule th {
+  position: sticky; /* Fissa l'intestazione */
+  top: 0;           /* Fissa rispetto alla parte superiore del contenitore */
+  z-index: 1;       /* Assicurati che sia sopra le celle */
+  
+}
+
+
+
+    /* ==============================
+     calendario
+     ============================== */
+
+     .testCont {
+      width: 100%;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+    }
+    .fc-view-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 100px); /* Altezza dinamica, lascia spazio per header */
+      overflow-y: auto;
+    }
+    
+    .fc-scroller {
+      overflow-y: auto;
+      overflow-x: hidden; /* Rimuove lo scroll orizzontale dall'area principale */
+      height: calc(100% - 40px); /* Lascia spazio per la barra di scorrimento orizzontale */
+      position: relative;
+    }
+    
+    .scroll-wrapper {
+      position: relative;
+      width: 100%;
+      overflow-x: auto; /* Scroll orizzontale visibile in alto */
+    }
+    
+    .fc-timeline-body {
+      min-width: 100%; /* Mantiene il contenuto del calendario adattabile */
+      overflow-x: hidden; /* Nasconde scroll orizzontale non desiderato nella vista */
+    }
+    
+    .fc-timeline-header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: white;
+    }
+
+    .fc-event {
+      min-height: 30px;
+      min-width: 150px; /* Imposta un'altezza minima per gli eventi */
+    }
+
+.calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settimana {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #f9f9f9;
+  overflow-x: auto;
+}
+
+.settimana-giorni {
+  display: flex;
+  gap: 10px;
+}
+
+.giorno {
+  flex: 1;
+  text-align: center;
+}
+
+.categoria {
+  display: flex;
+  flex-direction: row;
+}
+
+.categoria-nome {
+  flex: 1;
+  font-weight: bold;
+  text-align: left;
+}
+
+.categoria-giorni {
+  display: flex;
+  gap: 10px;
+  flex: 9;
+}
+
+.categoria-giorno {
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 10px;
+  min-height: 50px;
+}
+
+.attivita-item {
+  background-color: #e6f7ff;
+  margin: 5px 0;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+
+.navigation {
+  display: flex;
+  justify-content:center;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-top:10px ;
+}
+
+.commessa-container {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+
+
+.container-Scroll{
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+
+}
+
+/* Contenitore principale (main content) */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+  margin-left: 0;
+  padding-top: 0px;
+}
+
+
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.note {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal; /* Permette al testo di andare a capo */
+  word-wrap: break-word;
+}
+
+
+    /* ==============================
+     tabs
+     ============================== */
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+
+.view-selector {
+  margin-bottom: 20px;
+}
+
+.view-selector label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.view-selector select {
+  padding: 5px;
+  font-size: 16px;
+}
+select[multiple] option:checked {
+  background-color: green;
+  color: white;
+}
+
+.duration-input {
+  width: 80px;
+  margin-left: 10px;
+  padding: 2px 4px;
+  font-size: 0.9em;
+}
+
+
+
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    
+    .collapsible-section {
+      margin-top: 20px;
+    }
+
+    .collapsible-section h3 {
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 5px;
+    }
+     .collapsible-section ul li {
+
+      padding-bottom: 7px;
+    }
+
+  
+    /* ==============================
+     select
+     ============================== */
+  
+.container select {
+
+padding-right: 30px; /* Spazio per l'icona */
+
+}
+
+
+
+.login-logo {
+  display: block;
+  margin: 20px auto 0;
+  width: 150px;
+  height: auto;
+}
+
+.login-logo.pulsing {
+  animation: pulse2 1s infinite;
+}
+
+
+    /* ==============================
+     buttons
+     ============================== */
+
+.highlighted-row {
+  animation: highlight 1s ease-in-out;
+  background-color:var(--hover-dark)
+}
+
+
+
+    /* ==============================
+     filters
+     ============================== */
+
+.filters {
+ 
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  display: flex
+}
+
+
+
+.filters.active {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.filters-burger{
+  padding: 8px 12px;
+}
+
+
+.filters-burger select {
+width: 250px;
+ margin-top: 10px;
+ margin-bottom:  10px;
+}
+
+
+
+.form-group {
+  position: relative; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dropdown-label {
+  cursor: pointer;
+  display: block;
+
+  border: 1px solid #ddd;
+  border-radius: 4px;
+
+}
+
+.dropdown-menu {
+ position: relative;
+  top: 20%; /* Appare subito sotto l'elemento padre */
+  border: 1px solid #ccc;
+  left: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  width: 90%; /* Si adatta alla larghezza dell'elemento padre */
+  padding: 8px 12px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+ background-color: var(--bg-dark);
+}
+
+.dropdown-menu label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  
+}
+
+.dropdown-menu input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.trasferta-icon {
+  margin-left: 5px;
+  font-size: 20px;
+  color: #007bff; /* Colore dell'icona */
+  vertical-align: middle;
+}
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+
+  .container {
+    max-width: 100%; /* Occupa tutta la larghezza */
+    padding: 10px;   /* Ulteriore riduzione del padding */
+    box-shadow: none; /* Rimuovi l'ombra per un design più piatto */
+    border-radius: 0; /* Rimuovi i bordi arrotondati */
+  }
+
+
+.header-row-month{
+  font-size: 20px;
+  }
+
+    .software-schedule td:first-child {
+    border: 1px solid #ddd;
+    max-width: 15px; /* Limita la larghezza massima */
+    word-wrap: break-word; /* Consente al testo di andare a capo */
+    white-space: normal; /* Permette di andare a capo se necessario */
+  }
+  .software-schedule th, 
+.software-schedule td {
+padding: 2px;
+  font-size: 13px;
+
+}
+
+  .header nav {
+    display: none;
+  }
+  .header {
+    flex-wrap: wrap; /* Permette di andare a capo quando necessario */
+  }
+
+  h1 {
+    font-size: 16px;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  .header nav.active {
+    display: flex;
+    flex-direction: column;
+  }
+  .filters, .tabs, .form-group {
+    flex-direction: column;
+    align-items: stretch;
+    font-size: 12px;
+  }
+
+  /* Aggiungi spaziatura uniforme tra gli elementi */
+  .filters > *:not(:last-child),
+  .tabs > *:not(:last-child),
+  .form-group > *:not(:last-child) {
+    margin-bottom: 10px; /* Spaziatura uniforme */
+  }
+
+  /* Rimuovi margini aggiuntivi dall'ultimo elemento */
+  .filters > *:last-child,
+  .tabs > *:last-child,
+  .form-group > *:last-child {
+    margin-bottom: 0;
+  }
+  th, td {
+    padding: 6px;
+    font-size: 16px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+  }
+  .container select{
+    font-size: 12px;
+  }
+  .input-field {
+    font-size: 12px;
+   max-width: 200px;
+  }
+  
+  .filter-group {
+max-width: 200px;
+   
+  }
+  
+.dropdown-label {
+  font-size: 12px;
+  padding: 10px;
+}
+
+.dropdown-menu {
+  font-size: 12px;
+}
+
+.dropdown-menu label {
+  font-size: 12px;
+  
+}
+
+  .login-container {
+   position: relative;
+  max-width: 250px;
+  margin: auto;
+  margin-top: 50px;
+  padding: 15px;
+  
+  
+}
+
+}
+
+
+@media (max-width: 480px) {
+
+
+}
+
+.burger-header{
+padding-top: 5px;
+padding-bottom: 5px;
+
+}
+
+@media (max-width: 480px) {
+
+  .header nav {
+    display: none; /* Nasconde il menu su schermi piccoli */
+    flex-direction: column; /* Disposizione verticale per il menu */
+    width: 100%; /* Occupare tutta la larghezza */
+    background-color: #fff; /* Sfondo bianco per il menu */
+    padding: 10px 0;
+  }
+  
+  .header nav.active {
+    display: flex; /* Mostra il menu quando è attivo */
+  }
+  
+
+  .sidebar {
+    display: none;
+  }
+  th, td {
+    padding: 5px;
+    font-size: 12px;
+  }
+  .filters, .tabs, .form-group {
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+
+
+
+}
+
+
+/* 
+
+form {
+  margin-bottom: 20px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+*/
+
+
+
+.Gen-table-container {
+  max-height: 78vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
+  overflow-x: auto; /* Abilita lo scroll orizzontale */
+  overflow-y: auto; /* Abilita lo scroll verticale se necessario */
+  border: 1px solid #ddd;
+}
+
+
+
+.Gen-schedule {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+/* Rendi la riga del titolo del reparto sticky in alto e orizzontalmente */
+.Gen-schedule th[colspan] {
+  position: sticky;
+  left: 0;  /* Fissa la colonna a sinistra */
+  top: 0;   /* Fissa la riga in alto */
+  z-index: 4; /* Priorità più alta per non essere coperto da altre celle */
+  padding: 10px;
+  border-right: 2px solid #ddd; /* Separazione con il resto della tabella */
+}
+
+/* Colonna "Risorsa" sticky */
+.Gen-schedule th:first-child
+{
+  position: sticky;
+  left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
+  z-index: 3; /* Priorità inferiore rispetto alla riga del titolo */
+  border-right: 1px solid #ddd;
+  color: rgb(1, 2, 2);
+}
+
+/* RISORSE */
+.Gen-schedule td:first-child {
+  position: sticky;
+  left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
+  z-index: 1; /* Priorità inferiore rispetto alla riga del titolo */
+  border-right: 1px solid #ddd;
+  background-color:  var(--bg-dark);
+  color: white;
+}
+
+/* DATE */
+.Gen-schedule thead tr:nth-child(2) th {
+  position: sticky;
+  top: 60px; /* Mantiene l'intestazione sotto il titolo del reparto */
+  z-index: 2;
+
+  border-bottom: 1px solid #ddd;
+  color: rgb(255, 255, 255);
+}
+
+
+
+
+.week-number {
+  text-align: center;
+  margin-top: 10px;
+
+}
+/* Aggiungi un'ombra per il titolo del reparto durante lo scroll */
+.Gen-schedule th[colspan].sticky {
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Colore per la data di oggi */
+.Gen-today-date {
+  color: #2bff00; /* Verde chiaro */
+  font-weight: bold;
+}
+
+/* Colore per le date del weekend */
+.Gen-weekend-date {
+  color: #ff3b3b; /* Rosso chiaro */
+  font-weight: bold;
+}
+@media (max-width: 480px) {
+.Gen-table-container {
+  max-height: 68vh; /* Limita l'altezza al 80% della viewport (modifica a piacere) */
+
+}
+
+}
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+  .Comm-calendar  th,
+  .Comm-calendar  td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .current-month {
+    font-size: 18px;
+  }
+
+}
+@media (max-width: 480px) {
+
+
+.Comm-event {
+  font-size: 12px;
+
+}
+}
+
+
+
+
+
+.activity5 {
+    padding: 5px;
+    margin: 2px;
+    border-radius: 4px;
+    color: #fff;
+    text-align: center;
+  }
+  
+  .activity5-type-default {
+    background-color: #3c3ff1; /* Grigio */
+  }
+  .activity5-type-sviluppo {
+    background-color: #5539b9; /* Verde */
+    color: #fff;
+  }
+  .activity5-type-special {
+    background-color: #007bff; /* Blu */
+  }
+  
+  .activity5-type-urgent {
+    background-color:var(--color-danger);
+  }
+  
+  .no-activity5 {
+    color: #ccc;
+    font-style: italic;
+  }
+ 
+  
+ 
+.search-commessa{
+  display: flex;
+  align-items:baseline;
+  flex-direction: row;
+  padding: 5px;
+  margin: 2px;
+  border-radius: 4px;
+  color: #fff;
+
+}
+.suggestions-list2 {
+  padding: 0;
+  margin: 0;
+  top: 100%; /* Posiziona la lista immediatamente sotto l'input */
+  left: 0;
+  z-index: 10; /* Assicura che la lista appaia sopra altri elementi */
+  border: 1px solid #ccc;
+  max-height: 150px;
+  width: calc(100% - 2px); /* Adatta la larghezza al contenitore */
+  overflow-y: auto;
+  border-radius: 4px; /* Opzionale, per arrotondare gli angoli */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Effetto ombra */
+  color: rgb(255, 255, 255);
+}
+.suggestions-list2 li {
+  padding: 10px;
+  cursor: pointer;
+  }
+  
+  .suggestions-list2 li:hover {
+   background-color: var(--hover-dark);
+  }

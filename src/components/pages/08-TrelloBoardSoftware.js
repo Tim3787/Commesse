@@ -104,7 +104,7 @@ const TrelloBoardSoftware = () => {
             <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
-      <div className="header">
+      <div className="flex-center header-row">
       <h1>Trello software</h1>
        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
@@ -115,7 +115,7 @@ const TrelloBoardSoftware = () => {
             value={commessaFilter}
             onChange={(e) => setCommessaFilter(e.target.value)}
              placeholder="Filtra per commessa"
-            className="input-field"
+            className="w-200"
           />
         </div>
         <div style={styles.board}>

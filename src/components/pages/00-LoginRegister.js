@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../style.css";
 import logo from "../img/logoBW.webp";
+import "../style/00-LoginRegister.css";
 
 // Import Toastify per le notifiche
 import { Zoom, ToastContainer, toast } from "react-toastify";
@@ -172,7 +172,7 @@ function LoginRegister({ onLogin }) {
         <form onSubmit={handleSubmit}>
           {/* Campo Username (solo per login e registrazione) */}
           {(formType === "login" || formType === "register") && (
-            <div>
+            <div className="flex-column-center">
               <label htmlFor="username">Username:</label>
               <input
                 id="username"
@@ -187,7 +187,7 @@ function LoginRegister({ onLogin }) {
           )}
           {/* Campo Email (solo per registrazione e recupero) */}
           {(formType === "register" || formType === "recover") && (
-            <div>
+            <div className="flex-column-centernter">
               <label htmlFor="email">Email:</label>
               <input
                 id="email"
@@ -203,7 +203,7 @@ function LoginRegister({ onLogin }) {
           )}
           {/* Campo Password (solo per login e registrazione) */}
           {(formType === "login" || formType === "register") && (
-            <div>
+            <div className="flex-column-center">
               <label htmlFor="password">Password:</label>
               <input
                 id="password"
@@ -217,7 +217,7 @@ function LoginRegister({ onLogin }) {
             </div>
           )}
           {/* Pulsante per inviare il form */}
-          <button type="submit" disabled={isLoading}>
+          <button type="submit" className="btn w-200 btn--shiny btn--pill"  disabled={isLoading}>
             {isLoading
               ? "Caricamento..."
               : formType === "login"
@@ -230,15 +230,15 @@ function LoginRegister({ onLogin }) {
 
         {/* Pulsanti per cambiare il tipo di form */}
         {formType !== "recover" && (
-          <button onClick={() => setFormType(formType === "login" ? "register" : "login")}>
+          <button className="btn w-200 btn--shiny btn--pill" style={{ margin: "10px" }} onClick={() => setFormType(formType === "login" ? "register" : "login")}>
             {formType === "login" ? "Vai alla Registrazione" : "Torna al Login"}
           </button>
         )}
         {formType === "login" && (
-          <button onClick={() => setFormType("recover")}>Recupera Password</button>
+          <button className="btn w-200 btn--shiny btn--pill" style={{ margin: "10px" }} onClick={() => setFormType("recover")}>Recupera Password</button>
         )}
         {formType === "recover" && (
-          <button onClick={() => setFormType("login")}>Torna al Login</button>
+          <button className="btn w-200 btn--shiny btn--pill" style={{ margin: "10px" }} onClick={() => setFormType("login")}>Torna al Login</button>
         )}
 
         {/* Logo dell'app con animazione durante il caricamento */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./05-CalendarioAttivita.css";
+import "../style/05-CalendarioAttivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import { getDaysInMonth } from "../assets/date";
 
@@ -210,7 +210,7 @@ function CalendarioAttivita() {
           <tr>
             <th colSpan={daysInMonth.length + 1}>
               <button
-                className="toggle-button-comm"
+                className="btn w-200 btn--shiny btn--pill"
                 onClick={() => toggleSectionVisibility(repartoId)}
               >
                 {isVisible ? "▼" : "▶"} {repartoName}
@@ -288,10 +288,10 @@ function CalendarioAttivita() {
         {activities.map((activity) => {
           const activityClass =
             activity.stato === 0
-              ? "activity-not-started"
+              ? "activity not-started"
               : activity.stato === 1
-              ? "activity-started"
-              : "activity-completed";
+              ? "activity started"
+              : "activity completed";
           // Verifica se l'attività riguarda una trasferta (es. "trasferta" incluso nel nome)
           const isTrasferta = activity.nome_attivita
             ?.toLowerCase()
@@ -325,16 +325,14 @@ function CalendarioAttivita() {
   // ------------------------------------------------------------------
   return (
    <div className="page-wrapper">
-      {/* HEADER */}
-      <div className="header">
-        <h1>Calendario attività </h1>
-        <div className="calendar-navigation">
-
-          <button onClick={goToPreviousMonth} className="btn-Nav">
+      <div className=" header">
+        <h1>CALENDARIO ATTIVITÀ </h1>
+        <div className="flex-center header-row">
+          <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-         <div className="month"> {meseCorrente}</div>
-          <button onClick={goToNextMonth} className="btn-Nav">
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
@@ -345,9 +343,10 @@ function CalendarioAttivita() {
           </div>
         )}
       </div>
+      
         {/* Tabella con il calendario e le sezioni per ciascun reparto */}
-        <div className="Gen-table-container">
-          <table className="Gen-schedule">
+        <div className="container">
+          <table className="Calendario-table">
             {renderRepartoSection(1, "Reparto Software")}
             {renderRepartoSection(2, "Reparto Elettrico")}
             {renderRepartoSection(15, "Reparto Quadri")}

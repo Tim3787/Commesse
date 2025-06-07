@@ -3,7 +3,7 @@ import axios from "axios";
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-  timeout: 10000, // Timeout di 10 secondi
+    timeout: 15000, // Timeout di 15 secondi
 });
 
 export const fetchUsers = async () => {
@@ -22,6 +22,21 @@ export const fetchUserName = async (token) => {
     return currentUser ? currentUser.username || "Utente" : "Utente";
   } catch (error) {
     console.error("Errore durante il recupero del nome utente:", error);
+    throw error;
+  }
+};
+
+export const fetchCurrentUser = async (token) => {
+  try {
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const userId = decoded.id;
+
+    const users = await fetchUsers(); // usa la tua funzione esistente
+    const currentUser = users.find((user) => user.id === userId);
+
+    return currentUser || null;
+  } catch (error) {
+    console.error("Errore nel recupero dell'utente:", error);
     throw error;
   }
 };

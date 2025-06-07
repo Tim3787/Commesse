@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import ".././style.css";
 import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
 import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-
+import SchedaTecnica from "./SchedaTecnicaEdit.js";
+import { fetchSchedeTecniche } from "../services/API/schedeTecniche-api";
 
 function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const [attivita, setAttivita] = useState([]);
@@ -15,6 +15,12 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const [expandedReparti, setExpandedReparti] = useState({});
   const [statiCommessa, setStatiCommessa] = useState([]);
   const token = sessionStorage.getItem("token");
+
+  const [schedeAperte, setSchedeAperte] = useState({});
+  const [popupScheda, setPopupScheda] = useState(null);
+
+    const [schede, setSchede] = useState([]);
+
 
   // Gestione locale della commessa per aggiornare il valore visualizzato
   const [localCommessa, setLocalCommessa] = useState(commessa);
@@ -129,6 +135,37 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
     onClose();
   };
 
+  
+  // ------------------------------------------------------------------
+  // Schede
+  // ------------------------------------------------------------------
+  const toggleSchede = (commessaId) => {
+  setSchedeAperte(prev => ({
+    ...prev,
+    [commessaId]: !prev[commessaId]
+  }));
+};
+
+const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
+  setPopupScheda({
+    commessaId,
+    numero_commessa,
+    schedaInModifica: schedaInModifica || null,
+  });
+};
+
+useEffect(() => {
+  if (!localCommessa?.commessa_id) return;
+
+  setLoading(true);
+  fetchSchedeTecniche(localCommessa.commessa_id)
+    .then(setSchede)
+    .catch(err => console.error("Errore nel caricamento delle schede:", err))
+    .finally(() => setLoading(false));
+}, [localCommessa.commessa_id]);
+
+
+
   return (
     <div className="popup-Big">
       <div className="popup-Big-content">
@@ -160,7 +197,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                 handleStatoChange(Number(localCommessa.commessa_id), Number(e.target.value))
               }
               required
-              className="input-field"
+              className="w-200"
             >
               <option value="">Seleziona uno stato</option>
               {statiCommessa.map((st) => (
@@ -223,7 +260,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
                       {reparto} {expandedReparti[reparto] ? "▲" : "▼"}
                     </h3>
                     {expandedReparti[reparto] && (
-                      <table className="activities2-table">
+                      <table>
                         <thead>
                           <tr>
                             <th>Nome Attività</th>
@@ -264,11 +301,67 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
             </>
           )}
         </div>
+                <div className="collapsible-section">
+         <button
+           className="btn btn-txt-white"
+     onClick={() => toggleSchede(localCommessa.commessa_id)}
+   >
+    {schedeAperte[localCommessa.commessa_id] ? "SCHEDE ▲" : "SCHEDE ▼"}
+  </button>
 
-        <button className="close-button" onClick={handleClosePopup}>
+  {schedeAperte[localCommessa.commessa_id] && (
+ <div className="flex-column-left">
+      {loading ? (
+        <p>Caricamento schede...</p>
+      ) : (
+        <>
+          {schede.length === 0 ? (
+            <p>Nessuna scheda</p>
+          ) : (
+           <ul style={{ listStyleType: "none", padding: 2,margin: 0, height: "fit-content" }}>
+
+              {schede.map((s) => (
+                <li key={s.id}>
+                  <button
+      className="btn btn-txt-white"
+      onClick={() =>
+  apriPopupScheda({
+    commessaId: localCommessa.commessa_id,
+    numero_commessa: localCommessa.numero_commessa,
+    schedaInModifica: s,
+  })
+}
+    > 
+    {s.tipo}
+    </button>
+                </li>
+              ))}
+            </ul>
+          )}
+     <div className="flex-column-center">
+</div>
+        </>
+      )}
+    </div>
+  )}
+</div>
+        <button className="btn w-200 btn--danger btn--pill" onClick={handleClosePopup}>
           Chiudi
         </button>
       </div>
+            {popupScheda && (
+  <SchedaTecnica
+    editable={false}
+    commessaId={popupScheda.commessaId}
+    numero_commessa={popupScheda.numero_commessa}
+    schedaInModifica={popupScheda.schedaInModifica}
+    setSchedaInModifica={(val) =>
+      
+      setPopupScheda((prev) => ({ ...prev, schedaInModifica: val }))
+    }
+    onClose={() => setPopupScheda(null)}
+  />
+)}
     </div>
   );
 }

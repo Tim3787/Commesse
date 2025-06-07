@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./00-Dashboard.css";
 import CommessaDettagli from "../popup/CommessaDettagli";
+import logo from "../img/Animation - 1738249246846.gif";
+import  "../style/02-StatoAvanzamento-reparto.css";
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -555,8 +556,7 @@ if (RepartoName === "software") {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        !event.target.closest(".suggestions-list") &&
-        !event.target.closest(".input-field-100")
+!event.target.closest(".input") && !event.target.closest(".w-200")
       ) {
         setShowCommessaSuggestions(false);
         setShowClienteSuggestions(false);
@@ -815,13 +815,18 @@ if (RepartoName === "software") {
     <div className="page-wrapper">
       {/* HEADER */}
       <div className="header">
-        <h1>Stato Avanzamento {RepartoName}</h1>
+        <h1>STATO AVANZAMENTO {RepartoName.toUpperCase()}</h1>
+        </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-        {loading && <div className="loading-overlay">Caricamento...</div>}
-      </div>
+                {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}
+      
                    {/* Bottone per aprire/chiudere il menu */}
-            <div className="Commesse-completate" >
-        <button onClick={toggleBurgerMenu} className="burger-icon">
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
@@ -829,25 +834,23 @@ if (RepartoName === "software") {
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <button onClick={toggleBurgerMenu} className="close-burger">
-              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
             </button>
           </div>
           <div className="burger-menu-content">
-          <div className="filters-burger">
         <h3>Filtri</h3>
-        {/* Filtro per Numero Commessa */}
-        <div className="filter-group">
+        <div className="suggestion-wrapper w-200 ">
           <input
             type="text"
             placeholder="Numero Commessa"
             value={numeroCommessaFilter}
             onChange={(e) => setNumeroCommessaFilter(e.target.value)}
             onFocus={() => setShowCommessaSuggestions(true)}
-            className="input-field-100"
+            className="w-200"
           />
           {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
-            <ul className="suggestions-list">
+            <ul className="suggestions-list w-200">
               {suggestionsCommessa
                 .filter((value) =>
                   value.toString().toLowerCase().includes(numeroCommessaFilter.toLowerCase())
@@ -867,18 +870,17 @@ if (RepartoName === "software") {
           )}
         </div>
 
-        {/* Filtro per Cliente */}
-        <div className="filter-group">
+        <div className="suggestion-wrapper w-200 ">
           <input
             type="text"
             placeholder="Cliente"
             value={clienteFilter}
             onChange={(e) => setClienteFilter(e.target.value)}
             onFocus={() => setShowClienteSuggestions(true)}
-            className="input-field-100"
+            className="w-200"
           />
           {showClienteSuggestions && suggestionsCliente.length > 0 && (
-            <ul className="suggestions-list">
+            <ul className="suggestions-list w-200">
               {suggestionsCliente
                 .filter((value) =>
                   value.toLowerCase().includes(clienteFilter.toLowerCase())
@@ -898,18 +900,17 @@ if (RepartoName === "software") {
           )}
         </div>
 
-        {/* Filtro per Tipo Macchina */}
-        <div className="filter-group">
+        <div className="suggestion-wrapper w-200 ">
           <input
             type="text"
             placeholder="Tipo Macchina"
             value={tipoMacchinaFilter}
             onChange={(e) => setTipoMacchinaFilter(e.target.value)}
             onFocus={() => setShowTipoMacchinaSuggestions(true)}
-            className="input-field-100"
+            className="w-200"
           />
           {showTipoMacchinaSuggestions && suggestionsTipoMacchina.length > 0 && (
-            <ul className="suggestions-list">
+            <ul className="suggestions-list w-200">
               {suggestionsTipoMacchina
                 .filter((value) =>
                   value.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
@@ -929,8 +930,6 @@ if (RepartoName === "software") {
           )}
         </div>
 
-              <h3>Opzioni </h3>
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -939,8 +938,6 @@ if (RepartoName === "software") {
                   />
                   Confronto con lista Trello
                 </label>
-              </div>
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -949,8 +946,6 @@ if (RepartoName === "software") {
                   />
                   Confronto esistenza su Trello
                 </label>
-              </div>
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -959,8 +954,7 @@ if (RepartoName === "software") {
                   />
                   Allarmi Note
                 </label>
-              </div>
-              <div className="filters-burger">
+
                 <label>
                   <input
                     type="checkbox"
@@ -969,8 +963,7 @@ if (RepartoName === "software") {
                   />
                   Allarmi Attività Aperte
                 </label>
-              </div>
-              <div className="filters-burger">
+
                 <label>
                   <input
                     type="checkbox"
@@ -979,8 +972,7 @@ if (RepartoName === "software") {
                   />
                   Vedi anche consegnate
                 </label>
-              </div>
-              <div className="filters-burger">
+
                 <label>
                   <input
                     type="checkbox"
@@ -989,8 +981,7 @@ if (RepartoName === "software") {
                   />
                   Allarme consegna nel mese
                 </label>
-              </div>
-              <div className="filters-burger">
+
                 <label>
                   <input
                     type="checkbox"
@@ -999,10 +990,10 @@ if (RepartoName === "software") {
                   />
                   Allarme consegna nella settimana
                 </label>
-              </div>
+
               {RepartoName === "software" && (
   <>
-    <div className="filters-burger">
+
       <label>
         <input
           type="checkbox"
@@ -1011,8 +1002,7 @@ if (RepartoName === "software") {
         />
         Visualizza commesse R-
       </label>
-    </div>
-    <div className="filters-burger">
+
       <label>
         <input
           type="checkbox"
@@ -1021,25 +1011,23 @@ if (RepartoName === "software") {
         />
         Visualizza commesse M-
       </label>
-    </div>
+
   </>
 )}
 
 
-            </div>
-            <div className="filters-burger">
               <h3>Azioni</h3>
-              <button onClick={saveNewOrder}>Salva ordine colonne</button>
-            </div>
+              <button className="btn w-200 btn--blue btn--pill " onClick={saveNewOrder}>Salva ordine colonne</button>
+
           </div>
-        </div>
+          </div>
       )}
 
       {/* CONTENUTO PRINCIPALE */}
-      <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         <DndProvider backend={HTML5Backend}>
-          <div className="Gen-table-container">
-            <table className="software2-schedule">
+          <div className= "Avanzamento-table-container ">
+            <table>
               <thead>
                 <tr>
                   {columnOrder.map((stato, index) => (

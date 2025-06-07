@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./05-Gantt-Attivita.css";
+import  "../style/05-Gantt-Attivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // API per ottenere la lista delle commesse e le attività associate
@@ -321,15 +321,15 @@ useEffect(() => {
   return (
     <div className="page-wrapper">
       {/* HEADER */}
-      <div className="header">
+      <div className="flex-column-center">
         <h1>VISUALIZZA LE ATTIVITA' DI</h1>
-                <div className="calendar-navigation">
+                <div className="flex-center header-row">
 
-          <button onClick={goToPreviousMonth} className="btn-Nav">
+          <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-         <div className="month"> {meseCorrente}</div>
-          <button onClick={goToNextMonth} className="btn-Nav">
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
@@ -343,11 +343,11 @@ useEffect(() => {
   setShowSuggestions(true);
 }}
             placeholder="Inserisci numero commessa"
-            className="input-field"
+            className="w-200"
           />
           {/* Se ci sono suggerimenti, mostra il box dei suggerimenti */}
 {numeroCommessa && filteredSuggestions.length > 0 && showSuggestions && (
-  <ul className="suggestions-list2" ref={suggestionsRef}>
+  <ul className="suggestions-list w-200" ref={suggestionsRef}>
     {filteredSuggestions.map((suggestion, index) => (
       <li
         key={index}
@@ -366,7 +366,7 @@ useEffect(() => {
    <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA'</h1>
           {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-  <button onClick={handleResetSearch} className="btn-Nav">
+  <button onClick={handleResetSearch} className="btn w-200 btn--shiny btn--pill">
     Visualizza tutto
   </button>
 </div>
@@ -381,7 +381,7 @@ useEffect(() => {
 
 
 
-        <div className="Gen-table-container">{renderCalendar()}</div>
+        <div className="container">{renderCalendar()}</div>
       </div>
 
   );

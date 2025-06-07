@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
+
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import API per le varie entità
@@ -213,27 +213,30 @@ function PrenotazioneSale() {
   // Rendering del componente
   // ------------------------------------------------------------------
   return (
-    <div className="container">
-      {/* Overlay di caricamento */}
+    <div className="page-wrapper">
+    <div className="header">
+      <div className="flex-center header-row">
+      <h1>PRENOTAZIONE SALE RIUNIONI</h1>
+      </div>
+      </div>
+      <div className="container">
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       {loading && (
         <div className="loading-overlay">
           <img src={logo} alt="Caricamento" className="logo-spinner" />
         </div>
       )}
-
-      <h1>Prenotazione Sale Riunioni</h1>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-
       {/* Form per la prenotazione */}
       <form onSubmit={handleSubmit}>
         {/* Campo per selezionare l'ID della sala */}
-        <div className="form-group-100">
+        <div className="flex-column-center">
           <label>ID Sala:</label>
           <select
             name="salaId"
             value={newPrenotazione.salaId}
             onChange={handleChange}
             required
+            className="w-400"
           >
             <option value="1">1 - Grande</option>
             <option value="2">2 - Piccola</option>
@@ -241,7 +244,7 @@ function PrenotazioneSale() {
         </div>
 
         {/* Campo per la data e ora */}
-        <div className="form-group-100">
+        <div className="flex-column-center">
           <label>Data e Ora:</label>
           <input
             type="datetime-local"
@@ -249,11 +252,12 @@ function PrenotazioneSale() {
             value={newPrenotazione.dataOra}
             onChange={handleChange}
             required
+            className="w-400"
           />
         </div>
 
         {/* Campo per la durata */}
-        <div className="form-group-100">
+        <div className="flex-column-center">
           <label>Durata (in minuti):</label>
           <input
             type="number"
@@ -261,11 +265,12 @@ function PrenotazioneSale() {
             value={newPrenotazione.durata}
             onChange={handleChange}
             required
+            className="w-400"
           />
         </div>
 
         {/* Campo per la descrizione */}
-        <div className="form-group-100">
+        <div className="flex-column-center">
           <label>Descrizione:</label>
           <input
             type="text"
@@ -273,11 +278,12 @@ function PrenotazioneSale() {
             value={newPrenotazione.descrizione}
             onChange={handleChange}
             required
+            className="w-400"
           />
         </div>
 
         {/* Campo per l'utente con funzionalità di suggerimento */}
-        <div className="form-group-100">
+        <div className="flex-column-center">
           <label>Utente:</label>
           <input
             type="text"
@@ -288,10 +294,10 @@ function PrenotazioneSale() {
               handleUtenteInput(e.target.value);
             }}
             placeholder="Cerca utente..."
-            className="input-field"
+            className="w-400"
           />
           {showUtenteSuggestions && (
-            <ul className="suggestions-list">
+            <ul className="suggestions-list w-200">
               {filteredUtenti.map((utente) => (
                 <li
                   key={utente.id}
@@ -306,7 +312,8 @@ function PrenotazioneSale() {
         </div>
 
         {/* Pulsante per il submit */}
-        <button type="submit" className="btn-100" disabled={loading}>
+        <div className="flex-column-center">
+        <button type="submit" className="btn w-400 btn--blue  btn--pill" disabled={loading}>
           {loading
             ? "Salvataggio..."
             : isEditing
@@ -316,14 +323,15 @@ function PrenotazioneSale() {
 
         {/* Pulsante per annullare l'editing */}
         {isEditing && (
-          <button type="button" className="btn-100" onClick={resetForm}>
+          <button type="button" className="btn w-400 btn--danger btn--pill" onClick={resetForm}>
             Annulla
           </button>
         )}
+        </div>
       </form>
 
       {/* Tabella delle prenotazioni */}
-      <table className="table">
+      <table>
         <thead>
           <tr>
             <th>ID Sala</th>
@@ -352,13 +360,13 @@ function PrenotazioneSale() {
               <td>{prenotazione.utente}</td>
               <td>
                 <button
-                  className="btn btn-warning"
+                  className="btn w-100 btn--warning btn--pill"
                   onClick={() => handleEdit(prenotazione)}
                 >
                   Modifica
                 </button>
                 <button
-                  className="btn btn-danger"
+                  className="btn w-100 btn--danger btn--pill"
                   onClick={() => handleDeletePrenotazione(prenotazione.id)}
                   disabled={deleteLoadingId === prenotazione.id}
                 >
@@ -372,6 +380,7 @@ function PrenotazioneSale() {
         </tbody>
       </table>
     </div>
+   </div>
   );
 }
 

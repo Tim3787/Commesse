@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./05-CalendarioCommesse.css";
+import "../style/05-CalendarioCommesse.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import CommessaDettagli from "../popup/CommessaDettagli";
 
@@ -180,23 +180,23 @@ function CalendarioCommesse() {
   // ------------------------------------------------------------------
   function CalendarDay({ day }) {
     if (!day) {
-      return <td className="Comm-empty-cell"></td>;
+      return <td className="Calendario-commesse-empty-cell"></td>;
     }
 
     // Recupera le commesse per il giorno, separate per tipo "FAT" e "Consegna"
     const fatCommesse = getCommesseForDay(day, "FAT");
     const consegnaCommesse = getCommesseForDay(day, "Consegna");
-    const todayClass = isToday(day) ? "Comm-today-cell" : "";
+    const todayClass = isToday(day) ? "Calendario-commesse-today-cell" : "";
     return (
       // Se il giorno è oggi, assegna il ref per permettere lo scroll
-      <td ref={isToday(day) ? todayRef : null} className={`Comm-calendar-day ${todayClass}`}>
-        <div className="Comm-day-header">{day.getDate()}</div>
+      <td ref={isToday(day) ? todayRef : null} className={`Calendario-commesse-table-day ${todayClass}`}>
+        <div className="Calendario-commesse-day-header">{day.getDate()}</div>
 
         {/* Renderizza le commesse FAT */}
         {fatCommesse.map((commessa) => (
           <div
             key={`${commessa.commessa_id}-FAT`}
-            className="Comm-event fat"
+            className="Calendario-commesse-event fat"
             onClick={() => handleCommessaClick(commessa)}
           >
             <span>FAT:</span>
@@ -211,7 +211,7 @@ function CalendarioCommesse() {
         {consegnaCommesse.map((commessa) => (
           <div
             key={`${commessa.commessa_id}-Consegna`}
-            className="Comm-event scadenza"
+            className="Calendario-commesse-event scadenza"
             onClick={() => handleCommessaClick(commessa)}
           >
             <strong>{commessa.numero_commessa}</strong>
@@ -245,16 +245,14 @@ function CalendarioCommesse() {
   // ------------------------------------------------------------------
   return (
    <div className="page-wrapper">
-      {/* HEADER */}
-      <div className="header">
-        <h1>Calendario commesse e FAT </h1>
-        <div className="calendar-navigation">
-
-          <button onClick={goToPreviousMonth} className="btn-Nav">
+        <div className=" header">
+        <h1>CALENDARIO COMMESSE E FAT </h1>
+        <div className="flex-center header-row">
+          <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-         <div className="month"> {meseCorrente}</div>
-          <button onClick={goToNextMonth} className="btn-Nav">
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
@@ -265,9 +263,8 @@ function CalendarioCommesse() {
           </div>
         )}
       </div>
-        {/* Container scrollabile per il calendario */}
-        <div ref={containerRef} className="Comm-table-container">
-          <table className="Comm-calendar ">
+        <div ref={containerRef} className="container">
+          <table className="Calendario-commesse-table ">
             <thead>
               <tr>
                 <th>Domenica</th>

@@ -1,0 +1,44 @@
+.page-wrapper {
+display: block;
+position: relative;
+height: 100%; 
+overflow-y: auto;
+overflow-x: auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 1000%; 
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+overflow-x: auto;
+white-space: nowrap;
+}
+
+.container.shifted {
+  margin-left: 300px; 
+  background-color: #ffffff;
+}
+
+.container-Scroll{
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+
+}
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+
+.container.shifted {
+  margin-left: 200px; 
+  background-color: #ffffff;
+}
+  
+}

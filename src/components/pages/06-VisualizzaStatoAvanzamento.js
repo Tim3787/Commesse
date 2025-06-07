@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GestioneStatiAvanzamento from "../assets/GestioneStatiAvanzamento";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -339,7 +338,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
             <img src={logo} alt="Logo"  className="logo-spinner"/>
         </div>
       )}
-           <div className="header">
+           <div className="flex-center header-row">
       <h1>Stati avanzamento</h1>
        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>
@@ -355,10 +354,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
           value={commessaFilter}
           onChange={handleCommessaChange}
           onClick={(e) => e.stopPropagation()} 
-          className="input-field"
+          className="w-200"
         />
         {showCommessaSuggestions && (
-          <ul className="suggestions-list">
+          <ul className="suggestions-list w-200">
             {suggestionsCommessa
               .filter((commessa) => commessa.toString().includes(commessaFilter))
               .map((commessa, index) => (
@@ -378,10 +377,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
           value={clienteFilter}
           onChange={handleClienteChange}
           onClick={(e) => e.stopPropagation()} 
-          className="input-field"
+          className="w-200"
         />
         {showClienteSuggestions && (
-          <ul className="suggestions-list">
+          <ul className="suggestions-list w-200">
             {suggestionsCliente
               .filter((cliente) => cliente.toLowerCase().includes(clienteFilter.toLowerCase()))
               .map((cliente, index) => (
@@ -400,10 +399,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
           value={tipoMacchinaFilter}
           onChange={handleTipoMacchinaChange}
           onClick={(e) => e.stopPropagation()} 
-          className="input-field"
+          className="w-200"
         />
         {showTipoMacchinaSuggestions && (
-          <ul className="suggestions-list">
+          <ul className="suggestions-list w-200">
             {suggestionsTipoMacchina
               .filter((tipo) => tipo.toLowerCase().includes(tipoMacchinaFilter.toLowerCase()))
               .map((tipo, index) => (
@@ -418,10 +417,10 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   )}
       {/* Navigazione */}
       <div className="navigation">
-        <button onClick={() => handleNavigation("prev")} className="btn-Nav">
+        <button onClick={() => handleNavigation("prev")} className="btn w-50 btn--shiny btn--pill">
           &lt; Precedente
         </button>
-        <button onClick={() => handleNavigation("next")}  className="btn-Nav">
+        <button onClick={() => handleNavigation("next")}  className="btn w-50 btn--shiny btn--pill">
           Successiva &gt;
         </button>
       </div>

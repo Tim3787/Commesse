@@ -1,0 +1,31 @@
+  .today {
+    background-color:  #01c3f3;
+    font-weight: bold;
+  }
+
+  .highlight {
+    background-color: var(--hover-dark);
+    transition: background-color 0.3s;
+  }
+
+    
+  .weekend-cell {
+     background-color: #1e263a; /* Colore di sfondo per il weekend */
+  }
+  .weekend {
+
+    color: #b80505; /* Colore del testo per sabato e domenica */
+     background-color: #1e263a;
+  }
+
+  
+  .weekend td {
+    color: #d9534f; /* Colore del testo per sabato e domenica */
+    font-weight: bold; /* Facoltativo, rende il testo più evidente */
+  }
+
+  
+  .today td {
+    color: #1c0796; /* Colore del testo per la data di oggi */
+    font-weight: bold; /* Evidenzia il testo */
+  }

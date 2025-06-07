@@ -188,7 +188,7 @@ useEffect(() => {
           <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
-      <div className="header">
+      <div className="flex-center header-row">
         <h1>Commesse esistenti solo su Trello</h1>
          <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       </div>

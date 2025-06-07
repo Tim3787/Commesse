@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../style.css";
+
 
 // Import per Toastify (per mostrare notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -361,11 +361,12 @@ const handleStateSelectionChange = (repartoId, value) => {
 };
 return (
   <div className="popup">
+    <div className="popup-background">
     <div className="popup-content">
       <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
       <h2>{isEditing ? "Modifica Commessa" : "Crea Commessa"}</h2>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="flex-column-center">
           <label>Numero Commessa:</label>
           <input
             type="text"
@@ -373,7 +374,7 @@ return (
             value={formData.numero_commessa}
             onChange={handleChange}
             required
-            className="input-field-100"
+            className="w-400"
           />
           <label>Tipo Macchina:</label>
           <input
@@ -382,7 +383,7 @@ return (
             value={formData.tipo_macchina}
             onChange={handleChange}
             required
-            className="input-field-100"
+            className="w-400"
           />
           <label>Cliente:</label>
           <input
@@ -391,14 +392,14 @@ return (
             value={formData.cliente}
             onChange={handleChange}
             required
-            className="input-field-100"
+            className="w-400"
           />
           <label>Descrizione:</label>
           <textarea
             name="descrizione"
             value={formData.descrizione}
             onChange={handleChange}
-            className="input-field-100"
+            className="textarea w-400"
           />
           <label>Data Consegna:</label>
           <input
@@ -407,7 +408,7 @@ return (
             value={formData.data_consegna}
             onChange={handleChange}
             required
-            className="input-field-100"
+            className="w-400"
           />
           <label>Data FAT:</label>
           <input
@@ -415,14 +416,14 @@ return (
             name="data_FAT"
             value={formData.data_FAT}
             onChange={handleChange}
-            className="input-field-100"
+            className="w-400"
           />
           <label>Altri Particolari:</label>
           <textarea
             name="altri_particolari"
             value={formData.altri_particolari}
             onChange={handleChange}
-            className="input-field-100"
+            className="textarea w-400"
           />
           <label>Stato:</label>
           <select
@@ -430,7 +431,7 @@ return (
             value={formData.stato_commessa}
             onChange={handleChange}
             required
-            className="input-field-100"
+            className="w-400"
           >
             <option value={0}>Seleziona uno stato</option>
             {stato_commessa.map((st) => (
@@ -444,11 +445,12 @@ return (
         {/* Nuova sezione: Stati Iniziali per Reparti (collapsible) */}
         {!isEditing && (
             <>
-        <h2>Stato Iniziale per Reparti</h2>
-          <div className="default-states-section">
+        
+          <div className="flex-column-center">
+            <h2>Stato Iniziale per Reparti</h2>
             <button
              type="button" 
-              className="toggle-button"
+              className="btn w-400 btn--blue btn--pill"
               onClick={() => setDefaultStatesVisible((prev) => !prev)}
             >
               {defaultStatesVisible ? "▼" : "▶"} Seleziona stato iniziale per ogni reparto
@@ -469,7 +471,7 @@ return (
                           onChange={(e) =>
                             handleStateSelectionChange(rep.id, e.target.value)
                           }
-                          className="input-field-100"
+                          className="select large"
                         >
                           {statiPerRep.map((st) => (
                             <option key={st.id} value={st.nome_stato}>
@@ -488,11 +490,12 @@ return (
           </div>
         
         {/* Sezione per aggiungere attività predefinite (collapsible) */}
-        <h2>Aggiungi attività default</h2>
-        <div className="default-activities-section">
+        
+        <div className="flex-column-center">
+          <h2>Aggiungi attività default</h2>
           <button
            type="button" 
-            className="toggle-button"
+            className="btn w-400 btn--blue btn--pill"
             onClick={() => setDefaultActivitiesVisible((prev) => !prev)}
           >
             {defaultActivitiesVisible ? "▼" : "▶"} Aggiungi attività default
@@ -547,14 +550,18 @@ return (
         </div>
         </>
           )}
-        <button type="submit" className="btn-100" disabled={loading}>
+<div className="flex-column-center">
+        <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
           {loading ? "Salvataggio..." : isEditing ? "Aggiorna" : "Crea"}
         </button>
+</div>
       </form>
-
-      <button onClick={onClose} className="btn-100">
+<div className="flex-column-center">
+      <button onClick={onClose} className="btn w-400 btn--danger btn--pill">
         Chiudi
       </button>
+      </div>
+    </div>
     </div>
   </div>
 );

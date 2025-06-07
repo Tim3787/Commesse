@@ -1,0 +1,171 @@
+@import './variables.css';
+
+.btn {
+  display: block;
+  margin: 2px; 
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  font-family: var( --font-pb);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+    }
+
+   
+.btn:disabled {
+  background-color: #ccc;
+cursor: not-allowed;
+}
+
+.btn--shiny{
+  color:var(--text-light);
+  background-image: var( --color-blue-shiny);
+}
+
+.btn--shiny:hover {
+filter: brightness(1.5);
+}
+
+.btn--pill{
+border-radius: var(  --btn-border-radius-pill);
+}
+
+.btn--ghost {
+color:var(--text-light);
+background: none;
+border: none;
+}
+.btn--ghost:hover{
+filter: brightness(1.5);
+}
+
+.btn--border {
+color:var( --text-dark);
+border: 1px solid #000000;
+background: none;
+}
+
+.btn-txt-white{
+color:var(--text-light);
+border: none;
+background: none;
+font-size: 1.17em;
+margin-block-start: 1em;
+margin-block-end: 1em;
+margin-inline-start: 0px;
+margin-inline-end: 0px;
+font-weight: bold;
+unicode-bidi: isolate;
+padding: 0;
+}
+/* ==============================
+Activity
+============================== */
+
+.btn--start {
+background-color: var(--color-start);
+color: var(--text-light);
+  }
+.btn--start:hover {
+background-color: var(--color-start-hover);
+color: var(--text-light);
+  }
+
+.btn--complete {
+background-color:var(--color-complete);
+color: var(--text-light);
+  }
+.btn--complete:hover {
+background-color:var(--color-complete-hover);
+color: var(--text-light);
+  }
+
+
+/* ==============================
+EDIT
+============================== */
+.btn--blue{
+  color: var(--text-light);
+  background-color:  var(--color-blue);
+}
+
+.btn--blue:hover {
+  background-color:var(--color-blue-hover);
+}
+
+.btn--danger {
+  background-color:var(--color-danger);
+}
+
+.btn--danger:hover {
+  background-color: var(--color-danger-hover);
+}
+
+.btn--warning{
+  color:  var(--text-dark);
+  background-color: var(--color-warning);
+}
+
+.btn--warning:hover {
+   background-color: var(--color-warning-hover);
+}
+
+
+
+
+
+/* ==============================
+NAVBAR
+============================== */
+.btn.navbar {
+  border-radius: var(  --btn-border-radius-pill);
+  background-color: transparent;
+  color: var(--text-light);
+  padding: 5px 5px;
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.btn.navbar:hover {
+filter: brightness(1.2);
+background-image: var( --color-blue-shiny);
+
+}
+
+
+.nav-list{
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+  text-align: left;
+  padding: 0;
+  margin-top: 0;
+  
+}
+
+.nav-list:hover {
+  background-color:  #4c516e;
+}
+
+
+
+
+/* ==============================
+Responsive Design
+============================== */
+   /* 768px */
+@media (max-width: 768px) {
+   .btn.large {
+ width: 300px
+}
+   } 
+
+   /* 480px */
+@media (max-width: 480px) {
+
+
+
+}

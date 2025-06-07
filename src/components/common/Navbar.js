@@ -5,7 +5,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { CSSTransition } from "react-transition-group";
 import CommessaDettagli from "../popup/CommessaDettagli";
-import ChatGPTChatbot from "../assets/ChatGPTChatbot";
+// import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
 // Import per Toastify (notifiche)
 import "react-toastify/dist/ReactToastify.css";
@@ -54,7 +54,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   // Stato per il sottomenu nella sezione manager
   const [activeManagerSubmenu, setActiveManagerSubmenu] = useState(null);
 
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  //const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [commesseList, setCommesseList] = useState([]);
@@ -174,6 +174,7 @@ const navLinks = {
     { to: "/Notifications", label: "NOTIFICHE", icon: faBell },
     { to: "/Dashboard", label: "BACHECA", icon: faUser },
     { to: "/PrenotazioneSale", label: "PRENOTAZIONE SALE RIUNIONI", icon: faBusinessTime },
+   
   ],
   manager: [
     {
@@ -220,6 +221,7 @@ const navLinks = {
     
       ],
     },
+    { to: "/SchedeTecnicheTable", label: "SCHEDE", icon: faBusinessTime },
     { to: "/VisualizzaTutteLeAttivita", label: "TUTTE LE ATTIVITA'", icon: faListCheck },
     { to: "/StatiAvanzamento", label: "TUTTI GLI STATI AVANZAMENTO", icon: faChartBar },
   ],
@@ -244,7 +246,7 @@ const navLinks = {
             <li className="dropdown-menu-item">
               <a
                 href="#"
-                className="menu-item-button"
+                className="nav-list"
                 onClick={(e) => {
                   e.preventDefault();
                   setActiveUserSubmenu(null);
@@ -257,7 +259,7 @@ const navLinks = {
               <li key={index} className="dropdown-menu-item">
                 <Link
                   to={item.to}
-                  className="menu-item-button"
+                  className="nav-list"
                   onClick={() => setActiveMenu(null)}
                 >
                   <FontAwesomeIcon icon={item.icon} className="menu-icon" /> {item.label}
@@ -273,7 +275,7 @@ const navLinks = {
                   <li key={index} className="dropdown-menu-item">
                     <a
                       href="#"
-                      className="menu-item-button"
+                      className="nav-list"
                       onClick={(e) => {
                         e.preventDefault();
                         setActiveUserSubmenu(link.submenu);
@@ -289,7 +291,7 @@ const navLinks = {
                 <li key={index} className="dropdown-menu-item">
                   <Link
                     to={link.to}
-                    className="menu-item-button"
+                    className="nav-list"
                     onClick={() => setActiveMenu(null)}
                   >
                     <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
@@ -300,7 +302,7 @@ const navLinks = {
             <li className="dropdown-menu-item">
               <a
                 href="#"
-                className="menu-item-button"
+                className="nav-list"
                 onClick={(e) => {
                   e.preventDefault();
                   setActiveMenu(null);
@@ -325,7 +327,7 @@ const navLinks = {
             <li className="dropdown-menu-item">
               <a
                 href="#"
-                className="menu-item-button"
+                className="nav-list"
                 onClick={(e) => {
                   e.preventDefault();
                   setActiveManagerSubmenu(null);
@@ -338,7 +340,7 @@ const navLinks = {
               <li key={index} className="dropdown-menu-item">
                 <Link
                   to={item.to}
-                  className="menu-item-button"
+                  className="nav-list"
                   onClick={() => setActiveMenu(null)}
                 >
                   <FontAwesomeIcon icon={item.icon} className="menu-icon" /> {item.label}
@@ -353,7 +355,7 @@ const navLinks = {
                 <li key={index} className="dropdown-menu-item">
                   <a
                     href="#"
-                    className="menu-item-button"
+                    className="nav-list"
                     onClick={(e) => {
                       e.preventDefault();
                       setActiveManagerSubmenu(link.links);
@@ -369,7 +371,7 @@ const navLinks = {
               <li key={index} className="dropdown-menu-item">
                 <Link
                   to={link.to}
-                  className="menu-item-button"
+                  className="nav-list"
                   onClick={() => setActiveMenu(null)}
                 >
                   <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
@@ -388,7 +390,7 @@ const navLinks = {
       <ul>
         {navLinks.admin.map((link, index) => (
           <li key={index} className="dropdown-menu-item">
-            <Link to={link.to} className="menu-item-button" onClick={() => setActiveMenu(null)}>
+            <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
               <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
             </Link>
           </li>
@@ -457,7 +459,7 @@ const handleSearchInputChange = (e) => {
       {/* Navbar Header */}
       <header className="navbar-header">
         <button
-          className={`menu-toggle ${activeMenu === "user" ? "active" : ""}`}
+          className={`btn w-50 btn navbar ${activeMenu === "user" ? "active" : ""}`}
           onClick={() => toggleMenu("user")}
         >
           <FontAwesomeIcon icon={faBars} className="settings-icon" />
@@ -465,14 +467,14 @@ const handleSearchInputChange = (e) => {
 
         {userRole <= 2 && (
           <button
-            className={`menu-toggle ${activeMenu === "manager" ? "active" : ""}`}
+            className={`btn w-50 btn navbar ${activeMenu === "manager" ? "active" : ""}`}
             onClick={() => toggleMenu("manager")}
           >
             <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
         )}
 
-        <button className="menu-toggle" onClick={toggleNotification}>
+        <button className="btn w-50 btn navbar" onClick={toggleNotification}>
           <FontAwesomeIcon icon={faBell} className="settings-icon" />
           {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
         </button>
@@ -480,21 +482,21 @@ const handleSearchInputChange = (e) => {
         {userRole === 1 && (
           <>
             <button
-              className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+              className={`btn w-50 btn navbar ${activeMenu === "admin" ? "active" : ""}`}
               onClick={() => toggleMenu("admin")}
             >
               <FontAwesomeIcon icon={faGear} className="settings-icon" />
             </button>
-            <button
-              className={`menu-toggle ${activeMenu === "admin" ? "active" : ""}`}
+             {/*  <button
+              className={`btn w-50 btn navbar ${activeMenu === "admin" ? "active" : ""}`}
               onClick={() => setIsChatOpen((prev) => !prev)}
             >
               💬
-            </button>
+            </button>*/}
           </>
         )}
 
-        <button className="menu-toggle" onClick={toggleSearchDropdown}>
+        <button className="btn w-50 btn navbar" onClick={toggleSearchDropdown}>
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </header>
@@ -544,12 +546,12 @@ const handleSearchInputChange = (e) => {
           </div>
         </CSSTransition>
 
-        {/* Dropdown per il chatbot */}
-        <CSSTransition in={isChatOpen} timeout={300} classNames="dropdown" unmountOnExit>
+        {/* Dropdown per il chatbot 
+       <CSSTransition in={isChatOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="chatbot-container">
             <ChatGPTChatbot />
           </div>
-        </CSSTransition>
+        </CSSTransition>*/}
       </div>
 
       {/* Dropdown di ricerca */}
@@ -560,7 +562,7 @@ const handleSearchInputChange = (e) => {
             placeholder="Inserisci commessa o cliente"
             value={searchValue}
             onChange={handleSearchInputChange}
-            className="input-field-100"
+            className="w-400"
           />
           {searchSuggestions.length > 0 && (
             <ul className="search-suggestions">

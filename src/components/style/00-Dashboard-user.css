@@ -1,0 +1,133 @@
+
+
+/* ==============================
+CALENDARIO
+============================== */
+.user-calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; 
+  width: 100%;         
+  height: calc(100vh - 240px); 
+  overflow-y: auto;
+  overflow-x: hidden;   
+  padding: 1rem;
+  gap: 1rem;
+  box-sizing: border-box; 
+}
+
+
+.calendar-day {
+  margin-bottom: 2px;
+  margin-left: 2px;
+  padding: 2px;
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  }
+  
+  .day-header {
+    font-weight: bold;
+max-width: fit-content;
+max-height: fit-content;
+text-align: center;
+  }
+  
+
+.dashboasrd-user-activity-status{
+    font-weight: bold;
+max-width: fit-content;
+max-height: fit-content;
+text-align: center;
+  }
+
+
+
+  .user-calendar-today {
+  min-height: 82vh;
+  position: relative;
+  background-image:  url("../img/30anni.svg");
+  z-index: 1;
+  background-size: 500px; 
+  background-repeat: no-repeat;
+  background-position: bottom;
+}
+  .user-calendar-today .day-header{
+    padding-top: 30px;
+    font-size: 2rem;
+    color: #01c3f3; 
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-thickness: 2px; 
+    text-underline-offset: 3px;
+    text-decoration-color: #01c3f3; 
+  }
+  
+  .user-calendar-today::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0,0,0,0.3); 
+  z-index: 0;
+}
+  .user-calendar-weekend {
+
+    color: #b80505; 
+     background-color: #1e263a;
+    font-weight: bold; 
+  }
+
+
+  
+  
+/* ==============================
+ATTIVITA'
+============================== */
+
+
+
+.fat {
+  background-image: var( --color-blue-shiny);
+  border: 1px solid #8b8b8b;
+  padding: 10px;
+  margin-bottom: 15px;
+   margin-left: 10px;
+   margin-top: 15px;
+  border-radius: 4px;
+  color: rgb(255, 255, 255);
+  position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+
+ 
+
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 480px) {
+
+
+
+.user-calendar {  
+  height: calc(100vh - 180px); 
+}
+
+
+  .user-calendar-today {
+  min-height: 70vh;
+  background-size: 300px; /* larghezza e altezza */
+}
+.calendar {
+  height: calc(100vh - 280px); /* adatta in base a header+navbar */
+}
+
+
+}

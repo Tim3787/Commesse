@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import "./00-Dashboard.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import AttivitaCrea from "../popup/AttivitaCrea";
+import  "../style/02-Dashboard-reparto.css";
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -236,8 +236,7 @@ useEffect(() => {
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (
-      !event.target.closest(".suggestions-list") &&
-      !event.target.closest(".input-field-100")
+!event.target.closest(".input") && !event.target.closest(".w-200")
     ) {
       setShowCommessaSuggestions(false);
       setShowRisorsaSuggestions(false);
@@ -606,10 +605,10 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
     }));
     const activityClass =
       activity.stato === 0
-        ? "activity-not-started"
+        ? "activity not-started"
         : activity.stato === 1
-        ? "activity-started"
-        : "activity-completed";
+        ? "activity started"
+        : "activity completed";
 
     // Modalità "compact": visualizzazione ridotta con tooltip
     if (viewMode === "compact") {
@@ -693,17 +692,17 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             <br />
           </>
         )}
-        <div className="activity-actions">
+        <div className="flex-column-center">
           {ViewButtons && activity.stato === 1 && (
             <>
               <button
-                className="btn btn-complete"
+                className="btn w-100 btn--complete btn--pill "
                 onClick={() => updateActivityStatus(activity.id, 2)}
                 disabled={loadingActivities[activity.id]}
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-              <button className="btn btn-danger" onClick={() => handleDelete(activity.id)}>
+              <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
                 Elimina
               </button>
             </>
@@ -711,20 +710,20 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           {ViewButtons && activity.stato === 0 && (
             <>
               <button
-                className="btn btn-start"
+                className="btn w-100 btn--start btn--pill"
                 onClick={() => updateActivityStatus(activity.id, 1)}
                 disabled={loadingActivities[activity.id]}
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
               </button>
               <button
-                className="btn btn-complete"
+                className="btn w-100 btn--complete btn--pill"
                 onClick={() => updateActivityStatus(activity.id, 2)}
                 disabled={loadingActivities[activity.id]}
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-              <button className="btn btn-danger" onClick={() => handleDelete(activity.id)}>
+              <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
                 Elimina
               </button>
             </>
@@ -734,7 +733,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
          <>
           <div className="note">Note: {activity.note}</div>
            {activity.note && (
-            <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+            <button className="btn btn--danger btn--pill" onClick={() => deleteNote(activity.id)}>
              Elimina Nota
             </button>
            )}
@@ -763,19 +762,17 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
   // ========================================================
   return (
     <div className="page-wrapper">
-      {/* HEADER */}
-      <div className="header">
-        <h1>Bacheca Reparto {RepartoName}</h1>
-        <div className="calendar-navigation">
-
-          <button onClick={goToPreviousMonth} className="btn-Nav">
+      <div className=" header">
+        <h1>BACHECA REPARTO {RepartoName.toUpperCase()}</h1>
+        <div className="flex-center header-row">
+          <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-          <button onClick={scrollToToday} className="btn-Nav">
+          <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
             OGGI
           </button>
-         <div className="month"> {meseCorrente}</div>
-          <button onClick={goToNextMonth} className="btn-Nav">
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
@@ -785,30 +782,31 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-      </div>
-                   {/* Bottone per aprire/chiudere il menu */}
-            <div className="Commesse-completate" >
-        <button onClick={toggleBurgerMenu} className="burger-icon">
+                           {/* Bottone per aprire/chiudere il menu */}
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
+              </div>
+
+
       {/* BURGER MENU (Filtri e Opzioni) */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <button onClick={toggleBurgerMenu} className="close-burger">
-              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
             </button>
           </div>
           <div className="burger-menu-content">
             {/* Opzioni di visualizzazione */}
-            <div className="filters-burger">
               <h3>Opzioni</h3>
               <label>Visualizzazione Attività: </label>
               <select
                 value={activityViewMode}
                 onChange={(e) => setActivityViewMode(e.target.value)}
-              >
+                className="w-200">
                 <option value="full">Completa</option>
                 <option value="compact">Compatta</option>
               </select>
@@ -816,9 +814,10 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             {serviceResources.length > 0 && reparto !== "service" && (
               <div>
                 <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
-                <select
+                <select  style={{ marginTop: '10px' }}
                   id="serviceResourceSelect"
                   value={selectedServiceResource || ""}
+                  className="w-200"
                   onChange={(e) =>
                     setSelectedServiceResource(e.target.value ? Number(e.target.value) : null)
                   }
@@ -832,7 +831,6 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                 </select>
               </div>
             )}
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -841,8 +839,6 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                   />
                   Vedi pulsanti
                 </label>
-              </div>
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -851,8 +847,6 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                   />
                   Vedi stato
                 </label>
-              </div>
-              <div className="filters-burger">
                 <label>
                   <input
                     type="checkbox"
@@ -861,21 +855,20 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                   />
                   Vedi note
                 </label>
-              </div>
-            </div>
-            
-            {/* Filtri per commessa, risorsa e attività */}
-            <div className="filter-group">
+                <div className="suggestion-wrapper w-200 ">
     <input
       type="text"
       placeholder="Filtra per commessa"
       value={filters.commessa}
       onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
-      onFocus={() => setShowCommessaSuggestions(true)}
-      className="input-field-100"
+      onFocus={() => {
+  setShowCommessaSuggestions(true);
+  console.log("showCommessaSuggestions", showCommessaSuggestions);
+}}
+      className="w-200"
     />
     {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
-      <ul className="suggestions-list">
+      <ul className="suggestions-list  w-200 ">
         {suggestionsCommessa
           .filter((value) =>
             value.toString().toLowerCase().includes(filters.commessa.toLowerCase())
@@ -893,20 +886,18 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           ))}
       </ul>
     )}
-  </div>
-
-  {/* Filtro per risorsa */}
-  <div className="filter-group">
-    <input
+    </div>
+    <div className="suggestion-wrapper w-200 ">
+      <input
       type="text"
       placeholder="Filtra per risorsa"
       value={filters.risorsa}
       onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
       onFocus={() => setShowRisorsaSuggestions(true)}
-      className="input-field-100"
+      className="w-200"
     />
     {showRisorsaSuggestions && suggestionsRisorsa.length > 0 && (
-      <ul className="suggestions-list">
+      <ul className="suggestions-list  w-200 ">
         {suggestionsRisorsa
           .filter((value) =>
             value.toLowerCase().includes(filters.risorsa.toLowerCase())
@@ -924,20 +915,18 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           ))}
       </ul>
     )}
-  </div>
-
-  {/* Filtro per attività */}
-  <div className="filter-group">
+     </div>
+     <div className="suggestion-wrapper w-200 ">
     <input
       type="text"
       placeholder="Filtra per attività"
       value={filters.attivita}
       onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
       onFocus={() => setShowAttivitaSuggestions(true)}
-      className="input-field-100"
+      className="w-200"
     />
     {showAttivitaSuggestions && suggestionsAttivita.length > 0 && (
-      <ul className="suggestions-list">
+      <ul className="suggestions-list w-200 ">
         {suggestionsAttivita
           .filter((value) =>
             value.toLowerCase().includes(filters.attivita.toLowerCase())
@@ -955,25 +944,22 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           ))}
       </ul>
     )}
-  </div>
-
-            {/* Azioni */}
-            <div className="filters-burger">
               <h3>Azioni</h3>
-              <button onClick={handleAddNew} className="btn btn-primary create-activity-btn">
+              <button onClick={handleAddNew} className="btn w-200 btn--blue btn--pill">
                 Aggiungi Attività
               </button>
+  </div>
+</div>
+  
             </div>
-          </div>
-        </div>
       )}
 
       {/* CONTENITORE PRINCIPALE */}
-      <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
+         <div className= "Reparto-table-container ">
         <DndProvider backend={HTML5Backend}>
-          <div className="container-Scroll">
-            <div className="Gen-table-container" ref={containerRef}>
-              <table className="software-schedule">
+        
+              <table>
               <thead>
   <tr>
     <th>Risorsa</th>
@@ -1063,10 +1049,8 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
         </DndProvider>
-
+</div>
         {/* Popup per la creazione/modifica di un'attività */}
         {showPopup && (
           <AttivitaCrea

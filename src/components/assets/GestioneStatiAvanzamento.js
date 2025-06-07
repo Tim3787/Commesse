@@ -1,6 +1,6 @@
 import React from "react";
 import "./GestioneStatiAvanzamento.css";
-import "../style.css";
+
 
 function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUpdateDate, handleRemoveDate,  formatDate, handleStatoChange, statiCommessa }) {
   // Aggiungi un controllo per verificare se la commessa è valida
@@ -37,7 +37,7 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
         <div key={`stato-${commessa.commessa_id}-${reparto.reparto_id}`} className="reparto-container">
           <h3>Reparto: {reparto.reparto_nome}</h3>
           <select
-            className="form-select"
+            className="w-200"
             value={reparto.stati_disponibili?.find(stato => stato.isActive)?.stato_id || ""} // Seleziona lo stato attivo
             onChange={(e) =>
               handleStatoAttualeChange(commessa.commessa_id, reparto.reparto_id, Number(e.target.value)) // Usa commessa.commessa_id

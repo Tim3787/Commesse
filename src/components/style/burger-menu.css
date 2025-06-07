@@ -1,0 +1,50 @@
+
+/* Stile per il menu a burger */
+.burger-menu {
+   position: fixed; 
+  left: 0;
+  width: fit-content;
+  width: 280px;
+  padding: 10px;
+  overflow-y: auto;
+  height: calc(100vh - 200px);
+  background-color: var(--bg-dark);
+  z-index: 1000;
+}
+
+.burger-header{
+padding-top: 10px;
+padding-bottom: 10px;
+text-align: left;
+left: 0;
+position: sticky;
+margin-right: auto;
+}
+
+/* Header del burger menu */
+.burger-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.burger-menu-close {
+height: 30px;
+width:  30px;
+}
+
+.burger-menu-content {
+gap: 10px;
+display: flex;
+flex-direction: column;
+align-items: left;
+}
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+.burger-menu {
+  width: 200px;
+}
+}

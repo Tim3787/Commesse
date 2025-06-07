@@ -1,0 +1,7 @@
+.editing-row {
+  background-color: var(--hover-dark) ;/* un giallo molto chiaro */
+  border-left: 4px solid #f1c40f;  /* una barra laterale evidenziata */
+}
+.editing-icon {
+  margin-right: 0.5rem;
+}

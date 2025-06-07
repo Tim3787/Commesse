@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./00-Dashboard.css";
-import logo from "../img/Animation - 1738249246846.gif";
 
+import logo from "../img/Animation - 1738249246846.gif";
+import  "../style/00-Dashboard-user.css";
+import SezioneSchede from '../assets/SezioneSchede.js'; 
+import SchedaTecnica from "../popup/SchedaTecnicaEdit.js";
 
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,6 +38,10 @@ function Dashboard() {
   const today = formatDateOnly(new Date());                  // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const calendarRef = useRef();
+  const [schedeAperte, setSchedeAperte] = useState({});
+  const [popupScheda, setPopupScheda] = useState(null);
+  const [schedaInModifica, setSchedaInModifica] = useState(null);
+const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
 
 
   // ------------------------------------------------------------------
@@ -112,6 +118,8 @@ const meseCorrente = daysInMonth.length > 0
   // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
   // ------------------------------------------------------------------
 useEffect(() => {
+  if (hasScrolledToToday) return; // Evita lo scroll se già fatto
+
   const todayIndex = daysInMonth.findIndex(
     (d) => formatDateOnly(d) === formatDateOnly(new Date())
   );
@@ -120,14 +128,17 @@ useEffect(() => {
     const todayEl = daysRefs.current[todayIndex];
     const scrollContainer = calendarRef.current;
 
-    const offset = 200; // altezza approssimativa di header/navbar
+    const offset = 200; // Altezza approssimativa di header/navbar
 
     scrollContainer.scrollTo({
       top: todayEl.offsetTop - offset,
       behavior: "smooth",
     });
+
+    // Scroll completato: aggiorna lo stato
+    setHasScrolledToToday(true);
   }
-}, [daysInMonth]);
+}, [daysInMonth, hasScrolledToToday]);
 
 
 
@@ -275,6 +286,27 @@ useEffect(() => {
     }
   };
 
+
+  // ------------------------------------------------------------------
+  // Schede
+  // ------------------------------------------------------------------
+  const toggleSchede = (commessaId) => {
+  setSchedeAperte(prev => ({
+    ...prev,
+    [commessaId]: !prev[commessaId]
+  }));
+};
+
+const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
+  setPopupScheda({ commessaId, numero_commessa });
+  setSchedaInModifica(schedaInModifica || null); 
+  setSchedeAperte(prev => ({
+  ...prev,
+  [commessaId]: false
+}));
+};
+
+
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
   // ------------------------------------------------------------------
@@ -282,18 +314,19 @@ useEffect(() => {
     <div>
 
       <div className="container">
+         <div className="flex-column-center">
         {/* Intestazione */}
-        <h1>BENVENUTRO NELLA TUA BACHECA PERSONALE</h1>
+        <h1>BACHECA PERSONALE</h1>
          <h1> {userName}</h1>
+         </div>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-        
         {/* Navigazione tra i mesi */}
-        <div className="calendar-navigation">
-          <button onClick={goToPreviousMonth} className="btn-Nav">
+        <div className="flex-center header-row">
+          <button onClick={goToPreviousMonth} className="btn w-50 h-30 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-         <div className="month"> {meseCorrente}</div>
-          <button onClick={goToNextMonth} className="btn-Nav">
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 h-30 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
@@ -306,7 +339,7 @@ useEffect(() => {
         )}
       
         {/* Calendario: per ogni giorno del mese viene renderizzata una "cella" */}
-        <div className="calendar" ref={calendarRef}>
+        <div className="user-calendar" ref={calendarRef}>
           {daysInMonth.map((day, index) => {
             // Determina se il giorno è weekend e/o oggi
             const isWeekend = day.getDay() === 0 || day.getDay() === 6;
@@ -314,8 +347,8 @@ useEffect(() => {
             return (
               <div
                 key={index}
-                className={`calendar-day ${isToday ? "today2" : ""} ${
-                  isWeekend ? "weekend2" : ""
+                className={`calendar-day ${isToday ? "user-calendar-today" : ""} ${
+                  isWeekend ? "user-calendar-weekend" : ""
                 }`}
                 ref={(el) => (daysRefs.current[index] = el)}
               >
@@ -325,16 +358,16 @@ useEffect(() => {
                 </div>
 
                 {/* Sezione attività: per il giorno corrente vengono mostrate le attività associate */}
-                <div className="activities">
+
                   {getActivitiesForDay(day).length > 0 ? (
                     getActivitiesForDay(day).map((activity) => {
                       // Imposta una classe in base allo stato dell'attività
                       const activityClass =
                         activity.stato === 0
-                          ? "activity-not-started"
+                          ? "activity not-started"
                           : activity.stato === 1
-                          ? "activity-started"
-                          : "activity-completed";
+                          ? "activity started"
+                          : "activity completed";
                       // Controlla se l'attività riguarda una trasferta (logica specifica)
                       const isTrasferta = activity.nome_attivita
                         ?.toLowerCase()
@@ -368,12 +401,12 @@ useEffect(() => {
                           </div>
 
                           {/* Azioni relative all'attività: in base allo stato vengono mostrate le azioni appropriate */}
-                          <div className="activity-actions">
+                          <div className="flex-column-center">
                             {activity.stato === 1 && (
                               <>
-                                <span className="status-label">Attività iniziata</span>
+                                <span className="dashboasrd-user-activity-status">Attività iniziata</span>
                                 <button
-                                  className="btn btn-complete"
+                                  className="btn w-100 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                 >
                                   Completa
@@ -381,19 +414,19 @@ useEffect(() => {
                               </>
                             )}
                             {activity.stato === 2 && (
-                              <span className="status-label">Attività completata</span>
+                              <span className="dashboasrd-user-activity-status">Attività completata</span>
                             )}
                             {activity.stato === 0 && (
                               <>
                                 <button
-                                  className="btn btn-start"
+                                  className="btn w-100 btn--start btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 1)}
                                   disabled={loadingActivities[activity.id]}
                                 >
                                   {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
                                 </button>
                                 <button
-                                  className="btn btn-complete"
+                                  className="btn w-100 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                   disabled={loadingActivities[activity.id]}
                                 >
@@ -404,9 +437,10 @@ useEffect(() => {
                           </div>
 
                           {/* Sezione note: textarea per aggiungere/modificare una nota e pulsanti per salvare o eliminare */}
-                          <div>
+                          <div className="flex-column-center">
                             <textarea
                               placeholder="Aggiungi una nota..."
+                              className="textarea w-200"
                               value={
                                 noteUpdates[activity.id] !== undefined
                                   ? noteUpdates[activity.id]
@@ -414,24 +448,41 @@ useEffect(() => {
                               }
                               onChange={(e) => handleNoteChange(activity.id, e.target.value)}
                             />
-                            <div>
-                              <button className="btn btn-save" onClick={() => saveNote(activity.id)}>
+                            <div className="flex-column-center">
+                              <button className="btn w-100 btn--blue btn--pill" onClick={() => saveNote(activity.id)}>
                                 Salva Nota
                               </button>
                               {activity.note && (
-                                <button className="btn btn-delete" onClick={() => deleteNote(activity.id)}>
+                                <button className="btn w-200 btn--danger btn--pill " onClick={() => deleteNote(activity.id)}>
                                   Elimina Nota
                                 </button>
                               )}
                             </div>
                           </div>
+ <div className="flex-column-center">
+  <button
+    className="btn btn-100 btn--blue btn--pill"
+    onClick={() => toggleSchede(activity.commessa_id)}
+  >
+    {schedeAperte[activity.commessa_id] ? "Nascondi schede" : "Mostra schede"}
+  </button>
+
+  {schedeAperte[activity.commessa_id] && (
+    <SezioneSchede
+      commessaId={activity.commessa_id}
+      numero_commessa={activity.numero_commessa}
+       apriPopupScheda={apriPopupScheda}
+    />
+  )}
+</div>
+
                         </div>
                       );
                     })
                   ) : (
                     <div></div>
                   )}
-                </div>
+
                 {/* Sezione FAT: visualizza le commesse con FAT se la data FAT corrisponde al giorno */}
                 <div className="fat-dates">
                   {allFATDates
@@ -450,7 +501,23 @@ useEffect(() => {
           })}
         </div>
       </div>
+{popupScheda && (
+  <SchedaTecnica
+    editable={true}
+    commessaId={popupScheda.commessaId}
+    numero_commessa={popupScheda.numero_commessa}
+    schedaInModifica={schedaInModifica}
+    setSchedaInModifica={setSchedaInModifica}
+    onClose={() => {
+      setPopupScheda(null);
+      setSchedaInModifica(null);
+    }}
+  />
+)}
+
+
     </div>
+    
   );
 }
 

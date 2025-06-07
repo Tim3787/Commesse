@@ -1,0 +1,86 @@
+.Calendario-commesse-table{
+  height: 400px; 
+      overflow-y: auto;
+       overflow-x: auto; 
+}
+
+/* calendario compattato*/
+.Calendario-commesse-table th[colspan]{
+  border: none;
+  background-color:  var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+      }
+
+
+ /* prima riga*/
+.Calendario-commesse-table  thead {
+  left: 0; 
+  top: 0;   
+  z-index: 10; 
+  position: sticky;
+background-color:  var( --hover-dark);
+
+}
+
+
+ /* 
+.Calendario-commesse-table  td:hover {
+  background-color:  var( --hover-dark);
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}*/
+
+.Calendario-commesse-day-header {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.Calendario-commesse-event {
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  width: 250px;
+}
+
+.Calendario-commesse-event:hover {
+  transform: translateY(-3px);
+}
+
+.Calendario-commesse-event.scadenza {
+  background-color: #007bff;
+  color: white;
+}
+
+
+.Calendario-commesse-today-cell {
+  background-color: #01c3f3;;
+  border: 2px solid #000000;
+  box-shadow: 0px 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.Calendario-commesse-today-cell .Calendario-commesse-day-header {
+  color: #0932eb;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.current-month {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #007bff;
+}
+
+
+.Calendario-commesse-table .fat{
+    display:block;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: none;
+}

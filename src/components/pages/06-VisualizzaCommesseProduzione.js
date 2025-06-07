@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
-
+import  "../style/06-VisualizzaCommesse.css";
 // Import popup
 import CommessaDettagli from "../popup/CommessaDettagli";
 
@@ -196,8 +195,7 @@ function VisualizzazioneCommesseProduzione() {
       // Se il click NON avviene su un elemento con la classe "suggestions-list"
       // oppure sull'input (o eventuali elementi di filtro)
       if (
-        !event.target.closest(".suggestions-list") &&
-        !event.target.closest(".input-field")
+!event.target.closest(".input") && !event.target.closest(".w-200")
       ) {
         setShowClienteSuggestions(false);
         setShowTipoMacchinaSuggestions(false);
@@ -324,7 +322,8 @@ function VisualizzazioneCommesseProduzione() {
   return (
     <div className="page-wrapper">
       {/* HEADER */}
-      <div className="header">
+      <div className="flex-center header-row">
+             <h1>COMMESSE PRODUZIONE</h1>
         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
@@ -332,20 +331,20 @@ function VisualizzazioneCommesseProduzione() {
           </div>
         )}
       </div>
-      <h1>Commesse produzione</h1>
-      <div className="Commesse-completate">
+ 
+      <div className="burger-header">
       {/* Bottone per espandere/nascondere la tabella */}
-      <button className="toggle-button-comm" onClick={toggleSectionVisibility}>
+      <button className="btn w-200 btn--shiny btn--pill" onClick={toggleSectionVisibility}>
         {isVisible ? "▼" : "▶"} {" Commesse completate in attesa di consegna"}
       </button>
       </div>
       {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
       {isVisible && (
         <div className="Commesse-table-container">
-          <table className="comm-schedule">
+          <table className="Commesse-table">
             <thead>
               <tr>
-                <th>Numero Commessa</th>
+                <th>Commessa</th>
                 <th>Cliente</th>
                 <th>Tipo Macchina</th>
                 <th>Data Consegna</th>
@@ -445,8 +444,8 @@ function VisualizzazioneCommesseProduzione() {
       )}
 
                    {/* Bottone per aprire/chiudere il menu */}
-            <div className="Commesse-completate" >
-        <button onClick={toggleBurgerMenu} className="burger-icon">
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
@@ -455,25 +454,22 @@ function VisualizzazioneCommesseProduzione() {
       {isBurgerMenuOpen && (
         <div className="burger-menu">
           <div className="burger-menu-header">
-            <button onClick={toggleBurgerMenu} className="close-burger">
-              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
             </button>
           </div>
           <div className="burger-menu-content">
-            {/* Sezione Filtri */}
-            <div className="filters">
-              {/* Filtro per Numero Commessa */}
-              <div className="filter-group">
+              <div className="suggestion-wrapper  w-200 ">
                 <input
                   type="text"
                   placeholder="Cerca per Numero Commessa"
                   value={commessaFilter}
                   onChange={handleCommessaChange}
                   onClick={(e) => e.stopPropagation()}
-                  className="input-field"
+                  className="w-200"
                 />
                 {showCommessaSuggestions && (
-                  <ul className="suggestions-list">
+                  <ul className="suggestions-list   w-200 ">
                     {suggestionsCommessa
                       .filter((commessa) =>
                         commessa.toString().includes(commessaFilter)
@@ -487,18 +483,17 @@ function VisualizzazioneCommesseProduzione() {
                 )}
               </div>
 
-              {/* Filtro per Cliente */}
-              <div className="filter-group">
+              <div className="suggestion-wrapper w-200 ">
                 <input
                   type="text"
                   placeholder="Filtra per Cliente"
                   value={clienteFilter}
                   onChange={handleClienteChange}
                   onClick={(e) => e.stopPropagation()}
-                  className="input-field"
+                  className="w-200"
                 />
                 {showClienteSuggestions && (
-                  <ul className="suggestions-list">
+                  <ul className="suggestions-list w-200">
                     {suggestionsCliente
                       .filter((cliente) =>
                         cliente.toLowerCase().includes(clienteFilter.toLowerCase())
@@ -512,18 +507,17 @@ function VisualizzazioneCommesseProduzione() {
                 )}
               </div>
 
-              {/* Filtro per Tipo Macchina */}
-              <div className="filter-group">
+              <div className="suggestion-wrapper w-200 ">
                 <input
                   type="text"
                   placeholder="Filtra per Tipo Macchina"
                   value={tipoMacchinaFilter}
                   onChange={handleTipoMacchinaChange}
                   onClick={(e) => e.stopPropagation()}
-                  className="input-field"
+                  className="w-200"
                 />
                 {showTipoMacchinaSuggestions && (
-                  <ul className="suggestions-list">
+                  <ul className="suggestions-list w-200">
                     {suggestionsTipoMacchina
                       .filter((tipo) =>
                         tipo.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
@@ -537,9 +531,7 @@ function VisualizzazioneCommesseProduzione() {
                 )}
               </div>
 
-              {/* Filtro per Stato */}
-              <div className="filter-group">
-                <select onChange={handleStatoChange} value={statoFilter}>
+                <select onChange={handleStatoChange} value={statoFilter}className="w-200">
                   <option value="">Filtra per Stato</option>
                   {statiCommessa.map((stato) => (
                     <option key={stato.id} value={stato.id}>
@@ -547,33 +539,25 @@ function VisualizzazioneCommesseProduzione() {
                     </option>
                   ))}
                 </select>
-                          </div>
 
-   
-
-            {/* Sezione Opzioni di Ordinamento */}
-              <div className="filter-group">
-                <select onChange={handleDateSortChange} value={dateSortDirection}>
+                <select onChange={handleDateSortChange} value={dateSortDirection}className="w-200">
                   <option value="crescente">Data di consegna crescente</option>
                   <option value="decrescente">Data di consegna decrescente</option>
                 </select>
               </div>
               </div>
-
-          </div>
-        </div>
       )}
 
       {/* CONTENITORE PRINCIPALE (si sposta a destra se il menu è aperto) */}
-      <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
 
          <div className="Commesse-table-container" >
         {/* TABELLA DELLE COMMESSE */}
-        <table className="comm-schedule">
+        <table className="Commesse-table">
           <thead>
             <tr>
-              <th>Numero Commessa</th>
+              <th>Commessa</th>
               <th>Cliente</th>
               <th>Tipo Macchina</th>
               <th>Data FAT</th>

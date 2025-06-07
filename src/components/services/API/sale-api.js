@@ -3,7 +3,7 @@ import axios from "axios";
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-  timeout: 10000, // Timeout di 10 secondi
+   timeout: 15000, // Timeout di 15 secondi
 });
 
 export const fetchPrenotazioniSale = async () => {

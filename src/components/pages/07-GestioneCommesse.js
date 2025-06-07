@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import del popup per la creazione/modifica della commessa
@@ -169,13 +168,13 @@ function GestioneCommesse() {
       )}
 
       {/* HEADER */}
-      <div className="header">
+      <div className="flex-center header-row">
         <h1>Gestione Commesse</h1>
         
       </div>
                    {/* Bottone per aprire/chiudere il menu */}
-            <div className="Commesse-completate" >
-        <button onClick={toggleBurgerMenu} className="burger-icon">
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
@@ -184,15 +183,15 @@ function GestioneCommesse() {
         <div className="burger-menu">
           <div className="burger-menu-header">
             {/* Bottone per chiudere il burger menu */}
-            <button onClick={toggleBurgerMenu} className="close-burger">
-              <FontAwesomeIcon icon={faEyeSlash} className="settings-icon" />
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
             </button>
           </div>
           <div className="burger-menu-content">
           <div className="filters-burger">
           <h3>Azioni</h3>
               {/* Bottone per aggiungere una nuova commessa*/}
-          <button onClick={handleCreateNewCommessa} className="btn btn-primary create-activity-btn">
+          <button onClick={handleCreateNewCommessa} className="btn w-200 btn--blue  btn--pill">
           Crea Nuova Commessa
           </button>
           </div> 
@@ -205,21 +204,21 @@ function GestioneCommesse() {
                 placeholder="Numero Commessa"
                 value={commessaFilter}
                 onChange={(e) => setCommessaFilter(e.target.value)}
-                className="input-field"
+                className="w-200"
               />
               <input
                 type="text"
                 placeholder="Cliente"
                 value={clienteFilter}
                 onChange={(e) => setClienteFilter(e.target.value)}
-                className="input-field"
+                className="w-200"
               />
               <input
                 type="text"
                 placeholder="Tipo Macchina"
                 value={tipoMacchinaFilter}
                 onChange={(e) => setTipoMacchinaFilter(e.target.value)}
-                className="input-field"
+                className="w-200"
               />
             </div>
             </div>
@@ -230,12 +229,12 @@ function GestioneCommesse() {
       
 
       {/* CONTAINER PRINCIPALE: la tabella si sposta se il menu a burger è aperto */}
-      <div className={`main-container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         {/* Tabella delle commesse */}
         <table>
           <thead>
             <tr>
-              <th>Numero Commessa</th>
+              <th>Commessa</th>
               <th>Tipo Macchina</th>
               <th>Cliente</th>
               <th>Data Consegna</th>
@@ -258,11 +257,11 @@ function GestioneCommesse() {
                 </td>
                 <td>{getStatoNome(commessa.stato)}</td>
                 <td>
-                  <button className="btn btn-warning" onClick={() => handleEditCommessa(commessa)}>
+                  <button className="btn w-100 btn--warning btn--pill" onClick={() => handleEditCommessa(commessa)}>
                     Modifica
                   </button>
                   <button
-                    className="btn btn-danger"
+                    className="btn w-100 btn--danger btn--pill"
                     onClick={() => handleDelete(commessa.commessa_id)}
                     disabled={deleteLoadingId === commessa.commessa_id}
                   >
@@ -272,8 +271,8 @@ function GestioneCommesse() {
   !commessa.numero_commessa.startsWith("M-") &&
   !commessa.numero_commessa.startsWith("R-") && (
     <>
-      <button className="btn btn-M" onClick={() => handleCreateDerivata(commessa, "M")}>Crea M-</button>
-      <button className="btn btn-R" onClick={() => handleCreateDerivata(commessa, "R")}>Crea R-</button>
+      <button className="btn w-100 btn--blue btn--pill" onClick={() => handleCreateDerivata(commessa, "M")}>Crea M-</button>
+      <button className="btn w-100 btn--blue btn--pill" onClick={() => handleCreateDerivata(commessa, "R")}>Crea R-</button>
     </>
   )
 }

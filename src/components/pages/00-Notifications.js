@@ -116,7 +116,7 @@ const Notifications = () => {
       
       {/* Pulsante per eliminare tutte le notifiche della risorsa (solo se userId è disponibile) */}
       {userId && (
-        <button onClick={deleteAllNotifications}>
+        <button className="btn w-200 btn--danger btn--pill" onClick={deleteAllNotifications}>
           Elimina tutte le notifiche
         </button>
       )}
@@ -133,11 +133,11 @@ const Notifications = () => {
             </small>
             <div className="notification-actions">
               {!notification.is_read && (
-                <button onClick={() => markAsRead(notification.id)}>
+                <button className="btn w-200 btn--warning btn--pill"  onClick={() => markAsRead(notification.id)}>
                   Segna come letto
                 </button>
               )}
-              <button onClick={() => deleteNotification(notification.id)}>
+              <button className="btn w-200 btn--danger btn--pill"  onClick={() => deleteNotification(notification.id)}>
                 Elimina
               </button>
             </div>

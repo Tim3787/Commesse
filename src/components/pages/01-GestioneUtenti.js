@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import per Toastify (notifiche)
@@ -139,19 +138,20 @@ function GestioneUtenti() {
   // Rendering del componente GestioneUtenti
   // ------------------------------------------------------------------
   return (
-    <div className="container">
-      {/* Overlay di caricamento */}
-      {loading && (
-        <div className="loading-overlay">
-          <img src={logo} alt="Logo" className="logo-spinner" />
-        </div>
-      )}
-
-      <h1>Gestione Utenti</h1>
+       <div className="page-wrapper">
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
-
+        {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}   
+        <div className=" header">
+      <h1>Gestione Utenti</h1>
+      </div>  
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+<div className="Reparto-table-container ">
       {/* Tabella degli utenti */}
-      <table className="Commesse-table-container">
+      <table>
         <thead >
           <tr>
             <th>ID</th>
@@ -172,7 +172,7 @@ function GestioneUtenti() {
                 <div className="input-group">
                   <input
                     type="text"
-                    className="input-field"
+                    className="w-200"
                     value={editedUsernames[utente.id] ?? utente.username}
                     onChange={(e) =>
                       setEditedUsernames({
@@ -189,7 +189,7 @@ function GestioneUtenti() {
               {/* Selezione del ruolo */}
               <td>
                 <select
-                  className="form-select"
+                  className="w-200"
                   value={utente.role_id || ""}
                   onChange={(e) => handleRoleChange(utente.id, e.target.value)}
                 >
@@ -205,7 +205,7 @@ function GestioneUtenti() {
               {/* Selezione della risorsa */}
               <td>
                 <select
-                  className="form-select"
+                  className="w-200"
                   value={utente.risorsa_id || ""}
                   onChange={(e) => handleAssignResource(utente.id, e.target.value)}
                 >
@@ -222,7 +222,7 @@ function GestioneUtenti() {
               <td>
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="btn w-100 btn--danger btn--pill"
                   onClick={() => handleDeleteUser(utente.id)}
                 >
                   Elimina
@@ -232,6 +232,7 @@ function GestioneUtenti() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

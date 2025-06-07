@@ -10,6 +10,7 @@
   margin-top: 10px;
   margin-left: 10px;
   margin-right: 10px;
+  height: 40px;
   top: 0;
   display: flex;
   align-items: center;
@@ -21,40 +22,6 @@
   z-index: 99;
 }
 
-/* Pulsanti Menu */
-.menu-toggle {
-  border-radius: var(  --btn-border-radius-pill);
-  background-color: transparent;
-  color: #ffffff;
-  border: none;
-  padding: 5px 5px;
-  margin-right: 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 25px;
-  z-index: 100;
-}
-
-.menu-toggle:hover {
-filter: brightness(1.2);
-background-image: var( --color-blue-shiny);
-border-radius: 10px;
-}
-
-/* Logout Button */
-.logout-button {
-  color: white;
-  border: none;
-  padding: 5px 5px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 16px;
-  
-}
-
-.logout-button:hover {
-  background-color: #c82333;
-}
 
 /* Dropdown Container */
 
@@ -89,20 +56,6 @@ margin-top: 15px;
   
 
 }
-.menu-item-button{
-  text-decoration: none;
-  color: black;
-  font-size: 16px;
-  text-align: left;
-  padding: 0;
-  margin-top: 0;
-  
-}
-
-.menu-item-button:hover {
-  background-color:  #4c516e;
-}
-
 
 
 /* Titolo delle notifiche */
@@ -135,7 +88,6 @@ margin-top: 15px;
 
 .notifications-container {
   padding: 20px;
-  background-color: #f9f9f9;
   border-radius: 5px;
 }
 
@@ -147,44 +99,20 @@ margin-top: 15px;
 }
 
 .notification-item.unread {
-  background-color: #ffefef;
+
   font-weight: bold;
 }
 
 .notification-item.read {
-  background-color: #f0f8ff;
-  color: #666;
+
+  color: var( --text-light)
 }
 
-.notification-actions button {
-  margin-right: 10px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
 
-.notification-actions button:hover {
-  background-color: #ddd;
-}
 
-.settings-icon {
-  position: relative;
-  cursor: pointer;
-  font-size: 25px;
-  margin-right: 10px;
-  margin-left: 10px;
-}
-.settings-icon-last {
-  position: relative;
 
-  cursor: pointer;
-  font-size: 25px;
-  margin-left: 15px;
-
-}
 .notification-badge {
-
+  position: relative;
   top: -5px;
   right: -5px;
   background: red;
@@ -194,53 +122,7 @@ margin-top: 15px;
   padding: 2px 6px;
 }
 
-.notification-dropdown {
-  position: absolute;
-  top: 40px;
-  right: 10px;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 300px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  padding: 10px;
-}
 
-.notification-dropdown h4 {
-  margin-top: 0;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.notification-dropdown ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.notification-dropdown ul li {
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.notification-dropdown ul li:last-child {
-  border-bottom: none;
-}
-
-.notification-dropdown button {
-  margin-top: 10px;
-  padding: 5px 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.notification-dropdown button:hover {
-  background: #0056b3;
-}
 
 .dropdown-subgroup {
   margin-bottom: 10px;
@@ -268,14 +150,6 @@ margin-top: 15px;
 }
 
 
-.search-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2em;
-  margin-left: 10px;
-  color: #333;
-}
 
 .search-suggestions{
   font-size: 16px;
@@ -324,17 +198,6 @@ margin-top: 15px;
 }
 
 
-/* Animazione apertura menu */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 @media (max-width: 768px) {
 
@@ -346,17 +209,6 @@ margin-top: 15px;
 }
 
 
-.settings-icon {
-
-  font-size: 17px;
-  margin-right: 7px;
-  margin-left: 7px;
-}
-.settings-icon-last {
-  font-size: 17px;
-  margin-left: 10px;
-
-}
 
 
 .dropdown-menu-nav  li a {
@@ -370,10 +222,6 @@ margin-top: 15px;
 
 .search-suggestions li{
   padding: 8px;
-}
-.menu-toggle {
-
-  font-size: 17px;
 }
 
 

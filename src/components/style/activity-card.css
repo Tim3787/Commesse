@@ -1,0 +1,125 @@
+
+  .activity {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 5px;
+    margin: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 150px;
+    white-space: normal;        
+    overflow-wrap: break-word;   
+    /* Opzionale: se il testo è particolarmente lungo e vuoi spezzare le parole ovunque:
+    word-break: break-all; */
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    font-size: 12px;
+    color: black;
+}
+
+.activity.compact {
+  /* Dimensioni fisse e centrate per la vista compatta */
+  width: 10px;
+  min-width:  10px;
+  height: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  .activity:hover {
+    box-shadow: 2px 2px 5px var( --color-border-hg);
+  }
+
+    .activity-actions {
+    padding: 1px;
+    margin-top: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  justify-content: center;
+  }
+
+  /* Stato attività */
+
+  .activity.not-started{
+
+  background-image: rgba(255, 255, 255, 0.8);
+  }
+
+  .activity.started {
+  border: 1px solid #f8c82c;
+  border-left: 6px solid #f8c82c;
+  background-image: linear-gradient(to right, #f7ecc9,#f5edd4,  #ffffff);
+  }
+  
+  .activity.completed {
+  border: 1px solid #1168B4;
+  border-left: 6px solid #1168B4;
+  background-image: linear-gradient(to right, #b7dcfc, #daeaf7,  #ffffff);
+  }
+  
+  /* Struttura interna */
+  .activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .activity-content {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+  
+  .activity-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  /* Icone */
+  .activity .icon {
+    font-size: 18px;
+    color: #777;
+    margin-left: 8px;
+  }
+  
+  /* Effetto colore per le icone */
+  .activity .status-icon {
+    color: #28a745; /* Verde per attività completate */
+  }
+  
+  .activity .pending-icon {
+    color: #f5a623; /* Arancione per attività iniziate */
+  }
+  
+  .activity .not-started-icon {
+    color: #999; /* Grigio per non iniziate */
+  }
+  
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 480px) {
+.activity {
+  padding: 1px 3px;
+  font-size: 10px;
+
+  min-width: 100px;
+}
+  }

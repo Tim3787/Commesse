@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./components/style/buttons.css"
+import "./components/style/general.css";
+import "./components/style/input.css";
+import "./components/style/activity-card.css";
+import "./components/style/keyframes.css";
+import "./components/style/popup.css";
+import "./components/style/burger-menu.css";
+import "./components/style/container.css";
+import "./components/style/tables.css";
 
 // Client API configurato (ad es. con interceptors, baseURL, ecc.)
 import apiClient from "../src/components/config/axiosConfig";
@@ -48,6 +57,9 @@ import StatiAvanzamento from "./components/pages/06-VisualizzaStatoAvanzamento";
 import GestioneCommesse from "./components/pages/07-GestioneCommesse";
 import CommesseDettagli from "./components/pages/07-Commesse_Dettagli";
 import AssegnazioneMacchinaComponenti from "./components/pages/07-Assegna-Machina-Componenti.js";
+
+//Schede tecniche
+import SchedeTecnicheTable from "./components/pages/07-SchedeTecnicheTable.js";
 
 // Trello
 import TrelloBoardSoftware from "./components/pages/08-TrelloBoardSoftware";
@@ -243,6 +255,7 @@ function App() {
     { path: "/CalendarioCommesse", component: <CalendarioCommesse /> },
     { path: "/PrenotazioneSale", component: <PrenotazioneSale /> },
     { path: "/Notifications", component: <Notifications /> },
+    { path: "/SchedeTecnicheTable", component: <SchedeTecnicheTable/>, requiredRole: 2 },
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2 },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/commesse-dettagli", component: <CommesseDettagli />, requiredRole: 2 },

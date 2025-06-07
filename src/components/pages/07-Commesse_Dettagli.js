@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import "../style.css";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import per Toastify (notifiche)
@@ -209,7 +208,7 @@ function CommesseDettagli() {
         )}
         <form onSubmit={handleMacchinaSubmit}>
           <h3>{isEditingMacchina ? "Modifica Macchina" : "Aggiungi Macchina"}</h3>
-          <div className="form-group-100">
+          <div className="flex-column-centerterter">
             <label>Macchina:</label>
             <input
               type="text"
@@ -219,7 +218,7 @@ function CommesseDettagli() {
               required
             />
           </div>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Modello:</label>
             <input
               type="text"
@@ -229,7 +228,7 @@ function CommesseDettagli() {
               required
             />
           </div>
-          <button type="submit" className="btn-new-comm">{isEditingMacchina ? "Aggiorna" : "Aggiungi"}</button>
+          <button type="submit" className="btn btn--blue">{isEditingMacchina ? "Aggiorna" : "Aggiungi"}</button>
           {isEditingMacchina && (
             <button
               type="button"
@@ -238,7 +237,7 @@ function CommesseDettagli() {
                 setIsEditingMacchina(false);
                 setEditMacchinaId(null);
               }}
-              className="btn-danger"
+              className="btn w-200 btn--danger btn--pill"
             >
               Annulla
             </button>
@@ -267,10 +266,10 @@ function CommesseDettagli() {
                       <td>{m.macchina}</td>
                       <td>{m.modello}</td>
                       <td>
-                        <button onClick={() => handleMacchinaEdit(m)} className="btn-warning">
+                        <button onClick={() => handleMacchinaEdit(m)} className="btn w-200 btn--warning btn--pill">
                           Modifica
                         </button>
-                        <button onClick={() => handleMacchinaDelete(m.id)} className="btn-danger">
+                        <button onClick={() => handleMacchinaDelete(m.id)} className="btn w-200 btn--danger btn--pill">
                           Elimina
                         </button>
                       </td>
@@ -288,7 +287,7 @@ function CommesseDettagli() {
         <h2>Gestione Componenti</h2>
         <form onSubmit={handleComponenteSubmit}>
           <h3>{isEditingComponente ? "Modifica Componente" : "Aggiungi Componente"}</h3>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Nome Componente:</label>
             <input
               type="text"
@@ -298,14 +297,14 @@ function CommesseDettagli() {
               required
             />
           </div>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Seleziona Macchina:</label>
             <select
               name="macchina"
               value={componenteFormData.macchina}
               onChange={handleComponenteChange}
               required
-            >
+            className="w-200">
               <option value="">-- Seleziona una macchina --</option>
               {uniqueMacchine.map((nome, index) => (
                 <option key={index} value={nome}>
@@ -314,7 +313,7 @@ function CommesseDettagli() {
               ))}
             </select>
           </div>
-          <div className="form-group-100">
+          <div className="flex-column-center">
             <label>Tipo:</label>
             <input
               type="text"
@@ -333,7 +332,7 @@ function CommesseDettagli() {
                 setIsEditingComponente(false);
                 setEditComponenteId(null);
               }}
-              className="btn-danger"
+              className=" btn w-200 btn--danger btn--pill"
             >
               Annulla
             </button>
@@ -364,10 +363,10 @@ function CommesseDettagli() {
                       <td>{c.macchina}</td>
                       <td>{c.tipo}</td>
                       <td>
-                        <button onClick={() => handleComponenteEdit(c)} className="btn-warning">
+                        <button onClick={() => handleComponenteEdit(c)} className="btn w-200 btn--warning btn--pill">
                           Modifica
                         </button>
-                        <button onClick={() => handleComponenteDelete(c.id)} className="btn-danger">
+                        <button onClick={() => handleComponenteDelete(c.id)} className="btn w-200 btn--danger btn--pill">
                           Elimina
                         </button>
                       </td>

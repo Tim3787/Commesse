@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../style.css";
+
 
 // Import per Toastify (notifiche)
 import { toast } from "react-toastify";
@@ -176,10 +176,11 @@ function AttivitaCrea({
 
   return (
     <div className="popup">
+      <div className="popup-background">
       <div className="popup-content">
         <h2>{isEditing ? "Modifica Attività" : "Aggiungi Attività"}</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="flex-column-center">
             <label>Commessa:</label>
             <input
               type="text"
@@ -187,10 +188,10 @@ function AttivitaCrea({
               value={commessaSearch || ""}
               onChange={(e) => setCommessaSearch(e.target.value)}
               placeholder="Cerca per numero commessa"
-              className="input-field-100"
+              className="w-400"
             />
             {suggestedCommesse.length > 0 && (
-              <ul className="suggestions-list" ref={suggestionsRef}>
+              <ul className="suggestions-list w-200" ref={suggestionsRef}>
                 {suggestedCommesse.map((commessa) => (
                   <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
                     {commessa.numero_commessa}
@@ -198,16 +199,15 @@ function AttivitaCrea({
                 ))}
               </ul>
             )}
-          </div>
-
-          <div className="form-group">
+            </div>
+            <div className="flex-column-center">
             <label>Reparto:</label>
             <select
               name="reparto_id"
               value={formData.reparto_id}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             >
               <option value="">Seleziona un reparto</option>
               {reparti.map((reparto) => (
@@ -216,16 +216,14 @@ function AttivitaCrea({
                 </option>
               ))}
             </select>
-          </div>
 
-          <div className="form-group">
             <label>Risorsa:</label>
             <select
               name="risorsa_id"
               value={formData.risorsa_id}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             >
               <option value="">Seleziona una risorsa</option>
               {risorse
@@ -236,16 +234,14 @@ function AttivitaCrea({
                   </option>
                 ))}
             </select>
-          </div>
 
-          <div className="form-group">
             <label>Attività:</label>
             <select
               name="attivita_id"
               value={formData.attivita_id}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             >
               <option value="">Seleziona un'attività</option>
               {attivitaConReparto
@@ -256,9 +252,7 @@ function AttivitaCrea({
                   </option>
                 ))}
             </select>
-          </div>
 
-          <div className="form-group">
             <label>Data Inizio:</label>
             <input
               type="date"
@@ -266,11 +260,10 @@ function AttivitaCrea({
               value={formData.data_inizio}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
-          </div>
 
-          <div className="form-group">
+
             <label>Durata:</label>
             <input
               type="number"
@@ -278,25 +271,23 @@ function AttivitaCrea({
               value={formData.durata}
               onChange={handleChange}
               required
-              className="input-field-100"
+              className="w-400"
             />
-          </div>
 
-          <div className="form-group">
+
             <label>Stato:</label>
             <select
               name="stato"
               value={formData.stato !== undefined && formData.stato !== null ? String(formData.stato) : "1"}
               onChange={handleChange}
-              className="input-field-100"
+              className="w-400"
             >
               <option value="0">Non iniziata</option>
               <option value="1">Iniziata</option>
               <option value="2">Completata</option>
             </select>
-          </div>
 
-          <div className="form-group">
+
             <label>Descrizione:</label>
             <textarea
               name="descrizione"
@@ -304,9 +295,9 @@ function AttivitaCrea({
               onChange={handleChange}
               placeholder="Inserisci una descrizione (opzionale)"
               rows="4"
-              className="input-field-100"
+              className="w-400"
             />
-          </div>
+
 
           {/* Selezione dei weekend specifici */}
           {weekendOptions.length > 0 && (
@@ -338,15 +329,18 @@ function AttivitaCrea({
             </fieldset>
           )}
 
-          <button type="submit" className="btn-100" disabled={loading}>
+          <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
             {isEditing ? "Aggiorna" : "Aggiungi"}
           </button>
-          <button type="button" className="btn-100" onClick={() => setShowPopup(false)}>
+          <button type="button" className="btn w-400 btn--danger btn--pill" onClick={() => setShowPopup(false)}>
             Annulla
           </button>
+          </div>
         </form>
       </div>
+      </div>
     </div>
+    
   );
 }
 

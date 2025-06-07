@@ -1,0 +1,27 @@
+.Reparto-table-container {
+ max-height: 72vh; 
+}
+
+
+
+ /* prima riga*/
+.Reparto-table-container  thead {
+  left: 0; 
+  top: 0;   
+  z-index: 10; 
+  position: sticky;
+background-color:  var( --hover-dark);
+}
+
+/* prima colonna*/
+.Reparto-table-container  td:first-child {
+  left: 0; 
+  z-index: 9; 
+  position: sticky;
+background-color:  var( --hover-dark);
+}
+
+ /* niente data sopra alle risore*/
+.Reparto-table-container  th:first-child {
+ color: transparent;
+}
