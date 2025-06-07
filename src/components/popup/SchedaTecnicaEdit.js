@@ -127,8 +127,8 @@ const handleNuovaScheda = async (tipo_id) => {
 
 {schedaInModifica && !user?.id && <p>Caricamento dati utente...</p>}
 {schedaInModifica && user?.id && (
-  <div className="mt-4 border p-3 rounded bg-gray-100">
-    <h1>SCHEDA {schedaInModifica.tipo} – COMMESSA {numero_commessa}</h1>
+  <div className="container">
+    <h1>SCHEDA {schedaInModifica.tipo} –{numero_commessa}</h1>
     {(() => {
       const tipo = schedaInModifica.tipo?.toLowerCase();
       switch (tipo) {

@@ -79,7 +79,7 @@ const handleSubmit = () => {
   return (
       <div className="flex-column-center">
          <div className="flex-center">
-            <label>Revisione Master:</label>
+            <h2>Rev. Master:</h2>
             <input
               name="RevSoftware"
               className="w-100"
@@ -87,7 +87,7 @@ const handleSubmit = () => {
               onChange={handleChange}
               readOnly={!editable}
            />
-          <label>Revisione Macchina:</label>
+          <h2>Rev. Macchina:</h2>
           <input
             name="RevMacchina"
            className="w-100"
@@ -95,7 +95,7 @@ const handleSubmit = () => {
            onChange={handleChange}
              readOnly={!editable}
          />
-         <label>Revisione schema:</label>
+         <h2>Rev. schema:</h2>
           <input
             name="RevSchema"
            className="w-200"
@@ -104,8 +104,8 @@ const handleSubmit = () => {
              readOnly={!editable}
          />
        </div>
-        <label>HARDWARE</label>
         <div className="flex-column-left">
+                  <h1>HARDWARE</h1>
           {vociChecklist1.map((voce) => (
             <label key={voce} className="flex items-center gap-2">
               <input
@@ -118,8 +118,8 @@ const handleSubmit = () => {
             </label>
           ))}
         </div>
-        <label>SOFTWARE</label>
         <div className="flex-column-left">
+         <h1>SOFTWARE</h1>
           {vociChecklist2.map((voce) => (
             <label key={voce} className="flex items-center gap-2">
               <input
@@ -132,8 +132,8 @@ const handleSubmit = () => {
             </label>
           ))}
         </div>
-          <label>HMI</label>
            <div className="flex-column-left">
+           <h1>HMI</h1>
           {vociChecklist3.map((voce) => (
             <label key={voce} className="flex items-center gap-2">
               <input
@@ -146,8 +146,8 @@ const handleSubmit = () => {
             </label>
           ))}
         </div>
-           <label>ARCHIVIO</label>
            <div className="flex-column-left">
+          <h1>ARCHIVIO</h1>
           {vociChecklist4.map((voce) => (
             <label key={voce} className="flex items-center gap-2">
               <input
@@ -160,7 +160,6 @@ const handleSubmit = () => {
             </label>
           ))}
         </div>
-        
         <label>Note</label>
         <textarea
           name="note"
@@ -172,10 +171,8 @@ const handleSubmit = () => {
 {editable && (
   <button
     className="btn btn--blue w-200 btn--pill"
-    onClick={handleSubmit}
-  >
-    Salva
-  </button>
+    onClick={handleSubmit}>
+    Salva</button>
 )}
   </div>
   );

@@ -46,7 +46,7 @@ text-align: center;
 
 
   .user-calendar-today {
-  min-height: 82vh;
+  min-height: 75vh;
   position: relative;
   background-image:  url("../img/30anni.svg");
   z-index: 1;
@@ -129,5 +129,9 @@ Responsive Design
   height: calc(100vh - 280px); /* adatta in base a header+navbar */
 }
 
+  .user-calendar-today .day-header{
 
+    font-size: 1.7rem;
+
+  }
 }

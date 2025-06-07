@@ -57,3 +57,18 @@ body.login-page-background {
   pointer-events: none;
   
 }
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+
+.login-container {
+max-width: 80%;
+}
+.login-logo {
+
+max-width: 50%;
+
+}
+    }

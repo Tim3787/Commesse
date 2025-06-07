@@ -118,7 +118,7 @@ Responsive Design
 @media (max-width: 480px) {
 .activity {
   padding: 1px 3px;
-  font-size: 10px;
+  font-size: 13px;
 
   min-width: 100px;
 }

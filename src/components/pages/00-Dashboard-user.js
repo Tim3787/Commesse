@@ -118,7 +118,7 @@ const meseCorrente = daysInMonth.length > 0
   // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
   // ------------------------------------------------------------------
 useEffect(() => {
-  if (hasScrolledToToday) return; // Evita lo scroll se già fatto
+  if (hasScrolledToToday) return;
 
   const todayIndex = daysInMonth.findIndex(
     (d) => formatDateOnly(d) === formatDateOnly(new Date())
@@ -128,18 +128,18 @@ useEffect(() => {
     const todayEl = daysRefs.current[todayIndex];
     const scrollContainer = calendarRef.current;
 
-    const offset = 200; // Altezza approssimativa di header/navbar
+    const offset = 200;
 
-    scrollContainer.scrollTo({
-      top: todayEl.offsetTop - offset,
-      behavior: "smooth",
-    });
+    setTimeout(() => {
+      scrollContainer.scrollTo({
+        top: todayEl.offsetTop - offset,
+        behavior: "smooth",
+      });
 
-    // Scroll completato: aggiorna lo stato
-    setHasScrolledToToday(true);
+      setHasScrolledToToday(true);
+    }, 200); // oppure 100ms se serve un piccolo ritardo in più
   }
 }, [daysInMonth, hasScrolledToToday]);
-
 
 
 
@@ -375,7 +375,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
 
                       return (
                         <div key={activity.id} className={`activity ${activityClass}`}>
-                          <div className="activity-content">
+                          <div className="flex-column-center">
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
                             {activity.stato === 2 && activity.note && (
                               <span className="warning-icon" title="Nota presente nell'attività completata">

@@ -25,7 +25,20 @@
   }
 
   
-  .today td {
+  .today  {
     color: #1c0796; /* Colore del testo per la data di oggi */
     font-weight: bold; /* Evidenzia il testo */
   }
+
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
+
+.Reparto-table-container td:first-child {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  max-width: 80px; /* o ch */
+}
+}
