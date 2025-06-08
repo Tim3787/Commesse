@@ -42,7 +42,6 @@ useEffect(() => {
 }, [token]);
 
 
-
 const handleSaveScheda = async (valoriAggiornati) => {
   try {
     await updateSchedaTecnica(schedaInModifica.id, {
@@ -73,6 +72,7 @@ const handleNuovaScheda = async (tipo_id) => {
     const nuova = await createSchedaTecnica({
       commessa_id: commessaId,
       tipo_id,
+      creata_da: user.id, 
     });
       let tipoLabel = "";
       if (tipo_id == 1) tipoLabel = "Sviluppo";
@@ -140,6 +140,7 @@ const handleNuovaScheda = async (tipo_id) => {
               onClose={() => setSchedaInModifica(null)}
               onSave={handleSaveScheda}
               userId={user.id}
+              username={user.username}
               editable={editable}
             />
           );
@@ -153,6 +154,7 @@ const handleNuovaScheda = async (tipo_id) => {
               onClose={() => setSchedaInModifica(null)}
               onSave={handleSaveScheda}
                userId={user.id}
+               username={user.username}
                editable={editable}
             />
           );

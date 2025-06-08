@@ -14,8 +14,9 @@
   }
   .weekend {
 
-    color: #b80505; /* Colore del testo per sabato e domenica */
+    color: #b80505; 
      background-color: #1e263a;
+    font-weight: bold; 
   }
 
   
@@ -26,8 +27,12 @@
 
   
   .today  {
-    color: #1c0796; /* Colore del testo per la data di oggi */
-    font-weight: bold; /* Evidenzia il testo */
+    color: #01c3f3; 
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-thickness: 2px; 
+    text-underline-offset: 3px;
+    text-decoration-color: #01c3f3; 
   }
 
 /* ==============================

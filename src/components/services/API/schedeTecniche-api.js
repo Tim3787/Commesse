@@ -16,10 +16,11 @@ export const fetchSchedeTecniche = async (commessaId = null) => {
   }
 };
 
-export const createSchedaTecnica = async ({ commessa_id, tipo_id}) => {
+export const createSchedaTecnica = async ({ commessa_id, tipo_id, creata_da}) => {
   const response = await apiClient.post("/api/schedeTecniche", {
     commessa_id,
     tipo_id,
+    creata_da
   });
   return response.data;
 };
@@ -66,4 +67,38 @@ export const updateTipoSchedaTecnica = async (id, nome) => {
 export const deleteTipoSchedaTecnica = async (id) => {
   const res = await apiClient.delete(`/api/schedeTecniche/tipiSchedaTecnica/${id}`);
   return res.data;
+};
+
+export const uploadImmagineScheda = async (file, scheda_id) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("scheda_id", scheda_id);
+  
+
+  const response = await apiClient.post("/api/upload/upload-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    
+  });
+
+  return response.data; // contiene ad esempio: { success: true, url: ..., filename: ... }
+};
+
+export const getImmaginiScheda = async (scheda_id) => {
+  try {
+    const response = await apiClient.get(`/api/upload/immagini/${scheda_id}`);
+    return response.data.immagini || [];
+  } catch (error) {
+    console.error("Errore nel recupero immagini:", error);
+    return [];
+  }
+};
+
+export const deleteImmagineScheda = async (immagineId) => {
+  const response = await fetch(`/api/schedeTecniche/immagini/${immagineId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Errore durante l’eliminazione dell’immagine');
+  return response.json();
 };

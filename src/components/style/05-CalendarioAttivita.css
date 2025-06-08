@@ -32,5 +32,16 @@ background-color:  var( --hover-dark);
 .Calendario-table th:first-child {
  color: transparent;
 }
+/* ==============================
+Responsive Design
+============================== */
+@media (max-width: 768px) {
 
+.Calendario-table  td:first-child {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  max-width: 80px; /* o ch */
+}
+}
 

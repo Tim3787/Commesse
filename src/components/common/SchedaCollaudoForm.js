@@ -31,24 +31,57 @@ const vociChecklist4 = [
 ];
 
 function SchedaCollaudoForm({ scheda, onSave, userId,editable }) {
-  console.log("EDITABLE:", editable);
+
+
+  const normalizeChecklist = (rawChecklist) => {
+  const normalized = {};
+  for (const voce of Object.keys(rawChecklist)) {
+    const valore = rawChecklist[voce];
+    if (typeof valore === "object" && valore !== null && "fatto" in valore) {
+      normalized[voce] = valore;
+    } else {
+      normalized[voce] = {
+        fatto: !!valore,
+        utente: null,
+        timestamp: null,
+      };
+    }
+  }
+  return normalized;
+};
+
 const [form, setForm] = useState({
   titolo: scheda?.intestazione?.titolo || "",
   RevSoftware: scheda?.intestazione?.RevSoftware || "",
   RevMacchina: scheda?.intestazione?.  RevMacchina || "",
   RevSchema: scheda?.intestazione?.  RevSchema || "",
-  checklist: scheda?.contenuto?.checklist || {},
+  checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
   note: scheda?.note ||  "",
 });
-  const toggleVoce = (voce) => {
-    setForm((prev) => ({
+const toggleVoce = (voce) => {
+  setForm((prev) => {
+    const voceCorrente = prev.checklist[voce] || {
+      fatto: false,
+      utente: null,
+      timestamp: null
+    };
+
+    const nuovoStato = !voceCorrente.fatto;
+
+    return {
       ...prev,
       checklist: {
         ...prev.checklist,
-        [voce]: !prev.checklist?.[voce]
+        [voce]: {
+          fatto: nuovoStato,
+          utente: nuovoStato ? userName : null,
+          timestamp: nuovoStato ? new Date().toISOString() : null
+        }
       }
-    }));
-  };
+    };
+  });
+};
+
 
 
   const handleChange = (e) => {
@@ -75,6 +108,8 @@ const handleSubmit = () => {
 
   onSave(datiPerBackend); // ora manda l'oggetto compatibile col backend
 };
+
+
 
   return (
       <div className="flex-column-center">

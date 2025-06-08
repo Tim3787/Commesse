@@ -339,7 +339,8 @@ const applyFilters = () => {
           <tr>
             <th>Commessa</th>
             <th>Scheda</th>
-            <th>Data utlima modifica</th>
+             <th>Creazione</th>
+            <th>Ultima modifica</th>
             <th>Azioni</th>
           </tr>
           </thead>
@@ -348,6 +349,9 @@ const applyFilters = () => {
               <tr key={scheda.id}>
                 <td>{scheda.numero_commessa}</td>
                 <td>{scheda.tipo}</td>
+                 <td>{scheda.creato_da_nome} il {formatDateTime(scheda.data_creazione
+                  
+                 )}</td>
                 <td>{formatDateTime(scheda.data_modifica)}</td>
                 <td>
                   <button className="btn w-100 btn--warning btn--pill" onClick={() => handleEditScheda(scheda)}>
