@@ -5,6 +5,7 @@ const apiClient = axios.create({
   timeout: 15000, // Timeout di 15 secondi
 });
 
+
 export const fetchSchedeTecniche = async (commessaId = null) => {
     try {
   const url = commessaId ? `/api/schedeTecniche/${commessaId}/schede` : `/api/schedeTecniche`;
@@ -96,9 +97,21 @@ export const getImmaginiScheda = async (scheda_id) => {
 };
 
 export const deleteImmagineScheda = async (immagineId) => {
-  const response = await fetch(`/api/schedeTecniche/immagini/${immagineId}`, {
+  const response = await fetch(`https://commesseunserver.eu/api/schedeTecniche/immagini/${immagineId}`, {
     method: 'DELETE',
+    credentials: 'include', // se servono cookie/sessioni
   });
   if (!response.ok) throw new Error('Errore durante l’eliminazione dell’immagine');
   return response.json();
 };
+
+export async function getTagSuggeriti() {
+  try {
+    const response = await apiClient.get("/api/schedeTecniche/tag");
+    return response.data; // ← axios fornisce direttamente i dati qui
+  } catch (error) {
+    console.error("Errore API getTagSuggeriti:", error);
+    return [];
+  }
+}
+

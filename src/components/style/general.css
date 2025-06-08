@@ -179,6 +179,36 @@ cursor: pointer;
     
 }
 
+.tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  z-index: 1000;
+  max-width: 100%;
+}
+
+
+.tag-suggestion {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.tag-suggestion:hover {
+  background-color:  var(--hover-dark);
+  font-size: 18px;
+}
+
+.tag-suggestion strong {
+  font-weight: bold;
+  color: #00b7ff;
+}
+
     /* ==============================
      loading spin
      ============================== */

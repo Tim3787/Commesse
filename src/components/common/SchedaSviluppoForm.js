@@ -1,6 +1,7 @@
 // SchedaSviluppoForm.jsx
-import { useState, useEffect } from "react";
-import { uploadImmagineScheda,getImmaginiScheda,deleteImmagineScheda   } from "../services/API/schedeTecniche-api";
+import { useState, useEffect,useRef } from "react";
+import { uploadImmagineScheda,getImmaginiScheda,deleteImmagineScheda, getTagSuggeriti    } from "../services/API/schedeTecniche-api";
+
 
 const vociChecklist1 = [
 "Importare dalla biblioteca la macchina",
@@ -35,7 +36,13 @@ function SchedaSviluppoForm({ scheda, onSave, userId,editable,username}) {
 const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
 const [immagini, setImmagini] = useState([]);
 const [immagineSelezionata, setImmagineSelezionata] = useState(null);
-
+  const [note, setNote] = useState("");
+  const [tagSuggeriti, setTagSuggeriti] = useState([]);
+  const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
+const [filtroTag, setFiltroTag] = useState("");
+const [cursorPos, setCursorPos] = useState(null);
+const textareaRef = useRef(null);
+const [, setDropdownPos] = useState({ top: 0, left: 0 });
 
 const normalizeChecklist = (rawChecklist) => {
   const normalized = {};
@@ -126,11 +133,31 @@ const handleSubmit = () => {
     allegati_standard: [], 
     risorsa_id: userId,
     descrizione: "Modifica effettuata da interfaccia sviluppo",
-
   };
 
-  onSave(datiPerBackend); // ora manda l'oggetto compatibile col backend
+  // Estrai i tag dalla nota
+  const tagRegex = /#(\w+)/g;
+  const tagSet = new Set();
+  let match;
+  while ((match = tagRegex.exec(form.note)) !== null) {
+    tagSet.add(match[1]);
+  }
+
+  const tags = Array.from(tagSet);
+
+  // Chiamata di salvataggio scheda
+  onSave(datiPerBackend);
+
+  // Invio tag al backend
+  if (tags.length > 0) {
+    fetch("https://commesseunserver.eu/api/schedeTecniche/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scheda_id: scheda?.id || scheda?.scheda_id, tags }),
+    }).catch(err => console.error("Errore salvataggio tag:", err));
+  }
 };
+
 
 useEffect(() => {
   if (scheda?.id || scheda?.scheda_id) {
@@ -144,6 +171,50 @@ useEffect(() => {
       });
   }
 }, [scheda]);
+
+  useEffect(() => {
+    getTagSuggeriti().then(setTagSuggeriti);
+  }, []);
+
+const handleNoteChange = (e) => {
+  const testo = e.target.value;
+  setNote(testo);
+
+  // Trova la parola corrente con # ovunque si trovi
+  const cursorPos = e.target.selectionStart;
+  const testoPrimaDelCursore = testo.substring(0, cursorPos);
+  const match = testoPrimaDelCursore.match(/#(\w*)$/); // trova ultimo #tag anche parziale
+setCursorPos(e.target.selectionStart);
+  if (match) {
+    const cerca = match[1].toLowerCase();
+    const filtra = tagSuggeriti.filter(tag =>
+      tag.toLowerCase().startsWith(cerca)
+    );
+    setSuggestionsVisibili(filtra.slice(0, 5)); // max 5 suggerimenti
+    setFiltroTag(match[1]); // salviamo la parte da sostituire
+    if (textareaRef.current) {
+  const rect = textareaRef.current.getBoundingClientRect();
+  const lineHeight = 20; // oppure calcola dinamicamente
+  const offsetTop = rect.top + window.scrollY;
+  const offsetLeft = rect.left + window.scrollX;
+
+  const caretPos = textareaRef.current.selectionStart;
+  const lines = testo.substring(0, caretPos).split("\n");
+  const currentLine = lines.length - 1;
+  const charOffset = lines[lines.length - 1].length;
+
+  setDropdownPos({
+    top: offsetTop + (currentLine + 1) * lineHeight,
+    left: offsetLeft + charOffset * 8, // 8px per char circa
+  });
+}
+
+  } else {
+    setSuggestionsVisibili([]);
+    setFiltroTag("");
+  }
+};
+
 
 
     return (
@@ -279,13 +350,47 @@ useEffect(() => {
         </div>
         <h1>Note</h1>
         <textarea
-          name="note"
-          className="w-w"
-          value={form.note}
-          onChange={handleChange}
-           readOnly={!editable}
-        />
+  name="note"
+  className="w-w"
+  value={form.note}
+  onChange={(e) => {
+    handleChange(e);      // aggiorna il form
+    handleNoteChange(e);  // aggiorna i suggerimenti
+  }}
+  readOnly={!editable}
+/>
+{editable && suggestionsVisibili.length > 0 && (
+  <ul className="tag-suggestions">
+    {suggestionsVisibili.map((tag, idx) => (
+      <li
+        key={idx}
+        className="tag-suggestion"
+onClick={() => {
+  if (cursorPos === null || filtroTag === "") return;
 
+  const testo = note;
+  const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
+  if (inizio === -1) return;
+
+  const fine = inizio + filtroTag.length + 1;
+  const nuovoTesto =
+    testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
+
+  setForm(prev => ({ ...prev, note: nuovoTesto }));
+  setNote(nuovoTesto);
+  setSuggestionsVisibili([]);
+}}
+
+      >
+        <>
+  #
+  <strong>{tag.slice(0, filtroTag.length)}</strong>
+  {tag.slice(filtroTag.length)}
+</>
+      </li>
+    ))}
+  </ul>
+)}
         {editable && <input type="file"  className="btn--blue btn--pill w-400" onChange={handleFileChange} />}
 
 <div className="container w-w" style={{ border: 'solid 1px', display:'flex', gap: '10px', flexWrap: 'wrap' }}>
