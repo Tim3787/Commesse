@@ -762,6 +762,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
   // ========================================================
   return (
     <div className="page-wrapper">
+              <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
       <div className=" header">
         <h1>BACHECA REPARTO {RepartoName.toUpperCase()}</h1>
         <div className="flex-center header-row">
@@ -776,7 +777,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
