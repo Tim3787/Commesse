@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { 
 fetchSchedeTecniche,
   createSchedaTecnica,
-  updateSchedaTecnica
+  updateSchedaTecnica,
+  fetchTipiSchedaTecnica
  } from "../services/API/schedeTecniche-api";
 import SchedaSviluppoForm from "../common/SchedaSviluppoForm";
 import SchedaCollaudoForm from "../common/SchedaCollaudoForm";
@@ -14,6 +15,7 @@ function SchedaTecnica({ editable, commessaId,numero_commessa, onClose, schedaIn
 const [tipoSelezionato, setTipoSelezionato] = useState(null);
   const token = sessionStorage.getItem("token");    
   const [user, setUser] = useState(null); 
+const [tipiSchede, setTipiSchede] = useState([]);
 
 useEffect(() => {
     if (!commessaId) return;
@@ -41,6 +43,20 @@ useEffect(() => {
   fetchUserData();
 }, [token]);
 
+useEffect(() => {
+  const caricaTipiSchedaTecnica = async () => {
+    try {
+      const data = await fetchTipiSchedaTecnica(); // chiamata API
+      setTipiSchede(data);
+    } catch (error) {
+      console.error("Errore nel caricamento dei tipi di scheda:", error);
+    }
+  };
+
+  caricaTipiSchedaTecnica();
+}, []);
+
+
 
 const handleSaveScheda = async (valoriAggiornati) => {
   try {
@@ -66,25 +82,28 @@ const handleSaveScheda = async (valoriAggiornati) => {
 };
 
 
-
 const handleNuovaScheda = async (tipo_id) => {
   try {
-    const nuova = await createSchedaTecnica({
-      commessa_id: commessaId,
-      tipo_id,
-      creata_da: user.id, 
-    });
-      let tipoLabel = "";
-      if (tipo_id == 1) tipoLabel = "Sviluppo";
-      if (tipo_id == 2) tipoLabel = "Collaudo";
-      if (tipo_id == 3) tipoLabel = "Assistenza";
+    const esistenti = await fetchSchedeTecniche(commessaId);
+    const giaEsiste = esistenti.find(s => s.tipo_id === tipo_id);
 
-    setSchedaInModifica({ ...nuova, tipo: tipoLabel });
+    if (giaEsiste) {
+      setSchedaInModifica(giaEsiste); // ha già scheda.tipo
+    } else {
+      const nuova = await createSchedaTecnica({
+        commessa_id: commessaId,
+         tipo_id,
+        creata_da: user.id,
+      });
+
+      setSchedaInModifica(nuova); // ha già tipo
+    }
   } catch (err) {
     console.error(err);
-    alert('Errore nella creazione della scheda');
+    alert("Errore nella creazione o apertura della scheda");
   }
 };
+
 
 
 
@@ -96,17 +115,19 @@ const handleNuovaScheda = async (tipo_id) => {
     <div className="flex-column-center ">
       <label>Nuova scheda:</label>
       <select
-        className="w-100"
-        onChange={(e) => {
-          const tipo = parseInt(e.target.value);
-          if (!isNaN(tipo)) setTipoSelezionato(tipo);
-        }}
-      >
-        <option value="">-- Seleziona tipo --</option>
-        <option value="1">Sviluppo</option>
-        <option value="2">Collaudo</option>
-        <option value="3">Assistenza</option>
-      </select>
+  className="w-200"
+  onChange={(e) => {
+    const tipo = parseInt(e.target.value);
+    if (!isNaN(tipo)) setTipoSelezionato(tipo);
+  }}
+>
+  <option value="">-- Seleziona tipo --</option>
+  {tipiSchede.map((tipo) => (
+    <option key={tipo.id} value={tipo.id}>
+      {tipo.nome}
+    </option>
+  ))}
+</select>
 
       <button
         className="btn w-200 btn--blue btn--pill mt-5"
@@ -132,7 +153,7 @@ const handleNuovaScheda = async (tipo_id) => {
     {(() => {
       const tipo = schedaInModifica.tipo?.toLowerCase();
       switch (tipo) {
-        case "sviluppo":
+        case "sviluppo-software":
           return (
             <SchedaSviluppoForm
               scheda={schedaInModifica}
@@ -145,7 +166,7 @@ const handleNuovaScheda = async (tipo_id) => {
             />
           );
 
-        case "collaudo":
+        case "collaudo-avvolgitori":
           
           return (
             <SchedaCollaudoForm

@@ -279,6 +279,16 @@ Table
 
 }
 
+ /* PDF */
+.pdf-dark-mode {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.pdf-dark-mode * {
+  color: #000000 !important;
+  background: transparent !important;
+}
 
 /* ==============================
 Responsive Design

@@ -1,7 +1,7 @@
 // SchedaSviluppoForm.jsx
 import { useState, useEffect,useRef } from "react";
 import { uploadImmagineScheda,getImmaginiScheda,deleteImmagineScheda, getTagSuggeriti    } from "../services/API/schedeTecniche-api";
-
+import html2pdf from "html2pdf.js";
 
 const vociChecklist1 = [
 "Importare dalla biblioteca la macchina",
@@ -43,6 +43,7 @@ const [filtroTag, setFiltroTag] = useState("");
 const [cursorPos, setCursorPos] = useState(null);
 const textareaRef = useRef(null);
 const [, setDropdownPos] = useState({ top: 0, left: 0 });
+const schedaRef = useRef();
 
 const normalizeChecklist = (rawChecklist) => {
   const normalized = {};
@@ -215,10 +216,32 @@ setCursorPos(e.target.selectionStart);
   }
 };
 
+const handleDownloadPdf = () => {
+  const element = schedaRef.current;
 
+  // Aggiunge classe temporanea
+  element.classList.add("pdf-dark-mode");
+
+  html2pdf()
+    .set({
+      margin: 10,
+      filename: "Scheda sviluppo.pdf",
+      html2canvas: {
+        scale: 2,
+        backgroundColor: null, // <- IMPORTANTE: evita di forzare il bianco
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    })
+    .from(element)
+    .save()
+    .then(() => {
+      element.classList.remove("pdf-dark-mode");
+    });
+};
 
     return (
-      <div className="flex-column-center">
+      <div ref={schedaRef} className="flex-column-center">
+
          <div className="flex-center">
             <h2>Rev. Master:</h2>
             <input
@@ -390,10 +413,12 @@ onClick={() => {
       </li>
     ))}
   </ul>
-)}
-        {editable && <input type="file"  className="btn--blue btn--pill w-400" onChange={handleFileChange} />}
+)}        
+<div className="flex-column-center">
+           <h1>IMMAGINI</h1>
+        {editable && <input type="file"  className="container w-fit" onChange={handleFileChange} />}
 
-<div className="container w-w" style={{ border: 'solid 1px', display:'flex', gap: '10px', flexWrap: 'wrap' }}>
+<div className="container w-fit" style={{ border: 'solid 1px', display:'flex', gap: '10px', flexWrap: 'wrap' }}>
   {immagini.map((img, index) => (
     <div key={index} style={{ position: 'relative' }}>
       <img
@@ -413,7 +438,6 @@ onClick={() => {
             }
           }}
           style={{
-            position: 'absolute',
             top: 0,
             right: 0,
             background: 'red',
@@ -432,7 +456,10 @@ onClick={() => {
     </div>
   ))}
 </div>
-
+ <button onClick={handleDownloadPdf}
+ className="btn btn--blue w-200 btn--pill">
+  Scarica PDF
+</button>
 {editable && (
   <button
     className="btn btn--blue w-200 btn--pill"
@@ -440,6 +467,7 @@ onClick={() => {
   >
     Salva
   </button>
+  
 )}
 {immagineSelezionata && (
   <div
@@ -461,7 +489,7 @@ onClick={() => {
     />
   </div>
 )}
-
+</div>
   </div>
   );
 }
