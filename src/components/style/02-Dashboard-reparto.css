@@ -1,7 +1,4 @@
-  .today {
-    background-color:  #01c3f3;
-    font-weight: bold;
-  }
+
 
   .highlight {
     background-color: var(--hover-dark);
@@ -27,7 +24,7 @@
 
   
   .today  {
-    color: #01c3f3; 
+    color: #000000; 
     font-weight: bold;
     text-decoration: underline;
     text-decoration-thickness: 2px; 

@@ -36,15 +36,19 @@ function SchedaSviluppoForm({ scheda, onSave, userId,editable,username}) {
 const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
 const [immagini, setImmagini] = useState([]);
 const [immagineSelezionata, setImmagineSelezionata] = useState(null);
-  const [note, setNote] = useState("");
-  const [tagSuggeriti, setTagSuggeriti] = useState([]);
-  const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
+const [tagSuggeriti, setTagSuggeriti] = useState([]);
+const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
 const [filtroTag, setFiltroTag] = useState("");
 const [cursorPos, setCursorPos] = useState(null);
-const textareaRef = useRef(null);
-const [, setDropdownPos] = useState({ top: 0, left: 0 });
 const schedaRef = useRef();
-
+const textareaRef = useRef(null);
+const autoResizeTextarea = () => {
+  const el = textareaRef.current;
+  if (el) {
+    el.style.height = "auto"; // resetta altezza
+    el.style.height = `${el.scrollHeight}px`; // imposta altezza in base al contenuto
+  }
+};
 const normalizeChecklist = (rawChecklist) => {
   const normalized = {};
   for (const voce of Object.keys(rawChecklist)) {
@@ -177,39 +181,30 @@ useEffect(() => {
     getTagSuggeriti().then(setTagSuggeriti);
   }, []);
 
+
+useEffect(() => {
+  autoResizeTextarea();
+}, [form.note]);
+
+
+
 const handleNoteChange = (e) => {
   const testo = e.target.value;
-  setNote(testo);
+  setForm((prev) => ({ ...prev, note: testo }));
 
-  // Trova la parola corrente con # ovunque si trovi
   const cursorPos = e.target.selectionStart;
+  setCursorPos(cursorPos);
+
   const testoPrimaDelCursore = testo.substring(0, cursorPos);
-  const match = testoPrimaDelCursore.match(/#(\w*)$/); // trova ultimo #tag anche parziale
-setCursorPos(e.target.selectionStart);
+  const match = testoPrimaDelCursore.match(/#(\w*)$/);
+
   if (match) {
     const cerca = match[1].toLowerCase();
     const filtra = tagSuggeriti.filter(tag =>
       tag.toLowerCase().startsWith(cerca)
     );
-    setSuggestionsVisibili(filtra.slice(0, 5)); // max 5 suggerimenti
-    setFiltroTag(match[1]); // salviamo la parte da sostituire
-    if (textareaRef.current) {
-  const rect = textareaRef.current.getBoundingClientRect();
-  const lineHeight = 20; // oppure calcola dinamicamente
-  const offsetTop = rect.top + window.scrollY;
-  const offsetLeft = rect.left + window.scrollX;
-
-  const caretPos = textareaRef.current.selectionStart;
-  const lines = testo.substring(0, caretPos).split("\n");
-  const currentLine = lines.length - 1;
-  const charOffset = lines[lines.length - 1].length;
-
-  setDropdownPos({
-    top: offsetTop + (currentLine + 1) * lineHeight,
-    left: offsetLeft + charOffset * 8, // 8px per char circa
-  });
-}
-
+    setSuggestionsVisibili(filtra.slice(0, 5));
+    setFiltroTag(match[1]);
   } else {
     setSuggestionsVisibili([]);
     setFiltroTag("");
@@ -241,25 +236,24 @@ const handleDownloadPdf = () => {
 
     return (
       <div ref={schedaRef} className="flex-column-center">
-
-         <div className="flex-center">
-            <h2>Rev. Master:</h2>
+         <div className="flex-column-left">
+            <label>Revisione Master:</label>
             <input
               name="RevSoftware"
-              className="w-100"
+              className="w-200"
               value={form.RevSoftware}
               onChange={handleChange}
               readOnly={!editable}
            />
-          <h2>Rev. Macchina:</h2>
+          <label>Revisione Macchina:</label>
           <input
             name="RevMacchina"
-           className="w-100"
+           className="w-200"
            value={form.RevMacchina}
            onChange={handleChange}
              readOnly={!editable}
          />
-         <h2>Rev. schema:</h2>
+         <label>Revisione schema:</label>
           <input
             name="RevSchema"
            className="w-200"
@@ -271,13 +265,12 @@ const handleDownloadPdf = () => {
        <button  className="btn w-200 btn--shiny btn--pill" onClick={() => setMostraDettagliSpunte(prev => !prev)}>
   {mostraDettagliSpunte ? "Nascondi dettagli" : "Mostra dettagli"}
 </button>
-
+{mostraDettagliSpunte && (
       <div className="header-row">
-<h2>Creata il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"} </h2>
-    <h2> da {scheda?.creato_da_nome || "utente sconosciuto"}</h2>
-
+<label  style={{ fontFamily:"serif", color:"darkgray"}}>Creata il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"} </label>
+    <label  style={{ fontFamily:"serif", color:"darkgray"}}> da {scheda?.creato_da_nome || "utente sconosciuto"}</label>
       </div>
-
+      )}
         <div className="flex-column-left">
           <h1>HARDWARE</h1>
           {vociChecklist1.map((voce) => (
@@ -289,7 +282,7 @@ const handleDownloadPdf = () => {
                  disabled={!editable}
               />
                {voce}
-                <div style={{ marginTop: "5px",  marginBottom: "15px",}}>
+                <div style={{ marginTop: "5px",  marginBottom: "15px", fontFamily:"serif", color:"darkgray"}}>
                   {mostraDettagliSpunte &&
                   form.checklist?.[voce]?.fatto &&
                   form.checklist[voce].utente
@@ -312,7 +305,7 @@ const handleDownloadPdf = () => {
                  disabled={!editable}
               />
                {voce}
-                <div style={{ marginTop: "5px",  marginBottom: "15px",}}>
+                <div style={{ marginTop: "5px",  marginBottom: "15px",fontFamily:"serif", color:"darkgray"}}>
                   {mostraDettagliSpunte &&
                   form.checklist?.[voce]?.fatto &&
                   form.checklist[voce].utente
@@ -336,7 +329,7 @@ const handleDownloadPdf = () => {
                  disabled={!editable}
               />
                {voce}
-                <div style={{ marginTop: "5px",  marginBottom: "15px",}}>
+                <div style={{ marginTop: "5px",  marginBottom: "15px",fontFamily:"serif", color:"darkgray"}}>
                   {mostraDettagliSpunte &&
                   form.checklist?.[voce]?.fatto &&
                   form.checklist[voce].utente
@@ -359,7 +352,7 @@ const handleDownloadPdf = () => {
                  disabled={!editable}
               />
                {voce}
-                <div style={{ marginTop: "5px",  marginBottom: "15px",}}>
+                <div style={{ marginTop: "5px",  marginBottom: "15px",fontFamily:"serif", color:"darkgray"}}>
                   {mostraDettagliSpunte &&
                   form.checklist?.[voce]?.fatto &&
                   form.checklist[voce].utente
@@ -375,10 +368,12 @@ const handleDownloadPdf = () => {
         <textarea
   name="note"
   className="w-w"
+    ref={textareaRef} 
   value={form.note}
   onChange={(e) => {
-    handleChange(e);      // aggiorna il form
-    handleNoteChange(e);  // aggiorna i suggerimenti
+    handleChange(e);
+    handleNoteChange(e);
+    autoResizeTextarea();
   }}
   readOnly={!editable}
 />
@@ -386,25 +381,24 @@ const handleDownloadPdf = () => {
   <ul className="tag-suggestions">
     {suggestionsVisibili.map((tag, idx) => (
       <li
-        key={idx}
-        className="tag-suggestion"
-onClick={() => {
-  if (cursorPos === null || filtroTag === "") return;
+  key={idx}
+  className="tag-suggestion"
+  onMouseDown={(e) => {
+    e.preventDefault(); // evita che il textarea perda focus
+    if (cursorPos === null || filtroTag === "") return;
 
-  const testo = note;
-  const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
-  if (inizio === -1) return;
+    const testo = form.note;
+    const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
+    if (inizio === -1) return;
 
-  const fine = inizio + filtroTag.length + 1;
-  const nuovoTesto =
-    testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
+    const fine = inizio + filtroTag.length + 1;
+    const nuovoTesto = testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
 
-  setForm(prev => ({ ...prev, note: nuovoTesto }));
-  setNote(nuovoTesto);
-  setSuggestionsVisibili([]);
-}}
+    setForm((prev) => ({ ...prev, note: nuovoTesto }));
+    setSuggestionsVisibili([]);
+  }}
+>
 
-      >
         <>
   #
   <strong>{tag.slice(0, filtroTag.length)}</strong>
@@ -413,7 +407,7 @@ onClick={() => {
       </li>
     ))}
   </ul>
-)}        
+)}           
 <div className="flex-column-center">
            <h1>IMMAGINI</h1>
         {editable && <input type="file"  className="container w-fit" onChange={handleFileChange} />}
