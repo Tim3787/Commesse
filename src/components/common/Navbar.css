@@ -112,9 +112,8 @@ margin-top: 15px;
 
 
 .notification-badge {
-  position: relative;
-  top: -5px;
-  right: -5px;
+ position: absolute;
+right: 78%;
   background: red;
   color: white;
   font-size: 12px;

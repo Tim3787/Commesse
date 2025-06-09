@@ -33,6 +33,8 @@ const vociChecklist4 = [
 
 function SchedaSviluppoForm({ scheda, onSave, userId,editable,username}) {
 
+    console.log("userId:", userId);
+
 const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
 const [immagini, setImmagini] = useState([]);
 const [immagineSelezionata, setImmagineSelezionata] = useState(null);
@@ -104,6 +106,8 @@ const toggleVoce = (voce) => {
     };
   });
 };
+
+
 const handleFileChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -124,6 +128,7 @@ const handleChange = (e) => {
   };
 
 const handleSubmit = () => {
+
   const datiPerBackend = {
     intestazione: {
       titolo: form.titolo,
@@ -458,6 +463,7 @@ const handleDownloadPdf = () => {
   <button
     className="btn btn--blue w-200 btn--pill"
     onClick={handleSubmit}
+    
   >
     Salva
   </button>

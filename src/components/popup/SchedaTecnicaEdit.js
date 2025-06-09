@@ -37,11 +37,14 @@ useEffect(() => {
       const userData = await fetchCurrentUser(token);
       setUser(userData); // ✅ salva oggetto completo
     } catch (error) {
-      console.error("Errore durante il recupero del nome utente:", error);
     }
   };
+   console.log("user:", user);
   fetchUserData();
 }, [token]);
+
+
+
 
 useEffect(() => {
   const caricaTipiSchedaTecnica = async () => {
@@ -62,7 +65,7 @@ const handleSaveScheda = async (valoriAggiornati) => {
   try {
     await updateSchedaTecnica(schedaInModifica.id, {
       ...valoriAggiornati,
-      risorsa_id: user?.id,
+      risorsa_id: user?.risorsa_id,
       descrizione: `Modifica effettuata da ${user?.nome || 'utente'}`,
     });
 
@@ -146,6 +149,7 @@ const handleNuovaScheda = async (tipo_id) => {
 )}
 
 
+
 {schedaInModifica && !user?.id && <p>Caricamento dati utente...</p>}
 {schedaInModifica && user?.id && (
   <div className="container-fix">
@@ -160,7 +164,7 @@ const handleNuovaScheda = async (tipo_id) => {
               commessa={numero_commessa}
               onClose={() => setSchedaInModifica(null)}
               onSave={handleSaveScheda}
-              userId={user.id}
+              userId={user.risorsa_id}
               username={user.username}
               editable={editable}
             />
@@ -174,7 +178,7 @@ const handleNuovaScheda = async (tipo_id) => {
               commessa={numero_commessa}
               onClose={() => setSchedaInModifica(null)}
               onSave={handleSaveScheda}
-               userId={user.id}
+               userId={user.risorsa_id}
                username={user.username}
                editable={editable}
             />

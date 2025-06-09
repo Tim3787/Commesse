@@ -187,7 +187,7 @@ function LoginRegister({ onLogin }) {
           )}
           {/* Campo Email (solo per registrazione e recupero) */}
           {(formType === "register" || formType === "recover") && (
-            <div className="flex-column-centernter">
+            <div className="flex-column-center">
               <label htmlFor="email">Email:</label>
               <input
                 id="email"

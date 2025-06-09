@@ -14,6 +14,7 @@ CALENDARIO
   padding: 1rem;
   gap: 1rem;
   box-sizing: border-box; 
+  
 }
 
 
@@ -48,19 +49,17 @@ text-align: center;
 
 
   .user-calendar-today {
-/* min-height: 75vh;*/
-    height: auto;
   position: relative;
-  background-image:  url("../img/30anni.svg");
   z-index: 1;
-  background-size: 500px; 
+
   background-repeat: no-repeat;
   background-position: bottom;
-    overflow: visible;
+  overflow: visible;
+  display: flex;
 }
   .user-calendar-today .day-header{
     padding-top: 30px;
-    padding-bottom: 50px;
+    padding-bottom: 30px;
     font-size: 2rem;
     color: #01c3f3; 
     font-weight: bold;
