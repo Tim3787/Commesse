@@ -164,6 +164,7 @@ const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
 const [filtroTag, setFiltroTag] = useState("");
 const [cursorPos, setCursorPos] = useState(null);
 const schedaRef = useRef();
+const pdfRef = useRef();
 const textareaRef = useRef(null);
 const autoResizeTextarea = () => {
   const el = textareaRef.current;
@@ -453,6 +454,7 @@ const renderTabellaComponentiSiemens = () => {
 
 
     return (
+      <div ref={pdfRef}>
       <div ref={schedaRef} className="flex-column-center">
          <div className="flex-column-left">
             <label>Revisione Master:</label>
@@ -627,7 +629,7 @@ const renderTabellaComponentiSiemens = () => {
     ))}
   </ul>
 )}  
- 
+ </div>
 <div className="flex-column-center">
        <div className=" header-row">
       <h1>INFO</h1>

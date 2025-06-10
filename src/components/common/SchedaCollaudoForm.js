@@ -240,7 +240,7 @@ const handleNoteChange = (e) => {
 };
 
 const handleDownloadPdf = () => {
-  const element = schedaRef.current;
+  const element = pdfRef.current;
 
   // Aggiunge classe temporanea
   element.classList.add("pdf-dark-mode");
