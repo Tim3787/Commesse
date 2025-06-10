@@ -1,0 +1,13 @@
+.activity5 {
+    padding: 5px;
+    margin: 2px;
+    border-radius: 4px;
+    color: #fff;
+    text-align: center;
+     background-color: var( --color-blue);
+  }
+
+   .activity5-type-Trasferta {
+     background-color: var(  --color-warning);
+    color: #000000;
+  }

@@ -31,9 +31,130 @@ const vociChecklist4 = [
 "Archiviare software",
 ];
 
-function SchedaSviluppoForm({ scheda, onSave, userId,editable,username}) {
+const indirizzamenti = [
+  {
+    linea: "Unitech",
+    PLC: 10,
+    HMI: 7,
+    Assistenza: 0,
+    "11A1": 1,
+    "13A1": 100,
+    "15A1": 253,
+    "16A1": 11,
+    "31A1": 13,
+    "32A1": 15,
+    "60A1": 16,
+    MAX: "…",
+  },
+  {
+    linea: "Italmeccanica",
+    PLC: 192,
+    HMI: 168,
+    Assistenza: 123,
+    "11A1": 15,
+    "13A1": 16,
+    "15A1": 17,
+    "16A1": 18,
+    "31A1": 19,
+    "32A1": 20,
+    "60A1": 21,
+    MAX: 49,
+  },
+  {
+    linea: "PAYPER",
+    PLC: 192,
+    HMI: 168,
+    Assistenza: 10,
+    "11A1": 220,
+    "13A1": 210,
+    "15A1": 201,
+    "16A1": 230,
+    "31A1": 231,
+    "32A1": 232,
+    "60A1": 233,
+    MAX: 249,
+  },
+];
 
-    console.log("userId:", userId);
+const inverterSiemens = [
+  { motore: "1,1 kW", inverter: "Siemens da 2,2 kW" },
+  { motore: "1,5 kW", inverter: "Siemens da 3 kW" },
+  { motore: "2,2 kW", inverter: "Siemens da 4 kW" },
+];
+
+
+const componentiSiemens = [
+  {
+    descrizione: "Resistenza frenatura 370 Ohm 75W fino 1,5kW",
+    marca: "SIEMENS",
+    articolo: "6SL32010BE143AA0",
+    codice: "0050747",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 0,55kW 6D.I. Profinet filtro cl.A FSAA",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE118AF2",
+    codice: "0050745",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 1,1kW 6D.I. Profinet filtro cl.A FSAA",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE132AF2",
+    codice: "0051038",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 1,5kW 6D.I. Profinet filtro cl.A FSAA",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE143AF2",
+    codice: "0051039",
+  },
+  {
+    descrizione: "Resistenza frenatura 140 Ohm 200W fino 4kW",
+    marca: "SIEMENS",
+    articolo: "6SL32010BE210AA0",
+    codice: "0050748",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 2,2kW 6D.I. Profinet filtro cl.A FSAA",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE158AF2",
+    codice: "0051040",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 3kW 6D.I. Profinet filtro cl.A",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE175AF1",
+    codice: "0051162",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 4kW 6D.I. Profinet filtro cl.A",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE188AF1",
+    codice: "0051075",
+  },
+  {
+    descrizione: "Resistenza frenatura 75 Ohm 375W fino 7,5kW",
+    marca: "SIEMENS",
+    articolo: "6SL32010BE218AA0",
+    codice: "0051645",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 5,5kW 6D.I. Profinet filtro cl.A",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE213AF1",
+    codice: "0051165",
+  },
+  {
+    descrizione: "Sinamics G120C 3x380-480V 7,5kW 6D.I. Profinet filtro cl.A",
+    marca: "SIEMENS",
+    articolo: "6SL32101KE217AF1",
+    codice: "0051166",
+  },
+];
+
+
+function SchedaSviluppoForm({ scheda, onSave, userId, editable, username}) {
+
 
 const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
 const [immagini, setImmagini] = useState([]);
@@ -239,6 +360,98 @@ const handleDownloadPdf = () => {
     });
 };
 
+const renderTabellaIndirizzamento = () => {
+  if (!indirizzamenti || indirizzamenti.length === 0) return null;
+
+  const intestazioni = Array.from(
+    new Set(indirizzamenti.flatMap((row) => Object.keys(row)))
+  );
+
+  return (
+    <div>
+      <h1>INDIRIZZAMENTO IP LINEE</h1>
+      <table>
+        <thead>
+          <tr>
+            {intestazioni.map((header) => (
+              <th
+                key={header}
+              >
+                {header.toUpperCase()}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {indirizzamenti.map((row, i) => (
+            <tr key={i}>
+              {intestazioni.map((header) => (
+                <td
+                  key={header}                >
+                  {row[header] !== undefined ? row[header] : "-"}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const renderTabellaInverterSiemens = () => {
+  return (
+    <div>
+      <h1>DIMENSIONAMENTO INVERTER SIEMENS BRACCIO AVVOLGITORI 300</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Motore</th>
+            <th>Inverter</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inverterSiemens.map((item, i) => (
+            <tr key={i}>
+              <td>{item.motore}</td>
+              <td>{item.inverter}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const renderTabellaComponentiSiemens = () => {
+  return (
+    <div>
+      <h1>COMPONENTI SIEMENS – INVERTER E RESISTENZE</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Descrizione</th>
+            <th>Marca</th>
+            <th>Articolo</th>
+            <th>Codice Interno</th>
+          </tr>
+        </thead>
+        <tbody>
+          {componentiSiemens.map((item, index) => (
+            <tr key={index}>
+              <td>{item.descrizione}</td>
+              <td>{item.marca}</td>
+              <td>{item.articolo}</td>
+              <td>{item.codice}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+
     return (
       <div ref={schedaRef} className="flex-column-center">
          <div className="flex-column-left">
@@ -382,6 +595,7 @@ const handleDownloadPdf = () => {
   }}
   readOnly={!editable}
 />
+
 {editable && suggestionsVisibili.length > 0 && (
   <ul className="tag-suggestions">
     {suggestionsVisibili.map((tag, idx) => (
@@ -412,7 +626,17 @@ const handleDownloadPdf = () => {
       </li>
     ))}
   </ul>
-)}           
+)}  
+ 
+<div className="flex-column-center">
+       <div className=" header-row">
+      <h1>INFO</h1>
+      </div>  
+           
+{editable && renderTabellaIndirizzamento()}
+{editable && renderTabellaInverterSiemens()}
+{editable && renderTabellaComponentiSiemens()}
+</div>
 <div className="flex-column-center">
            <h1>IMMAGINI</h1>
         {editable && <input type="file"  className="container w-fit" onChange={handleFileChange} />}
@@ -491,6 +715,7 @@ const handleDownloadPdf = () => {
 )}
 </div>
   </div>
+
   );
 }
 

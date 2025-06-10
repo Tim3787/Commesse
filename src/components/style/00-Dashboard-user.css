@@ -125,10 +125,7 @@ Responsive Design
 }
 
 
-  .user-calendar-today {
-  min-height: 70vh;
-  background-size: 300px; /* larghezza e altezza */
-}
+
 .calendar {
   height: calc(100vh - 280px); /* adatta in base a header+navbar */
 }

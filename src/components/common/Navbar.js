@@ -5,6 +5,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { CSSTransition } from "react-transition-group";
 import CommessaDettagli from "../popup/CommessaDettagli";
+import { CommesseByTag } from  "../services/API/commesse-api";
+
 // import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
 // Import per Toastify (notifiche)
@@ -424,24 +426,35 @@ const navLinks = {
     setIsSearchOpen(false);
   };
 
-const handleSearchInputChange = (e) => {
-  const value = e.target.value.toLowerCase().trim();
+const handleSearchInputChange = async (e) => {
+  const value = e.target.value.trim();
   setSearchValue(value);
 
-  if (value !== "") {
+  if (value === "") {
+    setSearchSuggestions([]);
+    return;
+  }
+
+  // Se il valore inizia con #
+  if (value.startsWith("#")) {
+    try {
+      const commesseByTag = await CommesseByTag(value);
+      setSearchSuggestions(commesseByTag);
+    } catch (error) {
+      console.error("Errore nella ricerca per tag:", error);
+    }
+  } else {
+    const lowerValue = value.toLowerCase();
     const suggestionsFiltered = commesseList.filter((c) => {
       const numero = c.numero_commessa?.toString().toLowerCase() || "";
       const cliente = c.cliente?.toLowerCase() || "";
-      const numeri = numero.match(/\d+/)?.[0] || ""; // prende solo la parte numerica
-      return numeri.startsWith(value) || cliente.includes(value);
+      const numeri = numero.match(/\d+/)?.[0] || "";
+      return numeri.startsWith(lowerValue) || cliente.includes(lowerValue);
     });
 
     setSearchSuggestions(suggestionsFiltered);
-  } else {
-    setSearchSuggestions([]);
   }
 };
-
 
 
 

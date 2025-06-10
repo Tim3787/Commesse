@@ -39,3 +39,18 @@ export const fetchFATDates = async (token) => {
     throw error;
   }
 };
+
+
+// Funzione per ottenere le commesse associate a un tag specifico
+export const CommesseByTag = async (tag) => {
+  try {
+    const response = await apiClient.get("/api/commesse/by-tag", {
+      params: { tag }, // <-- qui passa il tag come query param
+    });
+
+    return response.data.filter((commessa) => commessa.data_FAT); // eventualmente filtraggio
+  } catch (error) {
+    console.error("Errore durante il recupero delle commesse con tag:", error);
+    throw error;
+  }
+};

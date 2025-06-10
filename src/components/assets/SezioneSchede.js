@@ -26,7 +26,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
               {schede.map((s) => (
                 <li key={s.id}>
                   <button
-      className="btn btn--border btn--pill w-100"
+      className="btn btn--border"
       onClick={() =>
         apriPopupScheda({
           commessaId,

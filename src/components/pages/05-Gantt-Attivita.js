@@ -295,11 +295,11 @@ useEffect(() => {
                     activitiesForDay.map((activity) => (
                       <div
                         key={activity.id}
-                        className={`activity5 activity5-type-${activity.tipo_attivita || "default"}`}
-                        title={`Tipo: ${activity.tipo_attivita || "Sconosciuto"} - Risorsa: ${activity.risorsa}`}
+                        className={`activity5 activity5-type-${activity.nome_attivita || "default"}`}
+                        title={`Tipo: ${activity.nome_attivita || "Sconosciuto"} - Risorsa: ${activity.risorsa}`}
                       >
                         {numeroCommessa === ""
-                          ? `${activity.numero_commessa} - ${activity.nome_attivita || "Attività"}`
+                          ? `${activity.numero_commessa} - ${activity.nome_attivita || "Attività"} - ${activity.risorsa || "Risorsa"}`
                           : activity.nome_attivita || "Attività"}
                       </div>
                     ))
