@@ -6,7 +6,13 @@ fetchSchedeTecniche,
   fetchTipiSchedaTecnica
  } from "../services/API/schedeTecniche-api";
 import SchedaSviluppoForm from "../common/SchedaSviluppoForm";
-import SchedaCollaudoForm from "../common/SchedaCollaudoForm";
+import SchedaCollaudoForm from "../common/SchedaCollaudoAvvolgiotriForm";
+import SchedaMSQuadroForm from "../common/SchedaMSQuadroForm";
+import SchedaCollaudoReggiatriciForm from "../common/SchedaCollaudoReggiatriciForm";
+import SchedaCollaudoLineaForm from "../common/SchedaCollaudoLineaForm";
+import SchedaRiunioneCommessaForm from "../common/SchedaRiunioneCommessaForm";
+
+
 import { fetchCurrentUser } from "../services/API/utenti-api";
 
 function SchedaTecnica({ editable, commessaId,numero_commessa, onClose, schedaInModifica, setSchedaInModifica }) {
@@ -157,6 +163,7 @@ const handleNuovaScheda = async (tipo_id) => {
     {(() => {
       const tipo = schedaInModifica.tipo?.toLowerCase();
       switch (tipo) {
+
         case "sviluppo-software":
           return (
             <SchedaSviluppoForm
@@ -183,7 +190,61 @@ const handleNuovaScheda = async (tipo_id) => {
                editable={editable}
             />
           );
+        case "collaudo-reggiatrici":
+          
+          return (
+            <SchedaCollaudoReggiatriciForm
+              scheda={schedaInModifica}
+              commessa={numero_commessa}
+              onClose={() => setSchedaInModifica(null)}
+              onSave={handleSaveScheda}
+               userId={user.risorsa_id}
+               username={user.username}
+               editable={editable}
+            />
+          );
 
+        case "messa-servizio-quadro":
+          
+          return (
+            <SchedaMSQuadroForm
+              scheda={schedaInModifica}
+              commessa={numero_commessa}
+              onClose={() => setSchedaInModifica(null)}
+              onSave={handleSaveScheda}
+               userId={user.risorsa_id}
+               username={user.username}
+               editable={editable}
+            />
+          );
+
+        case "collaudo-linea":
+          
+          return (
+            <SchedaCollaudoLineaForm
+              scheda={schedaInModifica}
+              commessa={numero_commessa}
+              onClose={() => setSchedaInModifica(null)}
+              onSave={handleSaveScheda}
+               userId={user.risorsa_id}
+               username={user.username}
+               editable={editable}
+            />
+          );
+
+        case "riunione-commessa":
+          
+          return (
+            <SchedaRiunioneCommessaForm
+              scheda={schedaInModifica}
+              commessa={numero_commessa}
+              onClose={() => setSchedaInModifica(null)}
+              onSave={handleSaveScheda}
+               userId={user.risorsa_id}
+               username={user.username}
+               editable={editable}
+            />
+          );
         default:
           return <p>⚠️ Modulo per questo tipo non ancora implementato.</p>;
       }

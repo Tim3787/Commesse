@@ -9,78 +9,31 @@ import {
 import html2pdf from "html2pdf.js";
 
 // ===== DATI STATICI / CONFIG =====
+
 const vociChecklist1 = [
-"Importare dalla biblioteca la macchina",
-"Controllare schede PLC",
-"Verificare e ricablare IO",
-"Controllare sensor supply sensori sicurezza",
-"Verificare indirizzi IP ( vedi sezione info)",
-"Verificare corretto dimensionamento inverter Braccio Avvolgitori 300 (vedi sezione info)",
+"Verificare dati motore utilizzando il wizard inverter (prendere dati da targhetta motore)",
+ "Verificare corretto dimensionamento inverter Braccio Avvolgitori 300 (vedi sezione info)",
 "Verificare presenza resistenze di frenatura e la rispettiva taglia (vedi sezione info)",
+ "Verificare assorbimento massimo ( 100% del nominale)",
+"Verificare P2000 e P1082",
+"Caricare inverter",
 ];
 const vociChecklist2 = [
-"Controllare sicurezze",
-"Controllare tipo barriere",
-"Controllare cancelli",
-"Controllare interfaccia ingresso/uscita",
-"Controllare muting",
-"Controllare configurazione macchina",
-"Controllare configurazione trasporti",
+"Assegnare indirizzo IP",
+"Abilitare web server e vnc (Ehcolo)",
+"Caricare HMI ed effettuare sempre l’upgrade del firmware se richiesto",
+
 ];
 const vociChecklist3 = [
-"Controllare interfaccia ingresso/uscita HMI",
-"Controllare lingua destinazione",
-"Eliminare pannelli non utilizzati",
-"Cambia password",
-];
-const vociChecklist4 = [
-"Archiviare software",
+"Assegnare indirizzi profisafe alle schede",
 ];
 
-const indirizzamenti = [
-  {
-    linea: "Unitech",
-    PLC: 10,
-    HMI: 7,
-    Assistenza: 0,
-    "11A1": 1,
-    "13A1": 100,
-    "15A1": 253,
-    "16A1": 11,
-    "31A1": 13,
-    "32A1": 15,
-    "60A1": 16,
-    MAX: "…",
-  },
-  {
-    linea: "Italmeccanica",
-    PLC: 192,
-    HMI: 168,
-    Assistenza: 123,
-    "11A1": 15,
-    "13A1": 16,
-    "15A1": 17,
-    "16A1": 18,
-    "31A1": 19,
-    "32A1": 20,
-    "60A1": 21,
-    MAX: 49,
-  },
-  {
-    linea: "PAYPER",
-    PLC: 192,
-    HMI: 168,
-    Assistenza: 10,
-    "11A1": 220,
-    "13A1": 210,
-    "15A1": 201,
-    "16A1": 230,
-    "31A1": 231,
-    "32A1": 232,
-    "60A1": 233,
-    MAX: 249,
-  },
+const vociChecklist4 = [
+"Verificare la configurazione dei trasporti",
+"Verificare la configurazione della macchina",
+"Verificare i rapporti di riduzione per i conteggi",
 ];
+
 
 const inverterSiemens = [
   { motore: "1,1 kW", inverter: "Siemens da 2,2 kW" },
@@ -159,7 +112,7 @@ const componentiSiemens = [
 ];
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
+function SchedaMSQuadroForm({ scheda, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); // contiene solo la parte da esportare in PDF
@@ -199,8 +152,6 @@ function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
   // ===== HOOK: FORM =====
   const [form, setForm] = useState({
     titolo: scheda?.intestazione?.titolo || "",
-    RevSoftware: scheda?.intestazione?.RevSoftware || "",
-    RevMacchina: scheda?.intestazione?.RevMacchina || "",
     RevSchema: scheda?.intestazione?.RevSchema || "",
     checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
     note: scheda?.note || "",
@@ -256,8 +207,6 @@ function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
     const datiPerBackend = {
       intestazione: {
         titolo: form.titolo,
-        RevSoftware: form.RevSoftware,
-        RevMacchina: form.RevMacchina,
         RevSchema: form.RevSchema,
       },
       contenuto: { checklist: form.checklist },
@@ -316,7 +265,7 @@ const handleDownloadPdf = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: "Scheda sviluppo.pdf",
+      filename: "Scheda collaudo.pdf",
       html2canvas: {
         scale: 2,
         backgroundColor: null, 
@@ -349,46 +298,9 @@ const handleDownloadPdf = () => {
     autoResizeTextarea();
   }, [form.note]);
 
+
   // ===== FUNZIONI DI RENDER SUPPORTO =====
-const renderTabellaIndirizzamento = () => {
-  if (!indirizzamenti || indirizzamenti.length === 0) return null;
-
-  const intestazioni = Array.from(
-    new Set(indirizzamenti.flatMap((row) => Object.keys(row)))
-  );
-
-  return (
-    <div>
-      <h1>INDIRIZZAMENTO IP LINEE</h1>
-      <table>
-        <thead>
-          <tr>
-            {intestazioni.map((header) => (
-              <th
-                key={header}
-              >
-                {header.toUpperCase()}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {indirizzamenti.map((row, i) => (
-            <tr key={i}>
-              {intestazioni.map((header) => (
-                <td
-                  key={header}                >
-                  {row[header] !== undefined ? row[header] : "-"}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
+  
 const renderTabellaInverterSiemens = () => {
   return (
     <div>
@@ -442,6 +354,8 @@ const renderTabellaComponentiSiemens = () => {
 };
 
 
+
+
   return (
   // Contenitore che sarà usato per generare il PDF
   <div ref={pdfRef}>
@@ -451,22 +365,6 @@ const renderTabellaComponentiSiemens = () => {
       
       {/* Sezione revisioni */}
       <div className="flex-column-left">
-        <label>Revisione Master:</label>
-        <input
-          name="RevSoftware"
-          className="w-200"
-          value={form.RevSoftware}
-          onChange={handleChange}
-          readOnly={!editable}
-        />
-        <label>Revisione Macchina:</label>
-        <input
-          name="RevMacchina"
-          className="w-200"
-          value={form.RevMacchina}
-          onChange={handleChange}
-          readOnly={!editable}
-        />
         <label>Revisione schema:</label>
         <input
           name="RevSchema"
@@ -494,31 +392,10 @@ const renderTabellaComponentiSiemens = () => {
         </div>
       )}
 
-      {/* Checklist Hardware */}
+      {/* Checklist INVERTER */}
       <div className="flex-column-left">
-        <h1>HARDWARE</h1>
+        <h1>INVERTER</h1>
         {vociChecklist1.map((voce) => (
-          <label key={voce} className="flex items-center">
-            <input
-              type="checkbox"
-              checked={form.checklist?.[voce]?.fatto || false}
-              onChange={() => toggleVoce(voce)}
-              disabled={!editable}
-            />
-            {voce}
-            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
-              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
-                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
-                : ""}
-            </div>
-          </label>
-        ))}
-      </div>
-
-      {/* Checklist Software */}
-      <div className="flex-column-left">
-        <h1>SOFTWARE</h1>
-        {vociChecklist2.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
               type="checkbox"
@@ -539,6 +416,27 @@ const renderTabellaComponentiSiemens = () => {
       {/* Checklist HMI */}
       <div className="flex-column-left">
         <h1>HMI</h1>
+        {vociChecklist2.map((voce) => (
+          <label key={voce} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={form.checklist?.[voce]?.fatto || false}
+              onChange={() => toggleVoce(voce)}
+              disabled={!editable}
+            />
+            {voce}
+            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
+              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
+                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                : ""}
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Checklist MACCHINA */}
+      <div className="flex-column-left">
+        <h1>PLC</h1>
         {vociChecklist3.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
@@ -557,9 +455,9 @@ const renderTabellaComponentiSiemens = () => {
         ))}
       </div>
 
-      {/* Checklist Archivio */}
+      {/* Checklist MACCHINA */}
       <div className="flex-column-left">
-        <h1>ARCHIVIO</h1>
+        <h1>MACCHINA</h1>
         {vociChecklist4.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
@@ -635,7 +533,6 @@ const renderTabellaComponentiSiemens = () => {
     {isVisibleInfo && (
       <div className="flex-column-center">
         <div className="header-row"><h1>INFORMAZIONI</h1></div>
-        {editable && renderTabellaIndirizzamento()}
         {editable && renderTabellaInverterSiemens()}
         {editable && renderTabellaComponentiSiemens()}
       </div>
@@ -719,4 +616,4 @@ const renderTabellaComponentiSiemens = () => {
   </div>
 );
 }
-export default SchedaSviluppoForm;
+export default SchedaMSQuadroForm;

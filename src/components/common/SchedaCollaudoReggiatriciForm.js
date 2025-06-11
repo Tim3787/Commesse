@@ -9,157 +9,78 @@ import {
 import html2pdf from "html2pdf.js";
 
 // ===== DATI STATICI / CONFIG =====
+
 const vociChecklist1 = [
-"Importare dalla biblioteca la macchina",
-"Controllare schede PLC",
-"Verificare e ricablare IO",
-"Controllare sensor supply sensori sicurezza",
-"Verificare indirizzi IP ( vedi sezione info)",
-"Verificare corretto dimensionamento inverter Braccio Avvolgitori 300 (vedi sezione info)",
-"Verificare presenza resistenze di frenatura e la rispettiva taglia (vedi sezione info)",
+"Provare tutti i pulsanti di emergenza ed il relativo ripristino. Il led deve segnalare lo stato emergenza",
+ "Provare tutti i cancelli ed il relativo ripristino e status sul pannello",
+"Provare tutte le barriere verificando le funzioni di override e muting, il relativo ripristino e status sul pannello",
+ "Provare altri dispositivi di sicurezza",
+"Verificare fermata emergenza durante rotazione regolando quick stop e tempi nel safety",
 ];
 const vociChecklist2 = [
-"Controllare sicurezze",
-"Controllare tipo barriere",
-"Controllare cancelli",
-"Controllare interfaccia ingresso/uscita",
-"Controllare muting",
-"Controllare configurazione macchina",
-"Controllare configurazione trasporti",
+"Effettuare MOTID inverter",
+"Riportare a 0.1 il P346 ed il P347 degli inverter del prestiro",
+"Verificare STO",
+
 ];
 const vociChecklist3 = [
-"Controllare interfaccia ingresso/uscita HMI",
-"Controllare lingua destinazione",
-"Eliminare pannelli non utilizzati",
-"Cambia password",
+"Verificare il funzionamento del pulsante carico reggia con cancelli aperti",
+"Verificare il funzionamento del selettore abilitazione riciclo con cancelli aperti",
+"Effettuare cicli di reggiatura con vari tensionamenti",
+"Regolare antisfibrillo",
 ];
 const vociChecklist4 = [
-"Archiviare software",
+"Verificare che tutti i conteggi lavorino correttamente e diano un risultato accettabile",
+"Verificare che a pannello ci siano tutti i parametri per correggere centraggi e rallentamenti",
+];
+const vociChecklist5 = [
+"Verificare tutti i lampeggianti, le sirene ed i led pulsanti",
+];
+const vociChecklist6 = [
+"Provare comandi manuali macchine e trasporti",
+"Verificare velocità di carico e scarico se presenti in specifica",
+"Verificare su HMI presenza lingua di destinazione come da specifica",
+"Verificare cambio velocità su tutte le rulliere da HMI",
+"Simulare carico e scarico con muletto se presente",
+"Provare linea piena con pallet vuoti e macchine disinserite",
+"Verificare fotocellule di sicurezza",
+"Provare cicli con le varie dimensioni di pallet e prodotto come da specifica",
+"Verificare che i parametri di rallentamento vengano applicati correttamente se modificati",
+"Provare cicli con diversi tensionementi",
+"Verificare i tempi ciclo ed annotare criticità riscontrate",
+"Effettuare prove di stop ciclo e richiesta apertura cancelli",
+"Verificare passaggio programma su tutte le rulliere",
+"Fare un passaggio con programma a 0",
+"Effettuare prove di fine reggia",
+"Verificare che su ogni memoria di load ci sia il timeout corretto",
+"effettuare cicli di reggiatura con varie posizioni dall’alto/inditero verso il basso/avanti e viceversa",
+"Effettuare 150 legature",
+"Abilitare autofeed se necessario",
+"Verificare che sulla memoria pressed ci sia la posizione bassa",
 ];
 
-const indirizzamenti = [
-  {
-    linea: "Unitech",
-    PLC: 10,
-    HMI: 7,
-    Assistenza: 0,
-    "11A1": 1,
-    "13A1": 100,
-    "15A1": 253,
-    "16A1": 11,
-    "31A1": 13,
-    "32A1": 15,
-    "60A1": 16,
-    MAX: "…",
-  },
-  {
-    linea: "Italmeccanica",
-    PLC: 192,
-    HMI: 168,
-    Assistenza: 123,
-    "11A1": 15,
-    "13A1": 16,
-    "15A1": 17,
-    "16A1": 18,
-    "31A1": 19,
-    "32A1": 20,
-    "60A1": 21,
-    MAX: 49,
-  },
-  {
-    linea: "PAYPER",
-    PLC: 192,
-    HMI: 168,
-    Assistenza: 10,
-    "11A1": 220,
-    "13A1": 210,
-    "15A1": 201,
-    "16A1": 230,
-    "31A1": 231,
-    "32A1": 232,
-    "60A1": 233,
-    MAX: 249,
-  },
+const vociChecklist7 = [
+"Verificare i segnali di scambio in ingresso utilizzando una rulliera folle",
+"Verificare il passaggio del programma di fasciatura",
+"Verificare i segnali di scambio in uscita utilizzando una rulliera folle",
+"Verificare i segnali di scambio con etichettatrice",
+"Verificare i segnali di emergenze esterne",
 ];
 
-const inverterSiemens = [
-  { motore: "1,1 kW", inverter: "Siemens da 2,2 kW" },
-  { motore: "1,5 kW", inverter: "Siemens da 3 kW" },
-  { motore: "2,2 kW", inverter: "Siemens da 4 kW" },
+const vociChecklist8 = [
+"Aggiornare trello",
+"Fare l’upload di tutti gli inverter",
+"Fare uno snapshot delle DB",
+"Programmare teleassistenza",
+"Foto, video e firma sicurezza",
+"Archiviare tutto sul server",
 ];
 
 
-const componentiSiemens = [
-  {
-    descrizione: "Resistenza frenatura 370 Ohm 75W fino 1,5kW",
-    marca: "SIEMENS",
-    articolo: "6SL32010BE143AA0",
-    codice: "0050747",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 0,55kW 6D.I. Profinet filtro cl.A FSAA",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE118AF2",
-    codice: "0050745",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 1,1kW 6D.I. Profinet filtro cl.A FSAA",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE132AF2",
-    codice: "0051038",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 1,5kW 6D.I. Profinet filtro cl.A FSAA",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE143AF2",
-    codice: "0051039",
-  },
-  {
-    descrizione: "Resistenza frenatura 140 Ohm 200W fino 4kW",
-    marca: "SIEMENS",
-    articolo: "6SL32010BE210AA0",
-    codice: "0050748",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 2,2kW 6D.I. Profinet filtro cl.A FSAA",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE158AF2",
-    codice: "0051040",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 3kW 6D.I. Profinet filtro cl.A",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE175AF1",
-    codice: "0051162",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 4kW 6D.I. Profinet filtro cl.A",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE188AF1",
-    codice: "0051075",
-  },
-  {
-    descrizione: "Resistenza frenatura 75 Ohm 375W fino 7,5kW",
-    marca: "SIEMENS",
-    articolo: "6SL32010BE218AA0",
-    codice: "0051645",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 5,5kW 6D.I. Profinet filtro cl.A",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE213AF1",
-    codice: "0051165",
-  },
-  {
-    descrizione: "Sinamics G120C 3x380-480V 7,5kW 6D.I. Profinet filtro cl.A",
-    marca: "SIEMENS",
-    articolo: "6SL32101KE217AF1",
-    codice: "0051166",
-  },
-];
+
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
+function SchedaCollaudoReggiatriciForm({ scheda, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); // contiene solo la parte da esportare in PDF
@@ -316,7 +237,7 @@ const handleDownloadPdf = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: "Scheda sviluppo.pdf",
+      filename: "Scheda collaudo.pdf",
       html2canvas: {
         scale: 2,
         backgroundColor: null, 
@@ -348,99 +269,6 @@ const handleDownloadPdf = () => {
   useEffect(() => {
     autoResizeTextarea();
   }, [form.note]);
-
-  // ===== FUNZIONI DI RENDER SUPPORTO =====
-const renderTabellaIndirizzamento = () => {
-  if (!indirizzamenti || indirizzamenti.length === 0) return null;
-
-  const intestazioni = Array.from(
-    new Set(indirizzamenti.flatMap((row) => Object.keys(row)))
-  );
-
-  return (
-    <div>
-      <h1>INDIRIZZAMENTO IP LINEE</h1>
-      <table>
-        <thead>
-          <tr>
-            {intestazioni.map((header) => (
-              <th
-                key={header}
-              >
-                {header.toUpperCase()}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {indirizzamenti.map((row, i) => (
-            <tr key={i}>
-              {intestazioni.map((header) => (
-                <td
-                  key={header}                >
-                  {row[header] !== undefined ? row[header] : "-"}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const renderTabellaInverterSiemens = () => {
-  return (
-    <div>
-      <h1>DIMENSIONAMENTO INVERTER SIEMENS BRACCIO AVVOLGITORI 300</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Motore</th>
-            <th>Inverter</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inverterSiemens.map((item, i) => (
-            <tr key={i}>
-              <td>{item.motore}</td>
-              <td>{item.inverter}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const renderTabellaComponentiSiemens = () => {
-  return (
-    <div>
-      <h1>COMPONENTI SIEMENS – INVERTER E RESISTENZE</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Descrizione</th>
-            <th>Marca</th>
-            <th>Articolo</th>
-            <th>Codice Interno</th>
-          </tr>
-        </thead>
-        <tbody>
-          {componentiSiemens.map((item, index) => (
-            <tr key={index}>
-              <td>{item.descrizione}</td>
-              <td>{item.marca}</td>
-              <td>{item.articolo}</td>
-              <td>{item.codice}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
 
   return (
   // Contenitore che sarà usato per generare il PDF
@@ -494,9 +322,9 @@ const renderTabellaComponentiSiemens = () => {
         </div>
       )}
 
-      {/* Checklist Hardware */}
+      {/* Checklist SICUREZZE */}
       <div className="flex-column-left">
-        <h1>HARDWARE</h1>
+        <h1>SICUREZZE</h1>
         {vociChecklist1.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
@@ -515,9 +343,9 @@ const renderTabellaComponentiSiemens = () => {
         ))}
       </div>
 
-      {/* Checklist Software */}
+      {/* Checklist INVERTER */}
       <div className="flex-column-left">
-        <h1>SOFTWARE</h1>
+        <h1>INVERTER</h1>
         {vociChecklist2.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
@@ -536,9 +364,9 @@ const renderTabellaComponentiSiemens = () => {
         ))}
       </div>
 
-      {/* Checklist HMI */}
+      {/* Checklist TESTA DI REGGIATURA */}
       <div className="flex-column-left">
-        <h1>HMI</h1>
+        <h1>TESTA DI REGGIATURA</h1>
         {vociChecklist3.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
@@ -557,10 +385,94 @@ const renderTabellaComponentiSiemens = () => {
         ))}
       </div>
 
-      {/* Checklist Archivio */}
+      {/* Checklist CONTEGGI E CENTRAGGI */}
       <div className="flex-column-left">
-        <h1>ARCHIVIO</h1>
+        <h1>CONTEGGI E CENTRAGGI</h1>
         {vociChecklist4.map((voce) => (
+          <label key={voce} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={form.checklist?.[voce]?.fatto || false}
+              onChange={() => toggleVoce(voce)}
+              disabled={!editable}
+            />
+            {voce}
+            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
+              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
+                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                : ""}
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Checklist SEGNALAZIONI*/}
+      <div className="flex-column-left">
+        <h1>SEGNALAZIONI</h1>
+        {vociChecklist5.map((voce) => (
+          <label key={voce} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={form.checklist?.[voce]?.fatto || false}
+              onChange={() => toggleVoce(voce)}
+              disabled={!editable}
+            />
+            {voce}
+            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
+              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
+                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                : ""}
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Checklist COLLAUDO */}
+      <div className="flex-column-left">
+        <h1>COLLAUDO</h1>
+        {vociChecklist6.map((voce) => (
+          <label key={voce} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={form.checklist?.[voce]?.fatto || false}
+              onChange={() => toggleVoce(voce)}
+              disabled={!editable}
+            />
+            {voce}
+            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
+              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
+                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                : ""}
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Checklist SEGNALI SCAMBIO */}
+      <div className="flex-column-left">
+        <h1>SEGNALI SCAMBIO</h1>
+        {vociChecklist7.map((voce) => (
+          <label key={voce} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={form.checklist?.[voce]?.fatto || false}
+              onChange={() => toggleVoce(voce)}
+              disabled={!editable}
+            />
+            {voce}
+            <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
+              {mostraDettagliSpunte && form.checklist?.[voce]?.fatto && form.checklist[voce].utente
+                ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                : ""}
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* FINE COLLAUDO */}
+      <div className="flex-column-left">
+        <h1>FINE COLLAUDO</h1>
+        {vociChecklist8.map((voce) => (
           <label key={voce} className="flex items-center">
             <input
               type="checkbox"
@@ -635,9 +547,7 @@ const renderTabellaComponentiSiemens = () => {
     {isVisibleInfo && (
       <div className="flex-column-center">
         <div className="header-row"><h1>INFORMAZIONI</h1></div>
-        {editable && renderTabellaIndirizzamento()}
-        {editable && renderTabellaInverterSiemens()}
-        {editable && renderTabellaComponentiSiemens()}
+
       </div>
     )}
 
@@ -719,4 +629,4 @@ const renderTabellaComponentiSiemens = () => {
   </div>
 );
 }
-export default SchedaSviluppoForm;
+export default SchedaCollaudoReggiatriciForm;
