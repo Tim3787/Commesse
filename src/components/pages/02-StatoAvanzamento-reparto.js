@@ -817,7 +817,7 @@ if (RepartoName === "software") {
       <div className="header">
         <h1>STATO AVANZAMENTO {RepartoName.toUpperCase()}</h1>
         </div>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
                 {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

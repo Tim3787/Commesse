@@ -44,7 +44,6 @@ background-color:  var( --hover-dark);
   font-size: 14px;
   transition: transform 0.3s ease;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  width: 250px;
 }
 
 .Calendario-commesse-event:hover {

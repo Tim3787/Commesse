@@ -547,7 +547,7 @@ function GestioneTabelle() {
   // ================================
   return (
     <div className="container">
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
 
       {/* === Sezione Stati Commessa === */}
       <section className="section-global">

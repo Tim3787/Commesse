@@ -190,7 +190,7 @@ useEffect(() => {
       )}
       <div className="flex-center header-row">
         <h1>Commesse esistenti solo su Trello</h1>
-         <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       </div>
       <div className="commessa-container">
         

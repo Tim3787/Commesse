@@ -340,7 +340,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       )}
            <div className="flex-center header-row">
       <h1>Stati avanzamento</h1>
-       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       </div>
       <button onClick={toggleFilters} className="btn btn-filter">
           {showFilters ? "Nascondi Filtri" : "Mostra Filtri"}

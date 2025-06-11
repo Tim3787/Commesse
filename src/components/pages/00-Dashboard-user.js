@@ -319,7 +319,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
         <h1>BACHECA PERSONALE</h1>
          <h1> {userName}</h1>
          </div>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {/* Navigazione tra i mesi */}
         <div className="flex-center header-row">
           <button onClick={goToPreviousMonth} className="btn w-50 h-30 btn--shiny btn--pill">

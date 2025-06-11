@@ -324,7 +324,7 @@ function VisualizzazioneCommesseProduzione() {
       {/* HEADER */}
       <div className="flex-center header-row">
              <h1>COMMESSE PRODUZIONE</h1>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

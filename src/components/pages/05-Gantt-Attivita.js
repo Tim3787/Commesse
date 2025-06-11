@@ -95,9 +95,10 @@ const [showSuggestions, setShowSuggestions] = useState(false);  // Mostra/nascon
   };
 
   const daysInMonth = getDaysInMonth();
-  const meseCorrente = daysInMonth.length > 0
-  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
-  : "";
+const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
+  month: "long",
+  year: "numeric",
+}).replace(/^./, c => c.toUpperCase());
 
   /**
    * Normalizza una data impostando le ore a mezzanotte (0:00:00.000).
@@ -271,7 +272,7 @@ useEffect(() => {
       <thead>
         <tr>
           <th>Reparto</th>
-          <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+          <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
           {daysInMonth.map((day, index) => {
             const isToday = day.toDateString() === new Date().toDateString();
             const dayClass = isToday ? "Gen-today-date" : "";
@@ -371,7 +372,7 @@ useEffect(() => {
   </button>
 </div>
 
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

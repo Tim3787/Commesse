@@ -413,7 +413,7 @@ if (
 
       {/* HEADER */}
       <div className="flex-center header-row">
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         <h1>Attività</h1>
       </div>
                    {/* Bottone per aprire/chiudere il menu */}

@@ -220,7 +220,7 @@ function PrenotazioneSale() {
       </div>
       </div>
       <div className="container">
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       {loading && (
         <div className="loading-overlay">
           <img src={logo} alt="Caricamento" className="logo-spinner" />

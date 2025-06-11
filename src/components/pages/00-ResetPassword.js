@@ -46,7 +46,7 @@ function ResetPassword() {
 
   return (
     <>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       <div className="login-container">
         <h1>Reset Password</h1>
         <form onSubmit={handleSubmit}>

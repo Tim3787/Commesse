@@ -139,7 +139,7 @@ function GestioneUtenti() {
   // ------------------------------------------------------------------
   return (
        <div className="page-wrapper">
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
@@ -148,7 +148,7 @@ function GestioneUtenti() {
         <div className=" header">
       <h1>Gestione Utenti</h1>
       </div>  
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
 <div className="Reparto-table-container ">
       {/* Tabella degli utenti */}
       <table>

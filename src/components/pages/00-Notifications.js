@@ -144,7 +144,7 @@ const Notifications = () => {
           </li>
         ))}
       </ul>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
     </div>
   );
 };

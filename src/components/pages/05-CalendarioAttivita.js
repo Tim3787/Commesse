@@ -43,9 +43,10 @@ function CalendarioAttivita() {
   const todayRef = useRef(null);
   // Calcola tutti i giorni del mese corrente utilizzando la funzione helper getDaysInMonth
   const daysInMonth = getDaysInMonth(currentMonth);
-  const meseCorrente = daysInMonth.length > 0
-  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
-  : "";
+const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
+  month: "long",
+  year: "numeric",
+}).replace(/^./, c => c.toUpperCase());
 
  // Restituisce il numero di settimana
  const getWeekNumber = (d) => {
@@ -336,7 +337,7 @@ function CalendarioAttivita() {
            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

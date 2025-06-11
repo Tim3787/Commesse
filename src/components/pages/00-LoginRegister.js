@@ -146,7 +146,7 @@ function LoginRegister({ onLogin }) {
   // ------------------------------------------------------------------
   return (
     <>
-      <ToastContainer position="top-center"  transition={Zoom} autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-center"  transition={Zoom} autoClose={2000} hideProgressBar />
       <div className="video-overlay"></div>
       <video
   className="background-video"

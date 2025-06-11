@@ -68,9 +68,12 @@ function DashboardReparto() {
   const containerRef = useRef(null); // Riferimento al contenitore della tabella
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
   const daysInMonth = getDaysInMonth(currentMonth); // Array dei giorni del mese corrente
-  const meseCorrente = daysInMonth.length > 0
-  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
-  : "";
+const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
+  month: "long",
+  year: "numeric",
+}).replace(/^./, c => c.toUpperCase());
+
+
   const [filters, setFilters] = useState({
     commessa: "",
     risorsa: "",
@@ -276,7 +279,7 @@ useEffect(() => {
             behavior: "smooth",
           });
         }
-      }, 100);
+      }, 200);
     } else {
       // Se il mese visualizzato è già quello corrente, scrolla direttamente
       if (todayRef.current && containerRef.current) {
@@ -647,6 +650,8 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       );
     }
 
+console.log("meseCorrente:", meseCorrente);
+
     // Modalità "full": visualizzazione dettagliata dell'attività
     return (
       <div
@@ -762,7 +767,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
   // ========================================================
   return (
     <div className="page-wrapper">
-              <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+              <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       <div className=" header">
         <h1>BACHECA REPARTO {RepartoName.toUpperCase()}</h1>
         <div className="flex-center header-row">

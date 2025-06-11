@@ -80,12 +80,13 @@ function CalendarioCommesse() {
       return [...emptyCellsStart, ...week, ...emptyCellsEnd];
     });
   };
-  const daysInMonth = getDaysInMonth(currentMonth);
+
   const weeksInMonth = getWeeksInMonth();
-  const meseCorrente = daysInMonth.length > 0
-  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
-  : "";
-  
+const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
+  month: "long",
+  year: "numeric",
+}).replace(/^./, c => c.toUpperCase());
+
   /**
    * Normalizza una data impostando le ore a zero.
    */
@@ -256,7 +257,7 @@ function CalendarioCommesse() {
            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
-        <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />

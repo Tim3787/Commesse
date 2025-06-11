@@ -106,7 +106,7 @@ const TrelloBoardSoftware = () => {
       )}
       <div className="flex-center header-row">
       <h1>Trello software</h1>
-       <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       </div>
       <div className="filter-group">
       <input

@@ -334,7 +334,7 @@ function VisualizzazioneCommesse() {
   =============================== */
   return (
     <div className="page-wrapper">
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
