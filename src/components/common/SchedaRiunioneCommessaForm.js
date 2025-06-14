@@ -191,23 +191,23 @@ const handleDownloadPdf = () => {
         {mostraDettagliSpunte ? "Nascondi dettagli" : "Mostra dettagli"}
       </button>
 
-      {/* Dettagli su data creazione e autore */}
-      {mostraDettagliSpunte && (
-        <div className="header-row">
-          <label style={{ fontFamily: "serif", color: "darkgray" }}>
-            Creata il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"}
-          </label>
-          <label style={{ fontFamily: "serif", color: "darkgray" }}>
-            da {scheda?.creato_da_nome || "utente sconosciuto"}
-          </label>
-        </div>
-      )}
+
 
     
 
       {/* Campo note */}
       <h1>Nuovo verbale</h1>
+            {/* Dettagli su data creazione e autore */}
+      {mostraDettagliSpunte && (
+          <div className="row">
+          <label style={{ fontFamily: "serif", color: "darkgray" }}>
+            Creato il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"}
+               — da  {scheda?.creato_da_nome || "utente sconosciuto"}
+          </label>
+        </div>
+      )}
       <textarea
+         style={{ minHeight: "200px" }}
         name="note"
         className="w-w"
         ref={textareaRef}
@@ -251,7 +251,7 @@ const handleDownloadPdf = () => {
 
     {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}
     {/* Sezione  pulsanti */}
-    <div className="flex-column-center">
+        <div className="row" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
       
       {/* Pulsanti PDF e Salva */}
             {editable && (
@@ -268,32 +268,33 @@ const handleDownloadPdf = () => {
     </div>
 
 {noteList.map((nota) => (
-  <li key={nota.id} className="nota-item" style={{ listStyleType: "none", marginBottom: "1rem", padding: "0.5rem", border: "1px solid #ccc", borderRadius: "8px" }}>
-    
-    <div style={{ fontSize: "0.8rem", color: "gray" }}>
-      Creata: {new Date(nota.data_creazione).toLocaleString("it-IT")} — {nota.creato_da_nome || "Autore sconosciuto"}
+  <li key={nota.id} className="nota-item" style={{ listStyleType: "none",marginTop: "10px" }}>
+    {mostraDettagliSpunte && (
+    <div  className="row" style={{ fontFamily: "serif", color: "darkgray" }}>
+      Creato il: {new Date(nota.data_creazione).toLocaleString("it-IT")} — da {nota.creato_da_nome || "Autore sconosciuto"}
       {nota.data_ultima_modifica && (
-        <div style={{ fontSize: "0.7rem", color: "gray" }}>
-          Ultima modifica: {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} — {nota.modificato_da_nome || "Autore sconosciuto"}
+        <div className="row" style={{ marginBottom: "10px" }}>
+          Ultima modifica il : {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} — da {nota.modificato_da_nome || "Autore sconosciuto"}
         </div>
       )}
     </div>
-
+ )}
     {notaDaModificare?.id === nota.id ? (
       <div>
         <textarea
+        className="w-w border"
+        style={{ minHeight: "100px"}}
           value={testoModificato}
           onChange={(e) => setTestoModificato(e.target.value)}
-          style={{ width: "100%", minHeight: "4rem" }}
         />
-        <div style={{ marginTop: "0.5rem" }}>
-          <button className="btn btn--green btn--pill" onClick={handleSalvaNota}>💾 Salva</button>
-          <button className="btn btn--red btn--pill" onClick={() => setNotaDaModificare(null)}>❌ Annulla</button>
+        <div className="row">
+          <button className="btn btn--blue w-200 btn--pill"onClick={handleSalvaNota}> Salva</button>
+          <button className="btn btn--danger w-200 btn--pill" onClick={() => setNotaDaModificare(null)}> Annulla</button>
         </div>
       </div>
     ) : (
       <>
-        <div style={{ marginTop: "0.25rem", whiteSpace: "pre-wrap" }}>{nota.contenuto}</div>
+        <div  className="w-w border" style={{ minHeight: "100px", padding: "10px"}}>{nota.contenuto}</div>
         {nota.allegato_path && (
           <div style={{ marginTop: "0.5rem" }}>
             <a href={nota.allegato_path} target="_blank" rel="noopener noreferrer">
@@ -302,12 +303,12 @@ const handleDownloadPdf = () => {
           </div>
         )}
         {nota.autore_id === userId && (
-          <div style={{ marginTop: "0.5rem" }}>
-            <button onClick={() => handleEditNota(nota)} className="btn btn--pill btn--blue">
-              ✏️ Modifica
+          <div className="row" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
+            <button onClick={() => handleEditNota(nota)} className="btn btn--blue w-200 btn--pill">
+              Modifica
             </button>
-                        <button onClick={() => handleDeleteNota(nota)} className="btn btn--pill btn--blue">
-              ❌ Elimina
+                        <button onClick={() => handleDeleteNota(nota)} className="btn btn--danger w-200 btn--pill">
+              Elimina
             </button>
           </div>
         )}
