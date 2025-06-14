@@ -456,7 +456,7 @@ return (
               {defaultStatesVisible ? "▼" : "▶"} Seleziona stato iniziale per ogni reparto
             </button>
             {defaultStatesVisible && (
-              <div className="initial-states-section">
+              <div>
                 {Array.isArray(reparti) && reparti.length > 0 ? (
                   reparti.map((rep) => {
                     // Usa il prop stati_avanzamento per filtrare gli stati del reparto
@@ -464,14 +464,14 @@ return (
                       (st) => String(st.reparto_id) === String(rep.id)
                     );
                     return (
-                      <div key={rep.id} className="state-selection-group">
+                      <div key={rep.id} className="flex-column-left" >
                         <label>{rep.nome}:</label>
                         <select
                           value={defaultStateSelections[rep.id] || "In Entrata"}
                           onChange={(e) =>
                             handleStateSelectionChange(rep.id, e.target.value)
                           }
-                          className="select large"
+                          className="select w-200"
                         >
                           {statiPerRep.map((st) => (
                             <option key={st.id} value={st.nome_stato}>

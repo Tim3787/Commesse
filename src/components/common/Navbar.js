@@ -541,12 +541,12 @@ const handleSearchInputChange = async (e) => {
         <CSSTransition in={isNotificationOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <h4>Notifiche</h4>
-            <ul>
+            <ul  className="row">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
                     {notification.message}
-                    <small>{new Date(notification.created_at).toLocaleDateString()}</small>
+                  -- Notifica ricevuta il {new Date(notification.created_at).toLocaleDateString()}
                   </li>
                 ))
               ) : (

@@ -1,5 +1,4 @@
 .navbar {
-  display: flex;
   flex-direction: column;
   background-color: #f8f9fa;
   padding: 5px;
@@ -113,7 +112,7 @@ margin-top: 15px;
 
 .notification-badge {
  position: absolute;
-right: 78%;
+
   background: red;
   color: white;
   font-size: 12px;
