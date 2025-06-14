@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState,useMemo } from 'react';
 import { 
 fetchSchedeTecniche,
   createSchedaTecnica,
   updateSchedaTecnica,
   fetchTipiSchedaTecnica
  } from "../services/API/schedeTecniche-api";
+
+
 import SchedaSviluppoForm from "../common/SchedaSviluppoForm";
 import SchedaCollaudoForm from "../common/SchedaCollaudoAvvolgiotriForm";
 import SchedaMSQuadroForm from "../common/SchedaMSQuadroForm";
@@ -22,6 +24,7 @@ const [tipoSelezionato, setTipoSelezionato] = useState(null);
   const token = sessionStorage.getItem("token");    
   const [user, setUser] = useState(null); 
 const [tipiSchede, setTipiSchede] = useState([]);
+
 
 useEffect(() => {
     if (!commessaId) return;
@@ -53,36 +56,42 @@ useEffect(() => {
 
 
 useEffect(() => {
-  const caricaTipiSchedaTecnica = async () => {
+  const caricaTipiScheda = async () => {
     try {
-      const data = await fetchTipiSchedaTecnica(); // chiamata API
-      setTipiSchede(data);
+      const tuttiITipi = await fetchTipiSchedaTecnica(); // ora restituisce anche 'categoria'
+      setTipiSchede(tuttiITipi); // ognuno ha già { id, nome, categoria }
     } catch (error) {
-      console.error("Errore nel caricamento dei tipi di scheda:", error);
+      console.error("Errore nel caricamento tipi scheda:", error);
     }
   };
 
-  caricaTipiSchedaTecnica();
+  caricaTipiScheda();
 }, []);
 
 
 
+const tipoIdToCategoria = useMemo(() => {
+  const mappa = {};
+  tipiSchede.forEach(tipo => {
+    mappa[tipo.id] = tipo.categoria;
+  });
+  return mappa;
+}, [tipiSchede]);
+
 const handleSaveScheda = async (valoriAggiornati) => {
   try {
-    await updateSchedaTecnica(schedaInModifica.id, {
+    const payload = {
       ...valoriAggiornati,
       risorsa_id: user?.risorsa_id,
       descrizione: `Modifica effettuata da ${user?.nome || 'utente'}`,
-    });
+    };
 
+    await updateSchedaTecnica(schedaInModifica.id, payload);
     const aggiornate = await fetchSchedeTecniche(commessaId);
     setSchede(aggiornate);
-
-    // Aggiorna anche i dati della scheda modificata
     const aggiornata = aggiornate.find(s => s.id === schedaInModifica.id);
     setSchedaInModifica(aggiornata);
 
-    // Chiudi il popup
     handleClosePopup();
   } catch (err) {
     console.error(err);
@@ -91,27 +100,42 @@ const handleSaveScheda = async (valoriAggiornati) => {
 };
 
 
-const handleNuovaScheda = async (tipo_id) => {
+
+
+const handleNuovaScheda = async (tipo) => {
   try {
     const esistenti = await fetchSchedeTecniche(commessaId);
-    const giaEsiste = esistenti.find(s => s.tipo_id === tipo_id);
+
+    // per le schede tecniche evita duplicati, per le multi no
+    const giaEsiste = tipo.categoria === "tecnica"
+      ? esistenti.find(s => s.tipo_id === tipo.id)
+      : null;
 
     if (giaEsiste) {
-      setSchedaInModifica(giaEsiste); // ha già scheda.tipo
+      setSchedaInModifica(giaEsiste);
     } else {
       const nuova = await createSchedaTecnica({
         commessa_id: commessaId,
-         tipo_id,
+        tipo_id: tipo.id,
+        categoria: tipo.categoria,
+        titolo: tipo.categoria === "multi" ? "" : null,
+        descrizione: tipo.categoria === "multi" ? "" : null,
         creata_da: user.id,
       });
 
-      setSchedaInModifica(nuova); // ha già tipo
+      setSchedaInModifica({ 
+        ...nuova, 
+        categoria: tipo.categoria, 
+        tipo: tipo.nome 
+      });
     }
   } catch (err) {
     console.error(err);
     alert("Errore nella creazione o apertura della scheda");
   }
 };
+
+
 
 
 
@@ -126,27 +150,53 @@ const handleNuovaScheda = async (tipo_id) => {
       <select
   className="w-200"
   onChange={(e) => {
-    const tipo = parseInt(e.target.value);
-    if (!isNaN(tipo)) setTipoSelezionato(tipo);
-  }}
+  const value = e.target.value;
+  if (!value) {
+    setTipoSelezionato(null);
+    return;
+  }
+  try {
+    const tipo = JSON.parse(value);
+    setTipoSelezionato(tipo);
+  } catch (err) {
+    console.error("Errore nel parsing del tipo:", err);
+    setTipoSelezionato(null);
+  }
+}}
+
 >
   <option value="">-- Seleziona tipo --</option>
-  {tipiSchede.map((tipo) => (
-    <option key={tipo.id} value={tipo.id}>
-      {tipo.nome}
-    </option>
-  ))}
+  <optgroup label="Schede tecniche">
+    {tipiSchede
+      .filter(t => t.categoria === "tecnica")
+      .map(tipo => (
+        <option key={tipo.id} value={JSON.stringify(tipo)}>
+          {tipo.nome}
+        </option>
+      ))}
+  </optgroup>
+  <optgroup label="Schede multi">
+    {tipiSchede
+      .filter(t => t.categoria === "multi")
+      .map(tipo => (
+        <option key={tipo.id} value={JSON.stringify(tipo)}>
+          {tipo.nome}
+        </option>
+      ))}
+  </optgroup>
 </select>
+
+
 
       <button
         className="btn w-200 btn--blue btn--pill mt-5"
-        onClick={() => {
-          if (tipoSelezionato !== null) {
-            handleNuovaScheda(tipoSelezionato);
-          } else {
-            alert("Seleziona un tipo di scheda prima di creare");
-          }
-        }}
+onClick={() => {
+  if (tipoSelezionato) {
+    handleNuovaScheda(tipoSelezionato);
+  } else {
+    alert("Seleziona un tipo di scheda prima di creare");
+  }
+}}
       >
         Crea
       </button>
@@ -158,7 +208,9 @@ const handleNuovaScheda = async (tipo_id) => {
 
 {schedaInModifica && !user?.id && <p>Caricamento dati utente...</p>}
 {schedaInModifica && user?.id && (
+  
   <div className="container-fix">
+    
     <h1>SCHEDA {schedaInModifica.tipo} –{numero_commessa}</h1>
     {(() => {
       const tipo = schedaInModifica.tipo?.toLowerCase();
@@ -232,20 +284,24 @@ const handleNuovaScheda = async (tipo_id) => {
             />
           );
 
-        case "riunione-commessa":
-          
-          return (
-            <SchedaRiunioneCommessaForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-               userId={user.risorsa_id}
-               username={user.username}
-               editable={editable}
-            />
-          );
         default:
+const categoria = tipoIdToCategoria?.[schedaInModifica?.tipo_id] ?? schedaInModifica?.categoria;
+
+if (categoria === "multi") {
+
+  return (
+    <SchedaRiunioneCommessaForm
+      scheda={schedaInModifica}
+      commessa={numero_commessa}
+      onClose={() => setSchedaInModifica(null)}
+      onSave={handleSaveScheda}
+      userId={user.risorsa_id}
+      username={user.username}
+      editable={editable}
+    />
+  );
+}
+
           return <p>⚠️ Modulo per questo tipo non ancora implementato.</p>;
       }
     })()}

@@ -1,25 +1,29 @@
 // ===== IMPORT =====
 import { useState, useEffect, useRef } from "react";
+import { addNotaToScheda, fetchNoteScheda, updateNotaScheda, deleteNotaScheda  } from "../services/API/schede-multi-api";
+import html2pdf from "html2pdf.js";
 import {
+
   getTagSuggeriti,
 } from "../services/API/schedeTecniche-api";
-import html2pdf from "html2pdf.js";
-
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaRiunioneCommessaForm({ scheda, onSave, userId, editable }) {
+function SchedaRiunioneCommessaForm({ scheda,  userId, editable, onClose}) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); 
-
   const textareaRef = useRef(null);
 
   // ===== HOOK: STATE =====
-  const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
+  const [noteList, setNoteList] = useState([]);
+  const [nuovaNota, setNuovaNota] = useState("");
   const [tagSuggeriti, setTagSuggeriti] = useState([]);
   const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
   const [filtroTag, setFiltroTag] = useState("");
   const [cursorPos, setCursorPos] = useState(null);
+  const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
+  const [notaDaModificare, setNotaDaModificare] = useState(null);
+  const [testoModificato, setTestoModificato] = useState("");
 
   // ===== FUNZIONI DI UTILITÀ =====
   const autoResizeTextarea = () => {
@@ -53,54 +57,47 @@ function SchedaRiunioneCommessaForm({ scheda, onSave, userId, editable }) {
 
   // ===== EVENTI / HANDLERS =====
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    const datiPerBackend = {
-      intestazione: {
-        titolo: form.titolo,
-        RevSoftware: form.RevSoftware,
-        RevMacchina: form.RevMacchina,
-        RevSchema: form.RevSchema,
-      },
-      contenuto: { checklist: form.checklist },
-      note: form.note,
-      allegati_standard: [],
-      risorsa_id: userId,
-      descrizione: "Modifica effettuata da interfaccia sviluppo",
-    };
+  const handleSalvaNota = async () => {
+  try {
+await updateNotaScheda(notaDaModificare.id, {
+  contenuto: testoModificato,
+  allegato_path: notaDaModificare.allegato_path || null,
+  utente_id: userId,
+  scheda_id: scheda.id,
+});
+    setNotaDaModificare(null);
+    setTestoModificato("");
+    await caricaNote(); // Ricarica tutte le note aggiornate
+  } catch (err) {
+    console.error("Errore salvataggio nota:", err);
+  }
+};
 
-    const tagRegex = /#(\w+)/g;
-    const tagSet = new Set();
-    let match;
-    while ((match = tagRegex.exec(form.note)) !== null) {
-      tagSet.add(match[1]);
-    }
-    const tags = Array.from(tagSet);
+const handleEditNota = (nota) => {
+  setNotaDaModificare(nota);
+  setTestoModificato(nota.contenuto);
+};
 
-    onSave(datiPerBackend);
-
-    if (tags.length > 0) {
-      fetch("https://commesseunserver.eu/api/schedeTecniche/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheda_id: scheda?.id || scheda?.scheda_id, tags }),
-      }).catch((err) => console.error("Errore salvataggio tag:", err));
+  const caricaNote = async () => {
+    try {
+      const note = await fetchNoteScheda(scheda.id);
+      setNoteList(note);
+    } catch (err) {
+      console.error("Errore caricamento note:", err);
     }
   };
-
   const handleNoteChange = (e) => {
     const testo = e.target.value;
-    setForm((prev) => ({ ...prev, note: testo }));
+    setNuovaNota(testo);
+    const cursor = e.target.selectionStart;
+    setCursorPos(cursor);
 
-    const cursorPos = e.target.selectionStart;
-    setCursorPos(cursorPos);
-
-    const testoPrima = testo.substring(0, cursorPos);
+    const testoPrima = testo.substring(0, cursor);
     const match = testoPrima.match(/#(\w*)$/);
 
     if (match) {
@@ -113,6 +110,32 @@ function SchedaRiunioneCommessaForm({ scheda, onSave, userId, editable }) {
       setFiltroTag("");
     }
   };
+
+  const handleAggiungiNota = async () => {
+    if (!nuovaNota.trim()) return;
+    try {
+      await addNotaToScheda(scheda.id, {
+        contenuto: nuovaNota,
+        autore_id: userId,
+      });
+      setNuovaNota("");
+      await caricaNote();
+    if (onClose) onClose();  
+      
+    } catch (err) {
+      console.error("Errore durante aggiunta nota:", err);
+    }
+  };
+
+  const handleDeleteNota = async (nota) => {
+  if (!window.confirm("Sei sicuro di voler eliminare questa nota?")) return;
+  try {
+    await deleteNotaScheda(nota.id);
+    await caricaNote();
+  } catch (err) {
+    console.error("Errore durante l'eliminazione della nota:", err);
+  }
+};
 
 const handleDownloadPdf = () => {
   const element = schedaRef.current;
@@ -138,6 +161,7 @@ const handleDownloadPdf = () => {
 };
 
 
+
   // ===== EFFECTS =====
 
   useEffect(() => {
@@ -147,6 +171,12 @@ const handleDownloadPdf = () => {
   useEffect(() => {
     autoResizeTextarea();
   }, [form.note]);
+
+  useEffect(() => {
+    if (scheda?.id) {
+     caricaNote();
+  }
+  }, [scheda?.id]);
 
   return (
   // Contenitore che sarà usato per generare il PDF
@@ -176,7 +206,7 @@ const handleDownloadPdf = () => {
     
 
       {/* Campo note */}
-      <h1>Note</h1>
+      <h1>Nuovo verbale</h1>
       <textarea
         name="note"
         className="w-w"
@@ -220,23 +250,72 @@ const handleDownloadPdf = () => {
     </div>
 
     {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}
-
-
     {/* Sezione  pulsanti */}
     <div className="flex-column-center">
       
       {/* Pulsanti PDF e Salva */}
-      <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
-        Scarica PDF
-      </button>
-      {editable && (
-        <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-          Salva
+            {editable && (
+        <button className="btn btn--blue w-200 btn--pill" onClick={handleAggiungiNota}>
+          Aggiungi verbale
         </button>
       )}
 
+      <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
+        Scarica PDF verbale
+      </button>
+
 
     </div>
+
+{noteList.map((nota) => (
+  <li key={nota.id} className="nota-item" style={{ listStyleType: "none", marginBottom: "1rem", padding: "0.5rem", border: "1px solid #ccc", borderRadius: "8px" }}>
+    
+    <div style={{ fontSize: "0.8rem", color: "gray" }}>
+      Creata: {new Date(nota.data_creazione).toLocaleString("it-IT")} — {nota.creato_da_nome || "Autore sconosciuto"}
+      {nota.data_ultima_modifica && (
+        <div style={{ fontSize: "0.7rem", color: "gray" }}>
+          Ultima modifica: {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} — {nota.modificato_da_nome || "Autore sconosciuto"}
+        </div>
+      )}
+    </div>
+
+    {notaDaModificare?.id === nota.id ? (
+      <div>
+        <textarea
+          value={testoModificato}
+          onChange={(e) => setTestoModificato(e.target.value)}
+          style={{ width: "100%", minHeight: "4rem" }}
+        />
+        <div style={{ marginTop: "0.5rem" }}>
+          <button className="btn btn--green btn--pill" onClick={handleSalvaNota}>💾 Salva</button>
+          <button className="btn btn--red btn--pill" onClick={() => setNotaDaModificare(null)}>❌ Annulla</button>
+        </div>
+      </div>
+    ) : (
+      <>
+        <div style={{ marginTop: "0.25rem", whiteSpace: "pre-wrap" }}>{nota.contenuto}</div>
+        {nota.allegato_path && (
+          <div style={{ marginTop: "0.5rem" }}>
+            <a href={nota.allegato_path} target="_blank" rel="noopener noreferrer">
+              📎 Allegato
+            </a>
+          </div>
+        )}
+        {nota.autore_id === userId && (
+          <div style={{ marginTop: "0.5rem" }}>
+            <button onClick={() => handleEditNota(nota)} className="btn btn--pill btn--blue">
+              ✏️ Modifica
+            </button>
+                        <button onClick={() => handleDeleteNota(nota)} className="btn btn--pill btn--blue">
+              ❌ Elimina
+            </button>
+          </div>
+        )}
+      </>
+    )}
+  </li>
+))}
+
   </div>
 );
 }
