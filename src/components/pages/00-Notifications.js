@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../style/00-Notifications.css";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+const [categoriaFiltro, setCategoriaFiltro] = useState("tutte");
+
+const notificheFiltrate = categoriaFiltro === "tutte"
+  ? notifications
+  : notifications.filter(n => n.category === categoriaFiltro);
 
   // Recupera il token dalla sessionStorage
   const token = sessionStorage.getItem("token");
@@ -88,7 +94,7 @@ const Notifications = () => {
     }
     try {
       const response = await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/${userId}`,
+        `${process.env.REACT_APP_API_URL}/api/notifiche/utente/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Risultato DELETE:", response.data);
@@ -110,7 +116,18 @@ const Notifications = () => {
   return (
     <div className="notifications-container">
       <h2>Non lette: {unreadNotifications.length}</h2>
-      <h2>Storico notifiche:</h2>
+      <h2>Storico notifiche:
+      <select
+  className="dropdown"
+  value={categoriaFiltro}
+  onChange={(e) => setCategoriaFiltro(e.target.value)}
+>
+  <option value="tutte">Tutte</option>
+  <option value="attività">Attività</option>
+  <option value="urgente">Urgente</option>
+  <option value="generale">Generale</option>
+</select></h2>
+
       {loading && <p>Caricamento in corso...</p>}
       {error && <p className="error">{error}</p>}
       
@@ -122,11 +139,14 @@ const Notifications = () => {
       )}
 
       <ul>
-        {notifications.map((notification) => (
+        {notificheFiltrate.map((notification) => (
           <li
             key={notification.id}
             className={`notification-item ${notification.is_read ? "read" : "unread"}`}
           >
+            <span className={`badge badge--${notification.category}`}>
+  Categoria: { notification.category}
+</span>
             <p>{notification.message}</p>
             <small>
               Inviata il: {new Date(notification.created_at).toLocaleDateString()}

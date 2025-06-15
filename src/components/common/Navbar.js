@@ -107,22 +107,19 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
   };
 
-  const markAllAsRead = async () => {
-    try {
-      const promises = notifications.map((notification) =>
-        axios.put(
-          `${process.env.REACT_APP_API_URL}/api/notifiche/${notification.id}/read`,
-          null,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-      );
-      await Promise.all(promises);
-      setUnreadCount(0);
-      fetchUnreadNotifications();
-    } catch (error) {
-      console.error("Errore durante il contrassegno delle notifiche come lette:", error);
-    }
-  };
+const markAllAsRead = async () => {
+  try {
+    await axios.put(
+      `${process.env.REACT_APP_API_URL}/api/notifiche/read/all`,
+      null,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setUnreadCount(0);
+    fetchUnreadNotifications();
+  } catch (error) {
+    console.error("Errore durante il contrassegno delle notifiche come lette:", error);
+  }
+};
 
   // -------------------------------------------------------------------
   // Caricamento delle commesse per il dropdown di ricerca
