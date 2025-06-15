@@ -60,7 +60,7 @@ const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
   software: "Avviamento terminato",
   elettrico: "Completate",
   quadristi: "Consegnato",
- 
+ tecnicoelettrico: "Completate",
 };
 
 const aggiornaStatiInizialiSeConsegnata = (statoId) => {

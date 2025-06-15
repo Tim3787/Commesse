@@ -16,11 +16,19 @@ const repartoConfig = {
     RepartoName: "service", 
     defaultServiceResourceId: null  // ID di default per il reparto "service"
   },
+  
   quadristi: { 
     RepartoID: 15, 
     RepartoName: "quadristi", 
     defaultServiceResourceId: null // ID della risorsa di default per "quadristi"
-  }
+  },
+  tecnicoelettrico: { 
+    RepartoID: 14, 
+    RepartoName: "tecnico elettrico", 
+    defaultServiceResourceId: null // ID della risorsa di default per "quadristi"
+  },
+
 };
+
 
 export default repartoConfig;

@@ -5,3 +5,11 @@
 .editing-icon {
   margin-right: 0.5rem;
 }
+.Gestione-Tabelle-table{
+  height: 400px; 
+      overflow-y: auto;
+       overflow-x: auto; 
+}
+  .Gestione-Tabelle-table-container {
+  max-height: 78vh; 
+}

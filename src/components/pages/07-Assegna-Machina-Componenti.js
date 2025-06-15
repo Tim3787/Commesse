@@ -36,7 +36,7 @@ function AssignedComponentsTable({ assignedComponents, availableComponents, onUp
   };
 
   useEffect(() => {
-    console.log("AssignedComponentsTable - dati ricevuti:", assignedComponents);
+
   }, [assignedComponents]);
 
   return (
@@ -153,7 +153,7 @@ function AssignMachinePage() {
             macchina: m.macchina,
             macchina_id: m.id
           }));
-          console.log("Macchine assegnate:", formatted);
+
           setSelectedMachineInstances(formatted);
         } catch (error) {
           toast.error("Errore nel caricamento delle macchine assegnate.");
@@ -174,11 +174,11 @@ function AssignMachinePage() {
           // Per ogni macchina assegnata, carica i componenti specifici
           for (const machine of selectedMachineInstances) {
             const components = await getComponentiFromMacchina(selectedCommessa.commessa_id, machine.macchina_id);
-            console.log(`Componenti per macchina ${machine.macchina_id}:`, components);
+
             allComponents = [...allComponents, ...components];
           }
           setAssignedComponents(allComponents);
-          console.log("Componenti assegnati complessivi:", allComponents);
+
         } catch (error) {
           toast.error("Errore nel caricamento dei componenti assegnati.");
         }

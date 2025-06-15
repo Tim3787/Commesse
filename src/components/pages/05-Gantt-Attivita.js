@@ -40,6 +40,7 @@ const [showSuggestions, setShowSuggestions] = useState(false);  // Mostra/nascon
     { id: 3, name: "Reparto Meccanico" },
     { id: 15, name: "Reparto Quadristi" },
     { id: 18, name: "Reparto Service" },
+    { id: 14, name: "Reparto Tecnico elettrico" },
   ];
 
   // ------------------------------------------------------------------

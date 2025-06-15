@@ -178,6 +178,22 @@ function StatoAvanzamentoReparti() {
         analisi: ["E: Analisi documentazione"],
       },
     },
+       tecnicoelettrico: {
+      RepartoID: 14,
+      RepartoName: "tecnico elettrico",
+      boardId: "606efd4d2898f5705163448f",
+      accoppiamentoStati: {
+                "in entrata": [
+          "E: In entrata",
+          "E: In entrata",
+          "E: Schema destinato a Luca",
+          "E: Schema destinato a Alan",
+          "E: Schema destinato a Alessio",
+          "E: Schema destinato a Simone",
+        ],
+        analisi: ["E: Analisi documentazione"],
+      },
+    },
   };
 
   // Legge il parametro dinamico "reparto" dall'URL e imposta i dati del reparto
@@ -811,10 +827,12 @@ if (RepartoName === "software") {
   // ----------------------------------------------------------------
   // Rendering del componente
   // ----------------------------------------------------------------
+
   return (
     <div className="page-wrapper">
       {/* HEADER */}
       <div className="header">
+        
         <h1>STATO AVANZAMENTO {RepartoName.toUpperCase()}</h1>
         </div>
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />

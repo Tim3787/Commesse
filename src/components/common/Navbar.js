@@ -197,6 +197,14 @@ const navLinks = {
         { to: "/TrelloBoardElettrico", label: "TRELLO", icon: faClipboardList },
       ],
     },
+        {
+      label: "REP.TECNICO ELETTRICO",
+      icon: faScrewdriverWrench,
+      links: [
+        { to: "/StatoAvanzamento/tecnicoelettrico", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/tecnicoelettrico", label: "ATTIVITA'", icon: faTasks },
+      ],
+    },
     {
       label: "REP.QE",
       icon: faScrewdriverWrench,

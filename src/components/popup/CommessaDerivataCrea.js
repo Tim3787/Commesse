@@ -80,7 +80,7 @@ const handleDurationChange = (attivitaId, value) => {
   software: "Avviamento terminato",
   elettrico: "Completate",
   quadristi: "Consegnato",
- 
+ tecnicoelettrico: "Completate",
 };
 
   const handleChange = (e) => {

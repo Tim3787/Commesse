@@ -650,7 +650,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       );
     }
 
-console.log("meseCorrente:", meseCorrente);
+
 
     // Modalità "full": visualizzazione dettagliata dell'attività
     return (
@@ -869,7 +869,6 @@ console.log("meseCorrente:", meseCorrente);
       onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
       onFocus={() => {
   setShowCommessaSuggestions(true);
-  console.log("showCommessaSuggestions", showCommessaSuggestions);
 }}
       className="w-200"
     />

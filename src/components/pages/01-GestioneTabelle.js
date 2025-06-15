@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../img/Animation - 1738249246846.gif";
-import  "../style/00-Dashboard-user.css";
+import  "../style/01-GestioneTabelle.css";
 
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -112,6 +112,9 @@ function GestioneTabelle() {
     loadReparti();
   }, []);
 
+    // Stato di caricamento
+    const [loading, setLoading] = useState(false);
+
   // Quando il reparto selezionato cambia, carica Attività, Risorse e Stati Avanzamento
   useEffect(() => {
     if (selectedReparto) {
@@ -134,6 +137,7 @@ function GestioneTabelle() {
   // ================================
   const loadStatiCommessa = async () => {
     setStatiCommessaLoading(true);
+    setLoading(true);
     try {
       const data = await fetchStatiCommessa();
       setStatiCommessa(data);
@@ -142,6 +146,7 @@ function GestioneTabelle() {
       toast.error("Errore nel caricamento degli stati commessa.");
     } finally {
       setStatiCommessaLoading(false);
+       setLoading(false);
     }
   };
 
@@ -157,6 +162,7 @@ function GestioneTabelle() {
       return;
     }
     setStatiCommessaLoading(true);
+    setLoading(true);
     try {
       if (isEditingStatiCommessa) {
         await updateStatoCommessa(editStatiCommessaId, statiCommessaFormData);
@@ -179,6 +185,7 @@ function GestioneTabelle() {
       toast.error("Errore nella gestione dello stato commessa.");
     } finally {
       setStatiCommessaLoading(false);
+      setLoading(false);
     }
   };
 
@@ -191,6 +198,7 @@ function GestioneTabelle() {
   const handleStatiCommessaDelete = async (id) => {
     if (window.confirm("Eliminare questo stato commessa?")) {
       setStatiCommessaLoading(true);
+      setLoading(true);
       try {
         await deleteStatoCommessa(id);
         setStatiCommessa((prev) => prev.filter((s) => s.id !== id));
@@ -200,6 +208,7 @@ function GestioneTabelle() {
         toast.error("Errore nell'eliminazione dello stato commessa.");
       } finally {
         setStatiCommessaLoading(false);
+         setLoading(false);
       }
     }
   };
@@ -209,6 +218,7 @@ function GestioneTabelle() {
   // ================================
   const loadReparti = async () => {
     setRepartiLoading(true);
+    setLoading(true);
     try {
       const data = await fetchReparti();
       setReparti(data);
@@ -217,6 +227,7 @@ function GestioneTabelle() {
       toast.error("Errore nel caricamento dei reparti.");
     } finally {
       setRepartiLoading(false);
+       setLoading(false);
     }
   };
 
@@ -228,6 +239,7 @@ function GestioneTabelle() {
   const handleRepartiSubmit = async (e) => {
     e.preventDefault();
     setRepartiLoading(true);
+    setLoading(true);
     try {
       if (isEditingReparto) {
         await updateReparto(editRepartoId, repartiFormData);
@@ -248,6 +260,7 @@ function GestioneTabelle() {
       toast.error("Errore nella gestione del reparto.");
     } finally {
       setRepartiLoading(false);
+      setLoading(false);
     }
   };
 
@@ -260,6 +273,7 @@ function GestioneTabelle() {
   const handleRepartiDelete = async (id) => {
     if (window.confirm("Eliminare questo reparto?")) {
       setRepartiLoading(true);
+       setLoading(true);
       try {
         await deleteReparto(id);
         setReparti((prev) => prev.filter((r) => r.id !== id));
@@ -269,6 +283,7 @@ function GestioneTabelle() {
         toast.error("Errore durante l'eliminazione del reparto.");
       } finally {
         setRepartiLoading(false);
+        setLoading(false);
       }
     }
   };
@@ -546,9 +561,20 @@ function GestioneTabelle() {
   // Rendering della Pagina
   // ================================
   return (
-    <div className="container">
+      <div className="page-wrapper">
       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-
+       {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )} 
+              {/* HEADER */}
+        <div className=" header">
+          <div className="flex-center header-row"> 
+            <h1>GESTIONE TABELLE</h1>  
+          </div> 
+        </div> 
+        <div className="Gestione-Tabelle-table-container">
       {/* === Sezione Stati Commessa === */}
       <section className="section-global">
         <h1>Gestione Stati Commessa</h1>
@@ -688,8 +714,8 @@ function GestioneTabelle() {
       </section>
 
       {/* === Sezione per Selezionare il Reparto === */}
-      <section className="flex-column-center">
-        <h2>Seleziona Reparto per Gestione</h2>
+      <section className="flex-column-center"   style={{marginBottom:"50px"}} >
+        <h2>Seleziona Reparto</h2>
         <select value={selectedReparto} onChange={(e) => setSelectedReparto(e.target.value)}>
           <option value="">-- Seleziona --</option>
           {reparti.map((r) => (
@@ -943,6 +969,7 @@ function GestioneTabelle() {
           </div>
         </section>
      )}
+   </div>
    </div>
   );
 }

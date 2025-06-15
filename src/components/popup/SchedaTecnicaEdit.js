@@ -48,7 +48,7 @@ useEffect(() => {
     } catch (error) {
     }
   };
-   console.log("user:", user);
+
   fetchUserData();
 }, [token]);
 
