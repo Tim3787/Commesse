@@ -279,7 +279,7 @@ useEffect(() => {
             behavior: "smooth",
           });
         }
-      }, 200);
+      }, 100);
     } else {
       // Se il mese visualizzato è già quello corrente, scrolla direttamente
       if (todayRef.current && containerRef.current) {

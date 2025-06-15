@@ -24,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
   // Definisci valori di fallback
   let notificationTitle = "Nuova notifica";
   let notificationBody = "Hai un nuovo messaggio.";
-  const notificationIcon = "/logo192.png";
+  const notificationIcon = "/unitech-packaging.png";
 
   // Verifica se è presente il campo 'notification'
   if (payload.notification) {

@@ -13,8 +13,9 @@ const requestNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-
-      await getToken(messaging, { vapidKey });
+      const token = await getToken(messaging, { vapidKey });
+      console.log("Token dispositivo:", token);
+      // Salvalo nel tuo backend o localStorage
     } else {
       console.error("Permesso per le notifiche negato.");
     }
@@ -35,13 +36,15 @@ if ("serviceWorker" in navigator) {
 }
 
 // Ascolta i messaggi in arrivo
+// Ascolta i messaggi in foreground
 onMessage(messaging, (payload) => {
-  if (payload.notification && payload.notification.body) {
-    alert(`Nuova notifica: ${payload.notification.body}`);
-  } else if (payload.data && payload.data.body) {
-    alert(`Nuova notifica: ${payload.data.body}`);
-  } else {
-    console.warn("Il payload non contiene 'notification.body' o 'data.body'.", payload);
+  console.log("Notifica ricevuta in foreground:", payload);
+
+  if (Notification.permission === "granted" && payload.data) {
+    new Notification(payload.data.title, {
+      body: payload.data.body,
+      icon: "/unitech-packaging.png",
+    });
   }
 });
 
