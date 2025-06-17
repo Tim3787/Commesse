@@ -118,13 +118,14 @@ const notificheFiltrate = categoriaFiltro === "tutte"
       <h2>Non lette: {unreadNotifications.length}</h2>
       <h2>Storico notifiche:
       <select
-  className="dropdown"
+  className="w-200"
+  style={{ marginLeft: "15px"}}
   value={categoriaFiltro}
   onChange={(e) => setCategoriaFiltro(e.target.value)}
 >
   <option value="tutte">Tutte</option>
   <option value="attività">Attività</option>
-  <option value="urgente">Urgente</option>
+  <option value="Commessa">Commessa</option>
   <option value="generale">Generale</option>
 </select></h2>
 
@@ -149,9 +150,9 @@ const notificheFiltrate = categoriaFiltro === "tutte"
 </span>
             <p>{notification.message}</p>
             <small>
-              Inviata il: {new Date(notification.created_at).toLocaleDateString()}
+              Ricevuta il: {new Date(notification.created_at).toLocaleDateString()}
             </small>
-            <div className="notification-actions">
+            <div className="row">
               {!notification.is_read && (
                 <button className="btn w-200 btn--warning btn--pill"  onClick={() => markAsRead(notification.id)}>
                   Segna come letto

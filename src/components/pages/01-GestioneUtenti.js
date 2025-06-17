@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../img/Animation - 1738249246846.gif";
+import  "../style/01-GestioneUtenti.css";
 
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -146,10 +147,12 @@ function GestioneUtenti() {
           </div>
         )}   
         <div className=" header">
-      <h1>Gestione Utenti</h1>
+          <div className="flex-center header-row"> 
+      <h1>GESTIONE UTENTI</h1>
+      </div>  
       </div>  
       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-<div className="Reparto-table-container ">
+       <div className="Gestione-Utenti-table-container">
       {/* Tabella degli utenti */}
       <table>
         <thead >

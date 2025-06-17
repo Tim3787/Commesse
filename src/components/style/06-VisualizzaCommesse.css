@@ -9,6 +9,10 @@
   max-height: 68vh; 
 }
   
+  .Commesse-table-container-2 {
+  max-height: 78vh; 
+}
+
 .Commesse-table  td:last-child, 
 .Commesse-table  th :last-child {
  border-right: 1px solid var(--ds-border, #c1c7d0);

@@ -546,7 +546,7 @@ const handleSearchInputChange = async (e) => {
         <CSSTransition in={isNotificationOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <h4>Notifiche</h4>
-            <ul  className="row">
+            <ul>
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>

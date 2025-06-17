@@ -340,7 +340,7 @@ function VisualizzazioneCommesseProduzione() {
       </div>
       {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
       {isVisible && (
-        <div className="Commesse-table-container">
+        <div className="Commesse-table-container-2">
           <table className="Commesse-table">
             <thead>
               <tr>
@@ -552,7 +552,7 @@ function VisualizzazioneCommesseProduzione() {
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
 
-         <div className="Commesse-table-container" >
+         <div className="Commesse-table-container-2" >
         {/* TABELLA DELLE COMMESSE */}
         <table className="Commesse-table">
           <thead>

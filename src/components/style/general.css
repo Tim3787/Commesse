@@ -74,14 +74,9 @@ generale
   }
 
 .row{
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background-color: var(--bg-dark);
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: center; 
+
   padding-top: 10px;
   width: 100%;
   left: 0;
