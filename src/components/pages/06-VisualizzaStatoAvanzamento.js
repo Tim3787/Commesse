@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GestioneStatiAvanzamento from "../assets/GestioneStatiAvanzamento";
 import logo from "../img/Animation - 1738249246846.gif";
+
+// Import per notifiche e tooltip
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+
+
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash,faChevronLeft, faChevronRight   } from "@fortawesome/free-solid-svg-icons";
 
 function StatiAvanzamento() {
   const [commesse, setCommesse] = useState([]);
@@ -56,6 +60,26 @@ function StatiAvanzamento() {
 
     fetchStatiCommessa();
   }, []);
+
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      !e.target.closest(".suggestion-wrapper") && // wrapper di input + lista
+      !e.target.closest(".suggestions-list") &&
+      !e.target.closest("input")
+    ) {
+      setShowClienteSuggestions(false);
+      setShowTipoMacchinaSuggestions(false);
+      setShowCommessaSuggestions(false);
+    }
+  };
+
+  document.addEventListener("click", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("click", handleClickOutside);
+  };
+}, []);
 
 
   // Funzione per filtrare in base ai vari campi
@@ -211,7 +235,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   
   <button onClick={testNavigation}>Test Navigazione</button>
 
-  
+
   // Funzione per rimuovere una data
   const handleRemoveDate = async (commessaId, repartoId, statoId, field) => {
     if (!commessaId) {
@@ -335,34 +359,42 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     }
   };
 
-
+console.log("Commessa:", currentCommessaId );
+console.log("Commessa:", currentCommessa );
+  // ========================================================
+  // RENDER DEL COMPONENTE
+  // ========================================================
   return (
     <div className="page-wrapper">
+              <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       {/* HEADER */}
-      <div className="flex-center header-row">
+       <div className=" header">
              <h1>STATI AVANZAMENTO</h1>
-        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+        <div className="flex-center header-row">
+          <button onClick={() => handleNavigation("prev")} className="btn w-50 btn--shiny btn--pill">
+            <FontAwesomeIcon icon={faChevronLeft} />
+          </button>
+{currentCommessa && (
+  <div className="header-row-month">
+{currentCommessa.numero_commessa} -  {currentCommessa.cliente}
+  </div>
+)}
+          <button onClick={() => handleNavigation("next")}  className="btn w-50 btn--shiny btn--pill">
+            <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+           </div>
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-              {/* Navigazione */}
-      <div className="navigation">
-        <button onClick={() => handleNavigation("prev")} className="btn w-50 btn--shiny btn--pill">
-          &lt; Precedente
-        </button>
-        <button onClick={() => handleNavigation("next")}  className="btn w-50 btn--shiny btn--pill">
-          Successiva &gt;
-        </button>
-      </div>
-      </div>
                    {/* Bottone per aprire/chiudere il menu */}
             <div className="burger-header" >
         <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
         </div>
+       </div>
 
       {/* MENU A BURGER PER FILTRI E OPZIONI */}
       {isBurgerMenuOpen && (
@@ -443,21 +475,12 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       </div>
         </div>
   </div>
-
-
-
-
-
-
                 )}
 
-
-      
-  
  {/* CONTENITORE PRINCIPALE (si sposta a destra se il menu è aperto) */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
-       <div>
+       <div className= "Reparto-table-container mh-76  ">
       {/* Dettagli Commessa Selezionata */}
       {currentCommessa ? (
         <GestioneStatiAvanzamento

@@ -17,16 +17,18 @@
   --color-danger: #dc3545;
    --color-danger-hover: #a71d2a;
   --color-primary: #007bff;
-  --color-start:#28a745;
-  --color-start-hover:#5aa06a;
-  --color-complete:#007bff;
-  --color-complete-hover:#59a3f1;
+  --color-start:#04408f;
+  --color-start-hover:#165ebb;
+  --color-complete:#20406b;
+  --color-complete-hover:#364e6e;
   --color-warning: #ffc107;
   --color-warning-hover: #e0a800;
   --bg-dark: #111827;
   --color-border-hg:#80bdff;
   --color-blue:#0056b3;
   --color-blue-hover:#497aaf;
+  --color-white: #ffffff;
+  --color-white-hover: #c5c3c3;
 
   /* DIMENSIONI STANDARD */
   --btn-padding-sm: 0.5rem 1rem;

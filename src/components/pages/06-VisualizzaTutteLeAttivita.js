@@ -412,6 +412,7 @@ if (
       )}
 
       {/* HEADER */}
+      <div className=" header">
       <div className="flex-center header-row">
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         <h1>Attività</h1>
@@ -421,6 +422,7 @@ if (
         <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
+        </div>
         </div>
       {/* MENU A BURGER PER FILTRI ED OPZIONI */}
       {isBurgerMenuOpen && (
@@ -554,7 +556,7 @@ if (
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
         {/* Tabella delle attività filtrate */}
-         <div className= "Reparto-table-container ">
+         <div className= "Reparto-table-container mh-76  ">
           <table>
             <thead>
               <tr>

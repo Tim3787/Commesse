@@ -43,9 +43,11 @@ filter: brightness(1.5);
 
 .btn--border {
 color:var( --text-dark);
-border: 1px solid #000000;
+border: 1px solid #bec1c9;
 background: none;
 }
+
+
 
 .btn-txt-white{
 color:var(--text-light);
@@ -113,7 +115,18 @@ EDIT
 }
 
 
+/* ==============================
+SCHEDE
+============================== */
 
+.btn--scheda{
+  color: var(--text-dark);
+  background-color:  var(--color-white);
+}
+.btn--scheda:hover{
+  color: var(--text-dark);
+  background-color:  var(--color-white-hover);
+}
 
 
 /* ==============================

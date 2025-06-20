@@ -726,7 +726,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                 onClick={() => updateActivityStatus(activity.id, 2)}
                 disabled={loadingActivities[activity.id]}
               >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+                {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
               </button>
               <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
                 Elimina
@@ -961,7 +961,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
       {/* CONTENITORE PRINCIPALE */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
-         <div className= "Reparto-table-container ">
+         <div className= "Reparto-table-container mh-76 ">
         <DndProvider backend={HTML5Backend}>
         
               <table>

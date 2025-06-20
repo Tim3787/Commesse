@@ -13,7 +13,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
   }, [commessaId]);
 
   return (
-    <div className="flex-column-center">
+    <div className="flex-column-center border">
       {loading ? (
         <p>Caricamento schede...</p>
       ) : (
@@ -24,9 +24,9 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
            <ul style={{ listStyleType: "none", padding: 5, margin: 0, height: "fit-content" }}>
 
               {schede.map((s) => (
-                <li key={s.id}>
+                <li  key={ s.id}>
                   <button
-      className="btn btn--border"
+      className="btn btn--scheda w-200"
       onClick={() =>
         apriPopupScheda({
           commessaId,
@@ -35,7 +35,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
         })
       }
     > 
-    {s.tipo}
+    📜- {s.tipo} -📜
     </button>
                 </li>
               ))}

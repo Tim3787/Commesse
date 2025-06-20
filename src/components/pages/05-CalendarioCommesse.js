@@ -265,7 +265,7 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
         )}
       </div>
         <div ref={containerRef} className="container">
-          <table className="Calendario-commesse-table ">
+          <table className="Calendario-commesse-table  mh-76 ">
             <thead>
               <tr>
                 <th>Domenica</th>

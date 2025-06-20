@@ -11,14 +11,12 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
 
   return (
     <div className="commessa-container">
-      <h2>Commessa: {commessa.numero_commessa}</h2>
-      <h2>Tipo Macchina: {commessa.tipo_macchina}</h2>
-      <h2>Cliente: {commessa.cliente}</h2>
-      <h2>Consegna:  {new Date(commessa.data_consegna).toLocaleDateString()}</h2>
-      
+     <h2>Consegna:  {new Date(commessa.data_consegna).toLocaleDateString()}</h2>
       <div className="commessa-container">
-      <h2>Stato generale della Commessa:</h2>
+        
+      <h2>Stato della commessa:
   <select
+   style={{ marginLeft: "15px"}}
   value={commessa.stato} // Il valore selezionato è lo stato aggiornato
   onChange={(e) =>
     handleStatoChange(commessa.commessa_id, Number(e.target.value)) // Invio dell'ID dello stato
@@ -31,13 +29,14 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
     </option>
   ))}
 </select>
-
+</h2>
 
       {commessa.stati_avanzamento.map((reparto) => (
         <div key={`stato-${commessa.commessa_id}-${reparto.reparto_id}`} className="reparto-container">
-          <h3>Reparto: {reparto.reparto_nome}</h3>
+          <h3>Reparto: {reparto.reparto_nome}
           <select
             className="w-200"
+             style={{ marginLeft: "15px"}}
             value={reparto.stati_disponibili?.find(stato => stato.isActive)?.stato_id || ""} // Seleziona lo stato attivo
             onChange={(e) =>
               handleStatoAttualeChange(commessa.commessa_id, reparto.reparto_id, Number(e.target.value)) // Usa commessa.commessa_id
@@ -52,6 +51,7 @@ function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUp
               </option>
             ))}
           </select>
+          </h3>
           <table>
             <thead>
               <tr>

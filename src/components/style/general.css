@@ -37,6 +37,22 @@ HEIGHT UTILITIES
 ============================== */
 .h-30 {height:30px;}
 
+.mh-76 {
+ max-height: 76vh; 
+}
+
+.mh-80 {
+ max-height: 80vh; 
+}
+
+/* ==============================
+TESTI
+============================== */
+.txt-light{
+color:var(--text-light);
+
+}
+
 
 /* ==============================
 generale
@@ -106,6 +122,9 @@ ul li{
 
 margin-bottom: 5px;
 }
+
+
+
   /* ==============================
 header
 ============================== */
@@ -121,7 +140,9 @@ header
   padding-top: 10px;
   width: 100%;
   left: 0;
+  height:170px;
 }
+
 
 .header-row{
   margin-bottom: 10px;

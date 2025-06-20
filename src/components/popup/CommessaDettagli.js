@@ -40,6 +40,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const decodedToken = token ? decodeToken(token) : null;
   const finalUserRole = decodedToken && decodedToken.role_id ? Number(decodedToken.role_id) : 0;
 
+  
   // Aggiorna il localCommessa se la prop commessa cambia
   useEffect(() => {
     setLocalCommessa(commessa);
@@ -342,7 +343,26 @@ useEffect(() => {
 </div>
         </>
       )}
+           <div className="flex-column-center">
+<button
+  className="btn btn--blue w-100 btn--pill"
+  onClick={() =>
+    apriPopupScheda({
+      commessaId: localCommessa.commessa_id,
+      numero_commessa: localCommessa.numero_commessa,
+      onClose: () => {
+        setPopupScheda(null);
+      }
+    })
+  }
+>
+  Crea Scheda
+</button>
+
+
+</div>
     </div>
+    
   )}
 </div>
         <button className="btn w-200 btn--danger btn--pill" onClick={handleClosePopup}>
@@ -356,12 +376,18 @@ useEffect(() => {
     numero_commessa={popupScheda.numero_commessa}
     schedaInModifica={popupScheda.schedaInModifica}
     setSchedaInModifica={(val) =>
-      
       setPopupScheda((prev) => ({ ...prev, schedaInModifica: val }))
     }
-    onClose={() => setPopupScheda(null)}
+    onClose={() => {
+      setPopupScheda(null);
+      // Ricarico le schede dopo la chiusura del popup
+      fetchSchedeTecniche(localCommessa.commessa_id)
+        .then(setSchede)
+        .catch(err => console.error("Errore nel ricaricare le schede:", err));
+    }}
   />
 )}
+
     </div>
   );
 }

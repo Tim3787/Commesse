@@ -574,7 +574,7 @@ function GestioneTabelle() {
             <h1>GESTIONE TABELLE</h1>  
           </div> 
         </div> 
-        <div className="Gestione-Tabelle-table-container">
+        <div className="mh-80">
       {/* === Sezione Stati Commessa === */}
       <section className="section-global">
         <h1>Gestione Stati Commessa</h1>

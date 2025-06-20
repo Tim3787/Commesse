@@ -168,7 +168,7 @@ margin-top: 15px;
   padding: 10px;
   z-index: 1100;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  max-width: 80%;
+  max-width: fit-content;
 }
 
 

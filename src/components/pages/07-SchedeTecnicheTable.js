@@ -151,7 +151,7 @@ const handleClosePopup = async () => {
 };
 
   const handleDelete = async (schedaId) => {
-    if (window.confirm("Sei sicuro di voler eliminare questa scheda?")) {
+    if (window.confirm("Sei sicuro di voler eliminare questa scheda? Elminando la scheda, anche tute le note verranno perse")) {
       setDeleteLoadingId(schedaId);
       try {
         await deleteSchedaTecnica(schedaId);

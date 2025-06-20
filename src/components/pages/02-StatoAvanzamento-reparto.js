@@ -832,10 +832,11 @@ if (RepartoName === "software") {
     <div className="page-wrapper">
       {/* HEADER */}
       <div className="header">
-        
+        <div className="flex-center header-row">
         <h1>STATO AVANZAMENTO {RepartoName.toUpperCase()}</h1>
         </div>
-        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+
+
                 {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
@@ -848,6 +849,8 @@ if (RepartoName === "software") {
           Filtri ed Opzioni
         </button>
         </div>
+                </div>
+         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       {/* BURGER MENU */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -1044,7 +1047,7 @@ if (RepartoName === "software") {
       {/* CONTENUTO PRINCIPALE */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         <DndProvider backend={HTML5Backend}>
-          <div className= "Avanzamento-table-container ">
+          <div className= "mh-80  ">
             <table>
               <thead>
                 <tr>

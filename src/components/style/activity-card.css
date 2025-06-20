@@ -52,20 +52,24 @@
   /* Stato attività */
 
   .activity.not-started{
-
-  background-image: rgba(255, 255, 255, 0.8);
+  border: 1px solid #3fcaf5;
+  border-left: 8px solid #3fcaf5;
+    color: var(--text-dark);
+  background-image: linear-gradient(135deg, #3fcaf5,  #146da8, #97c6e6);
   }
 
   .activity.started {
-  border: 1px solid #f8c82c;
-  border-left: 6px solid #f8c82c;
-  background-image: linear-gradient(to right, #f7ecc9,#f5edd4,  #ffffff);
+  border: 1px solid #10009c;
+  border-left: 8px solid #10009c;
+    color: var(--text-light);
+  background-image: linear-gradient(135deg, #020536, #032c61,  #020536);
   }
   
   .activity.completed {
-  border: 1px solid #1168B4;
-  border-left: 6px solid #1168B4;
-  background-image: linear-gradient(to right, #b7dcfc, #daeaf7,  #ffffff);
+  border: 1px solid #072f52;
+  border-left: 8px solid #072f52;
+  color: var(--text-light);
+  background-image: linear-gradient(135deg, #010a11, #021630,  #010a11);
   }
   
   /* Struttura interna */

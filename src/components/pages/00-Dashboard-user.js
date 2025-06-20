@@ -409,7 +409,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                                   className="btn w-100 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                 >
-                                  Completa
+                                  Completa ✅
                                 </button>
                               </>
                             )}
@@ -430,7 +430,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                   disabled={loadingActivities[activity.id]}
                                 >
-                                  {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+                                  {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
                                 </button>
                               </>
                             )}

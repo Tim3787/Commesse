@@ -191,7 +191,7 @@ function AttivitaCrea({
               className="w-400"
             />
             {suggestedCommesse.length > 0 && (
-              <ul className="suggestions-list w-200" ref={suggestionsRef}>
+              <ul className="suggestions-list w-400" ref={suggestionsRef}>
                 {suggestedCommesse.map((commessa) => (
                   <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
                     {commessa.numero_commessa}
@@ -301,7 +301,7 @@ function AttivitaCrea({
 
           {/* Selezione dei weekend specifici */}
           {weekendOptions.length > 0 && (
-            <fieldset className="weekend-selector">
+            <fieldset className="flex-column-center ">
               <legend>Scegli quali giorni del weekend includere</legend>
               {weekendOptions.map((opt) => {
                 const checked = formData.includedWeekends?.includes(opt.date);

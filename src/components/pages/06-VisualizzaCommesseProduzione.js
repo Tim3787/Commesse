@@ -340,7 +340,7 @@ function VisualizzazioneCommesseProduzione() {
       </div>
       {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
       {isVisible && (
-        <div className="Commesse-table-container-2">
+        <div className="Commesse-table-container">
           <table className="Commesse-table">
             <thead>
               <tr>
