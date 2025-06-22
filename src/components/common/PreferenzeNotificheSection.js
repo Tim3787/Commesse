@@ -105,9 +105,10 @@ const fetchCategorieDisponibili = async () => {
   value={formData.categoria}
   onChange={handleChange}
   required
-  className="input w-300"
+  className="input w-200"
+   style={{ marginLeft: "15px",marginRight: "15px" }}
 >
-  <option value="">-- Seleziona una categoria --</option>
+  <option value="">-- Seleziona categoria --</option>
   {categorie.map((cat) => (
     <option key={cat} value={cat}>
       {cat}
@@ -132,10 +133,12 @@ const fetchCategorieDisponibili = async () => {
           />
           Notifica Email
         </label>
-        <button type="submit">{isEditing ? "Salva modifiche" : "Aggiungi"}</button>
+          <div className="row" style={{ marginBottom: "10px" }}>
+        <button type="submit" className="btn w-200 btn--shiny btn--pill">{isEditing ? "Salva modifiche" : "Aggiungi"}</button>
         {isEditing && (
           <button
             type="button"
+             className="btn w-200 btn--danger btn--pill"
             onClick={() => {
               setIsEditing(false);
               setEditingCategoria(null);
@@ -144,7 +147,9 @@ const fetchCategorieDisponibili = async () => {
           >
             Annulla modifica
           </button>
+          
         )}
+        </div>
       </form>
 
       {loading ? (
@@ -152,7 +157,7 @@ const fetchCategorieDisponibili = async () => {
       ) : preferenze.length === 0 ? (
         <p>Nessuna preferenza configurata.</p>
       ) : (
-        <table className="table-section">
+        <table className="table">
           <thead>
             <tr>
               <th>Categoria</th>
@@ -168,8 +173,10 @@ const fetchCategorieDisponibili = async () => {
                 <td>{pref.via_push ? "✅" : "❌"}</td>
                 <td>{pref.via_email ? "✅" : "❌"}</td>
                 <td>
-                  <button onClick={() => handleEdit(pref)}>Modifica</button>
-                  <button onClick={() => handleDelete(pref.categoria)}>Elimina</button>
+                  <div className="row">
+                  <button onClick={() => handleEdit(pref)} className="btn w-100 btn--warning  btn--pill">Modifica</button>
+                  <button onClick={() => handleDelete(pref.categoria)}className="btn w-100 btn--danger btn--pill">Elimina</button>
+               </div>
                 </td>
               </tr>
             ))}
