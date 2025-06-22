@@ -38,6 +38,12 @@ import {
   deleteRisorsa 
 } from "../services/API/risorse-api";
 
+// Import API utenti 
+import {
+  fetchUsers,
+  fetchRoles
+} from "../services/API/utenti-api";
+
 // API per Stati Avanzamento
 import { 
   fetchStatiAvanzamento, 
@@ -47,12 +53,24 @@ import {
   ordinaStatiAvanzamento
 } from "../services/API/StatiAvanzamento-api";
 
+import {
+  getNotificationPreferencesAPI,
+  deleteNotificationDestinatarioAPI,
+saveNotificationDestinatariAPI,
+getNotificationDestinatariAPI,
+fetchCategorie
+} from "../services/API/notifiche-api"; 
+
+
+
 // Import per Drag & Drop
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DraggableColumn from "../assets/DraggableColumn"; // Assicurati che il percorso sia corretto
 
 function GestioneTabelle() {
+    const token = sessionStorage.getItem("token");
+
   // ================================
   // Stati Commessa (Global)
   // ================================
@@ -104,12 +122,28 @@ function GestioneTabelle() {
   const [editStatoAvanzamentoId, setEditStatoAvanzamentoId] = useState(null);
   const [columnOrder, setColumnOrder] = useState([]);
 
+
+  // ================================
+  // Assegnazioni Notifiche (Admin)
+  // ================================
+const [assegnazioni, setAssegnazioni] = useState([]);
+const [categoriaSelezionata, setCategoriaSelezionata] = useState("");
+const [utentiSelezionati, setUtentiSelezionati] = useState([]);
+const [utentiDisponibili, setUtentiDisponibili] = useState([]);
+const [categorieDisponibili, setCategorieDisponibili] = useState([]);
+const [modalitaAssegnazione, setModalitaAssegnazione] = useState("utenti"); // 'utenti' | 'reparto' | 'ruolo'
+const [repartoSelezionato, setRepartoSelezionato] = useState("");
+const [ruoloSelezionato, setRuoloSelezionato] = useState("");
+const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
+
+
   // ================================
   // Effetti di Caricamento Iniziale
   // ================================
   useEffect(() => {
     loadStatiCommessa();
     loadReparti();
+    loadRuoliDisponibili();
   }, []);
 
     // Stato di caricamento
@@ -131,6 +165,7 @@ function GestioneTabelle() {
       setColumnOrder(ordered);
     }
   }, [statiAvanzamento]);
+
 
   // ================================
   // Funzioni per Stati Commessa
@@ -558,6 +593,86 @@ function GestioneTabelle() {
   };
 
   // ================================
+  // Funzioni per Preferenze Utente
+  // ================================
+const fetchUtentiDisponibili = async () => {
+  try {
+    const utenti = await fetchUsers();
+    setUtentiDisponibili(utenti);
+  } catch (err) {
+    console.error("Errore nel recupero degli utenti:", err);
+    alert("Errore nel recupero degli utenti disponibili.");
+  }
+};
+
+const loadPreferenzeUtente = async () => {
+  try {
+    const data = await getNotificationPreferencesAPI(token);
+    setPreferenze(data);
+  } catch (err) {
+    console.error("Errore durante il caricamento delle preferenze:", err);
+  }
+};
+
+useEffect(() => {
+  loadPreferenzeUtente();
+  fetchUtentiDisponibili();
+  loadAssegnazioniAdmin(); 
+  loadCategorie();
+}, []);
+
+
+  // ================================
+  // Funzioni per Assegnazioni Admin
+  // ================================
+const loadRuoliDisponibili = async () => {
+  try {
+    const data = await fetchRoles();
+    setRuoliDisponibili(data);
+  } catch (err) {
+    console.error("Errore nel caricamento dei ruoli:", err);
+  }
+};
+const handleSalvaAssegnazioni = async () => {
+  try {
+    await saveNotificationDestinatariAPI(categoriaSelezionata, utentiSelezionati, token);
+    toast.success("Assegnazione salvata!");
+    setCategoriaSelezionata("");
+    setUtentiSelezionati([]);
+    loadAssegnazioniAdmin();
+  } catch (error) {
+    toast.error("Errore salvataggio assegnazione", error);
+  }
+};
+
+const handleDeleteAssegnazione = async (id) => {
+  try {
+    await deleteNotificationDestinatarioAPI(id, token);
+    loadAssegnazioniAdmin();
+  } catch (error) {
+    toast.error("Errore eliminazione assegnazione", error);
+  }
+};
+
+const loadAssegnazioniAdmin = async () => {
+  try {
+    const data = await getNotificationDestinatariAPI(token);
+    setAssegnazioni(data);
+  } catch (err) {
+    console.error("Errore durante il caricamento assegnazioni:", err);
+  }
+};
+
+const loadCategorie = async () => {
+  try {
+    const data = await fetchCategorie(); // ← parentesi qui!
+    setCategorieDisponibili(data); // ← se vuoi aggiornare quelle visibili nel tuo select
+  } catch (err) {
+    console.error("Errore durante il caricamento delle categorie:", err);
+  }
+};
+
+    // ================================
   // Rendering della Pagina
   // ================================
   return (
@@ -575,6 +690,173 @@ function GestioneTabelle() {
           </div> 
         </div> 
         <div className="mh-80">
+
+          
+      {/* === Sezione Notifiche === */}
+      <section className="section-global">
+  <h1>Gestione Notifiche</h1>
+
+  <form onSubmit={(e) => {
+    e.preventDefault();
+    handleSalvaAssegnazioni();
+  }}>
+    <div className="flex-column-center">
+      {/* Selezione categoria */}
+      <label>Categoria</label>
+      <label>Modalità di assegnazione:</label>
+<div className="flex-row gap-2 mb-2">
+  <label>
+    <input
+      type="radio"
+      name="modalita"
+      value="utenti"
+      checked={modalitaAssegnazione === "utenti"}
+      onChange={(e) => setModalitaAssegnazione(e.target.value)}
+    />
+    Utenti specifici
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="modalita"
+      value="reparto"
+      checked={modalitaAssegnazione === "reparto"}
+      onChange={(e) => setModalitaAssegnazione(e.target.value)}
+    />
+    Intero Reparto
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="modalita"
+      value="ruolo"
+      checked={modalitaAssegnazione === "ruolo"}
+      onChange={(e) => setModalitaAssegnazione(e.target.value)}
+    />
+    Ruolo
+  </label>
+</div>
+
+      <select
+  value={categoriaSelezionata}
+  onChange={(e) => setCategoriaSelezionata(e.target.value)}
+  className="input w-300"
+  required
+>
+  <option value="">-- Seleziona una categoria --</option>
+  {categorieDisponibili.map((cat) => (
+    <option key={cat} value={cat}>{cat}</option>
+  ))}
+</select>
+
+ {/* CAMPI DINAMICI IN BASE ALLA MODALITÀ */}
+{modalitaAssegnazione === "utenti" && (
+  <>
+    <label>Destinatari (utenti):</label>
+    <select
+      multiple
+      value={utentiSelezionati}
+      onChange={(e) =>
+        setUtentiSelezionati([...e.target.selectedOptions].map((opt) => parseInt(opt.value)))
+      }
+      className="input w-300 h-100"
+      required
+    >
+      {utentiDisponibili.map((utente) => (
+        <option key={utente.id} value={utente.id}>
+          {utente.nome_risorsa || utente.username}
+        </option>
+      ))}
+    </select>
+  </>
+)}
+
+{modalitaAssegnazione === "reparto" && (
+  <>
+    <label>Reparto:</label>
+    <select
+      value={repartoSelezionato}
+      onChange={(e) => setRepartoSelezionato(e.target.value)}
+      className="input w-300"
+      required
+    >
+      <option value="">-- Seleziona reparto --</option>
+      {reparti.map((rep) => (
+        <option key={rep.id} value={rep.id}>
+          {rep.nome}
+        </option>
+      ))}
+    </select>
+  </>
+)}
+
+{modalitaAssegnazione === "ruolo" && (
+  <>
+    <label>Ruoli</label>
+<select
+  className="input w-300"
+  value={ruoloSelezionato}
+  onChange={(e) => setRuoloSelezionato(e.target.value)}
+  required
+>
+  <option value="">-- Seleziona un ruolo --</option>
+  {ruoliDisponibili.map((ruolo) => (
+    <option key={ruolo.id} value={ruolo.role_name}>
+      {ruolo.role_name}
+    </option>
+  ))}
+</select>
+  </>
+)}
+
+
+      <button
+        type="submit"
+        className="btn w-200 btn--shiny btn--pill mt-2"
+        disabled={!categoriaSelezionata || utentiSelezionati.length === 0}
+      >
+        Salva Assegnazioni
+      </button>
+    </div>
+  </form>
+
+  {/* Elenco assegnazioni esistenti */}
+  <div className="mt-4">
+    <h3 className="text-lg font-semibold mb-2">Assegnazioni esistenti</h3>
+
+    {assegnazioni.length === 0 ? (
+      <p style={{ color: "red" }}>Nessuna assegnazione presente.</p>
+    ) : (
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Utente</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {assegnazioni.map((row) => (
+            <tr key={row.id}>
+              <td>{row.categoria}</td>
+              <td>{row.nome_risorsa}</td>
+              <td>
+                <button
+                  onClick={() => handleDeleteAssegnazione(row.id)}
+                  className="btn w-100 btn--danger btn--pill"
+                >
+                  Elimina
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</section>
+
+
       {/* === Sezione Stati Commessa === */}
       <section className="section-global">
         <h1>Gestione Stati Commessa</h1>

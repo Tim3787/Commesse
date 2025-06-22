@@ -415,7 +415,7 @@ if (
       <div className=" header">
       <div className="flex-center header-row">
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-        <h1>Attività</h1>
+        <h1>TUTTE LE ATTIVITA'</h1>
       </div>
                    {/* Bottone per aprire/chiudere il menu */}
             <div className="burger-header" >

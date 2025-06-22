@@ -336,6 +336,7 @@ useEffect(() => {
           </button>
         </div>
           <h1>SCEGLI UNA COMMESSA</h1>
+          <div className="suggestion-wrapper w-200 ">
              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                   <input
             type="text"
@@ -364,6 +365,7 @@ useEffect(() => {
     ))}
   </ul>
 )}
+</div>
 </div>
    <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA'</h1>
           {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
