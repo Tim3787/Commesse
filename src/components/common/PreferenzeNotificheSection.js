@@ -3,6 +3,7 @@ import {
   getNotificationPreferencesAPI,
   saveNotificationPreferenceAPI,
   deleteNotificationPreferenceAPI,
+  fetchCategorie
 } from"../services/API/notifiche-api";
 import { toast } from "react-toastify";
 
@@ -16,6 +17,7 @@ const PreferenzeNotificheSection = ({ token }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [, setEditingCategoria] = useState(null);
   const [loading, setLoading] = useState(false);
+const [categorie, setCategorie] = useState([]);
 
   const fetchPreferenze = async () => {
     try {
@@ -31,9 +33,8 @@ const PreferenzeNotificheSection = ({ token }) => {
   };
 
 useEffect(() => {
-  loadPreferenzeUtente();
-  fetchUtentiDisponibili();
-  loadAssegnazioniAdmin(); // se hai una funzione per caricare le assegnazioni
+   fetchPreferenze();
+  fetchCategorieDisponibili();
 }, []);
 
   const handleChange = (e) => {
@@ -84,19 +85,35 @@ useEffect(() => {
       toast.error("Errore durante l'eliminazione");
     }
   };
+const fetchCategorieDisponibili = async () => {
+  try {
+    const data = await fetchCategorie();
+    setCategorie(data);
+  } catch (error) {
+    console.error("Errore durante il caricamento delle categorie", error);
+  }
+};
+
 
   return (
     <div className="section-wrapper">
       <h2 className="section-title">Preferenze notifiche</h2>
       <form onSubmit={handleSubmit} className="form-section">
-        <input
-          type="text"
-          name="categoria"
-          placeholder="Categoria"
-          value={formData.categoria}
-          onChange={handleChange}
-          required
-        />
+        <label>Categoria</label>
+<select
+  name="categoria"
+  value={formData.categoria}
+  onChange={handleChange}
+  required
+  className="input w-300"
+>
+  <option value="">-- Seleziona una categoria --</option>
+  {categorie.map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</select>
         <label>
           <input
             type="checkbox"

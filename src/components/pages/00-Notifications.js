@@ -3,6 +3,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../style/00-Notifications.css";
+import PreferenzeNotificheSection from "../common/PreferenzeNotificheSection";
+
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -10,6 +12,7 @@ const Notifications = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 const [categoriaFiltro, setCategoriaFiltro] = useState("tutte");
+const [showPreferences, setShowPreferences] = useState(false);
 
 const notificheFiltrate = categoriaFiltro === "tutte"
   ? notifications
@@ -115,6 +118,15 @@ const notificheFiltrate = categoriaFiltro === "tutte"
 
   return (
     <div className="notifications-container">
+      <button
+  className="btn w-200 btn--secondary btn--pill mb-2"
+  onClick={() => setShowPreferences((prev) => !prev)}
+>
+  {showPreferences ? "Nascondi preferenze notifiche" : "Mostra preferenze notifiche"}
+</button>
+  {/* Inserisci qui le preferenze */}
+  {showPreferences && <PreferenzeNotificheSection token={token} />}
+
       <h2>Non lette: {unreadNotifications.length}</h2>
       <h2>Storico notifiche:
       <select
