@@ -146,7 +146,7 @@ const handleDownloadPdf = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: "Scheda collaudo.pdf",
+      filename: "Scheda riunione.pdf",
       html2canvas: {
         scale: 2,
         backgroundColor: null, 
@@ -185,24 +185,12 @@ const handleDownloadPdf = () => {
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
       
-
-      {/* Pulsante mostra/nascondi dettagli spunte */}
-      <button className="btn w-200 btn--shiny btn--pill" onClick={() => setMostraDettagliSpunte(prev => !prev)}>
-        {mostraDettagliSpunte ? "Nascondi dettagli" : "Mostra dettagli"}
-      </button>
-
-
-
-    
-
-      {/* Campo note */}
-      <h1>Nuovo verbale</h1>
             {/* Dettagli su data creazione e autore */}
       {mostraDettagliSpunte && (
           <div className="row">
           <label style={{ fontFamily: "serif", color: "darkgray" }}>
-            Creato il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"}
-               — da  {scheda?.creato_da_nome || "utente sconosciuto"}
+            {scheda?.creato_da_nome || "utente sconosciuto"} ha creato un nuovo verbale il {scheda?.data_creazione ? new Date(scheda.data_creazione).toLocaleString('it-IT') : "Data non disponibile"}
+              
           </label>
         </div>
       )}
@@ -251,7 +239,7 @@ const handleDownloadPdf = () => {
 
     {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}
     {/* Sezione  pulsanti */}
-        <div className="row" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
+        <div className="row center" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
       
       {/* Pulsanti PDF e Salva */}
             {editable && (
@@ -271,12 +259,12 @@ const handleDownloadPdf = () => {
   <li key={nota.id} className="nota-item" style={{ listStyleType: "none",marginTop: "10px" }}>
     {mostraDettagliSpunte && (
     <div  className="row" style={{ fontFamily: "serif", color: "darkgray" }}>
-      Creato il: {new Date(nota.data_creazione).toLocaleString("it-IT")} — da {nota.creato_da_nome || "Autore sconosciuto"}
-      {nota.data_ultima_modifica && (
-        <div className="row" style={{ marginBottom: "10px" }}>
-          Ultima modifica il : {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} — da {nota.modificato_da_nome || "Autore sconosciuto"}
-        </div>
-      )}
+      Verbale creato il: {new Date(nota.data_creazione).toLocaleString("it-IT")} — da {nota.creato_da_nome || "Autore sconosciuto"}
+      {nota.modificato_da_nome && nota.data_ultima_modifica !== nota.data_creazione && (
+  <div className="row" style={{ marginBottom: "10px" }}>
+    Ultima modifica il : {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} — da {nota.modificato_da_nome}
+  </div>
+)}
     </div>
  )}
     {notaDaModificare?.id === nota.id ? (
@@ -287,7 +275,7 @@ const handleDownloadPdf = () => {
           value={testoModificato}
           onChange={(e) => setTestoModificato(e.target.value)}
         />
-        <div className="row">
+        <div className="row center">
           <button className="btn btn--blue w-200 btn--pill"onClick={handleSalvaNota}> Salva</button>
           <button className="btn btn--danger w-200 btn--pill" onClick={() => setNotaDaModificare(null)}> Annulla</button>
         </div>
@@ -303,7 +291,7 @@ const handleDownloadPdf = () => {
           </div>
         )}
         {nota.autore_id === userId && (
-          <div className="row" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
+          <div className="row center" style={{ marginBottom: "30px", paddingBottom:"10px", borderBottom:"2px solid #ccc", }}>
             <button onClick={() => handleEditNota(nota)} className="btn btn--blue w-200 btn--pill">
               Modifica
             </button>
@@ -316,7 +304,12 @@ const handleDownloadPdf = () => {
     )}
   </li>
 ))}
-
+      {/* Pulsante mostra/nascondi dettagli spunte */}
+      <div className="flex-column-center ">
+      <button className="btn w-200 btn--shiny btn--pill" onClick={() => setMostraDettagliSpunte(prev => !prev)}>
+        {mostraDettagliSpunte ? "Nascondi dettagli" : "Mostra dettagli"}
+      </button>
+      </div>
   </div>
 );
 }

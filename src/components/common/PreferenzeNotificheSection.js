@@ -97,9 +97,10 @@ const fetchCategorieDisponibili = async () => {
 
   return (
     <div className="section-wrapper">
-      <h2 className="section-title">Preferenze notifiche</h2>
+      <h2 className="section-title">Gestisci come ricevere le notifiche</h2>
       <form onSubmit={handleSubmit} className="form-section">
-        <label>Categoria</label>
+         <h2>
+       Categoria
 <select
   name="categoria"
   value={formData.categoria}
@@ -114,7 +115,12 @@ const fetchCategorieDisponibili = async () => {
       {cat}
     </option>
   ))}
+  
 </select>
+</h2>
+
+ <h2>Seleziona come ricevere le notifiche: </h2>
+ <div className="row">
         <label>
           <input
             type="checkbox"
@@ -149,6 +155,7 @@ const fetchCategorieDisponibili = async () => {
           </button>
           
         )}
+        </div>
         </div>
       </form>
 

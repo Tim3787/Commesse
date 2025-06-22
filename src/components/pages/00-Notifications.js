@@ -4,7 +4,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../style/00-Notifications.css";
 import PreferenzeNotificheSection from "../common/PreferenzeNotificheSection";
-
+import logo from "../img/Animation - 1738249246846.gif";
+import {
+  fetchCategorie
+} from"../services/API/notifiche-api";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -13,6 +16,7 @@ const Notifications = () => {
   const [error, setError] = useState("");
 const [categoriaFiltro, setCategoriaFiltro] = useState("tutte");
 const [showPreferences, setShowPreferences] = useState(false);
+const [categorieDisponibili, setCategorieDisponibili] = useState([]);
 
 const notificheFiltrate = categoriaFiltro === "tutte"
   ? notifications
@@ -110,14 +114,37 @@ const notificheFiltrate = categoriaFiltro === "tutte"
     }
   };
 
+  const caricaCategorieDisponibili = async () => {
+  try {
+    const data = await fetchCategorie();
+    setCategorieDisponibili(data);
+  } catch (err) {
+    console.error("Errore nel caricamento categorie disponibili", err);
+  }
+};
+
+
   useEffect(() => {
     fetchNotifications();
+      caricaCategorieDisponibili();
     const interval = setInterval(fetchNotifications, 30000); // Aggiorna ogni 30 secondi
     return () => clearInterval(interval);
   }, [token]);
 
   return (
-    <div className="notifications-container">
+    <div className="page-wrapper">
+        <ToastContainer position="top-left" autoClose={200} hideProgressBar />
+         {loading && (
+          <div className="loading-overlay">
+            <img src={logo} alt="Logo" className="logo-spinner" />
+          </div>
+        )}   
+                <div className=" header">
+          <div className="flex-center header-row"> 
+      <h1>GESTIONE NOTIFICHE</h1>
+      </div>  
+      </div> 
+    <div className="notifications-container mh-80">
       <button
   className="btn w-200 btn--secondary btn--pill mb-2"
   onClick={() => setShowPreferences((prev) => !prev)}
@@ -127,19 +154,23 @@ const notificheFiltrate = categoriaFiltro === "tutte"
   {/* Inserisci qui le preferenze */}
   {showPreferences && <PreferenzeNotificheSection token={token} />}
 
-      <h2>Non lette: {unreadNotifications.length}</h2>
-      <h2>Storico notifiche:
-      <select
-  className="w-200"
-  style={{ marginLeft: "15px"}}
-  value={categoriaFiltro}
-  onChange={(e) => setCategoriaFiltro(e.target.value)}
->
-  <option value="tutte">Tutte</option>
-  <option value="attività">Attività</option>
-  <option value="Commessa">Commessa</option>
-  <option value="generale">Generale</option>
-</select></h2>
+      <h2>Notifiche da leggere: {unreadNotifications.length}</h2>
+<h2>Visualizza:
+  <select
+    className="w-200"
+    style={{ marginLeft: "15px" }}
+    value={categoriaFiltro}
+    onChange={(e) => setCategoriaFiltro(e.target.value)}
+  >
+    <option value="tutte">Tutte</option>
+    {categorieDisponibili.map((cat) => (
+      <option key={cat} value={cat}>
+        {cat}
+      </option>
+    ))}
+  </select>
+</h2>
+
 
       {loading && <p>Caricamento in corso...</p>}
       {error && <p className="error">{error}</p>}
@@ -178,6 +209,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
         ))}
       </ul>
       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+    </div>
     </div>
   );
 };

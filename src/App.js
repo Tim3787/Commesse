@@ -124,42 +124,78 @@ function App() {
     }
   }, []);
 
-  // ------------------------------------------------------
-  // Registrazione del device token per le notifiche push
-  // ------------------------------------------------------
-  const registerDeviceToken = async () => {
-    // Richiede il permesso per le notifiche
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.error("Permesso per le notifiche negato.");
-      return;
-    }
 
-    // Ottiene il device token tramite Firebase
-    const deviceToken = await getDeviceToken();
-    if (!deviceToken) {
-      console.error("Impossibile ottenere il device token.");
-      return;
-    }
+    // NUOVO
+  useEffect(() => {
+  const syncDeviceToken = async () => {
+    if (!isAuthenticated) return;
 
-    // Se esiste un token utente, registra il device token sul backend
-    const userToken = sessionStorage.getItem("token");
-    if (userToken) {
+    const newToken = await getDeviceToken();
+    const savedToken = sessionStorage.getItem("savedDeviceToken");
+
+    if (newToken && newToken !== savedToken) {
       try {
+        const userToken = sessionStorage.getItem("token");
         await axios.post(
           `${process.env.REACT_APP_API_URL}/api/users/device-token`,
-          { token: deviceToken },
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
+          { token: newToken },
+          { headers: { Authorization: `Bearer ${userToken}` } }
         );
+        sessionStorage.setItem("savedDeviceToken", newToken);
+        console.log("🔄 Device token aggiornato");
       } catch (error) {
-        console.error("Errore durante la registrazione del token dispositivo:", error);
+        console.error("Errore aggiornando il device token:", error);
       }
     }
   };
+
+  if (isAuthenticated) {
+    syncDeviceToken(); // Eseguito subito
+
+    const interval = setInterval(syncDeviceToken, 5 * 60 * 1000); // Eseguito ogni 5 minuti
+    return () => clearInterval(interval); // Pulizia
+  }
+}, [isAuthenticated]);
+
+
+  // ------------------------------------------------------
+  // Registrazione del device token per le notifiche push
+  // ------------------------------------------------------
+const registerDeviceToken = async () => {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    console.error("Permesso per le notifiche negato.");
+    return;
+  }
+
+  const deviceToken = await getDeviceToken();
+  if (!deviceToken) {
+    console.error("Impossibile ottenere il device token.");
+    return;
+  }
+
+  const userToken = sessionStorage.getItem("token");
+  const savedToken = sessionStorage.getItem("savedDeviceToken");
+
+  if (userToken && deviceToken !== savedToken) {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/users/device-token`,
+        { token: deviceToken },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      sessionStorage.setItem("savedDeviceToken", deviceToken);
+      console.log("✅ Token registrato al login");
+    } catch (error) {
+      console.error("Errore durante la registrazione del token dispositivo:", error);
+    }
+  }
+};
+
 
   // ------------------------------------------------------
   // Funzione per gestire il login (API request)
