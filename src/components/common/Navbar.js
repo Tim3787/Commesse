@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import apiClient from "../config/axiosConfig";
 import { CSSTransition } from "react-transition-group";
 import CommessaDettagli from "../popup/CommessaDettagli";
 import { CommesseByTag } from  "../services/API/commesse-api";
@@ -47,7 +46,6 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const token = sessionStorage.getItem("token");
 
   // Stato per gestire quale menu dropdown è attivo ("user", "manager", "admin")
   const [activeMenu, setActiveMenu] = useState(null);
@@ -63,24 +61,6 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
 
-  // -------------------------------------------------------------------
-  // Decodifica e validazione del token
-  // -------------------------------------------------------------------
-  const decodeToken = (token) => {
-    try {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime ? decoded : null;
-    } catch (error) {
-      console.error("Errore nella decodifica del token:", error);
-      return null;
-    }
-  };
-
-  const decodedToken = decodeToken(token);
-  if (!decodedToken) {
-    console.error("Token non valido o scaduto.");
-  }
 
   // -------------------------------------------------------------------
   // Polling delle notifiche non lette (ogni 60 secondi)
@@ -95,31 +75,26 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   }, [isAuthenticated]);
 
   const fetchUnreadNotifications = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/unread`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNotifications(response.data);
-      setUnreadCount(response.data.length);
-    } catch (error) {
-      console.error("Errore durante il recupero delle notifiche:", error);
-    }
-  };
+  try {
+    const response = await apiClient.get("/api/notifiche/unread");
+    setNotifications(response.data);
+    setUnreadCount(response.data.length);
+  } catch (error) {
+    console.error("Errore durante il recupero delle notifiche:", error);
+  }
+};
+
 
 const markAllAsRead = async () => {
   try {
-    await axios.put(
-      `${process.env.REACT_APP_API_URL}/api/notifiche/read/all`,
-      null,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await apiClient.put("/api/notifiche/read/all");
     setUnreadCount(0);
     fetchUnreadNotifications();
   } catch (error) {
     console.error("Errore durante il contrassegno delle notifiche come lette:", error);
   }
 };
+
 
   // -------------------------------------------------------------------
   // Caricamento delle commesse per il dropdown di ricerca

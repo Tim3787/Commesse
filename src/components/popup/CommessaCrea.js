@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
+import apiClient from "../config/axiosConfig";
 
 // Import per Toastify (per mostrare notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -231,17 +230,13 @@ useEffect(() => {
 
       if (isEditing) {
         // Chiamata API per aggiornare la commessa esistente
-        await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/commesse/${editId}`,
-          payload
-        );
+        await apiClient.put(`/api/commesse/${editId}`, payload);
+
         commessaId = editId;
       } else {
         // Chiamata API per creare una nuova commessa
-        const { data } = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/commesse`,
-          payload
-        );
+        const { data } = await apiClient.post(`/api/commesse`, payload);
+
         commessaId = data.commessaId;
       }
 
@@ -285,11 +280,11 @@ useEffect(() => {
       });
 
       if (attivitaDaAggiungere.length > 0) {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/commesse/assegna-attivita-predefinite`,
-          attivitaDaAggiungere,
-          { headers: { "Content-Type": "application/json" } }
-        );
+        await apiClient.post(
+  `/api/commesse/assegna-attivita-predefinite`,
+  attivitaDaAggiungere
+);
+
       }
 
       // Resetta il form e chiude il popup

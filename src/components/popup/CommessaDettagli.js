@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
 import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import { jwtDecode } from "jwt-decode";
 import SchedaTecnica from "./SchedaTecnicaEdit.js";
 import { fetchSchedeTecniche } from "../services/API/schedeTecniche-api";
@@ -14,32 +14,17 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const [showAttivita, setShowAttivita] = useState(false);
   const [expandedReparti, setExpandedReparti] = useState({});
   const [statiCommessa, setStatiCommessa] = useState([]);
-  const token = sessionStorage.getItem("token");
-
   const [schedeAperte, setSchedeAperte] = useState({});
   const [popupScheda, setPopupScheda] = useState(null);
-
-    const [schede, setSchede] = useState([]);
+  const [schede, setSchede] = useState([]);
 
 
   // Gestione locale della commessa per aggiornare il valore visualizzato
   const [localCommessa, setLocalCommessa] = useState(commessa);
 
   // Decodifica del token per ottenere il ruolo, qui usiamo "role_id"
-  const decodeToken = (token) => {
-    try {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime ? decoded : null;
-    } catch (error) {
-      console.error("Errore nella decodifica del token:", error);
-      return null;
-    }
-  };
-
-  const decodedToken = token ? decodeToken(token) : null;
-  const finalUserRole = decodedToken && decodedToken.role_id ? Number(decodedToken.role_id) : 0;
-
+const decodedToken = jwtDecode(sessionStorage.getItem("token"));
+const finalUserRole = decodedToken?.role_id || 0;
   
   // Aggiorna il localCommessa se la prop commessa cambia
   useEffect(() => {
@@ -100,7 +85,8 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   useEffect(() => {
     const fetchStati = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
+        const response = await apiClient.get("/api/stato-commessa");
+
         setStatiCommessa(response.data);
       } catch (error) {
         console.error("Errore durante il recupero degli stati della commessa:", error);
@@ -114,11 +100,10 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   // Riceve "commessaId" ed "newStateId", e dopo il successo aggiorna il localCommessa e chiama il callback onStatusUpdated.
   const handleStatoChange = async (commessaId, newStateId) => {
     try {
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/stato`,
-        { stato_commessa: newStateId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/api/commesse/${commessaId}/stato`, {
+  stato_commessa: newStateId,
+});
+
       toast.success("Stato aggiornato correttamente.");
       // Aggiorna il localCommessa con il nuovo stato
       setLocalCommessa((prev) => ({ ...prev, stato: newStateId }));

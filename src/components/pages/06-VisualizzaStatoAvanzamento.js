@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import GestioneStatiAvanzamento from "../assets/GestioneStatiAvanzamento";
 import logo from "../img/Animation - 1738249246846.gif";
 
@@ -32,34 +32,36 @@ function StatiAvanzamento() {
 
   
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get (`${process.env.REACT_APP_API_URL}/api/commesse`);
-        setCommesse(response.data);
-        if (response.data.length > 0) {
-          setCurrentCommessaId(response.data[0].commessa_id); 
-        }
-      } catch (error) {
-        console.error("Errore durante il recupero delle commesse:", error);
-           toast.error("Errore durante il recupero delle commesse:", error);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.get("/api/commesse");
+      setCommesse(response.data);
+      if (response.data.length > 0) {
+        setCurrentCommessaId(response.data[0].commessa_id); 
       }
-    };
-    fetchData();
-    const fetchStatiCommessa = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/stato-commessa`);
-        setStatiCommessa(response.data);
-      } catch (error) {
-        console.error("Errore durante il recupero degli stati della commessa:", error);
-        toast.error("Errore durante il recupero degli stati della commessa:", error);
-      }finally {
-        setLoading(false);
-      }
-    };
+    } catch (error) {
+      console.error("Errore durante il recupero delle commesse:", error);
+      toast.error("Errore durante il recupero delle commesse:", error);
+    }
+  };
 
-    fetchStatiCommessa();
-  }, []);
+  const fetchStatiCommessa = async () => {
+    try {
+      const response = await apiClient.get("/api/stato-commessa");
+      setStatiCommessa(response.data);
+    } catch (error) {
+      console.error("Errore durante il recupero degli stati della commessa:", error);
+      toast.error("Errore durante il recupero degli stati della commessa:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+  fetchStatiCommessa();
+}, []);
+
 
 useEffect(() => {
   const handleClickOutside = (e) => {
@@ -213,7 +215,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
       const isActive = statoSelezionato?.isActive === undefined ? false : statoSelezionato.isActive;
   
       // Chiamata PUT per aggiornare il backend
-      await axios.put (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: newStatoId,
         is_active: isActive, 
       });
@@ -244,7 +246,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     }
 
     try {
-      await axios.put (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: statoId,
         [field]: null, 
       });
@@ -287,7 +289,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
 
     try {
       const formattedDate = new Date(newValue).toISOString();
-      await axios.put (`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
         stato_id: statoId,
         [field]: formattedDate,
       });
@@ -326,7 +328,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   const handleStatoChange = async (commessaId, newStato) => {
     try {
       // Invio dell'ID dello stato al backend
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/commesse/${commessaId}/stato`, {
+      await apiClient.put(`/api/commesse/${commessaId}/stato`, {
         stato_commessa: newStato,  
       });
   

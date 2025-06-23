@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import logo from "../img/Animation - 1738249246846.gif";
 import AttivitaCrea from "../popup/AttivitaCrea";
 import  "../style/02-Dashboard-reparto.css";
@@ -121,28 +121,18 @@ const [ViewStato, setViewStato] = useState(true);
 
         // Esegui le chiamate API in parallelo
         const [
-          activitiesResponse,
-          resourcesResponse,
-          commesseResponse,
-          repartiResponse,
-          attivitaDefiniteResponse,
-        ] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/api/attivita_commessa`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/risorse`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/commesse`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/reparti`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/attivita`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+activitiesResponse,
+resourcesResponse,
+commesseResponse,
+repartiResponse,
+attivitaDefiniteResponse,
+] = await Promise.all([
+ apiClient.get("/api/attivita_commessa"),
+apiClient.get("/api/risorse"),
+ apiClient.get("/api/commesse"),
+ apiClient.get("/api/reparti"),
+  apiClient.get("/api/attivita"),
+ ]);
 
         // Imposta i dati negli stati
         setActivities(activitiesResponse.data);
@@ -488,11 +478,7 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
     try {
       const payload = { stato: newStatus };
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/${activityId}/stato`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/api/notifiche/${activityId}/stato`, payload);
       setActivities((prev) =>
         prev.map((activity) =>
           activity.id === activityId ? { ...activity, stato: newStatus } : activity
@@ -546,11 +532,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       includedWeekends: updatedIncludedWeekends,
     };
 
-    await axios.put(
-      `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${activity.id}`,
-      updatedActivity,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await apiClient.put(`/api/attivita_commessa/${activity.id}`, updatedActivity);
 
     const updatedActivities = await fetchAttivitaCommessa();
     setActivities(updatedActivities);

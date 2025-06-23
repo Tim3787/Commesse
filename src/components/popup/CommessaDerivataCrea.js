@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import apiClient from "../config/axiosConfig";
 
 
 function CommessaDerivataCrea({ 
@@ -127,10 +127,8 @@ const handleSubmit = async (e) => {
       payload.data_FAT = formatDate(formData.data_FAT);
     }
 
-    const { data } = await axios.post(
-      `${process.env.REACT_APP_API_URL}/api/commesse`,
-      payload
-    );
+    const { data } = await apiClient.post(`/api/commesse`, payload);
+
     commessaId = data.commessaId;
 
       // Costruisci gli stati avanzamento in base alla selezione per ogni reparto
@@ -172,11 +170,8 @@ const handleSubmit = async (e) => {
     });
 
     if (attivitaDaAggiungere.length > 0) {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/commesse/assegna-attivita-predefinite`,
-        attivitaDaAggiungere,
-        { headers: { "Content-Type": "application/json" } }
-      );
+      await apiClient.post(`/api/commesse/assegna-attivita-predefinite`, attivitaDaAggiungere);
+
     }
 
     setFormData({

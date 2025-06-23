@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { getBoardCards } from "../services/API/trello-api";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import CommessaCrea from "../popup/CommessaCrea";
 import logo from "../img/Animation - 1738249246846.gif";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,10 +15,9 @@ const MatchCommesse = () => {
   const [cards, setCards] = useState([]);
   const [commesse, setCommesse] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedReparto, setSelectedReparto] = useState("software");
+  const [selectedReparto] = useState("software");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
-  const apiUrl = process.env.REACT_APP_API_URL;
   const boardIds = { software: "606e8f6e25edb789343d0871" };
   const today = new Date(); // Data di oggi
   const [cardsIgnorate, setCardsIgnorate] = useState([]);
@@ -32,15 +31,18 @@ const [statiAvanzamento, setStatiAvanzamento] = useState([]);
       try {
         setLoading(true);
         const boardId = boardIds[selectedReparto];
-        const [boardCards] = await Promise.all([
-          getBoardCards(boardId),
-          axios.get(`${apiUrl}/api/stato-commessa`), // Recupera i dati degli stati
-        ]);
+        const [boardCards, statoCommessaResponse] = await Promise.all([
+  getBoardCards(boardId),
+  apiClient.get(`/api/stato-commessa`),
+]);
+
+setCards(boardCards);
+
+// se vuoi usare `statoCommessaResponse.data`, aggiungi eventualmente:
+setStatiCommessa(statoCommessaResponse.data);
+
   
-        setCards(boardCards);
-        setSelectedReparto;
-  
-        const response = await axios.get(`${apiUrl}/api/commesse`);
+        const response = await apiClient.get(`/api/commesse`);
         const parsedCommesse = response.data.map((commessa) => ({
           ...commessa,
           stati_avanzamento:

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./components/style/buttons.css"
 import "./components/style/general.css";
 import "./components/style/input.css";
@@ -135,12 +134,7 @@ function App() {
 
     if (newToken && newToken !== savedToken) {
       try {
-        const userToken = sessionStorage.getItem("token");
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/users/device-token`,
-          { token: newToken },
-          { headers: { Authorization: `Bearer ${userToken}` } }
-        );
+        await apiClient.post("/api/users/device-token", { token: newToken });
         sessionStorage.setItem("savedDeviceToken", newToken);
         console.log("🔄 Device token aggiornato");
       } catch (error) {
@@ -179,15 +173,8 @@ const registerDeviceToken = async () => {
 
   if (userToken && deviceToken !== savedToken) {
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/users/device-token`,
-        { token: deviceToken },
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
+      await apiClient.post("/api/users/device-token", { token: deviceToken });
+
       sessionStorage.setItem("savedDeviceToken", deviceToken);
       console.log("✅ Token registrato al login");
     } catch (error) {

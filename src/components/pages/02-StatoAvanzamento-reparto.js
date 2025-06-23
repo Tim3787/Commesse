@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import CommessaDettagli from "../popup/CommessaDettagli";
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/02-StatoAvanzamento-reparto.css";
@@ -302,9 +302,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
    */
   const fetchActivities = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/api/attivita_commessa`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get("/api/attivita_commessa");
       setActivities(response.data);
     } catch (error) {
       console.error("Errore durante il recupero delle attività:", error);
@@ -326,9 +324,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
       setLoading(true);
       try {
         // Recupera le commesse
-        const response = await axios.get(`${apiUrl}/api/commesse`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get("/api/commesse");
     
         const parsedCommesse = response.data.map((commessa) => ({
           ...commessa,
@@ -340,9 +336,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
         setCommesse(parsedCommesse);
     
         // Stati di avanzamento
-        const statiResponse = await axios.get(`${apiUrl}/api/stati-avanzamento`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const statiResponse = await apiClient.get("/api/stati-avanzamento");
         const statiValidi = statiResponse.data.filter((stato) => stato.reparto_id === RepartoID);
         setStati(statiValidi);
     
@@ -377,9 +371,7 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/risorse`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get("/api/risorse");
         setResources(response.data);
       } catch (error) {
         console.error("Errore durante il recupero delle risorse:", error);
@@ -409,11 +401,10 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
    */
   const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     try {
-      await axios.put(
-        `${apiUrl}/api/commesse/${commessaId}/reparti/${repartoId}/stato`,
-        { stato_id: newStatoId, is_active: true },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+   stato_id: newStatoId,
+   is_active: true,
+ });
 
       // Aggiorna localmente lo stato della commessa
       setCommesse((prevCommesse) =>
@@ -685,11 +676,9 @@ if (RepartoName === "software") {
           return;
         }
     
-        await axios.put(
-          `${apiUrl}/api/commesse/${commessaId}/data-consegna`,
-          { data_consegna: normalizedTrelloDate },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await apiClient.put(`/api/commesse/${commessaId}/data-consegna`, {
+   data_consegna: normalizedTrelloDate,
+ });
         
         // Aggiorna la data di consegna localmente
         setCommesse((prevCommesse) =>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import logo from "../img/logoBW.webp";
 import "../style/00-LoginRegister.css";
@@ -66,10 +66,7 @@ function LoginRegister({ onLogin }) {
   const makeRequest = async (endpoint, successMessage) => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}${endpoint}`,
-        formData
-      );
+      const response = await apiClient.post(endpoint, formData);
   
       if (formType === "login") {
         sessionStorage.setItem("token", response.data.token);

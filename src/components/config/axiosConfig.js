@@ -13,36 +13,35 @@ apiClient.interceptors.request.use(
     let token = sessionStorage.getItem("token");
 
     if (token) {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now();
+  try {
+    const decoded = jwtDecode(token);
+    const currentTime = Date.now();
+    const isExpired = decoded.exp * 1000 < currentTime;
+    const expiresSoon = decoded.exp * 1000 - currentTime < 5 * 60 * 1000;
 
-      const isExpired = decoded.exp * 1000 < currentTime;
-      const expiresSoon = decoded.exp * 1000 - currentTime < 5 * 60 * 1000;
-
-      if (isExpired || expiresSoon) {
-        try {
-          const refreshRes = await axios.post(
-            `${process.env.REACT_APP_API_URL}/api/users/refresh-token`,
-            {},
-            { withCredentials: true }
-          );
-          const newToken = refreshRes.data.accessToken;
-          if (newToken) {
-            sessionStorage.setItem("token", newToken);
-            token = newToken;
-          }
-        } catch (refreshError) {
-          console.error("🔴 Refresh token fallito:", refreshError);
-          sessionStorage.removeItem("token");
-          sessionStorage.removeItem("role");
-          window.location.href = "/login";
-          return Promise.reject(refreshError);
-        }
+    if (isExpired || expiresSoon) {
+      const refreshRes = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/users/refresh-token`,
+        {},
+        { withCredentials: true }
+      );
+      const newToken = refreshRes.data.accessToken;
+      if (newToken) {
+        sessionStorage.setItem("token", newToken);
+        token = newToken;
       }
-
-      config.headers.Authorization = `Bearer ${token}`;
     }
+  } catch (err) {
+    console.error("🔴 Token scaduto o non valido, logout:", err);
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+    window.location.href = "/login";
+    return Promise.reject(err);
+  }
 
+  // IMPORTANTE: solo qui dopo tutto
+  config.headers.Authorization = `Bearer ${token}`;
+}
     return config;
   },
   (error) => Promise.reject(error)

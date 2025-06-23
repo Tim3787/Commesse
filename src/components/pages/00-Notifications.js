@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../style/00-Notifications.css";
@@ -46,12 +46,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/notifiche`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await apiClient.get("/api/notifiche");
       setNotifications(response.data);
       setUnreadNotifications(response.data.filter((n) => !n.is_read));
     } catch (error) {

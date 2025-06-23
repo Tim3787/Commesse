@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import apiClient from "../config/axiosConfig";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logo from "../img/unitech-packaging.png";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,16 +30,17 @@ function ResetPassword() {
     setIsLoading(true);
 
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/users/reset-password`, {
-        token,
-        newPassword: password,
-      });
-      toast.success("Password reimpostata con successo! Ora puoi accedere.");
-      navigate("/login");
-    } catch (error) {
-      console.error("Errore durante il reset della password:", error);
-      toast.error(error.response?.data?.message || "Errore durante il reset della password.");
-    } finally {
+  await apiClient.post("/api/users/reset-password", {
+    token,
+    newPassword: password,
+  });
+  toast.success("Password reimpostata con successo! Ora puoi accedere.");
+  navigate("/login");
+} catch (error) {
+  console.error("Errore durante il reset della password:", error);
+  toast.error(error.response?.data?.message || "Errore durante il reset della password.");
+}
+ finally {
       setIsLoading(false);
     }
   };
