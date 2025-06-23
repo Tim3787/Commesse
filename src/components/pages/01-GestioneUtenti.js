@@ -151,7 +151,6 @@ function GestioneUtenti() {
       <h1>GESTIONE UTENTI</h1>
       </div>  
       </div>  
-      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
        <div className="Gestione-Utenti-table-container">
       {/* Tabella degli utenti */}
       <table>
