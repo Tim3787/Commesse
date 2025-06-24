@@ -194,7 +194,6 @@ const notificheFiltrate = categoriaFiltro === "tutte"
           </li>
         ))}
       </ul>
-      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
     </div>
     </div>
   );
