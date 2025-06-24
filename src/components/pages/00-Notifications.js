@@ -119,7 +119,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
 
   return (
     <div className="page-wrapper">
-        <ToastContainer position="top-left" autoClose={200} hideProgressBar />
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
          {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
