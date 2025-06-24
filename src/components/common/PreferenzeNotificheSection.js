@@ -17,7 +17,7 @@ const PreferenzeNotificheSection = ({ token }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [, setEditingCategoria] = useState(null);
   const [loading, setLoading] = useState(false);
-const [categorie, setCategorie] = useState([]);
+const [, setCategorie] = useState([]);
 
   const fetchPreferenze = async () => {
     try {
@@ -99,28 +99,10 @@ const fetchCategorieDisponibili = async () => {
     <div className="section-wrapper">
       <h2 className="section-title">Gestisci come ricevere le notifiche</h2>
       <form onSubmit={handleSubmit} className="form-section">
-         <h2>
-       Categoria
-<select
-  name="categoria"
-  value={formData.categoria}
-  onChange={handleChange}
-  required
-  className="input w-200"
-   style={{ marginLeft: "15px",marginRight: "15px" }}
->
-  <option value="">-- Seleziona categoria --</option>
-  {categorie.map((cat) => (
-    <option key={cat} value={cat}>
-      {cat}
-    </option>
-  ))}
-  
-</select>
-</h2>
-
- <h2>Seleziona come ricevere le notifiche: </h2>
- <div className="row">
+  {isEditing && (
+    <>
+      <h2>Seleziona come ricevere le notifiche: </h2>
+      <div className="row">
         <label>
           <input
             type="checkbox"
@@ -139,25 +121,32 @@ const fetchCategorieDisponibili = async () => {
           />
           Notifica Email
         </label>
-          <div className="row" style={{ marginBottom: "10px" }}>
-        <button type="submit" className="btn w-200 btn--shiny btn--pill">{isEditing ? "Salva modifiche" : "Aggiungi"}</button>
-        {isEditing && (
-          <button
-            type="button"
-             className="btn w-200 btn--danger btn--pill"
-            onClick={() => {
-              setIsEditing(false);
-              setEditingCategoria(null);
-              setFormData({ categoria: "", viaPush: true, viaEmail: false });
-            }}
-          >
-            Annulla modifica
-          </button>
-          
-        )}
-        </div>
-        </div>
-      </form>
+      </div>
+    </>
+  )}
+
+  <div className="row" style={{ marginBottom: "10px" }}>
+    {isEditing && (
+      <>
+        <button type="submit" className="btn w-200 btn--shiny btn--pill">
+          Salva modifiche
+        </button>
+        <button
+          type="button"
+          className="btn w-200 btn--danger btn--pill"
+          onClick={() => {
+            setIsEditing(false);
+            setEditingCategoria(null);
+            setFormData({ categoria: "", viaPush: true, viaEmail: false });
+          }}
+        >
+          Annulla modifica
+        </button>
+      </>
+    )}
+  </div>
+</form>
+
 
       {loading ? (
         <p>Caricamento in corso...</p>
