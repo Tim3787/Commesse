@@ -639,7 +639,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       <div
         ref={drag}
         className={`activity ${activityClass}`}
-        style={{ opacity: isDragging ? 0.5 : 1, cursor: "move" }}
+        style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
         onDoubleClick={onDoubleClick}
       >
         {activity.stato === 2 && activity.note && (

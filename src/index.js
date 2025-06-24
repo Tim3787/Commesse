@@ -43,8 +43,8 @@ onMessage(messaging, (payload) => {
   if (Notification.permission === "granted" && payload.data) {
     new Notification(payload.data.title, {
       body: payload.data.body,
-      icon: "/unitech-packaging.png",
-    });
+      icon: "/UnitechIconBW.ico",
+    });png
   }
 });
 

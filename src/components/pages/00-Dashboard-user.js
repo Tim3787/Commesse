@@ -374,7 +374,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                         .includes("trasferta");
 
                       return (
-                        <div key={activity.id} className={`activity ${activityClass}`}>
+                        <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "200px"} } >
                           <div className="flex-column-center">
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
                             {activity.stato === 2 && activity.note && (
@@ -392,7 +392,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                             )}
                             <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
-                            <strong>Descrizione: </strong> {activity.descrizione}
+                            <strong>Stato: {activity.descrizione}</strong> 
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗
@@ -417,7 +417,9 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                               <span className="dashboasrd-user-activity-status">Attività completata</span>
                             )}
                             {activity.stato === 0 && (
+                              
                               <>
+                              <span className="dashboasrd-user-activity-status">Attività non iniziata</span>
                                 <button
                                   className="btn w-100 btn--start btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 1)}
