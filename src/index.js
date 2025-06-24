@@ -44,7 +44,7 @@ onMessage(messaging, (payload) => {
     new Notification(payload.data.title, {
       body: payload.data.body,
       icon: "/UnitechIconBW.ico",
-    });png
+    });
   }
 });
 

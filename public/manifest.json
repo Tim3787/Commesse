@@ -10,12 +10,12 @@
     {
       "src": "unitech-packaging.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "170x170"
     },
     {
       "src": "unitech-packaging.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "450x450"
     }
   ],
   "start_url": ".",

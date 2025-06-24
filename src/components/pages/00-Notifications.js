@@ -60,11 +60,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
   // Funzione per contrassegnare una notifica come letta
   const markAsRead = async (id) => {
     try {
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/${id}/read`,
-        null,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/api/notifiche/${id}/read`);
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
       );
@@ -77,9 +73,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
   // Funzione per eliminare una singola notifica
   const deleteNotification = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/notifiche/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/api/notifiche/${id}`);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       setUnreadNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
@@ -95,10 +89,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
       return;
     }
     try {
-      const response = await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/notifiche/utente/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await apiClient.delete(`/api/notifiche/utente/${userId}`);
       console.log("Risultato DELETE:", response.data);
       setNotifications([]);
       setUnreadNotifications([]);
