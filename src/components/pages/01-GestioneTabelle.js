@@ -135,7 +135,7 @@ const [modalitaAssegnazione, setModalitaAssegnazione] = useState("utenti"); // '
 const [repartoSelezionato, setRepartoSelezionato] = useState("");
 const [ruoloSelezionato, setRuoloSelezionato] = useState("");
 const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
-
+  const [, setPreferenze] = useState([]);
 
   // ================================
   // Effetti di Caricamento Iniziale

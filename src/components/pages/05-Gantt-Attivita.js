@@ -323,7 +323,7 @@ useEffect(() => {
   return (
     <div className="page-wrapper">
       {/* HEADER */}
-      <div className="flex-column-center">
+      <div className=" header">
         <h1>VISUALIZZA LE ATTIVITA' DI</h1>
                 <div className="flex-center header-row">
 
@@ -334,7 +334,11 @@ useEffect(() => {
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
+
         </div>
+          </div>
+           <div className="mh-80">
+              <div className="flex-column-center">
           <h1>SCEGLI UNA COMMESSA</h1>
           <div className="suggestion-wrapper w-200 ">
              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
@@ -387,7 +391,7 @@ useEffect(() => {
 
         <div className="container">{renderCalendar()}</div>
       </div>
-
+ </div>
   );
 }
 

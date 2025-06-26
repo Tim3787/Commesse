@@ -15,11 +15,10 @@ function CommessaCrea({
   attivita,             // Array delle attività disponibili
   selezioniAttivita,    // Stato per le attività predefinite selezionate
   setSelezioniAttivita, // Funzione per aggiornare le attività predefinite selezionate
-  fetchCommesse,        // Funzione per aggiornare l'elenco delle commesse
   editId,               // ID della commessa in modifica
   stato_commessa,       // Array degli stati disponibili
   stati_avanzamento,
-  
+  setCommesse,
 }) {
   // Stato del form: inizialmente impostato a valori vuoti (modalità creazione)
   const [formData, setFormData] = useState({
@@ -198,47 +197,45 @@ useEffect(() => {
 
     
     setLoading(true);
-    try {
-      let commessaId;
-      // Costruisco il payload in base alla modalità (modifica o creazione)
-      const payload =
-        isEditing
-          ? {
-              // Per l'aggiornamento, l'API si aspetta il campo "stato"
-              numero_commessa: formData.numero_commessa,
-              tipo_macchina: formData.tipo_macchina,
-              descrizione: formData.descrizione,
-              data_consegna: formatDate(formData.data_consegna),
-              data_FAT: formatDate(formData.data_FAT),
-              altri_particolari: formData.altri_particolari,
-              cliente: formData.cliente,
-              stato: parseInt(formData.stato_commessa, 10) || 1,
-              stato_iniziale: defaultStateSelections,
-            }
-          : {
-              // Per la creazione, l'API si aspetta il campo "stato_commessa"
-              numero_commessa: formData.numero_commessa,
-              tipo_macchina: formData.tipo_macchina,
-              descrizione: formData.descrizione,
-              data_consegna: formatDate(formData.data_consegna),
-              data_FAT: formatDate(formData.data_FAT),
-              altri_particolari: formData.altri_particolari,
-              cliente: formData.cliente,
-              stato_commessa: parseInt(formData.stato_commessa, 10) || 1,
-              stato_iniziale: defaultStateSelections,
-            };
+  try {
+    let commessaId;
+    let commessaFinale;
 
-      if (isEditing) {
-        // Chiamata API per aggiornare la commessa esistente
-        await apiClient.put(`/api/commesse/${editId}`, payload);
+    const payload = isEditing
+      ? {
+          numero_commessa: formData.numero_commessa,
+          tipo_macchina: formData.tipo_macchina,
+          descrizione: formData.descrizione,
+          data_consegna: formatDate(formData.data_consegna),
+          data_FAT: formatDate(formData.data_FAT),
+          altri_particolari: formData.altri_particolari,
+          cliente: formData.cliente,
+          stato: parseInt(formData.stato_commessa, 10) || 1,
+          stato_iniziale: defaultStateSelections,
+        }
+      : {
+          numero_commessa: formData.numero_commessa,
+          tipo_macchina: formData.tipo_macchina,
+          descrizione: formData.descrizione,
+          data_consegna: formatDate(formData.data_consegna),
+          data_FAT: formatDate(formData.data_FAT),
+          altri_particolari: formData.altri_particolari,
+          cliente: formData.cliente,
+          stato_commessa: parseInt(formData.stato_commessa, 10) || 1,
+          stato_iniziale: defaultStateSelections,
+        };
 
-        commessaId = editId;
-      } else {
-        // Chiamata API per creare una nuova commessa
-        const { data } = await apiClient.post(`/api/commesse`, payload);
-
-        commessaId = data.commessaId;
-      }
+    if (isEditing) {
+      await apiClient.put(`/api/commesse/${editId}`, payload);
+      commessaId = editId;
+      const { data } = await apiClient.get(`/api/commesse/${editId}`);
+      commessaFinale = data;
+    } else {
+      const { data } = await apiClient.post(`/api/commesse`, payload);
+      commessaId = data.commessaId;
+      const { data: nuovaCommessa } = await apiClient.get(`/api/commesse/${commessaId}`);
+      commessaFinale = nuovaCommessa;
+    }
 
 
       // Costruisci gli stati avanzamento in base alla selezione per ogni reparto
@@ -287,6 +284,18 @@ useEffect(() => {
 
       }
 
+    // 🔁 AGGIORNA SOLO LA COMMESSA INTERESSATA
+    if (typeof setCommesse === "function") {
+      setCommesse((prev) => {
+        const presente = prev.some((c) => c.id === commessaFinale.id);
+        if (presente) {
+          return prev.map((c) => (c.id === commessaFinale.id ? commessaFinale : c));
+        } else {
+          return [...prev, commessaFinale];
+        }
+      });
+    }
+
       // Resetta il form e chiude il popup
       setFormData({
         numero_commessa: "",
@@ -300,7 +309,6 @@ useEffect(() => {
       });
       setSelezioniAttivita({});
       toast.success("Commessa creata con successo!");
-      fetchCommesse();
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       toast.error("Errore durante l'operazione.");

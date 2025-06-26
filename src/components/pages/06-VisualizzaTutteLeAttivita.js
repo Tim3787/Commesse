@@ -139,10 +139,21 @@ function VisualizzaTutteLeAttivita() {
         // Filtra le attività uniche (basandosi sul nome)
 setAttivitaDefinite(attivitaDefiniteData); // mantiene tutto, incluso reparto_id
 
-const uniqueActivities = Array.from(
-  new Set(attivitaDefiniteData.map((att) => att.nome_attivita))
-).map((nome) => ({ nome }));
-setFilteredActivities(uniqueActivities); // usato solo per il rendering
+// Attività uniche per nome, ma mantiene anche reparto_id
+const uniqueActivitiesMap = new Map();
+attivitaDefiniteData.forEach((att) => {
+  const nome = att.nome_attivita || att.nome || "Nome sconosciuto";
+  if (!uniqueActivitiesMap.has(nome)) {
+    uniqueActivitiesMap.set(nome, {
+      nome,
+      reparto_id: att.reparto_id || null,
+    });
+  }
+});
+const uniqueActivities = Array.from(uniqueActivitiesMap.values());
+setFilteredActivities(uniqueActivities);
+
+
 
         // Imposta un ID di modifica iniziale se esistono attività programmate
         if (attivitaProgrammateData.length > 0) {
@@ -238,52 +249,92 @@ setFilteredActivities(uniqueActivities); // usato solo per il rendering
   };
   
   // Gestione dei cambiamenti nei filtri
-  const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
+const handleFilterChange = (e) => {
+  const { name, value, type, checked } = e.target;
 
-    if (type === "checkbox" && name === "attivita_id") {
-      setFilters((prev) => ({
-        ...prev,
-        attivita_id: checked
-          ? [...prev.attivita_id, value]
-          : prev.attivita_id.filter((id) => id !== value),
-      }));
-    } else if (type === "checkbox" && name === "stati") {
-      setFilters((prev) => ({
-        ...prev,
-        stati: checked
-          ? [...prev.stati, value]
-          : prev.stati.filter((stato) => stato !== value),
-      }));
-    } else if (name === "reparto_id") {
-      const repartoId = parseInt(value, 10);
-      if (repartoId) {
-        const filteredRisorse = risorse.filter(
-          (risorsa) => risorsa.reparto_id === repartoId
-        );
-        setFilteredRisorse(filteredRisorse);
+  if (type === "checkbox" && name === "attivita_id") {
+    setFilters((prev) => ({
+      ...prev,
+      attivita_id: checked
+        ? [...prev.attivita_id, value]
+        : prev.attivita_id.filter((id) => id !== value),
+    }));
+  } else if (type === "checkbox" && name === "stati") {
+    setFilters((prev) => ({
+      ...prev,
+      stati: checked
+        ? [...prev.stati, value]
+        : prev.stati.filter((stato) => stato !== value),
+    }));
+  } else if (name === "reparto_id") {
+    const repartoId = parseInt(value, 10);
 
-        const filteredActivities = attivitaDefinite.filter(
-          (attivita) => attivita.reparto_id === repartoId
-        );
-        setFilteredActivities(filteredActivities);
-      } else {
-        setFilteredRisorse(risorse);
-        setFilteredActivities(attivitaDefinite);
-      }
-      setFilters((prev) => ({
-        ...prev,
-        reparto_id: value,
-        risorsa_id: "",
-        attivita_id: [],
-      }));
+    // Filtra le risorse
+    const risorseFiltrate = risorse.filter(
+      (risorsa) => risorsa.reparto_id === repartoId
+    );
+    setFilteredRisorse(risorseFiltrate);
+
+    // Filtra le attività uniche con nome per reparto
+    const attivitaFiltrate = attivitaDefinite.filter(
+      (attivita) =>
+        attivita.reparto_id === repartoId &&
+        (attivita.nome_attivita || attivita.nome)
+    );
+
+    const uniche = Array.from(
+      new Map(
+        attivitaFiltrate.map((att) => [
+          att.nome_attivita || att.nome,
+          { nome: att.nome_attivita || att.nome },
+        ])
+      ).values()
+    );
+    setFilteredActivities(uniche);
+
+    setFilters((prev) => ({
+      ...prev,
+      reparto_id: value,
+      risorsa_id: "",
+      attivita_id: [],
+    }));
+  } else if (name === "risorsa_id") {
+    const risorsa = risorse.find((r) => r.id === parseInt(value));
+    const repartoId = risorsa?.reparto_id;
+
+    // Se trovi il reparto della risorsa, filtra le attività per quel reparto
+    if (repartoId) {
+      const attivitaFiltrate = attivitaDefinite.filter(
+        (attivita) =>
+          attivita.reparto_id === repartoId &&
+          (attivita.nome_attivita || attivita.nome)
+      );
+
+      const uniche = Array.from(
+        new Map(
+          attivitaFiltrate.map((att) => [
+            att.nome_attivita || att.nome,
+            { nome: att.nome_attivita || att.nome },
+          ])
+        ).values()
+      );
+      setFilteredActivities(uniche);
     } else {
-      setFilters((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFilteredActivities([]);
     }
-  };
+
+    setFilters((prev) => ({
+      ...prev,
+      risorsa_id: value,
+    }));
+  } else {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+};
+
 
   // Gestione dell'input per la ricerca della commessa
   const handleCommessaInputChange = (e) => {
@@ -556,7 +607,7 @@ if (
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
         {/* Tabella delle attività filtrate */}
-         <div className= "Reparto-table-container mh-76  ">
+         <div className= "Reparto-table-container mh-80  ">
           <table>
             <thead>
               <tr>

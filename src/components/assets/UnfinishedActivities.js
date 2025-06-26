@@ -1,6 +1,7 @@
 // src/UnfinishedActivities.jsx
 import React from "react";
 
+
 function UnfinishedActivities({ unfinishedActivities, resources }) {
   if (unfinishedActivities.length === 0) {
     return null;
@@ -18,6 +19,7 @@ function UnfinishedActivities({ unfinishedActivities, resources }) {
           return (
             <div
               key={activity.id}
+              
               style={{
                 padding: "10px",
                 backgroundColor: "#fff3cd",
@@ -25,6 +27,7 @@ function UnfinishedActivities({ unfinishedActivities, resources }) {
                 marginBottom: "10px",
               }}
             >
+              
                 <span className="unfinished-icon" 
                title={`
                 Attività: ${activity.nome_attivita}
@@ -42,7 +45,10 @@ function UnfinishedActivities({ unfinishedActivities, resources }) {
       >
         <path d="M12 0C5.371 0 0 5.371 0 12s5.371 12 12 12 12-5.371 12-12S18.629 0 12 0zm1 17h-2v-2h2v2zm0-4h-2V7h2v6z" />
           </svg></span><br />
-              <strong>ATTIVITA' INCOMPLETA</strong>
+              <strong>
+  ATTIVITA' INCOMPLETA<br />
+  {activity.nome_attivita}
+</strong>
 
             </div>
           );

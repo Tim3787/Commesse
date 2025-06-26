@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./Navbar.css";
+import "../style/Navbar.css";
 import apiClient from "../config/axiosConfig";
 import { CSSTransition } from "react-transition-group";
 import CommessaDettagli from "../popup/CommessaDettagli";

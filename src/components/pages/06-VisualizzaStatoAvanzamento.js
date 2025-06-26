@@ -482,7 +482,7 @@ console.log("Commessa:", currentCommessa );
  {/* CONTENITORE PRINCIPALE (si sposta a destra se il menu è aperto) */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
 
-       <div className= "Reparto-table-container mh-76  ">
+       <div className= "Reparto-table-container mh-80  ">
       {/* Dettagli Commessa Selezionata */}
       {currentCommessa ? (
         <GestioneStatiAvanzamento

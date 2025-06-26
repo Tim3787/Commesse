@@ -220,6 +220,7 @@ function PrenotazioneSale() {
       </div>
       </div>
       <div className="container">
+          <div className= "mh-80 ">
       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       {loading && (
         <div className="loading-overlay">
@@ -283,7 +284,10 @@ function PrenotazioneSale() {
         </div>
 
         {/* Campo per l'utente con funzionalità di suggerimento */}
+         
         <div className="flex-column-center">
+         <div className="suggestion-wrapper w-400  flex-column-center"
+         >   
           <label>Utente:</label>
           <input
             type="text"
@@ -297,7 +301,9 @@ function PrenotazioneSale() {
             className="w-400"
           />
           {showUtenteSuggestions && (
-            <ul className="suggestions-list w-200">
+            <ul className="suggestions-list w-400"
+            style={{position:"relative"}}
+            >
               {filteredUtenti.map((utente) => (
                 <li
                   key={utente.id}
@@ -310,7 +316,7 @@ function PrenotazioneSale() {
             </ul>
           )}
         </div>
-
+</div>
         {/* Pulsante per il submit */}
         <div className="flex-column-center">
         <button type="submit" className="btn w-400 btn--blue  btn--pill" disabled={loading}>
@@ -380,6 +386,7 @@ function PrenotazioneSale() {
         </tbody>
       </table>
     </div>
+   </div>
    </div>
   );
 }

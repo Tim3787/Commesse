@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import logo from "../img/Animation - 1738249246846.gif";
-import  "../style/01-GestioneUtenti.css";
 
 // Import per Toastify (notifiche)
 import { ToastContainer, toast } from "react-toastify";
@@ -151,7 +150,7 @@ function GestioneUtenti() {
       <h1>GESTIONE UTENTI</h1>
       </div>  
       </div>  
-       <div className="Gestione-Utenti-table-container">
+       <div className="mh-80">
       {/* Tabella degli utenti */}
       <table>
         <thead >

@@ -943,7 +943,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
       {/* CONTENITORE PRINCIPALE */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
-         <div className= "Reparto-table-container mh-76 ">
+         <div className= "Reparto-table-container mh-80 ">
         <DndProvider backend={HTML5Backend}>
         
               <table>

@@ -1,5 +1,4 @@
 import React from "react";
-import "./GestioneStatiAvanzamento.css";
 
 
 function GestioneStatiAvanzamento({ commessa, handleStatoAttualeChange, handleUpdateDate, handleRemoveDate,  formatDate, handleStatoChange, statiCommessa }) {

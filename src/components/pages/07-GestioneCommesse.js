@@ -168,6 +168,7 @@ function GestioneCommesse() {
       )}
 
       {/* HEADER */}
+              <div className=" header">
       <div className="flex-center header-row">
         <h1>Gestione Commesse</h1>
         
@@ -177,6 +178,7 @@ function GestioneCommesse() {
         <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
+        </div>
         </div>
       {/* MENU A BURGER: pannello dei filtri (visibile solo se aperto) */}
       {isBurgerMenuOpen && (
@@ -230,6 +232,7 @@ function GestioneCommesse() {
 
       {/* CONTAINER PRINCIPALE: la tabella si sposta se il menu a burger è aperto */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+        <div className= " mh-80 ">
         {/* Tabella delle commesse */}
         <table>
           <thead>
@@ -281,7 +284,7 @@ function GestioneCommesse() {
             ))}
           </tbody>
         </table>
-
+</div>
         {/* Popup per la creazione/modifica della commessa */}
         {showPopup && (
           <CommessaCrea
@@ -293,10 +296,10 @@ function GestioneCommesse() {
             attivita={attivita}
             selezioniAttivita={selezioniAttivita}
             setSelezioniAttivita={setSelezioniAttivita}
-            fetchCommesse={loadData}
             editId={editId}
             stato_commessa={statiCommessa}
             stati_avanzamento={statiAvanzamento}
+            setCommesse={setCommesse}
           />
         )}
         {modalDerivata.show && (
