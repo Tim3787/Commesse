@@ -1,5 +1,5 @@
 import React from "react";
-
+import  "../style/02-StatoAvanzamento-reparto.css";
 
 const WarningDetails = ({ warningActivities, resources, deleteNote }) => {
   if (warningActivities.length === 0) return null;
@@ -13,15 +13,7 @@ const WarningDetails = ({ warningActivities, resources, deleteNote }) => {
         )?.nome || "Nome non disponibile";
 
         return (
-          <div
-            key={activity.id}
-            style={{
-              padding: "10px",
-              backgroundColor: "#ffe6e6",
-              border: "1px solid #e60000",
-              marginBottom: "10px",
-            }}
-          >
+          <div key={activity.id} className="warning-card">
             <strong>NOTA ATTIVA</strong><br />
             <span 
   className="warning-icon"

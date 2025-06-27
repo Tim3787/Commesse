@@ -770,40 +770,36 @@ if (RepartoName === "software") {
 
     // Rendering della card della commessa
     return (
-      <div
-        ref={drag}
-        className="commessa"
-        style={{
-          opacity: isDragging ? 0.5 : 1,
-          backgroundColor:
-            confrontoConTrello && trelloCard
-              ? confrontoConTrello && isDateDifferent
-                ? "#ffcccc"
-                : "#fff"
-              : "white",
-          border: esisteSuTrello && isListDifferent ? "2px solid red" : "1px solid black",
-        }}
-        onClick={() => handleCommessaClick(commessa)}
-      >
+   <div
+  ref={drag}
+  className={`commessa
+    ${isDragging ? "commessa--dragging" : ""}
+    ${confrontoConTrello && isDateDifferent ? "commessa--date-warning" : ""}
+    ${esisteSuTrello && isListDifferent ? "commessa--list-warning" : ""}
+  `}
+  onClick={() => handleCommessaClick(commessa)}
+>
+
         <strong>{commessa.numero_commessa}</strong>
         <div>{commessa.cliente}</div>
         {/* Blocchi per le icone di allarme relative alla consegna */}
         <div className="delivery-alerts">
           {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
             <FontAwesomeIcon
-              icon={faCalendarWeek}
-              title="Consegna questa settimana"
-              style={{ marginRight: "5px", color: "ORANGE" }}
-            />
+  icon={faCalendarWeek}
+  title="Consegna questa settimana"
+  className="delivery-icon delivery-icon--week"
+/>
+
           )}
           {!isThisWeek(commessa.data_consegna) &&
             ConsegnaMensile &&
             isThisMonth(commessa.data_consegna) && (
               <FontAwesomeIcon
-                icon={faCalendar}
-                title="Consegna questo mese"
-                style={{ color: "blue" }}
-              />
+  icon={faCalendar}
+  title="Consegna questo mese"
+  className="delivery-icon delivery-icon--month"
+/>
             )}
         </div>
 
@@ -823,29 +819,38 @@ if (RepartoName === "software") {
 
         {/* Se la commessa dovrebbe esistere su Trello ma non viene trovata, mostra un messaggio */}
         {esisteSuTrello && !trelloCard && (
-          <div style={{ color: "red", fontStyle: "italic" }}>Non esiste su Trello</div>
-        )}
+  <div className="trello-warning trello-warning--missing">
+    Non esiste su Trello
+  </div>
+)}
+
 
         {/* Se la data tra l'app e Trello differisce, consente di allinearla */}
         <div>
           {confrontoConTrello && trelloCard && isDateDifferent && (
-            <div style={{ color: "red" }}>
-              Data App: {appDate}
-              <br />
-              Data Trello: {trelloDate}
-              <br />
-              <button onClick={() => handleAlignDate(commessa.commessa_id, trelloCard.due)}>
-                Allinea Data
-              </button>
-            </div>
+            <div className="trello-warning trello-warning--date">
+  Data App: {appDate}
+  <br />
+  Data Trello: {trelloDate}
+  <br />
+   <div className="flex-column-center">
+  <button
+    className="btn btn--pill w-100 btn--danger"
+    onClick={() => handleAlignDate(commessa.commessa_id, trelloCard.due)}
+  >
+    Allinea Data
+  </button>
+</div>
+</div>
           )}
         </div>
 
         {/* Se la lista Trello è diversa da quella attesa, mostra il nome della lista */}
         {confrontoConTrello && trelloCard && isListDifferent && (
-          <div style={{ color: "red" }}>
-            <div>Lista Trello: {trelloListName}</div>
-          </div>
+          <div className="trello-warning trello-warning--list">
+  Lista Trello: {trelloListName}
+</div>
+
         )}
       </div>
     );

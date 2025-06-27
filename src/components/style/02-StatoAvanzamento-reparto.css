@@ -4,12 +4,122 @@
   padding: 5px;
   border-radius: 5px;
   margin-bottom: 5px;
-  font-size: 14px;
-  border: 1px solid #030303;
-  color: var( --text-dark);
+  font-size: 16px;
+  border: 1px solid #146da8;
+  color: var( --text-light);
+   background-image: linear-gradient(135deg, #020536, #032c61,  #020536);
 }
 
 .Avanzamento-table-container {
  max-height: 80vh; 
 }
 
+  .warning-note{
+    color:var( --color-danger); 
+  }
+  
+  .commessa--dragging {
+  opacity: 0.5;
+}
+
+.commessa--date-warning {
+  background-color: #ffcccc; /* rosso chiaro */
+}
+
+.commessa--list-warning {
+  border: 2px solid red;
+}
+
+.delivery-alerts {
+  margin-top: 5px;
+}
+
+.delivery-icon {
+  font-size: 1.2em;
+  margin-right: 5px;
+}
+
+.delivery-icon--week {
+  color: orange;
+}
+
+.delivery-icon--month {
+  color:  #146da8;
+}
+
+.trello-warning {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+  padding-bottom: 5px;
+
+}
+
+.trello-warning--missing {
+  font-style: italic;
+}
+
+.trello-warning--date {
+  font-weight: bold;
+}
+
+.trello-warning--list {
+  font-weight: normal;
+}
+
+.btn--mini {
+  padding: 3px 8px;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.btn--danger {
+  background-color: #c9302c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn--danger:hover {
+  background-color: #e60000;
+}
+
+
+.warning-section {
+  margin-top: 5px;
+}
+
+.warning-card {
+  padding: 10px;
+  background-color: #010a11;
+  border: 1px solid #e60000;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.warning-icon {
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  cursor: help;
+}
+
+.unfinished-section {
+  margin-top: 5px;
+}
+
+.unfinished-card {
+  padding: 10px;
+  background-color: #010a11;
+  border: 1px solid #ffcc00;
+  border-radius: 6px;
+  margin-bottom: 10px;
+   font-size: 14px;
+}
+
+.unfinished-icon {
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  cursor: help;
+}

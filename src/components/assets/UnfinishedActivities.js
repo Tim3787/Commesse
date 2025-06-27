@@ -16,15 +16,8 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
           )?.nome || "Nome non disponibile";
 
           return (
-            <div
-              key={activity.id}
-              style={{
-                padding: "10px",
-                backgroundColor: "#fff3cd",
-                border: "1px solid #ffcc00",
-                marginBottom: "10px",
-              }}
-            >
+            <div key={activity.id} className="unfinished-card">
+
               <span
                 className="unfinished-icon"
                 title={`
