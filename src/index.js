@@ -4,6 +4,8 @@ import App from "./App";
 import reportWebVitals from "./components/utils/reportWebVitals";
 import { messaging } from "./components/services/firebase"; 
 import { getToken, onMessage } from "firebase/messaging";
+import { AppDataProvider } from "./components/context/AppDataContext";
+
 
 
 const vapidKey = 'BEy_oianKnmIWUnHe-pmubXs0hXyeMeMdlFJeZ-KqMHSv6rfu1QizeAveFZSKgeuOFY6igPUXftwOeFgxPVchvs';
@@ -53,9 +55,12 @@ requestNotificationPermission();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
+    <AppDataProvider>
     <App />
+    </AppDataProvider>
   </React.StrictMode>
 );
+
 
 reportWebVitals();
 

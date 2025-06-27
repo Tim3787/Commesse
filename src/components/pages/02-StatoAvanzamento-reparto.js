@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import apiClient from "../config/axiosConfig";
 import CommessaDettagli from "../popup/CommessaDettagli";
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/02-StatoAvanzamento-reparto.css";
+import AttivitaCrea from "../popup/AttivitaCrea";
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop } from "react-dnd";
@@ -14,7 +15,7 @@ import { getBoardCards, getBoardLists } from "../services/API/trello-api";
 // Import di componenti di alert per warning e attività non completate
 import WarningDetails from "../assets/WarningDetails";
 import UnfinishedActivities from "../assets/UnfinishedActivities";
-
+import { updateActivityNotes } from "../services/API/notifiche-api";
 // Import per gestire il routing e leggere i parametri dall'URL
 import { useParams } from "react-router-dom";
 
@@ -35,6 +36,10 @@ import {
   faCalendarWeek,
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
+
+// Context
+import { useAppData  } from "../context/AppDataContext";
+
 
 /**
  * Componente StatoAvanzamentoReparti
@@ -237,6 +242,24 @@ const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
 const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
 const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
 
+
+
+const [showPopup, setShowPopup] = useState(false);
+const [isEditing, setIsEditing] = useState(false);
+const [selectedActivity, setSelectedActivity] = useState({});
+
+  /* ===============================
+     APP DATA
+  =============================== */
+  const { 
+  reparti, 
+  attivitaConReparto,
+  refreshAttivitaProgrammate,
+
+
+} = useAppData();
+
+
   // ----------------------------------------------------------------
   // Funzioni Helper
   // ----------------------------------------------------------------
@@ -315,6 +338,46 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
   }
 }, [RepartoName]);
 
+
+const handleEditActivity = (activity) => {
+  const attivita = attivitaConReparto.find((a) => a.id === activity.attivita_id);
+  const risorsa = resources.find((r) => r.id === activity.risorsa_id);
+
+  setSelectedActivity({
+    ...activity,
+    reparto_id: attivita?.reparto_id || risorsa?.reparto_id || "",
+    risorsa_id: activity.risorsa_id,
+    attivita_id: activity.attivita_id,
+    data_inizio: activity.data_inizio?.slice(0, 10),
+    durata: activity.durata ?? 1,
+    stato: activity.stato ?? 0,
+    descrizione: activity.descrizione || "",
+    includedWeekends: activity.included_weekends || [],
+  });
+
+  setIsEditing(true);
+  setShowPopup(true);
+};
+
+
+
+  // Elimina la nota associata a un'attività
+  const deleteNote = async (activityId) => {
+    try {
+      await updateActivityNotes(activityId, null, token);
+      
+      toast.success("Nota eliminata con successo!");
+      setActivities((prevActivities) =>
+        prevActivities.map((activity) =>
+          activity.id === activityId ? { ...activity, note: null } : activity
+        )
+      );
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della nota:", error);
+      toast.error("Errore durante l'eliminazione della nota.");
+    }
+  };
+
   /**
    * Recupera dati relativi alle commesse, agli stati e alle board di Trello.
    */
@@ -381,6 +444,17 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
     fetchResources();
   }, [apiUrl, token]);
 
+
+    // Ricarica le attività programmate dalla API
+  const handleReloadActivities = async () => {
+    try {
+      await refreshAttivitaProgrammate(); // aggiorna dal contesto
+      toast.success("Attività ricaricate con successo");
+    } catch (error) {
+      console.error("Errore durante il ricaricamento delle attività:", error);
+      toast.error("Errore durante il ricaricamento delle attività");
+    }
+  };
   /**
    * Estrae il numero della commessa (primi 5 caratteri) dal nome della card di Trello.
    */
@@ -735,12 +809,16 @@ if (RepartoName === "software") {
 
         {/* Mostra il componente WarningDetails se sono presenti warning (note) */}
         {allarmiNote && warningActivities.length > 0 && (
-          <WarningDetails warningActivities={warningActivities} resources={resources} />
+          <WarningDetails warningActivities={warningActivities} resources={resources}   deleteNote={deleteNote}/>
         )}
 
         {/* Mostra il componente UnfinishedActivities se sono presenti attività non completate */}
         {allarmiAttivitaAperte && unfinishedActivities.length > 0 && (
-          <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} />
+          <UnfinishedActivities
+  unfinishedActivities={unfinishedActivities}
+  resources={resources}
+  onEdit={handleEditActivity}
+/>
         )}
 
         {/* Se la commessa dovrebbe esistere su Trello ma non viene trovata, mostra un messaggio */}
@@ -1080,6 +1158,22 @@ if (RepartoName === "software") {
                 onClose={handleClosePopup}
               />
             )}
+            {showPopup && (
+  <AttivitaCrea
+    formData={selectedActivity}
+    setFormData={setSelectedActivity}
+    isEditing={isEditing}
+    editId={selectedActivity.id}
+    setIsEditing={setIsEditing}
+    setShowPopup={setShowPopup}
+    commesse={commesse}
+    reparti={reparti}
+    risorse={resources}
+    attivitaConReparto={attivitaConReparto}
+    reloadActivities={handleReloadActivities}
+  />
+)}
+
           </div>
         </DndProvider>
       </div>

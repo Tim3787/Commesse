@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo  } from "react";
 import apiClient from "../config/axiosConfig";
 import logo from "../img/Animation - 1738249246846.gif";
 import AttivitaCrea from "../popup/AttivitaCrea";
@@ -26,6 +26,8 @@ import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../services/API/a
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash,faChevronLeft, faChevronRight  } from "@fortawesome/free-solid-svg-icons";
 
+// Context
+import { useAppData  } from "../context/AppDataContext";
 
 // ============================
 // COMPONENTE: DashboardReparto
@@ -35,19 +37,29 @@ function DashboardReparto() {
   const { reparto } = useParams();
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
 
+  /* ===============================
+     APP DATA
+  =============================== */
+const {
+  commesse,
+  statiCommessa,
+  setCommesse,
+  risorse,
+  attivitaConReparto,
+  loading,
+  reparti,
+} = useAppData();
+
+  
+
   // ----------------------------
   // Stati del componente
   // ----------------------------
   const [activities, setActivities] = useState([]); // Tutte le attività caricate
   const [filteredActivities, setFilteredActivities] = useState([]); // Attività filtrate in base ai filtri
-  const [resources, setResources] = useState([]); // Risorse appartenenti al reparto
   const [serviceResources, setServiceResources] = useState([]); // Risorse del reparto "service"
-  const [loading, setLoading] = useState(false); // Stato di caricamento generale
   const token = sessionStorage.getItem("token");
   const [showPopup, setShowPopup] = useState(false); // Controlla la visualizzazione del popup per la creazione/modifica
-  const [commesse, setCommesse] = useState([]); // Elenco delle commesse
-  const [reparti, setReparti] = useState([]); // Elenco dei reparti
-  const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Attività definite per reparto
   const [selectedServiceResource, setSelectedServiceResource] = useState(null); // Risorsa del service selezionata
   const [activityViewMode, setActivityViewMode] = useState("full"); // Modalità di visualizzazione: "full" o "compact"
   const [formData, setFormData] = useState({
@@ -61,6 +73,7 @@ function DashboardReparto() {
     descrizione: "",
     includedWeekends: [],  
   });
+  const isDataReady = !loading && reparti.length && commesse.length && risorse.length;
   const [isEditing, setIsEditing] = useState(false); // Indica se si sta modificando un'attività esistente
   const [editId, setEditId] = useState(null); // ID dell'attività in modifica
   const [loadingActivities, setLoadingActivities] = useState({}); // Stato di caricamento per le operazioni sulle attività
@@ -109,76 +122,31 @@ const [ViewStato, setViewStato] = useState(true);
   // ========================================================
   // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
   // ========================================================
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!RepartoID || !RepartoName) {
-        console.error("Reparto non valido.");
-        return;
-      }
+ useEffect(() => {
+  if (!RepartoID || !risorse.length) return;
 
-      try {
-        setLoading(true);
+  const serviceFilteredResources = risorse.filter(
+  (resource) => Number(resource.reparto_id) === repartoConfig.service.RepartoID
+);
 
-        // Esegui le chiamate API in parallelo
-        const [
-activitiesResponse,
-resourcesResponse,
-commesseResponse,
-repartiResponse,
-attivitaDefiniteResponse,
-] = await Promise.all([
- apiClient.get("/api/attivita_commessa"),
-apiClient.get("/api/risorse"),
- apiClient.get("/api/commesse"),
- apiClient.get("/api/reparti"),
-  apiClient.get("/api/attivita"),
- ]);
+  setServiceResources(serviceFilteredResources);
 
-        // Imposta i dati negli stati
-        setActivities(activitiesResponse.data);
-        setCommesse(commesseResponse.data);
-        setReparti(repartiResponse.data);
+  // Gestione risorsa service
+  if (reparto !== "service") {
+    const defaultServiceId = repartoConfig[reparto]?.defaultServiceResourceId || null;
+    setSelectedServiceResource(
+      defaultServiceId && serviceFilteredResources.some((res) => res.id === defaultServiceId)
+        ? defaultServiceId
+        : serviceFilteredResources[0]?.id || null
+    );
+  } else {
+    setSelectedServiceResource(null);
+  }
+}, [RepartoID, risorse, reparto]);
 
-        // Mappa le attività definite per reparto in una struttura semplificata
-        const attivitaConReparto = attivitaDefiniteResponse.data.map((attivita) => ({
-          id: attivita.id,
-          nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
-          reparto_id: attivita.reparto_id,
-        }));
-        setAttivitaConReparto(attivitaConReparto);
-
-        // Filtra le risorse appartenenti al reparto corrente
-        const filteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === RepartoID
-        );
-        setResources(filteredResources);
-
-        // Filtra le risorse del reparto "service"
-        const serviceFilteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === repartoConfig.service.RepartoID
-        );
-        setServiceResources(serviceFilteredResources);
-
-        // Se il reparto non è "service", imposta la risorsa del service (default o la prima disponibile)
-        if (reparto !== "service") {
-          const defaultServiceId = repartoConfig[reparto]?.defaultServiceResourceId || null;
-          setSelectedServiceResource(
-            defaultServiceId && serviceFilteredResources.some((res) => res.id === defaultServiceId)
-              ? defaultServiceId
-              : serviceFilteredResources[0]?.id || null
-          );
-        } else {
-          setSelectedServiceResource(null);
-        }
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [RepartoID, RepartoName, reparto, token]);
+useEffect(() => {
+  handleReloadActivities();
+}, []);
 
   // ========================================================
   // FILTRAGGIO DELLE ATTIVITÀ IN BASE A COMMESSA, RISORSA E ATTIVITÀ
@@ -189,11 +157,11 @@ apiClient.get("/api/risorse"),
         ? activity.numero_commessa.toString().toLowerCase().includes(filters.commessa.toLowerCase())
         : true;
       const risorsaMatch = filters.risorsa
-        ? (activity.risorsa && activity.risorsa.toLowerCase().includes(filters.risorsa.toLowerCase()))
-        : true;
-      const attivitaMatch = filters.attivita
-        ? (activity.nome_attivita && activity.nome_attivita.toLowerCase().includes(filters.attivita.toLowerCase()))
-        : true;
+  ? (activity.risorsa?.toLowerCase()?.includes(filters.risorsa.toLowerCase()))
+  : true;
+const attivitaMatch = filters.attivita
+  ? (activity.nome_attivita?.toLowerCase()?.includes(filters.attivita.toLowerCase()))
+  : true;
       return commessaMatch && risorsaMatch && attivitaMatch;
     });
     setFilteredActivities(fActivities);
@@ -219,11 +187,11 @@ useEffect(() => {
 
 // Suggerimenti per "risorsa": usa l'array "resources" già filtrato per il reparto corrente
 useEffect(() => {
-  const risorsaSuggs = resources
-    .map((resource) => resource.nome)
-    .filter((value, index, self) => self.indexOf(value) === index);
+  const risorsaSuggs = risorse
+  .map((risorsa) => risorsa.nome)
+  .filter((value, index, self) => self.indexOf(value) === index);
   setSuggestionsRisorsa(risorsaSuggs);
-}, [resources]);
+}, [risorse]);
 
 // Listener globale per chiudere i suggerimenti se si clicca fuori dagli input o dalle liste
 useEffect(() => {
@@ -349,18 +317,26 @@ function getActivityDates(activity) {
   return dates;
 }
 
-
   // Restituisce le attività di una risorsa per un dato giorno
-const getActivitiesForResourceAndDay = (resourceId, day) => {
-  const isoDay = normalizeDate(day).toISOString().split("T")[0];
-  return filteredActivities.filter(act => {
-    if (Number(act.risorsa_id) !== Number(resourceId)) return false;
-    // ricava tutte le date valide di questa attività
-    const activityDates = getActivityDates(act)
-      .map(d => d.toISOString().split("T")[0]);
-    return activityDates.includes(isoDay);
+const activityMap = useMemo(() => {
+  const map = new Map();
+  filteredActivities.forEach((activity) => {
+    const dates = getActivityDates(activity).map((d) => formatDateOnly(d));
+    dates.forEach((dayStr) => {
+      const key = `${activity.risorsa_id}-${dayStr}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(activity);
+    });
   });
+  return map;
+}, [filteredActivities]);
+
+const getActivitiesForResourceAndDay = (resourceId, day) => {
+  const key = `${resourceId}-${formatDateOnly(day)}`;
+  return activityMap.get(key) || [];
 };
+
+
  // Restituisce il numero di settimana
   const getWeekNumber = (d) => {
     // Crea una copia della data in UTC
@@ -508,17 +484,13 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
     for (let i = 0; i < durata; i++) {
       const iso = formatDateOnly(cursor);
-      const day = cursor.getDay(); // 0 = domenica, 6 = sabato
-
-      // Aggiungi solo se il giorno è sabato o domenica e presente negli originali
+      const day = cursor.getDay();
       if ((day === 0 || day === 6) && originalIncluded.includes(iso)) {
         updatedIncludedWeekends.push(iso);
       }
-
       cursor.setDate(cursor.getDate() + 1);
     }
 
-    // Se la nuova data è sabato o domenica, e non è già dentro, aggiungila
     const newStartDay = newStart.getDay();
     if ((newStartDay === 0 || newStartDay === 6) && !updatedIncludedWeekends.includes(isoDate)) {
       updatedIncludedWeekends.push(isoDate);
@@ -532,12 +504,18 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       includedWeekends: updatedIncludedWeekends,
     };
 
+    // Salva lato server
     await apiClient.put(`/api/attivita_commessa/${activity.id}`, updatedActivity);
 
-    const updatedActivities = await fetchAttivitaCommessa();
-    setActivities(updatedActivities);
+    // 🔄 Aggiorna solo quell'attività nel frontend
+    setActivities(prev =>
+      prev.map((a) => a.id === activity.id ? { ...a, ...updatedActivity } : a)
+    );
+
+    toast.success("Attività aggiornata!");
   } catch (error) {
     console.error("Errore durante l'aggiornamento dell'attività:", error);
+    toast.error("Errore durante l'aggiornamento.");
   }
 };
 
@@ -737,6 +715,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
     try {
       const updatedActivities = await fetchAttivitaCommessa();
       setActivities(updatedActivities);
+      toast.success("Attività ricaricate con successo.");
     } catch (error) {
       console.error("Errore durante il ricaricamento delle attività:", error);
       toast.error("Errore durante il ricaricamento delle attività.");
@@ -747,6 +726,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
   // RENDER DEL COMPONENTE
   // ========================================================
   return (
+    
     <div className="page-wrapper">
               <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       <div className=" header">
@@ -944,7 +924,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
          <div className= "Reparto-table-container mh-80 ">
         <DndProvider backend={HTML5Backend}>
-        
+        {isDataReady ? (
               <table>
               <thead>
   <tr>
@@ -982,18 +962,18 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 </thead>
                 <tbody>
                   {/* Renderizza una riga per ogni risorsa */}
-                  {resources.map((resource) => (
-                    <tr key={resource.id}>
-                      <td>{resource.nome}</td>
+                  {risorse.map((risorse) => (
+                    <tr key={risorse.id}>
+                      <td>{risorse.nome}</td>
                       {daysInMonth.map((day) => {
                         const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                         return (
                           <ResourceCell
-                            key={`${resource.id}-${day.toISOString()}`}
-                            resourceId={resource.id}
+                            key={`${risorse.id}-${day.toISOString()}`}
+                            resourceId={risorse.id}
                             day={day}
                             isWeekend={isWeekend}
-                            activities={getActivitiesForResourceAndDay(resource.id, day)}
+                            activities={getActivitiesForResourceAndDay(risorse.id, day)}
                             onActivityDrop={handleActivityDrop}
                             onActivityClick={handleActivityClick}
                             viewMode={activityViewMode}
@@ -1035,6 +1015,9 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                   )}
                 </tbody>
               </table>
+              ) : (
+  <div className="loading-indicator">Caricamento dati...</div>
+)}
         </DndProvider>
 </div>
         {/* Popup per la creazione/modifica di un'attività */}
@@ -1049,7 +1032,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             setShowPopup={setShowPopup}
             commesse={commesse}
             reparti={reparti}
-            risorse={resources}
+            risorse={risorse}
             attivitaConReparto={attivitaConReparto}
             reloadActivities={handleReloadActivities}
           />

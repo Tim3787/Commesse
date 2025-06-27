@@ -11,39 +11,46 @@ import { usePersistedFilters } from "../assets/usePersistedFilters";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 
-// Import API
-import { fetchAttivita } from "../services/API/attivita-api";
-import { fetchReparti } from "../services/API/reparti-api";
-import { fetchRisorse } from "../services/API/risorse-api";
-import {
-  fetchAttivitaCommessa,
-  deleteAttivitaCommessa,
-} from "../services/API/attivitaCommesse-api";
-import { fetchCommesse } from "../services/API/commesse-api";
-
 // Import icone per il menu a burger
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
+
+import { useAppData } from "../context/AppDataContext";
+
+
 function VisualizzaTutteLeAttivita() {
+
+  /* ===============================
+     APP DATA
+  =============================== */
+  const { 
+  risorse, 
+  reparti, 
+  commesse, 
+  attivitaDefinite,
+  attivitaProgrammate,
+  attivitaConReparto,
+  refreshAttivitaProgrammate,
+  loading, 
+} = useAppData();
+
+
+
+
   /* ===============================
      STATO DEI DATI PRINCIPALI
   =============================== */
-  const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
-  const [attivitaDefinite, setAttivitaDefinite] = useState([]);
-  const [commesse, setCommesse] = useState([]);
-  const [risorse, setRisorse] = useState([]);
-  const [reparti, setReparti] = useState([]);
-  const [attivitaConReparto, setattivitaConReparto] = useState([]);
   const [showStateDropdown, setShowStateDropdown] = useState(false);
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const token = sessionStorage.getItem("token");
+
   /* ===============================
      STATO DEI FILTRI E DEI DATI FILTRATI
   =============================== */
   const [filteredRisorse, setFilteredRisorse] = useState([]);
-  const [filteredActivities, setFilteredActivities] = useState([]);
   const [attivitaFiltrate, setAttivitaFiltrate] = useState([]);
+  const [attivitaFiltroReparto, setAttivitaFiltroReparto] = useState([]);
 
   // Stato per i filtri persistenti
   const [filters, setFilters] = usePersistedFilters("savedFilters_AssegnaAttivita", {
@@ -60,7 +67,6 @@ function VisualizzaTutteLeAttivita() {
   /* ===============================
      STATO DEL FORM E DEL POPUP
   =============================== */
-  const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [formData, setFormData] = useState({
     commessa_id: "",
@@ -100,75 +106,29 @@ function VisualizzaTutteLeAttivita() {
   }, [filters, attivitaProgrammate]);
 
   // Carica i dati iniziali da API
+    useEffect(() => {
+    if (attivitaProgrammate.length > 0) {
+      setEditId(attivitaProgrammate[0].id);
+      setAttivitaFiltrate(attivitaProgrammate);
+    }
+  }, [attivitaProgrammate]);
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
+    applyFilters();
+  }, [filters, attivitaProgrammate]);
 
-        const [
-          commesseData,
-          risorseData,
-          repartiData,
-          attivitaDefiniteData,
-          attivitaProgrammateData,
-        ] = await Promise.all([
-          fetchCommesse(),
-          fetchRisorse(),
-          fetchReparti(),
-          fetchAttivita(),
-          fetchAttivitaCommessa(),
-        ]);
-
-        // Imposta i dati negli stati corrispondenti
-        setCommesse(commesseData);
-        setRisorse(risorseData);
-        setReparti(repartiData);
-        setAttivitaDefinite(attivitaDefiniteData);
-        setAttivitaProgrammate(attivitaProgrammateData);
-        setAttivitaFiltrate(attivitaProgrammateData);
-        setFilteredRisorse(risorseData);
-
-        // Trasforma le attività per includere "reparto_id"
-        const attivitaConReparto = attivitaDefiniteData.map((attivita) => ({
-          id: attivita.id,
-          nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
-          reparto_id: attivita.reparto_id,
-        }));
-        setattivitaConReparto(attivitaConReparto);
-
-        // Filtra le attività uniche (basandosi sul nome)
-setAttivitaDefinite(attivitaDefiniteData); // mantiene tutto, incluso reparto_id
-
-// Attività uniche per nome, ma mantiene anche reparto_id
-const uniqueActivitiesMap = new Map();
-attivitaDefiniteData.forEach((att) => {
-  const nome = att.nome_attivita || att.nome || "Nome sconosciuto";
-  if (!uniqueActivitiesMap.has(nome)) {
-    uniqueActivitiesMap.set(nome, {
-      nome,
-      reparto_id: att.reparto_id || null,
-    });
+  useEffect(() => {
+  if (!filters.reparto_id) {
+    setAttivitaFiltroReparto([]); // nessuna attività se non è selezionato il reparto
+  } else {
+    const id = parseInt(filters.reparto_id);
+    const filtrate = attivitaConReparto.filter((a) => a.reparto_id === id);
+    const uniche = Array.from(
+      new Map(filtrate.map((att) => [att.nome_attivita, att])).values()
+    );
+    setAttivitaFiltroReparto(uniche);
   }
-});
-const uniqueActivities = Array.from(uniqueActivitiesMap.values());
-setFilteredActivities(uniqueActivities);
-
-
-
-        // Imposta un ID di modifica iniziale se esistono attività programmate
-        if (attivitaProgrammateData.length > 0) {
-          setEditId(attivitaProgrammateData[0].id);
-        }
-      } catch (error) {
-        console.error("Errore durante il caricamento dei dati iniziali:", error);
-        toast.error("Errore nel caricamento dei dati.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+}, [filters.reparto_id, attivitaConReparto]);
 
   /* ===============================
      GESTIONE DEL FORM (MODIFICA/CREAZIONE)
@@ -200,140 +160,69 @@ setFilteredActivities(uniqueActivities);
      FILTRI E ORDINAMENTO DELLE ATTIVITÀ
   =============================== */
   // Applica i filtri alle attività programmate
+  
   const applyFilters = () => {
     let filtered = Array.isArray(attivitaProgrammate) ? [...attivitaProgrammate] : [];
-  
-    // Rimuove attività nulle o senza ID
     filtered = filtered.filter(att => att && att.id);
-  
+
     if (filters.reparto_id) {
-      const repartoNome = reparti.find(
-        (reparto) => reparto.id === parseInt(filters.reparto_id)
-      )?.nome;
-      if (repartoNome) {
-        filtered = filtered.filter((att) => att.reparto === repartoNome);
-      }
+      const repartoNome = reparti.find(r => r.id === parseInt(filters.reparto_id))?.nome;
+      if (repartoNome) filtered = filtered.filter(att => att.reparto === repartoNome);
     }
-  
+
     if (filters.commessa_id && filters.commessa_id.trim() !== "") {
       filtered = filtered.filter((att) => {
-        let numeroCommessa;
-        if (att.numero_commessa && typeof att.numero_commessa === "object") {
-          numeroCommessa = att.numero_commessa.numero_commessa;
-        } else {
-          numeroCommessa = att.numero_commessa;
-        }
-        return String(numeroCommessa).includes(String(filters.commessa_id));
+        let numero = typeof att.numero_commessa === "object" ? att.numero_commessa.numero_commessa : att.numero_commessa;
+        return String(numero).includes(String(filters.commessa_id));
       });
     }
-  
+
     if (filters.risorsa_id) {
-      filtered = filtered.filter(
-        (att) => att.risorsa_id === parseInt(filters.risorsa_id)
-      );
+      filtered = filtered.filter(att => att.risorsa_id === parseInt(filters.risorsa_id));
     }
-  
+
     if (filters.attivita_id.length > 0) {
-      filtered = filtered.filter((att) =>
-        filters.attivita_id.includes(att.nome_attivita)
-      );
+      filtered = filtered.filter(att => filters.attivita_id.includes(att.nome_attivita));
     }
-  
+
     if (filters.stati.length > 0) {
-      filtered = filtered.filter((att) =>
-        filters.stati.includes(String(att.stato))
-      );
+      filtered = filtered.filter(att => filters.stati.includes(String(att.stato)));
     }
-  
-    setAttivitaFiltrate(Array.isArray(filtered) ? filtered : []);
+
+    setAttivitaFiltrate(filtered);
   };
-  
+
+
   // Gestione dei cambiamenti nei filtri
 const handleFilterChange = (e) => {
   const { name, value, type, checked } = e.target;
 
   if (type === "checkbox" && name === "attivita_id") {
-    setFilters((prev) => ({
-      ...prev,
-      attivita_id: checked
-        ? [...prev.attivita_id, value]
-        : prev.attivita_id.filter((id) => id !== value),
-    }));
-  } else if (type === "checkbox" && name === "stati") {
-    setFilters((prev) => ({
-      ...prev,
-      stati: checked
-        ? [...prev.stati, value]
-        : prev.stati.filter((stato) => stato !== value),
-    }));
-  } else if (name === "reparto_id") {
-    const repartoId = parseInt(value, 10);
-
-    // Filtra le risorse
-    const risorseFiltrate = risorse.filter(
-      (risorsa) => risorsa.reparto_id === repartoId
-    );
-    setFilteredRisorse(risorseFiltrate);
-
-    // Filtra le attività uniche con nome per reparto
-    const attivitaFiltrate = attivitaDefinite.filter(
-      (attivita) =>
-        attivita.reparto_id === repartoId &&
-        (attivita.nome_attivita || attivita.nome)
-    );
-
-    const uniche = Array.from(
-      new Map(
-        attivitaFiltrate.map((att) => [
-          att.nome_attivita || att.nome,
-          { nome: att.nome_attivita || att.nome },
-        ])
-      ).values()
-    );
-    setFilteredActivities(uniche);
-
-    setFilters((prev) => ({
-      ...prev,
-      reparto_id: value,
-      risorsa_id: "",
-      attivita_id: [],
-    }));
-  } else if (name === "risorsa_id") {
-    const risorsa = risorse.find((r) => r.id === parseInt(value));
-    const repartoId = risorsa?.reparto_id;
-
-    // Se trovi il reparto della risorsa, filtra le attività per quel reparto
-    if (repartoId) {
-      const attivitaFiltrate = attivitaDefinite.filter(
-        (attivita) =>
-          attivita.reparto_id === repartoId &&
-          (attivita.nome_attivita || attivita.nome)
-      );
-
-      const uniche = Array.from(
-        new Map(
-          attivitaFiltrate.map((att) => [
-            att.nome_attivita || att.nome,
-            { nome: att.nome_attivita || att.nome },
-          ])
-        ).values()
-      );
-      setFilteredActivities(uniche);
+      setFilters((prev) => ({
+        ...prev,
+        attivita_id: checked ? [...prev.attivita_id, value] : prev.attivita_id.filter((id) => id !== value),
+      }));
+    } else if (type === "checkbox" && name === "stati") {
+      setFilters((prev) => ({
+        ...prev,
+        stati: checked ? [...prev.stati, value] : prev.stati.filter((stato) => stato !== value),
+      }));
+    } else if (name === "reparto_id") {
+      const repartoId = parseInt(value, 10);
+      const risorseFiltrate = risorse.filter(r => r.reparto_id === repartoId);
+      setFilteredRisorse(risorseFiltrate);
+      setFilters(prev => ({ ...prev, reparto_id: value, risorsa_id: "", attivita_id: [] }));
+    } else if (name === "risorsa_id") {
+      const risorsa = risorse.find((r) => r.id === parseInt(value));
+      const repartoId = risorsa?.reparto_id;
+      if (repartoId) {
+    
+      }
+      setFilters(prev => ({ ...prev, risorsa_id: value }));
     } else {
-      setFilteredActivities([]);
+      setFilters(prev => ({ ...prev, [name]: value }));
     }
-
-    setFilters((prev) => ({
-      ...prev,
-      risorsa_id: value,
-    }));
-  } else {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-};
+  };
 
 
   // Gestione dell'input per la ricerca della commessa
@@ -382,8 +271,7 @@ const handleFilterChange = (e) => {
         await deleteAttivitaCommessa(id, token, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Dopo la cancellazione, ricarica le attività
-        await handleReloadActivities();
+        await refreshAttivitaProgrammate();
       } catch (error) {
         console.error("Errore durante l'eliminazione dell'attività:", error);
         toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
@@ -392,16 +280,15 @@ const handleFilterChange = (e) => {
   };
 
   // Ricarica le attività programmate dalla API
-  const handleReloadActivities = async () => {
-    try {
-      const updatedActivities = await fetchAttivitaCommessa();
-      setAttivitaProgrammate(updatedActivities);
-      setAttivitaFiltrate(updatedActivities);
-    } catch (error) {
-      console.error("Errore durante il ricaricamento delle attività:", error);
-      toast.error("Errore durante il ricaricamento delle attività");
-    }
-  };
+const handleReloadActivities = async () => {
+  try {
+    await refreshAttivitaProgrammate(); // aggiorna dal contesto
+    toast.success("Attività ricaricate con successo");
+  } catch (error) {
+    console.error("Errore durante il ricaricamento delle attività:", error);
+    toast.error("Errore durante il ricaricamento delle attività");
+  }
+};
 
   // Chiude i suggerimenti se si clicca fuori dalla lista
   const closeSuggestions = (e) => {
@@ -465,8 +352,7 @@ if (
       {/* HEADER */}
       <div className=" header">
       <div className="flex-center header-row">
-        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-        <h1>TUTTE LE ATTIVITA'</h1>
+
       </div>
                    {/* Bottone per aprire/chiudere il menu */}
             <div className="burger-header" >
@@ -559,19 +445,18 @@ if (
                 </label>
                 {showActivityDropdown && (
                   <div className="dropdown-menu w-200" >
-                    {filteredActivities.map((attivita) => (
-                      
-                      <label key={attivita.nome}>
-                        <input
-                          type="checkbox"
-                          name="attivita_id"
-                          value={attivita.nome}
-                          checked={filters.attivita_id.includes(attivita.nome)}
-                          onChange={handleFilterChange}
-                        />
-                        {attivita.nome}
-                      </label>
-                    ))}
+                    {attivitaFiltroReparto.map((attivita) => (
+  <label key={attivita.nome_attivita}>
+    <input
+      type="checkbox"
+      name="attivita_id"
+      value={attivita.nome_attivita}
+      checked={filters.attivita_id.includes(attivita.nome_attivita)}
+      onChange={handleFilterChange}
+    />
+    {attivita.nome_attivita}
+  </label>
+))}
                   </div>
                 )}
               </div>
@@ -605,9 +490,10 @@ if (
       
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
-
+        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+        <h1>TUTTE LE ATTIVITA'</h1>
         {/* Tabella delle attività filtrate */}
-         <div className= "Reparto-table-container mh-80  ">
+         <div className= "Reparto-table-container mh-76  ">
           <table>
             <thead>
               <tr>

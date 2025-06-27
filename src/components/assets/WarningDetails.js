@@ -1,7 +1,7 @@
 import React from "react";
 
 
-const WarningDetails = ({ warningActivities, resources }) => {
+const WarningDetails = ({ warningActivities, resources, deleteNote }) => {
   if (warningActivities.length === 0) return null;
 
   return (
@@ -42,10 +42,15 @@ const WarningDetails = ({ warningActivities, resources }) => {
     <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
   </svg>
 </span>
-
+         <div className="flex-column-center">
+            <button className="btn btn--danger btn--pill  w-100" onClick={() => deleteNote(activity.id)}>
+             Elimina Nota
+            </button>
           </div>
+           </div>
         );
       })}
+      
     </div>
   );
 };

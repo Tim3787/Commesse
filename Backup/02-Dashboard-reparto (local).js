@@ -38,6 +38,7 @@ function DashboardReparto() {
   // ----------------------------
   // Stati del componente
   // ----------------------------
+
   const [activities, setActivities] = useState([]); // Tutte le attività caricate
   const [filteredActivities, setFilteredActivities] = useState([]); // Attività filtrate in base ai filtri
   const [resources, setResources] = useState([]); // Risorse appartenenti al reparto
@@ -534,8 +535,18 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
     await apiClient.put(`/api/attivita_commessa/${activity.id}`, updatedActivity);
 
-    const updatedActivities = await fetchAttivitaCommessa();
-    setActivities(updatedActivities);
+    setActivities((prev) =>
+  prev.map((a) =>
+    a.id === activity.id
+      ? {
+          ...a,
+          risorsa_id: newResourceId,
+          data_inizio: isoDate,
+          includedWeekends: updatedIncludedWeekends,
+        }
+      : a
+  )
+);
   } catch (error) {
     console.error("Errore durante l'aggiornamento dell'attività:", error);
   }
@@ -742,6 +753,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       toast.error("Errore durante il ricaricamento delle attività.");
     }
   };
+
 
   // ========================================================
   // RENDER DEL COMPONENTE
@@ -1051,7 +1063,29 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             reparti={reparti}
             risorse={resources}
             attivitaConReparto={attivitaConReparto}
-            reloadActivities={handleReloadActivities}
+            onSave={(result) => {
+  setActivities((prev) => {
+    const exists = prev.some((a) => a.id === result.id);
+    if (exists) {
+      // Se esiste, aggiorna
+      return prev.map((a) =>
+        a.id === result.id
+          ? {
+              ...a,
+              ...result,
+              nome_attivita: result.nome_attivita || a.nome_attivita,
+              nome_risorsa: result.nome_risorsa || a.nome_risorsa,
+              nome_reparto: result.nome_reparto || a.nome_reparto,
+            }
+          : a
+      );
+    } else {
+      // Se non esiste, aggiungi
+      return [...prev, result];
+    }
+  });
+}}
+
           />
         )}
       </div>

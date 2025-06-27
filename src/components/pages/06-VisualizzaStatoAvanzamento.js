@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
-import apiClient from "../config/axiosConfig";
 import GestioneStatiAvanzamento from "../assets/GestioneStatiAvanzamento";
 import logo from "../img/Animation - 1738249246846.gif";
 
 // Import per notifiche e tooltip
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer,toast } from "react-toastify";
 
 
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash,faChevronLeft, faChevronRight   } from "@fortawesome/free-solid-svg-icons";
 
+// Context
+import { useAppData  } from "../context/AppDataContext";
+
+// Import API
+import {  updateStatoAttualeReparto,  updateStatoCommessa,  updateStatoDate} from "../services/API/commesse-api"; 
+
 function StatiAvanzamento() {
-  const [commesse, setCommesse] = useState([]);
   const [currentCommessaId, setCurrentCommessaId] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); 
   const [clienteFilter, setClienteFilter] = useState(""); 
@@ -24,43 +28,22 @@ function StatiAvanzamento() {
   const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
   const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
-  const [statiCommessa, setStatiCommessa] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   // Stato per la visualizzazione del menu a burger (filtri e opzioni)
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
 
+
+  /* ===============================
+     APP DATA
+  =============================== */
+const {
+  commesse,
+  statiCommessa,
+  setCommesse,
+  loading, 
+} = useAppData();
+
   
-  useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const response = await apiClient.get("/api/commesse");
-      setCommesse(response.data);
-      if (response.data.length > 0) {
-        setCurrentCommessaId(response.data[0].commessa_id); 
-      }
-    } catch (error) {
-      console.error("Errore durante il recupero delle commesse:", error);
-      toast.error("Errore durante il recupero delle commesse:", error);
-    }
-  };
-
-  const fetchStatiCommessa = async () => {
-    try {
-      const response = await apiClient.get("/api/stato-commessa");
-      setStatiCommessa(response.data);
-    } catch (error) {
-      console.error("Errore durante il recupero degli stati della commessa:", error);
-      toast.error("Errore durante il recupero degli stati della commessa:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-  fetchStatiCommessa();
-}, []);
 
 
 useEffect(() => {
@@ -177,176 +160,143 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
   };
 
 
-  const handleStatoAttualeChange = async (commessaId, repartoId, newStatoId) => {
-    try {
-      const updatedCommesse = commesse.map((commessa) =>
+const handleStatoAttualeChange = async (commessaId, repartoId, newStatoId) => {
+  try {
+        await updateStatoAttualeReparto(commessaId, repartoId, newStatoId);
+
+    setCommesse(prev =>
+      prev.map(commessa =>
         commessa.commessa_id === commessaId
           ? {
               ...commessa,
-              stati_avanzamento: commessa.stati_avanzamento.map((reparto) =>
+              stati_avanzamento: commessa.stati_avanzamento.map(reparto =>
                 reparto.reparto_id === repartoId
                   ? {
                       ...reparto,
-                      stati_disponibili: reparto.stati_disponibili.map((stato) =>
-                        stato.stato_id === newStatoId
-                          ? { ...stato, isActive: true } 
-                          : { ...stato, isActive: false } 
-                      ),
+                      stati_disponibili: reparto.stati_disponibili.map(stato => ({
+                        ...stato,
+                        isActive: stato.stato_id === newStatoId
+                      }))
                     }
                   : reparto
-              ),
+              )
             }
           : commessa
-      );
-  
-      // Aggiorna lo stato locale
-      setCommesse(updatedCommesse);
-  
-      // Trova la commessa aggiornata
-      const commessa = updatedCommesse.find(c => c.commessa_id === commessaId);
-  
-      // Trova lo stato selezionato per determinare se isActive deve essere true o false
-      const statoSelezionato = commessa?.stati_avanzamento
-        .find(reparto => reparto.reparto_id === repartoId)
-        ?.stati_disponibili
-        .find(stato => stato.stato_id === newStatoId);
-  
-      // Calcola is_active in base allo stato selezionato
-      const isActive = statoSelezionato?.isActive === undefined ? false : statoSelezionato.isActive;
-  
-      // Chiamata PUT per aggiornare il backend
-      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
-        stato_id: newStatoId,
-        is_active: isActive, 
-      });
-  
-      //alert("Stato attuale aggiornato!");
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dello stato attuale:", error);
-      alert("Errore durante l'aggiornamento dello stato.");
-    }
-  };
+      )
+    );
+
+    toast.success("Stato reparto aggiornato!");
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento dello stato attuale:", error);
+    alert("Errore durante l'aggiornamento dello stato.");
+  }
+};
+
+
   
  
 
-  
-  const testNavigation = () => {
-    setCurrentCommessaId(commesse[1].commessa_id); 
-    handleNavigation("next"); 
-  };
-  
-  <button onClick={testNavigation}>Test Navigazione</button>
-
-
   // Funzione per rimuovere una data
-  const handleRemoveDate = async (commessaId, repartoId, statoId, field) => {
-    if (!commessaId) {
-      console.error("Errore: commessaId non definito.");
-      return; // Esci se l'ID della commessa è undefined
-    }
+const handleRemoveDate = async (commessaId, repartoId, statoId, field) => {
+  if (!commessaId) return;
 
-    try {
-      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
-        stato_id: statoId,
-        [field]: null, 
-      });
+  try {
+    await updateStatoDate(commessaId, repartoId, statoId, field, null);
 
-      setCommesse((prevCommesse) =>
-        prevCommesse.map((commessa) =>
-          commessa.commessa_id === commessaId
-            ? {
-                ...commessa,
-                stati_avanzamento: commessa.stati_avanzamento.map((reparto) =>
-                  reparto.reparto_id === repartoId
-                    ? {
-                        ...reparto,
-                        stati_disponibili: reparto.stati_disponibili.map((stato) =>
-                          stato.stato_id === statoId
-                            ? { ...stato, [field]: null } 
-                            : stato
-                        ),
-                      }
-                    : reparto
-                ),
-              }
-            : commessa
-        )
-      );
 
-      //alert("Data rimossa con successo!");
-    } catch (error) {
-      console.error("Errore durante la rimozione della data:", error);
-      alert("Errore durante la rimozione della data.");
-    }
-  };
+    setCommesse(prev =>
+      prev.map(commessa =>
+        commessa.commessa_id === commessaId
+          ? {
+              ...commessa,
+              stati_avanzamento: commessa.stati_avanzamento.map(reparto =>
+                reparto.reparto_id === repartoId
+                  ? {
+                      ...reparto,
+                      stati_disponibili: reparto.stati_disponibili.map(stato =>
+                        stato.stato_id === statoId
+                          ? { ...stato, [field]: null }
+                          : stato
+                      )
+                    }
+                  : reparto
+              )
+            }
+          : commessa
+      )
+    );
+  } catch (error) {
+    console.error("Errore durante la rimozione della data:", error);
+    alert("Errore durante la rimozione della data.");
+  }
+};
+
 
   // Funzione per aggiornare una data
-  const handleUpdateDate = async (commessaId, repartoId, statoId, field, newValue) => {
-    if (!commessaId) {
-      console.error("Errore: commessaId non definito.");
-      return; 
+const handleUpdateDate = async (commessaId, repartoId, statoId, field, newValue) => {
+  if (!commessaId) return;
+
+  try {
+    const formattedDate = new Date(newValue).toISOString();
+    await updateStatoDate(commessaId, repartoId, statoId, field, formattedDate);
+
+    setCommesse(prev =>
+      prev.map(commessa =>
+        commessa.commessa_id === commessaId
+          ? {
+              ...commessa,
+              stati_avanzamento: commessa.stati_avanzamento.map(reparto =>
+                reparto.reparto_id === repartoId
+                  ? {
+                      ...reparto,
+                      stati_disponibili: reparto.stati_disponibili.map(stato =>
+                        stato.stato_id === statoId
+                          ? { ...stato, [field]: formattedDate }
+                          : stato
+                      )
+                    }
+                  : reparto
+              )
+            }
+          : commessa
+      )
+    );
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento della data:", error);
+    alert("Errore durante l'aggiornamento della data.");
+  }
+};
+
+
+
+const handleStatoChange = async (commessaId, newStato) => {
+  try {
+     await updateStatoCommessa(commessaId, newStato);
+
+    setCommesse((prev) =>
+  prev.map((c) =>
+    c.commessa_id === commessaId
+      ? { ...c, stato: newStato } // Aggiorna solo il campo stato della commessa
+      : c
+  )
+);
+
+    // 🔄 Forza l'aggiornamento della currentCommessa
+    if (currentCommessaId === commessaId) {
+      const aggiornata = commesse.find((c) => c.commessa_id === commessaId);
+      if (aggiornata) {
+        setCurrentCommessaId(null); // reset temporaneo
+        setTimeout(() => setCurrentCommessaId(aggiornata.commessa_id), 0); // forzatura
+      }
     }
 
-    try {
-      const formattedDate = new Date(newValue).toISOString();
-      await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
-        stato_id: statoId,
-        [field]: formattedDate,
-      });
+    toast.success("Stato attuale aggiornato!");
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento dello stato della commessa:", error);
+    alert("Errore durante l'aggiornamento dello stato.");
+  }
+};
 
-      setCommesse((prevCommesse) =>
-        prevCommesse.map((commessa) =>
-          commessa.commessa_id === commessaId
-            ? {
-                ...commessa,
-                stati_avanzamento: commessa.stati_avanzamento.map((reparto) =>
-                  reparto.reparto_id === repartoId
-                    ? {
-                        ...reparto,
-                        stati_disponibili: reparto.stati_disponibili.map((stato) =>
-                          stato.stato_id === statoId
-                            ? { ...stato, [field]: formattedDate }
-                            : stato
-                        ),
-                      }
-                    : reparto
-                ),
-              }
-            : commessa
-        )
-      );
-
-      //alert("Data aggiornata con successo!");
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento della data:", error);
-      alert("Errore durante l'aggiornamento della data.");
-    }
-  };
-
-
-
-  const handleStatoChange = async (commessaId, newStato) => {
-    try {
-      // Invio dell'ID dello stato al backend
-      await apiClient.put(`/api/commesse/${commessaId}/stato`, {
-        stato_commessa: newStato,  
-      });
-  
-      // Aggiornamento dello stato locale
-      setCommesse((prevCommesse) =>
-        prevCommesse.map((commessa) =>
-          commessa.commessa_id === commessaId
-            ? { ...commessa, stato_commessa: newStato }  
-            : commessa
-        )
-      );
-      
-      //alert("Stato aggiornato con successo!");
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dello stato della commessa:", error);
-      alert("Errore durante l'aggiornamento dello stato.");
-    }
-  };
   // Toggle per il menu a burger
   const toggleBurgerMenu = () => {
     setIsBurgerMenuOpen((prev) => !prev);
@@ -361,8 +311,7 @@ if (filtered.length > 0 && !filtered.some(commessa => commessa.commessa_id === c
     }
   };
 
-console.log("Commessa:", currentCommessaId );
-console.log("Commessa:", currentCommessa );
+
   // ========================================================
   // RENDER DEL COMPONENTE
   // ========================================================

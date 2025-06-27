@@ -54,3 +54,39 @@ export const CommesseByTag = async (tag) => {
     throw error;
   }
 };
+
+export const updateStatoAttualeReparto = async (commessaId, repartoId, statoId, isActive) => {
+  try {
+    await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      stato_id: statoId,
+      is_active: isActive,
+    });
+  } catch (error) {
+    console.error("Errore aggiornando lo stato attuale del reparto:", error);
+    throw error;
+  }
+};
+
+export const updateStatoCommessa = async (commessaId, statoId) => {
+  try {
+    await apiClient.put(`/api/commesse/${commessaId}/stato`, {
+      stato_commessa: statoId,
+    });
+  } catch (error) {
+    console.error("Errore aggiornando lo stato della commessa:", error);
+    throw error;
+  }
+};
+
+export const updateStatoDate = async (commessaId, repartoId, statoId, field, value) => {
+  try {
+    await apiClient.put(`/api/commesse/${commessaId}/reparti/${repartoId}/stato`, {
+      stato_id: statoId,
+      [field]: value,
+    });
+  } catch (error) {
+    console.error("Errore aggiornando la data:", error);
+    throw error;
+  }
+};
+

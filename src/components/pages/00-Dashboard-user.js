@@ -41,7 +41,7 @@ function Dashboard() {
   const [schedeAperte, setSchedeAperte] = useState({});
   const [popupScheda, setPopupScheda] = useState(null);
   const [schedaInModifica, setSchedaInModifica] = useState(null);
-const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
+  const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
 
 
   // ------------------------------------------------------------------

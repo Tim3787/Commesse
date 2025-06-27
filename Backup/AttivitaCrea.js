@@ -81,21 +81,20 @@ function AttivitaCrea({
 
   // Debounce della ricerca delle commesse
   useEffect(() => {
-  const timer = setTimeout(() => {
-    // evita suggerimenti se già selezionata la commessa
-    if (commessaSearch.trim() && !formData.commessa_id) {
-      const filteredCommesse = commesse.filter((commessa) =>
-        String(commessa.numero_commessa || "")
-          .toLowerCase()
-          .includes(commessaSearch.toLowerCase())
-      );
-      setSuggestedCommesse(filteredCommesse);
-    } else {
-      setSuggestedCommesse([]);
-    }
-  }, 300);
-  return () => clearTimeout(timer);
-}, [commessaSearch, commesse, formData.commessa_id]);
+    const timer = setTimeout(() => {
+      if (commessaSearch.trim()) {
+        const filteredCommesse = commesse.filter((commessa) =>
+          String(commessa.numero_commessa || "")
+            .toLowerCase()
+            .includes(commessaSearch.toLowerCase())
+        );
+        setSuggestedCommesse(filteredCommesse);
+      } else {
+        setSuggestedCommesse([]);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [commessaSearch, commesse]);
 
   // Chiude i suggerimenti quando si clicca fuori
   useEffect(() => {
@@ -115,7 +114,6 @@ function AttivitaCrea({
       );
       if (commessa) {
         setCommessaSearch(commessa.numero_commessa);
-        setSuggestedCommesse([]);
       }
     }
   }, [isEditing, formData.commessa_id, commesse]);
@@ -188,20 +186,11 @@ function AttivitaCrea({
   type="text"
   name="commessa_id"
   value={commessaSearch || ""}
-  onFocus={() => {
-  if (commessaSearch.length >= 2 && !formData.commessa_id) {
-    const filtered = commesse.filter((c) =>
-      String(c.numero_commessa).toLowerCase().includes(commessaSearch.toLowerCase())
-    );
-    setSuggestedCommesse(filtered);
-  }
-}}
-
   onChange={(e) => {
     const inputValue = e.target.value;
     setCommessaSearch(inputValue);
 
-    // Trova la commessa esatta
+    // Trova la commessa corrispondente
     const match = commesse.find(
       (c) => String(c.numero_commessa).toLowerCase() === inputValue.toLowerCase()
     );
@@ -209,30 +198,19 @@ function AttivitaCrea({
     if (match) {
       setFormData((prev) => ({
         ...prev,
-        commessa_id: match.commessa_id || match.id,
+        commessa_id: match.commessa_id || match.id, // dipende da come è salvato
       }));
-      setSuggestedCommesse([]); // ✅ chiude suggerimenti se match esatto
     } else {
+      // Se non trova nulla, svuota commessa_id
       setFormData((prev) => ({
         ...prev,
         commessa_id: "",
       }));
-
-      // ✅ mostra suggerimenti solo se input >= 2 caratteri
-      if (inputValue.length >= 2) {
-        const filtered = commesse.filter((c) =>
-          String(c.numero_commessa).toLowerCase().includes(inputValue.toLowerCase())
-        );
-        setSuggestedCommesse(filtered);
-      } else {
-        setSuggestedCommesse([]);
-      }
     }
   }}
   placeholder="Cerca per numero commessa"
   className="w-400"
 />
-
 
             {suggestedCommesse.length > 0 && (
               <ul className="suggestions-list w-400" ref={suggestionsRef}>
@@ -376,15 +354,7 @@ function AttivitaCrea({
           <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
             {isEditing ? "Aggiorna" : "Aggiungi"}
           </button>
-          <button
-  type="button"
-  className="btn w-400 btn--danger btn--pill"
-  onClick={() => {
-    setShowPopup(false);
-    setCommessaSearch(""); // pulisci la ricerca
-    setSuggestedCommesse([]); // chiudi suggerimenti
-  }}
->
+          <button type="button" className="btn w-400 btn--danger btn--pill" onClick={() => setShowPopup(false)}>
             Annulla
           </button>
           </div>
