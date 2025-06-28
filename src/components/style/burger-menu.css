@@ -12,6 +12,18 @@
   z-index: 1000;
 }
 
+.burger-menu-XL {
+   position: fixed; 
+  left: 0;
+  width: fit-content;
+  width: 380px;
+  padding: 10px;
+  overflow-y: auto;
+  height: calc(100vh - 200px);
+  background-color: var(--bg-dark);
+  z-index: 1000;
+}
+
 .burger-header{
 padding-top: 10px;
 padding-bottom: 10px;
@@ -45,6 +57,9 @@ Responsive Design
 ============================== */
 @media (max-width: 768px) {
 .burger-menu {
-  width: 200px;
+  width: 220px;
+}
+.burger-menu-XL {
+  width: 320px;
 }
 }

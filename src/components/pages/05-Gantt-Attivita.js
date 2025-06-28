@@ -31,8 +31,8 @@ const [suggestions, setSuggestions] = useState([]);       // Tutte le commesse
 const [showSuggestions, setShowSuggestions] = useState(false);  // Mostra/nascondi la lista
   const suggestionsRef = useRef(null);                              // Ref per il box dei suggerimenti
   const todayRef = useRef(null);                                    // Ref per la cella del giorno corrente (usata per lo scroll)
-  const hasScrolledToToday = useRef(false);                         // Flag per evitare scroll multipli
-
+ const containerRef = useRef(null); // Riferimento al contenitore della tabella
+ 
   // Array statico dei reparti
   const reparti = [
     { id: 1, name: "Reparto Software" },
@@ -111,6 +111,61 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
   };
 
   
+      // ------------------------------------------------------------------
+      // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
+      // ------------------------------------------------------------------
+    // Scrolla alla colonna corrispondente ad oggi
+  const scrollToToday = () => {
+    const today = new Date();
+    const sameMonth = currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
+    const doScroll = () => {
+      if (todayRef.current && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const todayRect = todayRef.current.getBoundingClientRect();
+        const offsetLeft = todayRect.left - containerRect.left;
+        containerRef.current.scrollTo({
+          left: offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2,
+          behavior: "smooth",
+        });
+      }
+    };
+   if (!sameMonth) {
+  setCurrentMonth(today);
+  setTimeout(() => {
+    requestAnimationFrame(doScroll);
+  }, 300); // più tempo per il rendering
+} else {
+  requestAnimationFrame(doScroll);
+}
+  };
+
+    
+    
+
+  // Naviga al mese precedente
+  const goToPreviousMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  // Naviga al mese successivo
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+
+ // Restituisce il numero di settimana
+  const getWeekNumber = (d) => {
+    // Crea una copia della data in UTC
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Sposta la data al giovedì della settimana corrente (necessario per il calcolo ISO)
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    // Calcola il primo giorno dell'anno in UTC
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    // Calcola il numero di settimane (differenza in giorni diviso per 7)
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  };
+  
+  
   // ------------------------------------------------------------------
   // Effetti
   // ------------------------------------------------------------------
@@ -145,17 +200,7 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     }
   }, [daysInMonth]);
 
-  // Effetto: Esegue uno scroll extra (una sola volta) al giorno corrente al montaggio
-  useEffect(() => {
-    if (!hasScrolledToToday.current && todayRef.current) {
-      todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      const handleScrollEnd = () => {
-        hasScrolledToToday.current = true;
-        window.removeEventListener("scroll", handleScrollEnd);
-      };
-      window.addEventListener("scroll", handleScrollEnd);
-    }
-  }, []);
+
 
   // Effetto: Chiude il box dei suggerimenti se si clicca fuori dal contenitore
 useEffect(() => {
@@ -222,18 +267,6 @@ useEffect(() => {
     }
   };
 
-  // Navigazione tra i mesi
-  const goToPreviousMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-    );
-  };
-
-  const goToNextMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-    );
-  };
 
   // ------------------------------------------------------------------
   // Funzioni per Filtrare le Attività per Reparto e Giorno
@@ -269,22 +302,43 @@ useEffect(() => {
    * Renderizza la tabella del calendario con intestazioni e righe per ciascun reparto.
    */
   const renderCalendar = () => (
-    <table className="Gen-schedule">
-      <thead>
-        <tr>
-          <th>Reparto</th>
-          <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-          {daysInMonth.map((day, index) => {
-            const isToday = day.toDateString() === new Date().toDateString();
-            const dayClass = isToday ? "Gen-today-date" : "";
-            return (
-              <th key={index} ref={isToday ? todayRef : null} className={dayClass}>
-                {day.toLocaleDateString()}
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
+
+         <div className= "Reparto-table-container mh-72  ">
+          <table>
+     <thead>
+  <tr>
+    <th>Risorsa</th>
+    {daysInMonth.map((day, index) => {
+      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+      const isToday = day.toDateString() === new Date().toDateString();
+      const weekNumber = getWeekNumber(day);
+      // Mostra il numero settimana se è il primo elemento oppure se cambia rispetto al giorno precedente
+      let showWeekNumber = false;
+      if (index === 0) {
+        showWeekNumber = true;
+      } else {
+        const prevWeekNumber = getWeekNumber(daysInMonth[index - 1]);
+        if (weekNumber !== prevWeekNumber) {
+          showWeekNumber = true;
+        }
+      }
+      return (
+        <th
+          key={day.toISOString()}
+          className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+          ref={isToday ? todayRef : null}
+        >
+          <div>{day.toLocaleDateString()}</div>
+          {showWeekNumber && (
+            <div className="week-number">
+              Settimana {weekNumber}
+            </div>
+          )}
+        </th>
+      );
+    })}
+  </tr>
+</thead>
       <tbody>
         {reparti.map((reparto) => (
           <tr key={reparto.id}>
@@ -315,6 +369,7 @@ useEffect(() => {
         ))}
       </tbody>
     </table>
+     </div>
   );
 
   // ------------------------------------------------------------------
@@ -330,15 +385,22 @@ useEffect(() => {
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
+                    <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
+            OGGI
+          </button>
          <div className="header-row-month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
-
         </div>
           </div>
-           <div className="mh-80">
-              <div className="flex-column-center">
+           <div>
+            <div className="row center"
+                      style={{marginLeft:"10px"}}
+          >
+          <div className="flex-column-center"
+          style={{marginRight:"10px"}}
+          >
           <h1>SCEGLI UNA COMMESSA</h1>
           <div className="suggestion-wrapper w-200 ">
              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
@@ -371,6 +433,10 @@ useEffect(() => {
 )}
 </div>
 </div>
+</div>
+<div className="flex-column-center"
+          style={{marginLeft:"10px"}}
+          >
    <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA'</h1>
           {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
@@ -378,7 +444,8 @@ useEffect(() => {
     Visualizza tutto
   </button>
 </div>
-
+</div>
+</div>
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
@@ -389,9 +456,10 @@ useEffect(() => {
 
 
 
-        <div className="container">{renderCalendar()}</div>
+        <div className="container" ref={containerRef}>{renderCalendar()}
+          
+        </div>
       </div>
- </div>
   );
 }
 

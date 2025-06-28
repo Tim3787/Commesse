@@ -10,8 +10,16 @@
    background-image: linear-gradient(135deg, #020536, #032c61,  #020536);
 }
 
+
+
 .Avanzamento-table-container {
  max-height: 80vh; 
+}
+
+
+.dropzone-placeholder{
+  min-height: 100vh;
+  min-width: 100%;
 }
 
   .warning-note{
@@ -91,7 +99,7 @@
 
 .warning-card {
   padding: 10px;
-  background-color: #010a11;
+  background-color: #020536;
   border: 1px solid #e60000;
   border-radius: 6px;
   margin-bottom: 10px;
@@ -110,7 +118,7 @@
 
 .unfinished-card {
   padding: 10px;
-  background-color: #010a11;
+  background-color: #020536;
   border: 1px solid #ffcc00;
   border-radius: 6px;
   margin-bottom: 10px;

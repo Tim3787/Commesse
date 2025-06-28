@@ -356,7 +356,7 @@ useEffect(() => {
       </div>
             {popupScheda && (
   <SchedaTecnica
-    editable={false}
+    editable={true}
     commessaId={popupScheda.commessaId}
     numero_commessa={popupScheda.numero_commessa}
     schedaInModifica={popupScheda.schedaInModifica}

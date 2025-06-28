@@ -28,17 +28,31 @@ function CalendarioAttivita() {
   const [activities, setActivities] = useState([]);               // Elenco delle attività (prenotazioni) caricate
   const [resources, setResources] = useState([]);                 // Elenco delle risorse (utenti)
   const [loading, setLoading] = useState(false);                  // Stato di caricamento generale
+  const [repartoSelezionato, setRepartoSelezionato] = useState(1); 
+  const containerRef = useRef(null);
+const [visibleSections, setVisibleSections] = useState({
+  1: true,
+  2: false,
+  3: false,
+  13: false,
+  14: false,
+  15: false,
+  16: false,
+  18: false,
+});
+
+
   // Stato per controllare la visibilità delle sezioni per ogni reparto  
-  const [visibleSections, setVisibleSections] = useState({
-    1: false,  // Reparto Software
-    2: false,  // Reparto Elettrico
-    3: false,  // Reparto Meccanico
-    13: false, // Reparto Commerciale
-    14: false, // Reparto Tecnico elettrico
-    15: false, // Reparto Quadri
-    16: false, // Reparto Tecncio meccanico
-    18: false, // Reparto Service
-  });
+const repartiDisponibili = [
+  { id: 1, nome: "Reparto Software" },
+  { id: 2, nome: "Reparto Elettrico" },
+  { id: 3, nome: "Reparto Meccanico" },
+  { id: 13, nome: "Reparto Commerciale" },
+  { id: 14, nome: "Reparto Tecnico elettrico" },
+  { id: 15, nome: "Reparto Quadri" },
+  { id: 16, nome: "Reparto Tecnico meccanico" },
+  { id: 18, nome: "Reparto Service" },
+];
   // Ref per la colonna corrispondente al giorno di oggi (per scroll automatico)
   const todayRef = useRef(null);
   // Calcola tutti i giorni del mese corrente utilizzando la funzione helper getDaysInMonth
@@ -126,26 +140,6 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     fetchData();
   }, [currentMonth]);
 
-  // ------------------------------------------------------------------
-  // Effetto: Scrolla automaticamente alla colonna corrispondente ad oggi
-  // ------------------------------------------------------------------
-  useEffect(() => {
-    if (todayRef.current) {
-      // Seleziona il contenitore della tabella
-      const parentContainer = document.querySelector(".Gen-table-container");
-      if (parentContainer) {
-        // Calcola la posizione della colonna oggi
-        const todayPosition = todayRef.current.offsetLeft;
-        const parentWidth = parentContainer.clientWidth;
-        const columnWidth = todayRef.current.offsetWidth;
-        const scrollPosition = todayPosition - parentWidth / 2 + columnWidth / 2;
-        parentContainer.scrollTo({
-          left: scrollPosition,
-          behavior: "smooth",
-        });
-      }
-    }
-  }, [daysInMonth]);
 
   // ------------------------------------------------------------------
   // Funzioni di Navigazione tra Mesi
@@ -162,98 +156,91 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     );
   };
 
-  // ------------------------------------------------------------------
-  // Funzioni Helper per Gestire le Date e le Attività
-  // ------------------------------------------------------------------
-  /**
-
-   * Restituisce le attività per una data specifica e per una determinata risorsa.
-   * Confronta la data normalizzata dell'attività (inizio e fine) con il giorno corrente.
-   */
-  /**
- * Filtra le attività per una determinata risorsa e per un giorno specifico,
- * spostando indietro l'intervallo di un giorno.
- *
- * In altre parole, viene sottratto un giorno (86400000 ms) sia al giorno da confrontare
- * che alla data di inizio dell'attività, per correggere eventuali problemi di offset.
- *
- * @param {number} resourceId - L'ID della risorsa da filtrare.
- * @param {Date} day - Il giorno (Date object) per il quale cercare le attività.
- * @returns {Array} Un array di attività che soddisfano i criteri.
- */
-
-  // ------------------------------------------------------------------
-  // Gestione della Visibilità delle Sezioni per Reparto
-  // ------------------------------------------------------------------
-  /**
-   * Alterna la visibilità della sezione per un reparto specifico.
-   */
-  const toggleSectionVisibility = (repartoId) => {
-    setVisibleSections((prev) => ({
-      ...prev,
-      [repartoId]: !prev[repartoId],
-    }));
+  
+    // ------------------------------------------------------------------
+    // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
+    // ------------------------------------------------------------------
+  // Scrolla alla colonna corrispondente ad oggi
+  const scrollToToday = () => {
+    const today = new Date();
+    const sameMonth = currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
+    const doScroll = () => {
+      if (todayRef.current && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const todayRect = todayRef.current.getBoundingClientRect();
+        const offsetLeft = todayRect.left - containerRect.left;
+        containerRef.current.scrollTo({
+          left: offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2,
+          behavior: "smooth",
+        });
+      }
+    };
+   if (!sameMonth) {
+  setCurrentMonth(today);
+  setTimeout(() => {
+    requestAnimationFrame(doScroll);
+  }, 300); // più tempo per il rendering
+} else {
+  requestAnimationFrame(doScroll);
+}
   };
+
+  
+const handleRepartoChange = (id) => {
+  setRepartoSelezionato(id);
+  setVisibleSections({
+    ...Object.keys(visibleSections).reduce((acc, key) => {
+      acc[key] = false;
+      return acc;
+    }, {}),
+    [id]: true, // attiva solo il selezionato
+  });
+};
 
   /**
    * Renderizza la sezione di un reparto.
    * Mostra un'intestazione con un pulsante per espandere/contrarre e, se visibile,
    * una tabella con le attività per ogni risorsa del reparto.
    */
-  const renderRepartoSection = (repartoId, repartoName) => {
+  const renderRepartoSection = (repartoId) => {
     const isVisible = visibleSections[repartoId];
     const repartoResources = resources.filter(
       (resource) => Number(resource.reparto_id) === repartoId
     );
     return (
       <React.Fragment key={repartoId}>
-        <thead>
-          <tr>
-            <th colSpan={daysInMonth.length + 1}>
-              <button
-                className="btn w-200 btn--shiny btn--pill"
-                onClick={() => toggleSectionVisibility(repartoId)}
+          <div
+    className="Reparto-table-container mh-72"
+    ref={containerRef}
+    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
+  >
+            <table > 
+      <thead>
+        <tr>
+          <th>Risorsa</th>
+          {daysInMonth.map((day, index) => {
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+            const isToday = day.toDateString() === new Date().toDateString();
+            const weekNumber = getWeekNumber(day);
+            const showWeekNumber =
+              index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
+
+            return (
+              <th
+                key={day.toISOString()}
+                className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+                ref={isToday ? todayRef : null}
               >
-                {isVisible ? "▼" : "▶"} {repartoName}
-              </button>
-            </th>
-          </tr>
-          {isVisible && (
-            <tr>
-              {daysInMonth.map((day, index) => {
-                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                const isToday = day.toDateString() === new Date().toDateString();
-                const dateClass = isToday
-                  ? "Gen-today-date"
-                  : isWeekend
-                  ? "Gen-weekend-date"
-                  : "";
-                  const weekNumber = getWeekNumber(day);
-      // Mostra il numero settimana se è il primo elemento oppure se cambia rispetto al giorno precedente
-      let showWeekNumber = false;
-      if (index === 0) {
-        showWeekNumber = true;
-      } else {
-        const prevWeekNumber = getWeekNumber(daysInMonth[index - 1]);
-        if (weekNumber !== prevWeekNumber) {
-          showWeekNumber = true;
-        }
-      }
-                return (
-                  <th key={index} ref={isToday ? todayRef : null}>
-                    <span className={dateClass}>{day.toLocaleDateString()}</span>
-                    
-          {showWeekNumber && (
-            <div className="week-number">
-              Settimana {weekNumber}
-            </div>
-          )}
-                  </th>
-                );
-              })}
-            </tr>
-          )}
-        </thead>
+                <div>{day.toLocaleDateString()}</div>
+                {showWeekNumber && (
+                  <div className="week-number">Settimana {weekNumber}</div>
+                )}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+
         {isVisible && (
           <tbody>
             {repartoResources.map((resource) => (
@@ -274,7 +261,10 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
               </tr>
             ))}
           </tbody>
+          
         )}
+                </table>
+        </div>
       </React.Fragment>
     );
   };
@@ -298,7 +288,9 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
             ?.toLowerCase()
             .includes("trasferta");
           return (
-            <div key={activity.id} className={`activity ${activityClass}`}>
+            <div key={activity.id} className={`activity ${activityClass}`}
+            style={{minWidth:"150px",minHeight:"70px", fontSize:"14px"}}
+            >
               <strong>Commessa:</strong> {activity.numero_commessa}
               <br />
               <strong>Attività:</strong> {activity.nome_attivita}
@@ -332,6 +324,9 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
+                    <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
+            OGGI
+          </button>
          <div className="header-row-month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
            <FontAwesomeIcon icon={faChevronRight} />
@@ -346,16 +341,33 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
       </div>
       
         {/* Tabella con il calendario e le sezioni per ciascun reparto */}
-        <div className="container">
-          <table className="Calendario-table">
-            {renderRepartoSection(1, "Reparto Software")}
-            {renderRepartoSection(2, "Reparto Elettrico")}
-            {renderRepartoSection(15, "Reparto Quadri")}
-            {renderRepartoSection(18, "Reparto Service")}
-            {renderRepartoSection(3, "Reparto Meccanico")}
-            {renderRepartoSection(14, "Reparto Tecnico elettrico")}
-            {renderRepartoSection(16, "Reparto Tecncio meccanico")}
-          </table>
+<div className="container">
+  {/* 🔽 Selezione reparto fuori dalla tabella */}
+  <div
+  style={{marginLeft:"10px"}}
+  >
+    <select
+      id="reparto-select"
+      value={repartoSelezionato}
+      onChange={(e) => handleRepartoChange(Number(e.target.value))}
+      className="w-200"
+    >
+      {repartiDisponibili.map((rep) => (
+        <option key={rep.id} value={rep.id}>
+          {rep.nome}
+        </option>
+      ))}
+    </select>
+  </div>
+
+{Object.entries(visibleSections).map(([id, visible]) =>
+  visible
+    ? renderRepartoSection(
+        Number(id),
+        repartiDisponibili.find((r) => r.id === Number(id))?.nome || ""
+      )
+    : null
+)}
         </div>
       </div>
   );

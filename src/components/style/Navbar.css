@@ -96,6 +96,10 @@ margin-top: 15px;
   margin-bottom: 10px;
   border-radius: 4px;
 }
+.notification-item p {
+  word-break: break-word;
+  white-space: pre-wrap; /* se vuoi preservare eventuali \n */
+}
 
 .notification-item.unread {
 

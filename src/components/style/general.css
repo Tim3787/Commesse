@@ -40,6 +40,9 @@ HEIGHT UTILITIES
 .mh-76 {
  max-height: 76vh; 
 }
+.mh-72 {
+ max-height: 72vh; 
+}
 
 .mh-80 {
  max-height: 80vh; 
@@ -129,7 +132,10 @@ margin-bottom: 5px;
 }
 
 
+.trasferta-icon{
 
+font-size: 20px;
+}
   /* ==============================
 header
 ============================== */
@@ -360,8 +366,15 @@ Table
   transition: transform 0.2s;
   cursor: pointer;
 }
+    /* ==============================
+     EFFETTI
+     ============================== */
+ .highlight {
+    background-color: var(--main-color);
+    transition: background-color 0.5s;
+  }
 
-
+    
 /* ==============================
 Responsive Design
 ============================== */
@@ -379,8 +392,13 @@ Responsive Design
 h2 {
   font-size: 15px;
 }
-.w-200 { width: 150px}
+.w-100 { width: 70px}
+
+.w-200 { width: 100px}
+
+.w-400 { width: 200px}
   
+
 .flex-column-center {
   margin-bottom: 3px;
    gap: 3px; 

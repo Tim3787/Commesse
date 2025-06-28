@@ -18,6 +18,7 @@ import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { useAppData } from "../context/AppDataContext";
 
+import { deleteAttivitaCommessa } from "../services/API/attivitaCommesse-api";
 
 function VisualizzaTutteLeAttivita() {
 

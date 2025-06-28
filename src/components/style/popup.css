@@ -20,7 +20,7 @@
 .popup-content {
   padding: 20px;
   border-radius: 10px;
-  width: 60%;
+  width: 80%;
   max-width: 500px;
   max-height: 80%;
   color:   var(--text-light);

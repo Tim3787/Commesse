@@ -9,14 +9,29 @@ import {
   fetchCategorie
 } from"../services/API/notifiche-api";
 
+// Import icone FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifications, setUnreadNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 const [categoriaFiltro, setCategoriaFiltro] = useState("tutte");
-const [showPreferences, setShowPreferences] = useState(false);
 const [categorieDisponibili, setCategorieDisponibili] = useState([]);
+
+
+  // Stato per il menu a burger (filtri e opzioni)
+  const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
+
+  // ----------------------------
+  // Funzione per aprire/chiudere il menu a burger
+  // ----------------------------
+  const toggleBurgerMenu = () => {
+    setIsBurgerMenuOpen((prev) => !prev);
+  };
 
 const notificheFiltrate = categoriaFiltro === "tutte"
   ? notifications
@@ -129,19 +144,23 @@ const notificheFiltrate = categoriaFiltro === "tutte"
           <div className="flex-center header-row"> 
       <h1>GESTIONE NOTIFICHE</h1>
       </div>  
+                                 {/* Bottone per aprire/chiudere il menu */}
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
+          Filtri ed Opzioni
+        </button>
+        </div>
       </div> 
-    <div className="notifications-container mh-80">
-      <button
-  className="btn w-200 btn--secondary btn--pill mb-2"
-  onClick={() => setShowPreferences((prev) => !prev)}
->
-  {showPreferences ? "Nascondi preferenze notifiche" : "Mostra preferenze notifiche"}
-</button>
-  {/* Inserisci qui le preferenze */}
-  {showPreferences && <PreferenzeNotificheSection token={token} />}
-
-      <h2>Notifiche da leggere: {unreadNotifications.length}</h2>
-<h2>Visualizza:
+      {/* BURGER MENU (Filtri e Opzioni) */}
+      {isBurgerMenuOpen && (
+        <div className="burger-menu-XL">
+          <div className="burger-menu-header">
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
+            </button>
+          </div>
+          <div className="burger-menu-content">
+            <h2>Visualizza:
   <select
     className="w-200"
     style={{ marginLeft: "15px" }}
@@ -156,7 +175,13 @@ const notificheFiltrate = categoriaFiltro === "tutte"
     ))}
   </select>
 </h2>
-
+          <PreferenzeNotificheSection token={token} /></div>
+            </div>
+      )}
+        <div className={`container ${isBurgerMenuOpen ? "shifted-XL " : ""}`} >
+          <div className="notifications-container mh-80">
+      <h2>Notifiche da leggere: {unreadNotifications.length}</h2>
+      
 
       {loading && <p>Caricamento in corso...</p>}
       {error && <p className="error">{error}</p>}
@@ -194,6 +219,7 @@ const notificheFiltrate = categoriaFiltro === "tutte"
           </li>
         ))}
       </ul>
+    </div>
     </div>
     </div>
   );

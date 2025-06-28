@@ -1,11 +1,6 @@
 
 
-  .highlight {
-    background-color: var(--hover-dark);
-    transition: background-color 0.3s;
-  }
-
-    
+ 
   .weekend-cell {
      background-color: #0d101a; /* Colore di sfondo per il weekend */
   }

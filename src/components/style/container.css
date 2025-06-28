@@ -36,6 +36,11 @@ max-width: 1000%;
 
 }
 
+.container.shifted-XL {
+  margin-left: 400px; 
+}
+
+
 .container-Scroll{
   display: flex;
   flex-direction: column;
@@ -55,4 +60,9 @@ Responsive Design
 
 }
   
+.container.shifted-XL{
+  margin-left: 300px; 
+}
+
+
 }
