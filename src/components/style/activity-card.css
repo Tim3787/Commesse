@@ -55,18 +55,18 @@
   border: 1px solid #3fcaf5;
   border-left: 8px solid #3fcaf5;
     color: var(--text-dark);
-  background-image: linear-gradient(135deg, #3fcaf5,  #146da8, #97c6e6);
+    background-image: linear-gradient(135deg, #97c6e6,  #4789b4, #146da8);
   }
 
   .activity.started {
-  border: 1px solid #10009c;
+  border: 1px solid #3fcaf5;
   border-left: 8px solid #10009c;
     color: var(--text-light);
-  background-image: linear-gradient(135deg, #020536, #032c61,  #020536);
+  background-image: linear-gradient(135deg, #0a2650, #07436b,  #09578b);
   }
   
   .activity.completed {
-  border: 1px solid #072f52;
+  border: 1px solid #3fcaf5;
   border-left: 8px solid #072f52;
   color: var(--text-light);
   background-image: linear-gradient(135deg, #010a11, #021630,  #010a11);
@@ -117,7 +117,11 @@
     color: #999; /* Grigio per non iniziate */
   }
   
-
+.note{
+    border: 1px solid rgb(150, 8, 8);
+    padding: 5px;
+     border-radius: 5px;
+  }
 
 /* ==============================
 Responsive Design

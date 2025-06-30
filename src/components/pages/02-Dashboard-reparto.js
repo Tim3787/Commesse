@@ -679,7 +679,9 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
             <br />
           </>
         )}
-        <div className="flex-column-center">
+        <div className="flex-column-center"
+        style={{marginTop:"5px"}}
+        >
           {ViewButtons && activity.stato === 1 && (
             <>
               <button
@@ -689,8 +691,8 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
               >
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
               </button>
-              <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina
+              <button className="btn w-100 btn--warning btn--pill" onClick={() => handleDelete(activity.id)}>
+                Elimina attività
               </button>
             </>
           )}
@@ -711,21 +713,24 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
                 {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
               </button>
               <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina
+                Elimina attività
               </button>
             </>
           )}
         </div>
-        {ViewNote && (
-         <>
-          <div className="note">Note: {activity.note}</div>
-           {activity.note && (
-            <button className="btn btn--danger btn--pill" onClick={() => deleteNote(activity.id)}>
-             Elimina Nota
-            </button>
-           )}
-         </>
-        )}
+        <div className="flex-column-center">
+  {ViewNote && activity.note && (
+    <>
+      <div className="note">Note: {activity.note}</div>
+      <button
+        className="btn w-100 btn--danger btn--pill"
+        onClick={() => deleteNote(activity.id)}
+      >
+        Elimina Nota
+      </button>
+    </>
+  )}
+</div>
       </div>
     );
   }
