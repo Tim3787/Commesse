@@ -214,6 +214,7 @@ function LoginRegister({ onLogin }) {
             </div>
           )}
           {/* Pulsante per inviare il form */}
+          <div className="flex-column-center">
           <button type="submit" className="btn w-200 btn--shiny btn--pill"  disabled={isLoading}>
             {isLoading
               ? "Caricamento..."
@@ -223,6 +224,7 @@ function LoginRegister({ onLogin }) {
               ? "Registrati"
               : "Invia Email di Recupero"}
           </button>
+          </div>
         </form>
 
         {/* Pulsanti per cambiare il tipo di form */}
@@ -241,6 +243,7 @@ function LoginRegister({ onLogin }) {
         {/* Logo dell'app con animazione durante il caricamento */}
         <img src={logo} alt="Logo" className={`login-logo ${isLoading ? "pulsing" : ""}`} />
       </div>
+      
     </>
   );
 }
