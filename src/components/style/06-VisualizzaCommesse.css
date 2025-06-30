@@ -6,11 +6,11 @@
      visualizza commese
      ============================== */
   .Commesse-table-container {
-  max-height: 68vh; 
+  max-height: 48vh; 
 }
   
   .Commesse-table-container-2 {
-  max-height: 78vh; 
+  max-height: 72vh; 
 }
 
 .Commesse-table  td:last-child, 
