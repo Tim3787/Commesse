@@ -24,7 +24,7 @@ function CommessaDerivataCrea({
     data_FAT: "",
     altri_particolari: commessaBase.altri_particolari,
     cliente: commessaBase.cliente,
-    stato_commessa: 1,
+    stato_commessa: 2,
   });
 
 // State per le attività predefinite e per la durata (già presente)
@@ -182,7 +182,7 @@ const handleSubmit = async (e) => {
       data_FAT: "",
       altri_particolari: "",
       cliente: "",
-      stato_commessa: 1,
+      stato_commessa: 2,
     });
     setSelezioniAttivita({});
     toast.success("Commessa creata con successo!");

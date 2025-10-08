@@ -29,7 +29,7 @@ function CommessaCrea({
     data_FAT: "",
     altri_particolari: "",
     cliente: "",
-    stato_commessa: 1, // Stato default (numero 1)
+    stato_commessa: 2, // Stato default 
   });
 
 
@@ -96,7 +96,7 @@ const aggiornaStatiInizialiSeConsegnata = (statoId) => {
         data_FAT: formatDate(commessa.data_FAT),
         altri_particolari: commessa.altri_particolari,
         cliente: commessa.cliente,
-        stato_commessa: parseInt(commessa.stato, 10) || 1,
+        stato_commessa: parseInt(commessa.stato, 10) || 2,
       });
 aggiornaStatiInizialiSeConsegnata(commessa.stato);
 
@@ -121,7 +121,7 @@ aggiornaStatiInizialiSeConsegnata(commessa.stato);
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
-        stato_commessa: 1,
+        stato_commessa: 2,
       });
       setSelezioniAttivita({});
     }
@@ -129,14 +129,18 @@ aggiornaStatiInizialiSeConsegnata(commessa.stato);
 
 // Inizializza il dropdown per gli stati per ogni reparto (modalità creazione)
 useEffect(() => {
-  if (!isEditing && !matchTrello && Array.isArray(reparti) && reparti.length > 0) {
+  if (!isEditing && Array.isArray(reparti) && reparti.length > 0) {
     const initialSelections = {};
     reparti.forEach((rep) => {
-      initialSelections[rep.id] = "In Entrata";
+      const statiPerRep = stati_avanzamento.filter(
+        (st) => String(st.reparto_id) === String(rep.id)
+      );
+      const inEntrata = statiPerRep.find((st) => st.nome_stato === "In Entrata");
+      initialSelections[rep.id] = (inEntrata || statiPerRep[0])?.nome_stato || "";
     });
     setDefaultStateSelections(initialSelections);
   }
-}, [isEditing, matchTrello, reparti]);
+}, [isEditing, reparti, stati_avanzamento]);
 
  // useEffect per commessa completata:
 useEffect(() => {
@@ -210,7 +214,7 @@ useEffect(() => {
           data_FAT: formatDate(formData.data_FAT),
           altri_particolari: formData.altri_particolari,
           cliente: formData.cliente,
-          stato: parseInt(formData.stato_commessa, 10) || 1,
+          stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
           stato_iniziale: defaultStateSelections,
         }
       : {
@@ -221,7 +225,7 @@ useEffect(() => {
           data_FAT: formatDate(formData.data_FAT),
           altri_particolari: formData.altri_particolari,
           cliente: formData.cliente,
-          stato_commessa: parseInt(formData.stato_commessa, 10) || 1,
+          stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
           stato_iniziale: defaultStateSelections,
         };
 
@@ -305,7 +309,7 @@ useEffect(() => {
         data_FAT: "",
         altri_particolari: "",
         cliente: "",
-        stato_commessa: 1,
+        stato_commessa: 2,
       });
       setSelezioniAttivita({});
       toast.success("Commessa creata con successo!");
