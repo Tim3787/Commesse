@@ -5,15 +5,16 @@ import { getBoardCards, getBoardLists, moveCardToList } from "../services/API/tr
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import  "../style/02-StatoAvanzamento-reparto.css";
 
-const TrelloBoardElettrico = () => {
+const TrelloBoardMeccanico = () => {
   const [lists, setLists] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); // Stato per il filtro della commessa
 
-  const boardId = "606efd4d2898f5705163448f";
+  const boardId = "607528abaa92290566c9407c";
 
   useEffect(() => {
     const fetchBoardData = async () => {
@@ -93,7 +94,8 @@ const TrelloBoardElettrico = () => {
         (!commessaFilter || card.name.toLowerCase().includes(commessaFilter.toLowerCase()))
     ),
   }));
-return (
+
+  return (
       
       <DndProvider backend={HTML5Backend}>
       
@@ -234,7 +236,7 @@ const styles = {
     gap: "10px",
   },
   card: {
-     background: "#233969ff",
+    background: "#020536",
     borderRadius: "5px",
     padding: "10px",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
@@ -256,5 +258,4 @@ const styles = {
   },
 };
 
-
-export default TrelloBoardElettrico;
+export default TrelloBoardMeccanico;

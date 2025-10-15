@@ -63,7 +63,7 @@ import SchedeTecnicheTable from "./components/pages/07-SchedeTecnicheTable.js";
 // Trello
 import TrelloBoardSoftware from "./components/pages/08-TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/08-TrelloBoardElettrico";
-import TrelloBoardMeccanico from "./components/pages/08-TrelloBoardElettrico";
+import TrelloBoardMeccanico from "./components/pages/08-TrelloBoardMeccanico";
 import MatchCommesse from "./components/pages/08-TrelloMatchCommesse";
 
 //Varie
