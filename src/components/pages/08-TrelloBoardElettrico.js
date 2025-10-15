@@ -96,16 +96,17 @@ const TrelloBoardElettrico = () => {
 return (
       
       <DndProvider backend={HTML5Backend}>
-      
-        <div className="container">
+    <div className="page-wrapper">
+      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
         {loading && (
           <div className="loading-overlay">
-              <img src={logo} alt="Logo"  className="logo-spinner"/>
+            <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
-        )}
-        <div className="flex-center header-row">
-        <h1>Trello meccanico</h1>
-         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+        )}      
+      {/* HEADER */}
+      <div className=" header">
+      <div className="flex-center header-row">
+      <h1>BACHECA TRELLO ELETTRICO</h1>
         </div>
          <div className="flex-center header-row">
         <input
@@ -117,6 +118,9 @@ return (
               className="w-200"
             />
           </div>
+</div>
+        <div className="Reparto-table-container mh-80">
+        
         <div style={styles.board}>
           {filteredCardsByList.map((list) => (
             <List
@@ -134,6 +138,7 @@ return (
             onCancel={handleEditCancel}
           />
         )}
+      </div>
       </div>
     </DndProvider>
   );
