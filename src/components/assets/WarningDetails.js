@@ -1,7 +1,7 @@
 import React from "react";
 import  "../style/02-StatoAvanzamento-reparto.css";
 
-const WarningDetails = ({ warningActivities, resources, deleteNote }) => {
+const WarningDetails = ({ warningActivities, resources, deleteNote , closeNote  }) => {
   if (warningActivities.length === 0) return null;
 
   return (
@@ -38,6 +38,12 @@ const WarningDetails = ({ warningActivities, resources, deleteNote }) => {
             <button className="btn btn--danger btn--pill  w-100" onClick={() => deleteNote(activity.id)}>
              Elimina Nota
             </button>
+            <button
+                className="btn btn--pill btn--danger w-100"
+                onClick={() => closeNote(activity.id)}
+              >
+                Chiudi nota
+              </button>
           </div>
            </div>
         );

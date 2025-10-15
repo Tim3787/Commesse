@@ -484,7 +484,7 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
   // ================================
   // Funzioni per Stati Avanzamento e Riordino (Filtrati per Reparto)
   // ================================
-
+/**
   const loadStatiAvanzamento = async (repartoId) => {
     setStatiAvanzamentoLoading(true);
     try {
@@ -517,7 +517,9 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
     setStatiAvanzamentoLoading(true);
     try {
       if (isEditingStatoAvanzamento) {
+        console.time("updateStatoAvanzamento");
         await updateStatoAvanzamento(editStatoAvanzamentoId, dataToSubmit);
+        console.timeEnd("updateStatoAvanzamento");
         toast.success("Stato avanzamento aggiornato!");
         setStatiAvanzamento((prev) =>
           prev.map((s) =>
@@ -525,7 +527,9 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
           )
         );
       } else {
+        console.time("createStatoAvanzamento");
         await createStatoAvanzamento(dataToSubmit);
+        console.timeEnd("createStatoAvanzamento");
         toast.success("Stato avanzamento creato!");
         await loadStatiAvanzamento(selectedReparto);
       }
@@ -539,6 +543,93 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
       setStatiAvanzamentoLoading(false);
     }
   };
+ **/
+const loadStatiAvanzamento = async (repartoId) => {
+  setStatiAvanzamentoLoading(true);
+  try {
+    // Se la tua API accetta il filtro lato server, passa repartoId qui.
+    const data = await fetchStatiAvanzamento(); 
+    setStatiAvanzamento(data.filter((s) => s.reparto_id === Number(repartoId)));
+  } catch (error) {
+    console.error("Errore nel caricamento degli stati avanzamento:", error);
+    toast.error("Errore nel caricamento degli stati avanzamento.");
+  } finally {
+    setStatiAvanzamentoLoading(false);
+  }
+};
+
+useEffect(() => {
+  setStatiAvanzamentoFormData((prev) => ({ ...prev, reparto_id: selectedReparto }));
+}, [selectedReparto]);
+
+const handleStatiAvanzamentoChange = (e) => {
+  const { name, value } = e.target;
+  setStatiAvanzamentoFormData({ ...statiAvanzamentoFormData, [name]: value });
+};
+
+const handleStatiAvanzamentoSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!statiAvanzamentoFormData.nome_stato) {
+    toast.error("Il nome dello stato avanzamento è obbligatorio.");
+    return;
+  }
+
+  const dataToSubmit = { ...statiAvanzamentoFormData, reparto_id: selectedReparto };
+  setStatiAvanzamentoLoading(true);
+
+  try {
+    if (isEditingStatoAvanzamento) {
+      console.time("updateStatoAvanzamento");
+      await updateStatoAvanzamento(editStatoAvanzamentoId, dataToSubmit);
+      console.timeEnd("updateStatoAvanzamento");
+
+      toast.success("Stato avanzamento aggiornato!");
+      setStatiAvanzamento((prev) =>
+        prev.map((s) => (s.id === editStatoAvanzamentoId ? { ...s, ...dataToSubmit } : s))
+      );
+    } else {
+      console.time("createStatoAvanzamento");
+      const { data: created } = await createStatoAvanzamento(dataToSubmit); // <-- destructuring
+      console.timeEnd("createStatoAvanzamento");
+
+      toast.success("Stato avanzamento creato!");
+
+      if (created) {
+        // Aggiornamento ottimistico (solo se è dello stesso reparto selezionato)
+        if (Number(created.reparto_id) === Number(selectedReparto)) {
+          setStatiAvanzamento((prev) => [...prev, created]);
+        } else {
+          // fallback in caso di mismatch (raro)
+          await loadStatiAvanzamento(selectedReparto);
+        }
+      } else {
+        // fallback se il server non tornasse il record
+        await loadStatiAvanzamento(selectedReparto);
+      }
+    }
+
+    // reset form
+    setStatiAvanzamentoFormData({ nome_stato: "" });
+    setIsEditingStatoAvanzamento(false);
+    setEditStatoAvanzamentoId(null);
+  } catch (error) {
+    console.error("Errore nella gestione dello stato avanzamento:", error);
+
+    // Gestione 409 (stato già esistente per quel reparto)
+    if (error?.response?.status === 409 || error?.response?.status === 400) {
+      toast.info(error.response.data || "Stato già esistente per questo reparto.");
+      // opzionale: ricarico la lista per essere sicuro di vederlo
+      await loadStatiAvanzamento(selectedReparto);
+    } else if (error?.code === "ECONNABORTED") {
+      toast.error("Timeout: il server non ha risposto in tempo.");
+    } else {
+      toast.error("Errore nella gestione dello stato avanzamento.");
+    }
+  } finally {
+    setStatiAvanzamentoLoading(false);
+  }
+};
 
   const handleStatiAvanzamentoEdit = (stato) => {
     setStatiAvanzamentoFormData({ nome_stato: stato.nome_stato });

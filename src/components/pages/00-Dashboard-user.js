@@ -43,6 +43,16 @@ function Dashboard() {
   const [schedaInModifica, setSchedaInModifica] = useState(null);
   const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
 
+const CLOSED_PREFIX = "[CHIUSA] ";
+const CLOSED_RE = /^\[CHIUSA\]\s*/i; // parentesi quadre escapse, spazio opzionale
+
+const isClosedNote = (text) => CLOSED_RE.test(text ?? "");
+
+const closeNoteText = (text) =>
+  isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ""}`.trim();
+
+const reopenNoteText = (text) =>
+  (text ?? "").replace(CLOSED_RE, "");
 
   // ------------------------------------------------------------------
   // Funzione helper: calcola tutti i giorni del mese dato un oggetto Date
@@ -245,28 +255,26 @@ useEffect(() => {
     setNoteUpdates((prev) => ({ ...prev, [activityId]: note }));
   };
 
-  const saveNote = async (activityId) => {
-    try {
-      // Trova l'attività da aggiornare
-      const updatedActivity = monthlyActivities.find(
-        (activity) => activity.id === activityId
-      );
-      // Imposta la nota aggiornata (anche se vuota)
-      updatedActivity.note = noteUpdates[activityId] || "";
-      // Invia la richiesta al backend per aggiornare la nota
-      await updateActivityNotes(activityId, updatedActivity.note, token);
-      toast.success("Nota aggiornata con successo!");
-      // Aggiorna lo stato locale
-      setMonthlyActivities((prev) =>
-        prev.map((activity) =>
-          activity.id === activityId ? { ...activity, note: updatedActivity.note } : activity
-        )
-      );
-    } catch (error) {
-      console.error("Errore durante il salvataggio della nota:", error);
-      toast.error("Errore durante il salvataggio della nota.");
-    }
-  };
+const saveNote = async (activityId) => {
+  try {
+    const current = monthlyActivities.find((a) => a.id === activityId);
+    const text = noteUpdates[activityId] ?? current?.note ?? "";
+
+    // Se la nota è chiusa, mantieni il prefisso anche se l’utente l’ha rimosso
+    const finalText = isClosedNote(current?.note) ? closeNoteText(text) : text;
+
+    await updateActivityNotes(activityId, finalText, token);
+    toast.success("Nota aggiornata con successo!");
+    setMonthlyActivities((prev) =>
+      prev.map((a) => (a.id === activityId ? { ...a, note: finalText } : a))
+    );
+    setNoteUpdates((prev) => ({ ...prev, [activityId]: finalText }));
+  } catch (error) {
+    console.error("Errore durante il salvataggio della nota:", error);
+    toast.error("Errore durante il salvataggio della nota.");
+  }
+};
+
 
   const deleteNote = async (activityId) => {
     try {
@@ -285,6 +293,48 @@ useEffect(() => {
       toast.error("Errore durante l'eliminazione della nota.");
     }
   };
+
+// Chiudi la nota associata a un'attività (senza cancellarla)
+const closeNote = async (activityId) => {
+  try {
+    const activity = monthlyActivities.find((a) => a.id === activityId);
+    if (!activity) return;
+
+    const newText = closeNoteText(activity.note);
+    await updateActivityNotes(activityId, newText, token);
+
+    toast.success("Nota chiusa con successo!");
+    setMonthlyActivities((prev) =>
+      prev.map((a) => (a.id === activityId ? { ...a, note: newText } : a))
+    );
+
+    // Se stavi editando la textarea, sincronizza anche il buffer locale
+    setNoteUpdates((prev) => ({ ...prev, [activityId]: newText }));
+  } catch (error) {
+    console.error("Errore durante la chiusura della nota:", error);
+    toast.error("Errore durante la chiusura della nota.");
+  }
+};
+
+// (Opzionale) Riapri la nota se serve
+const reopenNote = async (activityId) => {
+  try {
+    const activity = monthlyActivities.find((a) => a.id === activityId);
+    if (!activity) return;
+
+    const newText = reopenNoteText(activity.note);
+    await updateActivityNotes(activityId, newText, token);
+
+    toast.success("Nota riaperta!");
+    setMonthlyActivities((prev) =>
+      prev.map((a) => (a.id === activityId ? { ...a, note: newText } : a))
+    );
+    setNoteUpdates((prev) => ({ ...prev, [activityId]: newText }));
+  } catch (error) {
+    console.error("Errore durante la riapertura della nota:", error);
+    toast.error("Errore durante la riapertura della nota.");
+  }
+};
 
 
   // ------------------------------------------------------------------
@@ -377,7 +427,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
                         <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "200px"} } >
                           <div className="flex-column-center">
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
-                            {activity.stato === 2 && activity.note && (
+                            {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
                               <span className="warning-icon" title="Nota presente nell'attività completata">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -440,22 +490,51 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
 
                           {/* Sezione note: textarea per aggiungere/modificare una nota e pulsanti per salvare o eliminare */}
                           <div className="flex-column-center">
-                            <textarea
-                              placeholder="Aggiungi una nota..."
-                              className="textarea w-200"
-                              value={
-                                noteUpdates[activity.id] !== undefined
-                                  ? noteUpdates[activity.id]
-                                  : activity.note || ""
-                              }
-                              onChange={(e) => handleNoteChange(activity.id, e.target.value)}
-                            />
+
+  {(() => {
+    const isClosed = isClosedNote(activity.note);
+    return (
+      <textarea
+        placeholder={isClosed ? "Nota chiusa" : "Aggiungi una nota..."}
+        className={`textarea w-200 ${isClosed ? "is-locked" : ""}`}
+        value={
+          noteUpdates[activity.id] !== undefined
+            ? noteUpdates[activity.id]
+            : activity.note || ""
+        }
+        onChange={(e) => {
+          if (!isClosed) handleNoteChange(activity.id, e.target.value);
+        }}
+        readOnly={isClosed}
+        aria-readonly={isClosed}
+      />
+    );
+  })()}
+
+                            
                             <div className="flex-column-center">
+                              { !isClosedNote(activity.note) && (
                               <button className="btn w-100 btn--blue btn--pill" onClick={() => saveNote(activity.id)}>
                                 Salva Nota
-                              </button>
-                              {activity.note && (
-                                <button className="btn w-200 btn--danger btn--pill " onClick={() => deleteNote(activity.id)}>
+                              </button>    )}
+                              
+                              {activity.note && !isClosedNote(activity.note) && (
+<button className="btn w-100 btn--danger btn--pill " onClick={() => closeNote(activity.id)}>
+  Chiudi nota
+</button>
+  )}
+
+{isClosedNote(activity.note) && (
+  <span className="badge badge--muted">Nota chiusa</span>
+)}
+{/* opzionale riapertura */}
+{isClosedNote(activity.note) && (
+  <button className="btn w-100 btn--blue btn--pill " onClick={() => reopenNote(activity.id)}>
+    Riapri nota
+  </button>
+)}
+                             {activity.note && (
+                                <button className="btn w-100 btn--danger btn--pill " onClick={() => deleteNote(activity.id)}>
                                   Elimina Nota
                                 </button>
                               )}

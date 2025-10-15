@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 
+
 import { useAppData } from "../context/AppDataContext";
 
 import { deleteAttivitaCommessa } from "../services/API/attivitaCommesse-api";
@@ -78,6 +79,7 @@ function VisualizzaTutteLeAttivita() {
     durata: "",
     stato: "",
     descrizione: "",
+    note: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -150,6 +152,7 @@ function VisualizzaTutteLeAttivita() {
       data_inizio: dataInizio,
       durata: attivita.durata && attivita.durata !== "-" ? attivita.durata : "",
       descrizione: attivita.descrizione_attivita || "",
+      note: attivita.note || "",
     });
 
     setIsEditing(true);

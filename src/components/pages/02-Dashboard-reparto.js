@@ -106,6 +106,19 @@ const [ViewButtons, setViewButtons] = useState(true);
 const [ViewNote, setViewNote] = useState(true); 
 const [ViewStato, setViewStato] = useState(true); 
 
+  // ----------------------------
+  // Note
+  // ----------------------------
+    // Chiudi la nota associata a un'attività
+const CLOSED_PREFIX = "[CHIUSA] ";
+const isClosedNote = (text) =>
+  typeof text === "string" && text.trim().toUpperCase().startsWith(CLOSED_PREFIX.trim());
+const closeNoteText = (text) =>
+  isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ""}`.trim();
+
+
+
+
   // ========================================================
   // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
   // ========================================================
@@ -438,22 +451,7 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
   };
   
 
-  // Elimina la nota associata a un'attività
-  const deleteNote = async (activityId) => {
-    try {
-      await updateActivityNotes(activityId, null, token);
-      
-      toast.success("Nota eliminata con successo!");
-      setActivities((prevActivities) =>
-        prevActivities.map((activity) =>
-          activity.id === activityId ? { ...activity, note: null } : activity
-        )
-      );
-    } catch (error) {
-      console.error("Errore durante l'eliminazione della nota:", error);
-      toast.error("Errore durante l'eliminazione della nota.");
-    }
-  };
+
 
   // Apre il popup per aggiungere una nuova attività
   const handleAddNew = () => {
@@ -541,7 +539,46 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
   }
 };
 
+  // ========================================================
+  // GESTIONE NOTE
+  // ========================================================
 
+// Chiudi la nota associata a un'attività (senza cancellarla)
+const closeNote = async (activityId) => {
+  try {
+    const activity = activities.find((a) => a.id === activityId);
+    if (!activity) return;
+
+    const newText = closeNoteText(activity.note);
+    await updateActivityNotes(activityId, newText, token);
+
+    toast.success("Nota chiusa con successo!");
+    setActivities((prev) =>
+      prev.map((a) => (a.id === activityId ? { ...a, note: newText } : a))
+    );
+  } catch (error) {
+    console.error("Errore durante la chiusura della nota:", error);
+    toast.error("Errore durante la chiusura della nota.");
+  }
+};
+
+
+  // Elimina la nota associata a un'attività
+  const deleteNote = async (activityId) => {
+    try {
+      await updateActivityNotes(activityId, null, token);
+      
+      toast.success("Nota eliminata con successo!");
+      setActivities((prevActivities) =>
+        prevActivities.map((activity) =>
+          activity.id === activityId ? { ...activity, note: null } : activity
+        )
+      );
+    } catch (error) {
+      console.error("Errore durante l'eliminazione della nota:", error);
+      toast.error("Errore durante l'eliminazione della nota.");
+    }
+  };
   // ========================================================
   // COMPONENTE: ResourceCell
   // Rappresenta una cella della tabella per una risorsa in un determinato giorno
@@ -719,7 +756,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
           )}
         </div>
         <div className="flex-column-center">
-  {ViewNote && activity.note && (
+  {ViewNote && activity.note &&   !isClosedNote(activity.note) && (
     <>
       <div className="note">Note: {activity.note}</div>
       <button
@@ -728,6 +765,12 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       >
         Elimina Nota
       </button>
+                  <button
+                className="btn btn--pill btn--danger w-100"
+                onClick={() => closeNote(activity.id)}
+              >
+                Chiudi nota
+              </button>
     </>
   )}
 </div>

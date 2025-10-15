@@ -63,6 +63,7 @@ import SchedeTecnicheTable from "./components/pages/07-SchedeTecnicheTable.js";
 // Trello
 import TrelloBoardSoftware from "./components/pages/08-TrelloBoardSoftware";
 import TrelloBoardElettrico from "./components/pages/08-TrelloBoardElettrico";
+import TrelloBoardMeccanico from "./components/pages/08-TrelloBoardElettrico";
 import MatchCommesse from "./components/pages/08-TrelloMatchCommesse";
 
 //Varie
@@ -289,6 +290,7 @@ const registerDeviceToken = async () => {
     { path: "/utenti", component: <GestioneUtenti />, requiredRole: 1 },
     { path: "/TrelloBoardSoftware", component: <TrelloBoardSoftware />, requiredRole: 1 },
     { path: "/TrelloBoardElettrico", component: <TrelloBoardElettrico />, requiredRole: 1 },
+    { path: "/TrelloBoardMeccanico", component: <TrelloBoardMeccanico />, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
   

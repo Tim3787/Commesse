@@ -170,6 +170,15 @@ const navLinks = {
       ],
     },
         {
+      label: "REP.MECCANICO",
+      icon: faScrewdriverWrench,
+      links: [
+        { to: "/StatoAvanzamento/meccanico", label: "STATO AVANZAMENTO", icon: faChartBar },
+        { to: "/Dashboard/meccanico", label: "ATTIVITA'", icon: faTasks },
+        { to: "/TrelloBoardMeccanico", label: "TRELLO", icon: faClipboardList },
+      ],
+    },
+        {
       label: "REP.TECNICO ELETTRICO",
       icon: faScrewdriverWrench,
       links: [

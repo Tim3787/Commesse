@@ -744,21 +744,18 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
     const matchesTipoMacchina = commessa.tipo_macchina?.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
   
-    const warningActivities = activities.filter(
-      (activity) =>
-        activity.stato === 2 &&
-        activity.note &&
-          !isClosedNote(activity.note) &&
-        activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
-    );
-  
-    const unfinishedActivities = activities.filter(
-      (activity) =>
-        activity.stato === 1 &&
-        activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
-    );
+ const warningActivities = activities.filter((a) =>
+   a.stato === 2 &&
+   a.note &&
+  !isClosedNote(a.note) &&
+  a.commessa_id === commessa.commessa_id &&
+   normalize(a.reparto) === normalize(RepartoName)
+ );
+ const unfinishedActivities = activities.filter((a) =>
+   a.stato === 1 &&
+  a.commessa_id === commessa.commessa_id &&
+   normalize(a.reparto) === normalize(RepartoName)
+);
   
     let notDelivered = true;
     //if (!VediConsegnate && commessa.data_consegna) {
@@ -850,22 +847,18 @@ if (RepartoName === "software") {
     }));
 
     // Filtra le attività per mostrare eventuali warning (attività completate con note) e attività non completate
-    const warningActivities = activities.filter(
-      (activity) =>
-        activity.stato === 2 &&
-        activity.note &&
-        !isClosedNote(activity.note) &&
-        activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
-    );
+ const unfinishedActivities = activities.filter((a) =>
+   a.stato === 1 &&
+   a.commessa_id === commessa.commessa_id &&
+   normalize(a.reparto) === normalize(RepartoName)
+ );
 
-    const unfinishedActivities = activities.filter(
-      (activity) =>
-        activity.stato === 1 &&
-        activity.commessa_id === commessa.commessa_id &&
-        activity.reparto?.toLowerCase() === RepartoName
-    );
-
+ const warningActivities = activities.filter((a) =>   a.stato === 2 &&
+  a.note &&
+  !isClosedNote(a.note) &&
+  a.commessa_id === commessa.commessa_id &&
+  normalize(a.reparto) === normalize(RepartoName)
+ );
 
     // Cerca la card di Trello corrispondente (basata sul numero della commessa)
     const trelloCard = cards.find((card) => {
@@ -878,7 +871,7 @@ if (RepartoName === "software") {
 
     // Recupera gli stati attivi per la commessa e seleziona quello relativo al reparto corrente
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
-   const statoAttivo = statiAttivi.find((s) => s.reparto_nome.toLowerCase() === RepartoName);
+    const statoAttivo = statiAttivi.find((s) => normalize(s.reparto_nome) === normalize(RepartoName));
 
     // Verifica se la lista Trello corrente corrisponde a quella attesa dall'accoppiamento
     const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);

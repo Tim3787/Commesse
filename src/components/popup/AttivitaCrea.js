@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 // Import per Toastify (notifiche)
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { updateActivityNotes } from "../services/API/notifiche-api";
+
+const token = sessionStorage.getItem("token");
 
 function AttivitaCrea({
   formData,
@@ -21,6 +24,16 @@ function AttivitaCrea({
   const [suggestedCommesse, setSuggestedCommesse] = useState([]);
   const suggestionsRef = useRef(null);
   const [loading, setLoading] = useState(false);
+
+const CLOSED_PREFIX = "[CHIUSA] ";
+const isClosedNote = (text) =>
+  typeof text === "string" && text.trim().toUpperCase().startsWith(CLOSED_PREFIX.trim());
+const closeNoteText = (text) =>
+  isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ""}`.trim();
+const reopenNoteText = (text) =>
+  isClosedNote(text) ? text.replace(new RegExp(`^${CLOSED_PREFIX}`, "i"), "") : text;
+
+
 
   // Funzione helper per formattare una Date in YYYY-MM-DD senza shift di fuso
   const formatDateOnly = (dateObj) => {
@@ -175,6 +188,8 @@ function AttivitaCrea({
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="popup">
@@ -341,6 +356,112 @@ function AttivitaCrea({
               rows="4"
               className="w-400"
             />
+            <label>Note:</label>
+<textarea
+  name="note"
+  value={formData.note || ""}
+  onChange={(e) => {
+    if (!isClosedNote(formData.note)) {
+      setFormData((prev) => ({ ...prev, note: e.target.value }));
+    }
+  }}
+  placeholder={isClosedNote(formData.note) ? "Nota chiusa" : "Inserisci una nota (opzionale)"}
+  rows="4"
+  className={`w-400 ${isClosedNote(formData.note) ? "is-locked" : ""}`}
+  readOnly={isClosedNote(formData.note)}
+  aria-readonly={isClosedNote(formData.note)}
+/>
+
+<div className="flex-column-center" style={{ gap: 8, marginTop: 8 }}>
+  {/* SALVA nota (solo se aperta) */}
+  {formData.note && !isClosedNote(formData.note) && (
+    <button
+      type="button"
+      className="btn w-100 btn--blue btn--pill"
+      disabled={!isEditing || !editId}
+      onClick={async () => {
+        try {
+          await updateActivityNotes(editId, formData.note, token);
+          toast.success("Nota salvata");
+        } catch (e) {
+          toast.error("Errore nel salvataggio della nota");
+          console.error(e);
+        }
+      }}
+    >
+      Salva nota
+    </button>
+  )}
+
+  {/* CHIUDI nota (solo se aperta) */}
+  {formData.note && !isClosedNote(formData.note) && (
+    <button
+      type="button"
+      className="btn w-100 btn--danger btn--pill"
+      disabled={!isEditing || !editId}
+      onClick={async () => {
+        try {
+          const closed = closeNoteText(formData.note);
+          await updateActivityNotes(editId, closed, token);
+          setFormData((prev) => ({ ...prev, note: closed }));
+          toast.success("Nota chiusa");
+        } catch (e) {
+          toast.error("Errore nella chiusura della nota");
+          console.error(e);
+        }
+      }}
+    >
+      Chiudi nota
+    </button>
+  )}
+
+  {/* BADGE + RIAPRI (solo se chiusa) */}
+  {isClosedNote(formData.note) && (
+    <>
+      <span className="badge badge--muted">Nota chiusa</span>
+      <button
+        type="button"
+        className="btn w-100 btn--blue btn--pill"
+        disabled={!isEditing || !editId}
+        onClick={async () => {
+          try {
+            const reopened = reopenNoteText(formData.note);
+            await updateActivityNotes(editId, reopened, token);
+            setFormData((prev) => ({ ...prev, note: reopened }));
+            toast.success("Nota riaperta");
+          } catch (e) {
+            toast.error("Errore nella riapertura della nota");
+            console.error(e);
+          }
+        }}
+      >
+        Riapri nota
+      </button>
+    </>
+  )}
+
+  {/* ELIMINA (se c’è testo) */}
+  {formData.note && (
+    <button
+      type="button"
+      className="btn w-100 btn--danger btn--pill"
+      disabled={!isEditing || !editId}
+      onClick={async () => {
+        try {
+          await updateActivityNotes(editId, null, token);
+          setFormData((prev) => ({ ...prev, note: "" }));
+          toast.success("Nota eliminata");
+        } catch (e) {
+          toast.error("Errore nell'eliminazione della nota");
+          console.error(e);
+        }
+      }}
+    >
+      Elimina nota
+    </button>
+  )}
+</div>
+
 
 
           {/* Selezione dei weekend specifici */}

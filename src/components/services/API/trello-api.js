@@ -60,3 +60,22 @@ export const moveCardToList = async (cardId, destinationListId) => {
     throw error;
   }
 };
+
+//GET ID BOARDS
+//https://api.trello.com/1/members/me/boards?key=API_KEY&token=TOKEN
+export const getUserBoards = async () => {
+  try {
+    const response = await axios.get("https://api.trello.com/1/members/me/boards", {
+      params: {
+        key: process.env.REACT_APP_TRELLO_API_KEY,
+        token: process.env.REACT_APP_TRELLO_TOKEN,
+      },
+    });
+
+    // Ogni board ha id, name, url
+    return response.data;
+  } catch (error) {
+    console.error("Errore durante il recupero delle bacheche:", error);
+    throw error;
+  }
+};

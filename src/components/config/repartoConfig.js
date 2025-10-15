@@ -11,6 +11,12 @@ const repartoConfig = {
     sharedReparti: ["service"], 
     defaultServiceResourceId: 49  // ID della risorsa di default per "elettrico"
   },
+    meccanico: { 
+    RepartoID: 3, 
+    RepartoName: "meccanico", 
+    sharedReparti: ["service"], 
+    defaultServiceResourceId: 50  // ID della risorsa di default per "elettrico"
+  },
   service: { 
     RepartoID: 18, 
     RepartoName: "service", 
