@@ -972,8 +972,9 @@ if (RepartoName === "software") {
     warningActivities={warningActivities}
     resources={resources}
     closeNote={closeNote}     // 👈 prima passavi deleteNote
-    // reopenNote={reopenNote} // opzionale, se vuoi riaprirle dai dettagli
-  />
+    reopenNote={reopenNote} // opzionale, se vuoi riaprirle dai dettagli
+deleteNoteNote={deleteNote} 
+    />
 )}
 
         {/* Mostra il componente UnfinishedActivities se sono presenti attività non completate */}

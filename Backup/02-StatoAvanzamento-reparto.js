@@ -964,7 +964,9 @@ if (RepartoName === "software") {
   <WarningDetails
     warningActivities={warningActivities}
     resources={resources}
-    closeNote={closeNote}     // 👈 prima passavi deleteNote
+    closeNote={closeNote} 
+    deleteNote={deleteNote} 
+        // 👈 prima passavi deleteNote
     // reopenNote={reopenNote} // opzionale, se vuoi riaprirle dai dettagli
   />
 )}
