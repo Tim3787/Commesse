@@ -116,7 +116,8 @@ function StatoAvanzamentoReparti() {
          [
           "S: Nessun lavoro software",
           "S: Modifiche su macchina old",
-          "S-Ribo in entrata"
+          "S-Ribo in entrata",
+           "S: Completate"
         ],
       },
 
