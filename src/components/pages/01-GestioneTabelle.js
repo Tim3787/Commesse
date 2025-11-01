@@ -32,10 +32,12 @@ import {
 
 // API per Risorse
 import { 
-  fetchRisorse, 
+  fetchRisorseAll,
   createRisorsa, 
   updateRisorsa, 
-  deleteRisorsa 
+  deleteRisorsa,
+  deactivateRisorsa,
+  activateRisorsa 
 } from "../services/API/risorse-api";
 
 // Import API utenti 
@@ -404,19 +406,21 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
   // ================================
   // Funzioni per Risorse (Filtrate per Reparto)
   // ================================
-  const loadRisorse = async (repartoId) => {
-    setRisorseLoading(true);
-    try {
-      const data = await fetchRisorse();
-      setRisorse(data.filter((r) => r.reparto_id === parseInt(repartoId)));
-    } catch (error) {
-      console.error("Errore nel caricamento delle risorse:", error);
-      toast.error("Errore nel caricamento delle risorse.");
-    } finally {
-      setRisorseLoading(false);
-    }
-  };
+const loadRisorse = async (repartoId) => {
+  setRisorseLoading(true);
+  try {
+    const data = await fetchRisorseAll(); // ✅ prende attivi + disattivi
+    setRisorse(data.filter((r) => r.reparto_id === Number(repartoId)));
+  } catch (error) {
+    console.error("Errore nel caricamento delle risorse:", error);
+    toast.error("Errore nel caricamento delle risorse.");
+  } finally {
+    setRisorseLoading(false);
+  }
+};
 
+
+  
   useEffect(() => {
     setRisorseFormData((prev) => ({ ...prev, reparto_id: selectedReparto }));
   }, [selectedReparto]);
@@ -480,6 +484,51 @@ const [ruoliDisponibili, setRuoliDisponibili] = useState([]);
       }
     }
   };
+
+const handleRisorseActivate = async (id) => {
+  if (window.confirm("Riattivare questa risorsa?")) {
+    setRisorseLoading(true);
+    try {
+      await activateRisorsa(id); // 👈 API importata
+
+      setRisorse((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, is_active: 1 } : r
+        )
+      );
+
+      toast.success("Risorsa riattivata!");
+    } catch (error) {
+      console.error("Errore riattivazione:", error);
+      toast.error("Errore nella riattivazione.");
+    } finally {
+      setRisorseLoading(false);
+    }
+  }
+};
+
+const handleRisorseDeactivate = async (id) => {
+  if (window.confirm("Disattivare questa risorsa? (verrà rimossa dalle assegnazioni ma resterà nello storico)")) {
+    setRisorseLoading(true);
+    try {
+      await deactivateRisorsa(id); // 👈 API importata
+
+      setRisorse((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, is_active: 0 } : r
+        )
+      );
+
+      toast.success("Risorsa disattivata!");
+    } catch (error) {
+      console.error("Errore durante la disattivazione:", error);
+      toast.error("Errore durante la disattivazione.");
+    } finally {
+      setRisorseLoading(false);
+    }
+  }
+};
+
 
   // ================================
   // Funzioni per Stati Avanzamento e Riordino (Filtrati per Reparto)
@@ -1221,7 +1270,13 @@ const loadCategorie = async () => {
                       <td>
                         {r.id} {editRisorsaId === r.id && <span className="editing-icon">✏️</span>}
                       </td>
-                      <td>{r.nome}</td>
+                     <td>
+  {r.nome}{" "}
+  {r.is_active === 0 && (
+    <span className="badge badge--inactive">🟥 Inattiva</span>
+  )}
+</td>
+
                       <td>
                         <button onClick={() => handleRisorseEdit(r)} className="btn w-100 btn--warning btn--pill">
                          Modifica
@@ -1229,6 +1284,21 @@ const loadCategorie = async () => {
                         <button onClick={() => handleRisorseDelete(r.id)} className="btn w-100 btn--danger btn--pill">
                         Elimina
                         </button>
+                        {r.is_active ? (
+  <button
+    onClick={() => handleRisorseDeactivate(r.id)}
+    className="btn w-100 btn--danger btn--pill"
+  >
+    Disattiva
+  </button>
+) : (
+  <button
+    onClick={() => handleRisorseActivate(r.id)}
+    className="btn w-100 btn--success btn--pill"
+  >
+    Riattiva
+  </button>
+)}
                       </td>
                     </tr>
                   ))}

@@ -382,6 +382,7 @@ const reopenNoteText = (text) =>
       onClick={async () => {
         try {
           await updateActivityNotes(editId, formData.note, token);
+              if (reloadActivities) await reloadActivities();
           toast.success("Nota salvata");
         } catch (e) {
           toast.error("Errore nel salvataggio della nota");
@@ -405,6 +406,7 @@ const reopenNoteText = (text) =>
           await updateActivityNotes(editId, closed, token);
           setFormData((prev) => ({ ...prev, note: closed }));
           toast.success("Nota chiusa");
+              if (reloadActivities) await reloadActivities();
         } catch (e) {
           toast.error("Errore nella chiusura della nota");
           console.error(e);
@@ -429,6 +431,7 @@ const reopenNoteText = (text) =>
             await updateActivityNotes(editId, reopened, token);
             setFormData((prev) => ({ ...prev, note: reopened }));
             toast.success("Nota riaperta");
+                if (reloadActivities) await reloadActivities();
           } catch (e) {
             toast.error("Errore nella riapertura della nota");
             console.error(e);
@@ -451,6 +454,7 @@ const reopenNoteText = (text) =>
           await updateActivityNotes(editId, null, token);
           setFormData((prev) => ({ ...prev, note: "" }));
           toast.success("Nota eliminata");
+              if (reloadActivities) await reloadActivities();
         } catch (e) {
           toast.error("Errore nell'eliminazione della nota");
           console.error(e);

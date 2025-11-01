@@ -13,7 +13,18 @@ export const fetchRisorse = async () => {
     const response = await apiClient.get("/api/risorse");
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle risorse:", error);
+    console.error("Errore durante il recupero delle risorse attive:", error);
+    throw error;
+  }
+};
+
+// TUTTE (attive + inattive) per lookup storico/report
+export const fetchRisorseAll = async () => {
+  try {
+    const { data } = await apiClient.get("/api/risorse/all");
+    return data;
+  } catch (error) {
+    console.error("Errore durante il recupero di tutte le risorse:", error);
     throw error;
   }
 };
@@ -36,6 +47,29 @@ export const updateRisorsa = async (id, formData) => {
     return response.data;
   } catch (error) {
     console.error("Errore durante l'aggiornamento della risorsa:", error);
+    throw error;
+  }
+};
+
+// Soft delete: DISATTIVA (mantiene lo storico delle attività)
+export const deactivateRisorsa = async (id, { data_uscita, note_uscita } = {}) => {
+  try {
+    await apiClient.patch(`/api/risorse/${id}/disattiva`, {
+      data_uscita: data_uscita ?? new Date().toISOString().slice(0, 10),
+      note_uscita: note_uscita ?? "Dimissioni",
+    });
+  } catch (error) {
+    console.error("Errore durante la disattivazione della risorsa:", error);
+    throw error;
+  }
+};
+
+// (Opzionale) Riattiva
+export const activateRisorsa = async (id) => {
+  try {
+    await apiClient.patch(`/api/risorse/${id}/attiva`);
+  } catch (error) {
+    console.error("Errore durante la riattivazione della risorsa:", error);
     throw error;
   }
 };

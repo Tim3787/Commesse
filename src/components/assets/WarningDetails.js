@@ -35,12 +35,12 @@ const WarningDetails = ({ warningActivities, resources, deleteNote , closeNote  
   </svg>
 </span>
          <div className="flex-column-center">
-            <button className="btn btn--danger btn--pill  w-100" onClick={() => deleteNote(activity.id)}>
+            <button className="btn btn--danger btn--pill  w-100" onClick={(e) => { e.stopPropagation(); deleteNote(activity.id)}}>
              Elimina Nota
             </button>
             <button
                 className="btn btn--pill btn--danger w-100"
-                onClick={() => closeNote(activity.id)}
+                onClick={(e) => { e.stopPropagation(); closeNote(activity.id)}}
               >
                 Chiudi nota
               </button>

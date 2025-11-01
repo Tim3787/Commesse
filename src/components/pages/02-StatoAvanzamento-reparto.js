@@ -63,6 +63,7 @@ function StatoAvanzamentoReparti() {
           "S: In entrata",
           "S-Ribo in entrata",
           "S: Modifiche su macchina old",
+          "S: Commessa sospesa",
         ],
         analisi: 
          //Colonne Trello
@@ -974,7 +975,7 @@ if (RepartoName === "software") {
     resources={resources}
     closeNote={closeNote}     // 👈 prima passavi deleteNote
     reopenNote={reopenNote} // opzionale, se vuoi riaprirle dai dettagli
-deleteNoteNote={deleteNote} 
+deleteNote={deleteNote} 
     />
 )}
 

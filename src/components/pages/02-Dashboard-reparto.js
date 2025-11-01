@@ -679,7 +679,7 @@ const closeNote = async (activityId) => {
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
         onDoubleClick={onDoubleClick}
       >
-        {activity.stato === 2 && activity.note && (
+        {activity.stato === 2 && activity.note &&   !isClosedNote(activity.note)  && (
           <span className="warning-icon" title="Nota presente nell'attività completata">
             <svg
               xmlns="http://www.w3.org/2000/svg"
