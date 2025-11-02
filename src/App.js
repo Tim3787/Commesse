@@ -30,6 +30,7 @@ import LoginRegister from "./components/pages/00-LoginRegister";
 import ResetPassword from './components/pages/00-ResetPassword';
 import Notifications from "./components/pages/00-Notifications";
 import Dashboard from "./components/pages/00-Dashboard-user";
+import DashboardCalendar from "./components/pages/00-Dashboard-user-calendar";
 
 //Gestione tabelle ed utenti
 import GestioneTabelle from "./components/pages/01-GestioneTabelle";
@@ -293,7 +294,9 @@ const registerDeviceToken = async () => {
     { path: "/TrelloBoardMeccanico", component: <TrelloBoardMeccanico />, requiredRole: 1 },
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
-  
+  { path: "/00-Dashboard-user-calendar", component: <DashboardCalendar /> },
+
+
   ];
 
   // ------------------------------------------------------

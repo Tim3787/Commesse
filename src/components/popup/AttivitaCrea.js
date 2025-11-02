@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { updateActivityNotes } from "../services/API/notifiche-api";
 
-const token = sessionStorage.getItem("token");
 
 function AttivitaCrea({
   formData,
@@ -381,6 +380,7 @@ const reopenNoteText = (text) =>
       disabled={!isEditing || !editId}
       onClick={async () => {
         try {
+          const token = sessionStorage.getItem("token");
           await updateActivityNotes(editId, formData.note, token);
               if (reloadActivities) await reloadActivities();
           toast.success("Nota salvata");
@@ -403,6 +403,7 @@ const reopenNoteText = (text) =>
       onClick={async () => {
         try {
           const closed = closeNoteText(formData.note);
+          const token = sessionStorage.getItem("token");
           await updateActivityNotes(editId, closed, token);
           setFormData((prev) => ({ ...prev, note: closed }));
           toast.success("Nota chiusa");
@@ -428,6 +429,7 @@ const reopenNoteText = (text) =>
         onClick={async () => {
           try {
             const reopened = reopenNoteText(formData.note);
+            const token = sessionStorage.getItem("token");
             await updateActivityNotes(editId, reopened, token);
             setFormData((prev) => ({ ...prev, note: reopened }));
             toast.success("Nota riaperta");
@@ -451,6 +453,7 @@ const reopenNoteText = (text) =>
       disabled={!isEditing || !editId}
       onClick={async () => {
         try {
+          const token = sessionStorage.getItem("token");
           await updateActivityNotes(editId, null, token);
           setFormData((prev) => ({ ...prev, note: "" }));
           toast.success("Nota eliminata");

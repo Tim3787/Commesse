@@ -23,3 +23,19 @@ export const deleteAttivitaCommessa = async (id, token) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+// ✅ Attività aperte della risorsa
+export const fetchMyOpenActivities = async (token) => {
+  const response = await apiClient.get("/api/attivita_commessa/me/aperte", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// ✅ Attività con note aperte
+export const fetchMyOpenNotes = async (token) => {
+  const response = await apiClient.get("/api/attivita_commessa/me/note-aperte", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};

@@ -1,17 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/00-Dashboard-user.css";
 import SezioneSchede from '../assets/SezioneSchede.js'; 
 import SchedaTecnica from "../popup/SchedaTecnicaEdit.js";
 
-
+// Import icone FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 // Import API per le varie entità
-import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/notifiche-api";
-import { fetchDashboardActivities } from "../services/API/dashboard-api";
-import { fetchUserName } from "../services/API/utenti-api";
-import { fetchMyOpenNotes, fetchMyOpenActivities  } from "../services/API/attivitaCommesse-api";
+import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/notifiche-api.js";
+import { fetchFATDates } from "../services/API/commesse-api.js";
+import { fetchDashboardActivities } from "../services/API/dashboard-api.js";
+import { fetchUserName } from "../services/API/utenti-api.js";
+import { fetchMyOpenNotes, fetchMyOpenActivities  } from "../services/API/attivitaCommesse-api.js";
 
 
 // Import per Toastify (notifiche)
@@ -23,23 +27,26 @@ import "react-toastify/dist/ReactToastify.css";
  * Permette di navigare tra i mesi, aggiornare lo stato delle attività e gestire note.
  */
 
-function Dashboard() {
+function DashboardCalendar() {
   // ------------------------------------------------------------------
   // Stati e Ref
   // ------------------------------------------------------------------
-  const [currentMonth, ] = useState(new Date()); // Mese attualmente visualizzato
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
   const [monthlyActivities, setMonthlyActivities] = useState([]); // Attività del mese corrente
   const [loading, setLoading] = useState(false);                   // Stato di caricamento generale
   const [userName, setUserName] = useState("Utente");                // Nome dell'utente
   const token = sessionStorage.getItem("token");                   // Token JWT salvato in sessionStorage
-  const daysRefs = useRef([]);                                       // Ref per ogni giorno della dashboard (per lo scroll)              // Data di oggi in formato locale
+  const [allFATDates, setAllFATDates] = useState([]);                // Elenco delle commesse con FAT
+  const daysRefs = useRef([]);                                       // Ref per ogni giorno della dashboard (per lo scroll)
+  const today = formatDateOnly(new Date());                  // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const calendarRef = useRef();
   const [schedeAperte, setSchedeAperte] = useState({});
   const [popupScheda, setPopupScheda] = useState(null);
   const [schedaInModifica, setSchedaInModifica] = useState(null);
   const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
- const navigate = useNavigate();
+  const navigate = useNavigate();
+
 const CLOSED_PREFIX = "[CHIUSA] ";
 const CLOSED_RE = /^\[CHIUSA\]\s*/i; // parentesi quadre escapse, spazio opzionale
 
@@ -64,8 +71,9 @@ const reopenNoteText = (text) =>
     return days;
   };
   const daysInMonth = getDaysInMonth(currentMonth);
-  
-
+const meseCorrente = daysInMonth.length > 0
+  ? daysInMonth[0].toLocaleDateString("it-IT", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase())
+  : "";
   // ------------------------------------------------------------------
   // Helper per formattare date in YYYY-MM-DD senza shift
   // ------------------------------------------------------------------
@@ -113,15 +121,12 @@ const reopenNoteText = (text) =>
   // ------------------------------------------------------------------
 const getActivitiesForDay = (day) => {
   const isoDay = formatDateOnly(normalizeDate(day));
-
-  return monthlyActivities.filter((activity) =>
-    getActivityDates(activity)
+  return monthlyActivities.filter((activity) => {
+    return getActivityDates(activity)
       .map((d) => formatDateOnly(d))
-      .includes(isoDay)
-  );
+      .includes(isoDay);
+  });
 };
-
-
 
   // ------------------------------------------------------------------
   // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
@@ -166,12 +171,7 @@ useEffect(() => {
       try {
         setLoading(true);
         const activities = await fetchDashboardActivities(monthStartDate, token);
-        setMonthlyActivities(
-  activities.map(a => ({
-    ...a,
-    includedWeekends: a.included_weekends || [], // normalizza
-  }))
-);
+        setMonthlyActivities(activities);
       } catch (error) {
         console.error("Errore durante il recupero delle attività mensili:", error);
       } finally {
@@ -181,7 +181,20 @@ useEffect(() => {
     fetchData();
   }, [currentMonth, token]);
 
-
+  // ------------------------------------------------------------------
+  // Effetto: Carica le date FAT (commesse con FAT) dal backend
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const fetchFATData = async () => {
+      try {
+        const fatDates = await fetchFATDates(token);
+        setAllFATDates(fatDates);
+      } catch (error) {
+        console.error("Errore durante il recupero delle commesse con FAT:", error);
+      }
+    };
+    fetchFATData();
+  }, [token]);
 
   // ------------------------------------------------------------------
   // Effetto: Recupera il nome dell'utente
@@ -197,6 +210,21 @@ useEffect(() => {
     };
     fetchUserData();
   }, [token]);
+
+  // ------------------------------------------------------------------
+  // Navigazione tra i mesi
+  // ------------------------------------------------------------------
+  const goToPreviousMonth = () => {
+    setCurrentMonth((prev) =>
+      new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+    );
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth((prev) =>
+      new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    );
+  };
 
   // ------------------------------------------------------------------
   // Stato per il caricamento individuale delle attività (per pulsanti, ecc.)
@@ -333,8 +361,7 @@ const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
 };
 
 
-const [myOpenList, setMyOpenList] = useState([]);
-const [myNotesList, setMyNotesList] = useState([]);
+
 
 useEffect(() => {
   const load = async () => {
@@ -353,9 +380,6 @@ useEffect(() => {
   load();
 }, [token]);
 
-useEffect(() => {
-  console.log("MONTHLY ACTIVITIES", monthlyActivities);
-}, [monthlyActivities]);
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
   // ------------------------------------------------------------------
@@ -365,10 +389,23 @@ useEffect(() => {
       <div className="container">
          <div className="flex-column-center">
         {/* Intestazione */}
-         <h1> Ciao {userName}</h1>
+        <h1>CALENDARIO PERSONALE</h1>
+         <h1> {userName}</h1>
          </div>
+          <div className="flex-column-center">
+  <button  className="btn btn--pill w-400 btn--blue" onClick={() => navigate("/dashboard")}>Vai alla bacheca personale</button>
+</div>
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-
+        {/* Navigazione tra i mesi */}
+        <div className="flex-center header-row">
+          <button onClick={goToPreviousMonth} className="btn w-50 h-30 btn--shiny btn--pill">
+            <FontAwesomeIcon icon={faChevronLeft} />
+          </button>
+         <div className="header-row-month"> {meseCorrente}</div>
+          <button onClick={goToNextMonth} className="btn w-50 h-30 btn--shiny btn--pill">
+            <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
 
         {/* Overlay di caricamento */}
         {loading && (
@@ -377,59 +414,45 @@ useEffect(() => {
           </div>
         )}
         
-       <div className="flex-column-center">
-  
 
-  <h3>Hai {myOpenList.length} attività aperte</h3>
-
-<ul>
-  {myOpenList.slice(0, 5).map(a => (
-    <li key={a.id}>
-  {a.numero_commessa} — {a.nome_attivita}  
-
- --  Inizia il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
-</li>
-
-  ))}
-</ul>
-
-  <h3>Hai {myNotesList.length} note aperte</h3>
-<ul>
-  {myNotesList.slice(0, 5).map(a => (
-    <li key={a.id}>
-  {a.numero_commessa} — {a.nome_attivita}  
-
-  --  Inizia il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
-</li>
-
-  ))}
-</ul>
-
-</div>
- <div className="flex-column-center">
-  <button  className="btn btn--pill w-400 btn--blue" onClick={() => navigate("/00-Dashboard-user-calendar")}>Vai al calendario</button>
-</div>
 <hr style={{ margin: "10px 0" }} />
 
-    {/* ATTIVITA DI OGGI */}
-    <h1>ATTIVITA' DI OGGI</h1>
+        {/* Calendario: per ogni giorno del mese viene renderizzata una "cella" */}
+        <div className="user-calendar" ref={calendarRef}>
+          {daysInMonth.map((day, index) => {
+            // Determina se il giorno è weekend e/o oggi
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+            const isToday = formatDateOnly(day) === today;
+            return (
+              <div
+                key={index}
+                className={`calendar-day ${isToday ? "user-calendar-today" : ""} ${
+                  isWeekend ? "user-calendar-weekend" : ""
+                }`}
+                ref={(el) => (daysRefs.current[index] = el)}
+              >
+                <div className="day-header">
+                  <strong>{day.toLocaleDateString("it-IT", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</strong>
 
-    {(() => {
-      const todays = getActivitiesForDay(new Date());
-      if (!todays.length) return <p>✅ Nessuna attività oggi</p>;
-      return todays.map((activity) => {
+                </div>
 
-        const activityClass =
-          activity.stato === 0 ? "activity not-started"
-          : activity.stato === 1 ? "activity started"
-          : "activity completed";
+                {/* Sezione attività: per il giorno corrente vengono mostrate le attività associate */}
+
+                  {getActivitiesForDay(day).length > 0 ? (
+                    getActivitiesForDay(day).map((activity) => {
+                      // Imposta una classe in base allo stato dell'attività
+                      const activityClass =
+                        activity.stato === 0
+                          ? "activity not-started"
+                          : activity.stato === 1
+                          ? "activity started"
+                          : "activity completed";
                       // Controlla se l'attività riguarda una trasferta (logica specifica)
                       const isTrasferta = activity.nome_attivita
                         ?.toLowerCase()
                         .includes("trasferta");
 
                       return (
-                        <div className="flex-column-center">
                         <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "200px"} } >
                           <div className="flex-column-center">
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
@@ -559,16 +582,35 @@ useEffect(() => {
       commessaId={activity.commessa_id}
       numero_commessa={activity.numero_commessa}
        apriPopupScheda={apriPopupScheda}
-               />
-              )}
-            </div>
-          </div>
-           </div>
-        );
-      });
-    })()}
-    </div>
+    />
+  )}
+</div>
 
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div></div>
+                  )}
+
+                {/* Sezione FAT: visualizza le commesse con FAT se la data FAT corrisponde al giorno */}
+                <div className="fat-dates">
+                  {allFATDates
+                    .filter((commessa) => {
+                      const fatDate = new Date(commessa.data_FAT).toLocaleDateString();
+                      return fatDate === day.toLocaleDateString();
+                    })
+                    .map((commessa) => (
+                      <div key={commessa.commessa_id} className="fat">
+                        <strong>FAT commessa:</strong> {commessa.numero_commessa}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 {popupScheda && (
   <SchedaTecnica
     editable={true}
@@ -589,4 +631,4 @@ useEffect(() => {
   );
 }
 
-export default Dashboard;
+export default DashboardCalendar;
