@@ -306,7 +306,7 @@ function StatoAvanzamentoReparti() {
   const [ConsegnaSettimanale, setConsegnaSettimanale] = useState(true); // Abilita allarme consegna nella settimana
   const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per i dettagli
   const normalize = (str) => str?.trim().toLowerCase();
-
+const [movingCommessa, setMovingCommessa] = useState(null);
     // Chiudi la nota associata a un'attività
 const CLOSED_PREFIX = "[CHIUSA] ";
 const isClosedNote = (text) =>
@@ -638,7 +638,7 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
   const cId = toNum(commessaId);
   const rId = toNum(repartoId);
   const sId = toNum(newStatoId);
-
+setMovingCommessa(cId);
   // ✅ Aggiornamento ottimistico: la card si sposta subito
   setCommesse((prevCommesse) =>
     prevCommesse.map((commessa) => {
@@ -663,6 +663,7 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     await apiClient.put(`/api/commesse/${cId}/reparti/${rId}/stato`, {
       stato_id: sId,
       is_active: true,
+      
     });
   } catch (error) {
     console.error("Errore durante l'aggiornamento dello stato:", error);
@@ -670,6 +671,22 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
     // await refetchCommesse();
   }
 };
+useEffect(() => {
+  if (movingCommessa === null) return;
+
+  // Quando activities cambiano, e la commessa ha ora il nuovo stato corretto, allora rimuovo la protezione
+  const moved = commesse.find(c => c.commessa_id === movingCommessa);
+
+  if (!moved) return;
+
+  const reparto = moved.stati_avanzamento?.find(r => Number(r.reparto_id) === Number(RepartoID));
+  const hasActive = reparto?.stati_disponibili?.some(s => s.isActive);
+
+  if (hasActive) {
+    setMovingCommessa(null);
+  }
+}, [activities, commesse, movingCommessa, RepartoID]);
+
   // ----------------------------------------------------------------
   // Gestione dell'ordine delle colonne
   // ----------------------------------------------------------------
@@ -740,6 +757,9 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
    * Se VediConsegnate è disattivato, esclude le commesse con data di consegna precedente a oggi.
    */
   const filteredCommesse = commesse.filter((commessa) => {
+    if (movingCommessa === commessa.commessa_id) {
+  return true;
+}
     const matchesNumeroCommessa = commessa.numero_commessa
       .toString()
       .includes(numeroCommessaFilter);
@@ -1318,7 +1338,7 @@ deleteNote={deleteNote}
                             (reparto) =>
                               reparto.reparto_id === RepartoID &&
                               reparto.stati_disponibili.some((s) => s.stato_id === stato.id && s.isActive)
-                          )
+                          ) || movingCommessa === commessa.commessa_id
                         )}
                         activities={activities}
                         resources={resources}

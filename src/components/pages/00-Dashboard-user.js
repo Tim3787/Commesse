@@ -11,7 +11,7 @@ import SchedaTecnica from "../popup/SchedaTecnicaEdit.js";
 import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/notifiche-api";
 import { fetchDashboardActivities } from "../services/API/dashboard-api";
 import { fetchUserName } from "../services/API/utenti-api";
-import { fetchMyOpenNotes, fetchMyOpenActivities  } from "../services/API/attivitaCommesse-api";
+import { fetchMyOpenNotes, fetchMyOpenActivities,fetchRepartoDashboard  } from "../services/API/attivitaCommesse-api";
 
 
 // Import per Toastify (notifiche)
@@ -31,7 +31,18 @@ function Dashboard() {
   const [monthlyActivities, setMonthlyActivities] = useState([]); // Attività del mese corrente
   const [loading, setLoading] = useState(false);                   // Stato di caricamento generale
   const [userName, setUserName] = useState("Utente");                // Nome dell'utente
-  const token = sessionStorage.getItem("token");                   // Token JWT salvato in sessionStorage
+  const token = sessionStorage.getItem("token");
+let userId = null;
+
+
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    userId = payload.id;
+  } catch (e) {
+    console.error("Errore decodifica token:", e);
+  }
+}                // Token JWT salvato in sessionStorage
   const daysRefs = useRef([]);                                       // Ref per ogni giorno della dashboard (per lo scroll)              // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const calendarRef = useRef();
@@ -51,7 +62,17 @@ const closeNoteText = (text) =>
 const reopenNoteText = (text) =>
   (text ?? "").replace(CLOSED_RE, "");
 
-
+const [deptData, setDeptData] = useState(null);
+const managerRepartoMap = {
+  26: 1, // User 12 vede reparto software (id 1)
+  105: 3, // User 45 vede reparto meccanico 
+  106: 3, // User 45 vede reparto meccanico 
+  44: 2, // User 78 vede reparto elettrico 
+  107: 14, // User 78 vede reparto Tecnico elettrico
+  77: 18, // User 78 vede reparto Service
+  84: 18, // User 78 vede reparto Service
+  };
+const repartoIdPerManager = managerRepartoMap[userId] ?? null;
   // ------------------------------------------------------------------
   // Funzione helper: calcola tutti i giorni del mese dato un oggetto Date
   // ------------------------------------------------------------------
@@ -121,6 +142,20 @@ const getActivitiesForDay = (day) => {
   );
 };
 
+useEffect(() => {
+  if (!repartoIdPerManager) return;
+
+  const loadDeptData = async () => {
+    try {
+      const data = await fetchRepartoDashboard(repartoIdPerManager, token);
+      setDeptData(data);
+    } catch (e) {
+      console.error("Errore caricamento dashboard reparto", e);
+    }
+  };
+
+  loadDeptData();
+}, [repartoIdPerManager, token]);
 
 
   // ------------------------------------------------------------------
@@ -354,7 +389,7 @@ useEffect(() => {
 }, [token]);
 
 useEffect(() => {
-  console.log("MONTHLY ACTIVITIES", monthlyActivities);
+
 }, [monthlyActivities]);
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
@@ -380,30 +415,54 @@ useEffect(() => {
        <div className="flex-column-center">
   
 
-  <h3>Hai {myOpenList.length} attività aperte</h3>
+  Hai {myOpenList.length} attività aperte
 
 <ul>
   {myOpenList.slice(0, 5).map(a => (
     <li key={a.id}>
   {a.numero_commessa} — {a.nome_attivita}  
 
- --  Inizia il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
+ --  Iniziata il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
 </li>
 
   ))}
 </ul>
 
-  <h3>Hai {myNotesList.length} note aperte</h3>
+Hai {myNotesList.length} note aperte
 <ul>
   {myNotesList.slice(0, 5).map(a => (
     <li key={a.id}>
   {a.numero_commessa} — {a.nome_attivita}  
 
-  --  Inizia il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
+  --  Iniziata il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
 </li>
 
   ))}
 </ul>
+{deptData && (
+  <div className="flex-column-center">
+    <h2>Riepilogo reparto {deptData.reparto_nome}</h2>
+
+    <p>Attività aperte: {deptData.openActivitiesCount}</p>
+
+    <ul>
+      {deptData.openActivities.map(a => (
+        <li key={a.id}>
+          {a.numero_commessa} — {a.nome_attivita} — --  Iniziata il {new Date(a.data_inizio).toLocaleDateString()}
+        </li>
+      ))}
+    </ul>
+    <p>Note aperte: {deptData.openNotesCount}</p>
+    <ul>
+      {deptData.openNotes.slice(0, 5).map(a => (
+        <li key={a.id}>
+          {a.numero_commessa} — {a.nome_attivita} 
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
 
 </div>
  <div className="flex-column-center">
@@ -448,7 +507,7 @@ useEffect(() => {
                             )}
                             <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
-                            <strong>Stato: {activity.descrizione}</strong> 
+                            <strong>Descrizione: {activity.descrizione}</strong> 
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗

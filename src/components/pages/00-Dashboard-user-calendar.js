@@ -471,7 +471,7 @@ useEffect(() => {
                             )}
                             <strong>Commessa: {activity.numero_commessa} </strong>
                             <strong>Attività: {activity.nome_attivita}</strong>
-                            <strong>Stato: {activity.descrizione}</strong> 
+                            <strong>Descrizione: {activity.descrizione}</strong> 
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗

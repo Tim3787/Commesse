@@ -39,3 +39,35 @@ export const fetchMyOpenNotes = async (token) => {
   });
   return response.data;
 };
+// ✅ Attività aperte del reparto
+export const fetchRepartoOpenActivities = async (repartoId, token) => {
+  const response = await apiClient.get(
+    `/api/attivita_commessa/reparto/${repartoId}/aperte`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
+};
+
+// ✅ Note aperte del reparto
+export const fetchRepartoOpenNotes = async (repartoId, token) => {
+  const response = await apiClient.get(
+    `/api/attivita_commessa/reparto/${repartoId}/note-aperte`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
+};
+
+// ✅ Dashboard reparto completa (consigliato)
+export const fetchRepartoDashboard = async (repartoId, token) => {
+  const response = await apiClient.get(
+    `/api/attivita_commessa/reparto/${repartoId}/dashboard`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
+};

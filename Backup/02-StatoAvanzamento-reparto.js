@@ -638,24 +638,26 @@ const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
   const sId = toNum(newStatoId);
 
   // ✅ Aggiornamento ottimistico: la card si sposta subito
-  setCommesse((prevCommesse) =>
-    prevCommesse.map((commessa) => {
-      if (toNum(commessa.commessa_id) !== cId) return commessa;
+setCommesse((prev) =>
+  prev.map((c) => {
+    if (toNum(c.commessa_id) !== cId) return c;
+
+    const newStati = c.stati_avanzamento.map((r) => {
+      if (toNum(r.reparto_id) !== rId) return r;
+
       return {
-        ...commessa,
-        stati_avanzamento: (commessa.stati_avanzamento || []).map((reparto) => {
-          if (toNum(reparto.reparto_id) !== rId) return reparto;
-          return {
-            ...reparto,
-            stati_disponibili: (reparto.stati_disponibili || []).map((stato) => ({
-              ...stato,
-              isActive: toNum(stato.stato_id) === sId, // 👈 confronto numerico
-            })),
-          };
-        }),
+        ...r,
+        stati_disponibili: r.stati_disponibili.map((s) => ({
+          ...s,
+          isActive: toNum(s.stato_id) === sId ? true : false,
+        })),
       };
-    })
-  );
+    });
+
+    return { ...c, stati_avanzamento: newStati };
+  })
+);
+
 
   try {
     await apiClient.put(`/api/commesse/${cId}/reparti/${rId}/stato`, {
