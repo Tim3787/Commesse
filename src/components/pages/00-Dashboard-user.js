@@ -411,14 +411,14 @@ useEffect(() => {
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-        
+         <div className="user-dash" >
        <div className="flex-column-center">
   
 
   Hai {myOpenList.length} attività aperte
 
 <ul>
-  {myOpenList.slice(0, 5).map(a => (
+  {myOpenList.map(a => (
     <li key={a.id}>
   {a.numero_commessa} — {a.nome_attivita}  
 
@@ -430,7 +430,7 @@ useEffect(() => {
 
 Hai {myNotesList.length} note aperte
 <ul>
-  {myNotesList.slice(0, 5).map(a => (
+  {myNotesList.map(a => (
     <li key={a.id}>
   {a.numero_commessa} — {a.nome_attivita}  
 
@@ -448,15 +448,15 @@ Hai {myNotesList.length} note aperte
     <ul>
       {deptData.openActivities.map(a => (
         <li key={a.id}>
-          {a.numero_commessa} — {a.nome_attivita} — --  Iniziata il {new Date(a.data_inizio).toLocaleDateString()}
+          Commessa {a.numero_commessa} — attività: {a.nome_attivita} —   Iniziata il {new Date(a.data_inizio).toLocaleDateString()} da {a.risorsa_nome || "—"}
         </li>
       ))}
     </ul>
     <p>Note aperte: {deptData.openNotesCount}</p>
     <ul>
-      {deptData.openNotes.slice(0, 5).map(a => (
+      {deptData.openNotes.map(a => (
         <li key={a.id}>
-          {a.numero_commessa} — {a.nome_attivita} 
+         Commessa  {a.numero_commessa} — attività:  {a.nome_attivita} creata da {a.risorsa_nome || "—"}
         </li>
       ))}
     </ul>
@@ -642,7 +642,7 @@ Hai {myNotesList.length} note aperte
   />
 )}
 
-
+</div>
     </div>
     
   );

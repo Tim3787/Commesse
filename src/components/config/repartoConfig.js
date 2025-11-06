@@ -26,12 +26,12 @@ const repartoConfig = {
   quadristi: { 
     RepartoID: 15, 
     RepartoName: "quadristi", 
-    defaultServiceResourceId: null // ID della risorsa di default per "quadristi"
+    defaultServiceResourceId: 94 // ID della risorsa di default per "quadristi"
   },
   tecnicoelettrico: { 
     RepartoID: 14, 
     RepartoName: "tecnico elettrico", 
-    defaultServiceResourceId: null // ID della risorsa di default per "quadristi"
+    defaultServiceResourceId: 94 // ID della risorsa di default per "quadristi"
   },
 
 };

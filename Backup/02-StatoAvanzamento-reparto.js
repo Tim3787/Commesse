@@ -304,6 +304,7 @@ function StatoAvanzamentoReparti() {
   const [ConsegnaSettimanale, setConsegnaSettimanale] = useState(true); // Abilita allarme consegna nella settimana
   const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per i dettagli
   const normalize = (str) => str?.trim().toLowerCase();
+const [movingCommessa, setMovingCommessa] = useState(null);
 
     // Chiudi la nota associata a un'attività
 const CLOSED_PREFIX = "[CHIUSA] ";
