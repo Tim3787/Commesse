@@ -50,6 +50,7 @@ function DashboardReparto() {
   const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Attività definite per reparto
   const [selectedServiceResource, setSelectedServiceResource] = useState(null); // Risorsa del service selezionata
   const [activityViewMode, setActivityViewMode] = useState("full"); // Modalità di visualizzazione: "full" o "compact"
+
   const [formData, setFormData] = useState({
     commessa_id: "",
     reparto_id: "",
@@ -496,7 +497,7 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
   // Gestisce il drop di un'attività in una nuova cella (nuova risorsa e/o nuovo giorno)
 const handleActivityDrop = async (activity, newResourceId, newDate) => {
   try {
-    setMovingCommessa(cId);
+
     const newStart = normalizeDate(newDate);
     const isoDate = toLocalISOString(newStart);
     const durata = Number(activity.durata) || 0;
@@ -535,7 +536,7 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
     const updatedActivities = await fetchAttivitaCommessa();
     setActivities(updatedActivities);
-    setMovingCommessa(null);
+
   } catch (error) {
     console.error("Errore durante l'aggiornamento dell'attività:", error);
   }
