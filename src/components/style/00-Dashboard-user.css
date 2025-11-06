@@ -22,7 +22,7 @@ CALENDARIO
   flex-direction: column;
   align-items: stretch; 
   width: 100%;         
-  height: calc(100vh - 130px); 
+  height: calc(100vh - 80px); 
   overflow-y: auto;
   overflow-x: hidden;   
   padding: 1rem;

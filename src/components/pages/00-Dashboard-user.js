@@ -398,10 +398,7 @@ useEffect(() => {
     <div>
 
       <div className="container">
-         <div className="flex-column-center">
-        {/* Intestazione */}
-         <h1> Ciao {userName}</h1>
-         </div>
+
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
 
 
@@ -414,12 +411,16 @@ useEffect(() => {
          <div className="user-dash" >
        <div className="flex-column-center">
   
-
+<div className="center">
+          {/* Intestazione */}
+         <h1> Ciao {userName}</h1>
+         </div>
+         <div className="center">
   Hai {myOpenList.length} attività aperte
 
 <ul>
   {myOpenList.map(a => (
-    <li key={a.id}>
+    <li  style={{ marginBottom: "10px"}} key={a.id}>
   {a.numero_commessa} — {a.nome_attivita}  
 
  --  Iniziata il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
@@ -427,7 +428,8 @@ useEffect(() => {
 
   ))}
 </ul>
-
+</div>
+<div className="center">
 Hai {myNotesList.length} note aperte
 <ul>
   {myNotesList.map(a => (
@@ -439,27 +441,53 @@ Hai {myNotesList.length} note aperte
 
   ))}
 </ul>
+</div>
 {deptData && (
   <div className="flex-column-center">
     <h2>Riepilogo reparto {deptData.reparto_nome}</h2>
 
-    <p>Attività aperte: {deptData.openActivitiesCount}</p>
+   <ul>Nel reparto ci sono  {deptData.openActivitiesCount} attività aperte</ul>
 
-    <ul>
+
       {deptData.openActivities.map(a => (
-        <li key={a.id}>
-          Commessa {a.numero_commessa} — attività: {a.nome_attivita} —   Iniziata il {new Date(a.data_inizio).toLocaleDateString()} da {a.risorsa_nome || "—"}
-        </li>
-      ))}
-    </ul>
-    <p>Note aperte: {deptData.openNotesCount}</p>
-    <ul>
+  <li
+    key={a.id}
+    style={{
+ marginBottom: "10px",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "6px"
+  }}
+>
+  <span><strong>Commessa:</strong> {a.numero_commessa}</span>
+  <span>—</span>
+  <span><strong>Attività:</strong> {a.nome_attivita}</span>
+  <span>—</span>
+  <span><strong>Iniziata il:</strong> {new Date(a.data_inizio).toLocaleDateString("it-IT")}</span>
+  <span>—</span>
+  <span><strong>Da:</strong> {a.risorsa_nome || "—"}</span>
+</li>
+))}
+
+    <ul> Nel reparto ci sono  {deptData.openNotesCount} note aperte</ul>
+
       {deptData.openNotes.map(a => (
-        <li key={a.id}>
-         Commessa  {a.numero_commessa} — attività:  {a.nome_attivita} creata da {a.risorsa_nome || "—"}
+         <li
+    key={a.id}
+    style={{
+ marginBottom: "10px",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "6px"
+  }}
+>
+           <span><strong>Commessa:</strong> {a.numero_commessa}</span>
+  <span>—</span>
+  <span><strong>Attività:</strong> {a.nome_attivita}</span>
+  <span><strong>Creata da:</strong> {a.risorsa_nome || "—"}</span>
         </li>
       ))}
-    </ul>
+
   </div>
 )}
 
