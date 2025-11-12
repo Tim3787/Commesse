@@ -70,20 +70,46 @@ const reopenNoteText = (text) =>
       return;
     }
     const startDate = normalizeDate(data_inizio);
-    const days = [];
-    const total = Number(durata) || 0;
-    for (let i = 0; i < total; i++) {
-      const d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      const wd = d.getDay(); // 0=Dom,6=Sab
-      if (wd === 6 || wd === 0) {
-        days.push({
-          date: formatDateOnly(d),
-          dayName: wd === 6 ? "Sabato" : "Domenica",
-        });
-      }
+
+// 1️⃣ La durata è in giorni lavorativi → convertiamola in durata reale sul calendario
+  const giorniLavorativiTot = Number(durata);
+  let giorniTotali = 0;
+  let lavorativiContati = 0;
+
+  while (lavorativiContati < giorniLavorativiTot) {
+    const temp = new Date(startDate);
+    temp.setDate(startDate.getDate() + giorniTotali);
+
+    const day = temp.getDay();
+    if (day !== 0 && day !== 6) { // Lun-Ven
+      lavorativiContati++;
     }
-    setWeekendOptions(days);
+
+    giorniTotali++;
+  }
+
+  // 2️⃣ Data di fine reale dell'attività
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + giorniTotali);
+
+  // 3️⃣ Trova tutti i weekend nel range
+  const allWeekends = [];
+  let cursor = new Date(startDate);
+
+  while (cursor <= endDate) {
+    const day = cursor.getDay();
+
+    if (day === 6 || day === 0) {
+      allWeekends.push({
+        date: formatDateOnly(cursor),
+        dayName: day === 6 ? "Sabato" : "Domenica",
+      });
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  setWeekendOptions(allWeekends);
 
     // Inizializza includedWeekends se non definito
     if (formData.includedWeekends === undefined) {

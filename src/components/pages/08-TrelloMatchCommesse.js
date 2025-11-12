@@ -184,15 +184,17 @@ useEffect(() => {
   });
 
   return (
-    <div className="container-Scroll">
+    <div className="container">
+       <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
       {loading && (
         <div className="loading-overlay">
           <img src={logo} alt="Logo" className="logo-spinner" />
         </div>
       )}
+            <div className="user-dash" >
       <div className="flex-center header-row">
         <h1>Commesse esistenti solo su Trello</h1>
-         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+
       </div>
       <div className="commessa-container">
         
@@ -277,6 +279,7 @@ useEffect(() => {
           stati_avanzamento={statiAvanzamento}
         />
       )}
+    </div>
     </div>
   );
 };

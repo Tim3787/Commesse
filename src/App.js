@@ -94,6 +94,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
+
   // ------------------------------------------------------
   // Funzione per verificare se il token JWT è valido
   // ------------------------------------------------------
@@ -128,6 +129,9 @@ function App() {
 
     // NUOVO
   useEffect(() => {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) return; // ⛔ PC → NON REGISTRARE IL TOKEN
+
   const syncDeviceToken = async () => {
     if (!isAuthenticated) return;
 
@@ -158,6 +162,11 @@ function App() {
   // Registrazione del device token per le notifiche push
   // ------------------------------------------------------
 const registerDeviceToken = async () => {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) {
+    console.log("🖥️ PC: token NON registrato");
+    return;
+  }
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
     console.error("Permesso per le notifiche negato.");
