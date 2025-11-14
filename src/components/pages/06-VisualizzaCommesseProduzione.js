@@ -34,6 +34,7 @@ function VisualizzazioneCommesseProduzione() {
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState("");
   const [statoFilter, setStatoFilter] = useState("2"); // Stato predefinito (puoi modificare in base alle tue esigenze)
+    const [filtroStatiReparto, setFiltroStatiReparto] = useState([]);
   // Nuovi filtri: checkbox per M- e R-
   const [filterM] = useState(false);
   const [filterR] = useState(false);
@@ -135,7 +136,18 @@ function VisualizzazioneCommesseProduzione() {
       if (commessa.numero_commessa.startsWith("R-") && !filterR) {
         return false;
       }
-  
+  // 🎯 Filtra per stato avanzamento del reparto selezionato
+if (filtroStatiReparto.length > 0) {
+  const statoReparto = commessa.stati_avanzamento?.find(
+    (r) => r.reparto_nome?.toLowerCase() === repartoSelezionato.toLowerCase()
+  );
+
+  const statoAttivo = statoReparto?.stati_disponibili?.find((s) => s.isActive);
+
+  if (!statoAttivo || !filtroStatiReparto.includes(statoAttivo.nome_stato)) {
+    return false;
+  }
+}
       return true;
     });
   };
@@ -168,7 +180,7 @@ function VisualizzazioneCommesseProduzione() {
   // Effettua l'update ogni volta che cambia un filtro o i dati
   useEffect(() => {
     updateFilteredCommesse();
-  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection, filterM, filterR]);
+  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection, filterM, filterR,  repartoSelezionato,  filtroStatiReparto]);
 
   // Aggiorna i suggerimenti (autocomplete) per i filtri in base alle commesse
   useEffect(() => {
@@ -544,6 +556,38 @@ function VisualizzazioneCommesseProduzione() {
                   <option value="crescente">Data di consegna crescente</option>
                   <option value="decrescente">Data di consegna decrescente</option>
                 </select>
+
+              <label>Stati avanzamento del reparto:</label>
+
+<div className="checklist">
+  {(
+    commesse
+      .flatMap(c =>
+        c.stati_avanzamento
+          ?.filter(s => s.reparto_nome?.toLowerCase() === repartoSelezionato.toLowerCase())
+          ?.flatMap(r => r.stati_disponibili || [])
+      )
+      .filter((v, i, a) => v && a.findIndex(x => x.stato_id === v.stato_id) === i)
+      .sort((a, b) => a.ordine - b.ordine)   // 👈 ORDINE CORRETTO
+  ).map((stato) => (
+    <label key={stato.stato_id} style={{ display: "block" }}>
+      <input
+        type="checkbox"
+        checked={filtroStatiReparto.includes(stato.nome_stato)}
+        onChange={(e) => {
+          if (e.target.checked) {
+            setFiltroStatiReparto(prev => [...prev, stato.nome_stato]);
+          } else {
+            setFiltroStatiReparto(prev =>
+              prev.filter(nome => nome !== stato.nome_stato)
+            );
+          }
+        }}
+      />
+      {stato.nome_stato}
+    </label>
+  ))}
+</div>
               </div>
               </div>
       )}

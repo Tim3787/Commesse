@@ -33,6 +33,9 @@ function VisualizzazioneCommesse() {
   const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
   const [commessaFilter, setCommessaFilter] = useState("");
   const [statoFilter, setStatoFilter] = useState("2"); // Stato predefinito (puoi modificare in base alle tue esigenze)
+  const [filtroStatiReparto, setFiltroStatiReparto] = useState([]);
+
+
   // Nuovi filtri: checkbox per M- e R-
   const [filterM, setFilterM] = useState(true);
   const [filterR, setFilterR] = useState(true);
@@ -142,6 +145,19 @@ function VisualizzazioneCommesse() {
           !filterProduction) {
         return false;
       }
+// 🎯 Filtra per stato avanzamento del reparto selezionato
+if (filtroStatiReparto.length > 0) {
+  const statoReparto = commessa.stati_avanzamento?.find(
+    (r) => r.reparto_nome?.toLowerCase() === repartoSelezionato.toLowerCase()
+  );
+
+  const statoAttivo = statoReparto?.stati_disponibili?.find((s) => s.isActive);
+
+  if (!statoAttivo || !filtroStatiReparto.includes(statoAttivo.nome_stato)) {
+    return false;
+  }
+}
+
 
       return true;
     });
@@ -175,7 +191,7 @@ function VisualizzazioneCommesse() {
   // Effettua l'update ogni volta che cambia un filtro o i dati
   useEffect(() => {
     updateFilteredCommesse();
-  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection, filterM, filterR, filterProduction]);
+  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection, filterM, filterR, filterProduction,  repartoSelezionato,  filtroStatiReparto ]);
 
   // Aggiorna i suggerimenti (autocomplete) per i filtri in base alle commesse
   useEffect(() => {
@@ -545,12 +561,46 @@ function VisualizzazioneCommesse() {
                     </option>
                   ))}
                 </select>
-
-                <select onChange={handleDateSortChange} value={dateSortDirection}                  className="w-200">
+                                <select onChange={handleDateSortChange} value={dateSortDirection}                  className="w-200">
 
                   <option value="crescente">Data di consegna crescente</option>
                   <option value="decrescente">Data di consegna decrescente</option>
                 </select>
+<label>Stati avanzamento del reparto:</label>
+
+<div className="checklist">
+  {(
+    commesse
+      .flatMap(c =>
+        c.stati_avanzamento
+          ?.filter(s => s.reparto_nome?.toLowerCase() === repartoSelezionato.toLowerCase())
+          ?.flatMap(r => r.stati_disponibili || [])
+      )
+      .filter((v, i, a) => v && a.findIndex(x => x.stato_id === v.stato_id) === i)
+      .sort((a, b) => a.ordine - b.ordine)   // 👈 ORDINE CORRETTO
+  ).map((stato) => (
+    <label key={stato.stato_id} style={{ display: "block" }}>
+      <input
+        type="checkbox"
+        checked={filtroStatiReparto.includes(stato.nome_stato)}
+        onChange={(e) => {
+          if (e.target.checked) {
+            setFiltroStatiReparto(prev => [...prev, stato.nome_stato]);
+          } else {
+            setFiltroStatiReparto(prev =>
+              prev.filter(nome => nome !== stato.nome_stato)
+            );
+          }
+        }}
+      />
+      {stato.nome_stato}
+    </label>
+  ))}
+</div>
+
+
+
+
              <h3>Opzioni </h3>
                 <label>
                   <input
