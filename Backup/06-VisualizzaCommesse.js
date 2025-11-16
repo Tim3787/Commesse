@@ -453,7 +453,7 @@ function VisualizzazioneCommesse() {
       )}
 
  {/* NUOVA SEZIONE PER COMMESSE CHE INIZIANO CON "M-" */}
-      <div className="burger-header"  style={ {paddingTop:"5px",paddingBottom:"5px" }}>
+     <div className="burger-header"  style={ {paddingTop:"5px",paddingBottom:"5px" }}>
         <button className="btn w-200 btn--shiny btn--pill" onClick={toggleSectionVisibilityM}>
           {isVisibleM ? "▼" : "▶"} {" Commesse M- "}
         </button>
@@ -652,7 +652,7 @@ function VisualizzazioneCommesse() {
             </tbody>
           </table>
         </div>
-      )}
+      )} 
 
                    {/* Bottone per aprire/chiudere il menu */}
             <div className="burger-header"  style={ {paddingTop:"5px",paddingBottom:"5px" }}>

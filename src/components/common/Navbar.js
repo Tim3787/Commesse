@@ -38,7 +38,7 @@ import {
 
 // Import API per le varie entità
 import { fetchCommesse } from "../services/API/commesse-api";
-
+import { useAppData } from "../context/AppDataContext";
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   // -------------------------------------------------------------------
   // Stati del componente
@@ -46,7 +46,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-
+  const { missingTrelloCount } = useAppData();
   // Stato per gestire quale menu dropdown è attivo ("user", "manager", "admin")
   const [activeMenu, setActiveMenu] = useState(null);
   // Stato per il sottomenu nella sezione user (null = menu principale, altrimenti array dei link)
@@ -73,6 +73,8 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     }
     return () => clearInterval(interval);
   }, [isAuthenticated]);
+
+
 
   const fetchUnreadNotifications = async () => {
   try {
@@ -219,7 +221,8 @@ const navLinks = {
   admin: [
     { to: "/utenti", label: "GESTIONE UTENTI", icon: faUsers },
     { to: "/GestioneTabelle", label: "GESTIONE TABELLE", icon: faClipboardList },
-    { to: "/MatchCommesse", label: "COMMESSE TRELLO", icon: faClipboardList },
+    {  to: "/MatchCommesse",  label: "COMMESSE TRELLO",  icon: faClipboardList,  badge: missingTrelloCount > 0 ? missingTrelloCount : null}
+
   ],
 };
 
@@ -383,6 +386,13 @@ const navLinks = {
           <li key={index} className="dropdown-menu-item">
             <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
               <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
+
+            {/* 🔔 Badge Trello */}
+            {link.badge && (
+              <span className="notification-badge" style={{ marginLeft: "10px" }}>
+                {link.badge}
+              </span>
+            )}
             </Link>
           </li>
         ))}
@@ -488,7 +498,9 @@ const handleSearchInputChange = async (e) => {
               onClick={() => toggleMenu("admin")}
             >
               <FontAwesomeIcon icon={faGear} className="settings-icon" />
+                             {missingTrelloCount > 0 && <span className="notification-badge">{missingTrelloCount}</span>}
             </button>
+            
              {/*  <button
               className={`btn w-50 btn navbar ${activeMenu === "admin" ? "active" : ""}`}
               onClick={() => setIsChatOpen((prev) => !prev)}

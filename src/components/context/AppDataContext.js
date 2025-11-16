@@ -19,7 +19,7 @@ export const AppDataProvider = ({ children }) => {
   const [attivitaProgrammate, setAttivitaProgrammate] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statiCommessa, setStatiCommessa] = useState([]);
-
+const [missingTrelloCount, setMissingTrelloCount] = useState(0);
 
   // Fetch globale all'avvio
   useEffect(() => {
@@ -153,6 +153,8 @@ const refreshStatiCommessa = async () => {
         refreshAttivitaProgrammate,
         refreshCommesse,
         refreshStatiCommessa,
+        missingTrelloCount,       // ✔ aggiunto
+        setMissingTrelloCount,    // ✔ aggiunto
         loading
       }}
     >

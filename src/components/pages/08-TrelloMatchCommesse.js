@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { getBoardCards } from "../services/API/trello-api";
+import { getBoardCards, getBoardLists } from "../services/API/trello-api";
 import apiClient from "../config/axiosConfig";
 import CommessaCrea from "../popup/CommessaCrea";
 import logo from "../img/Animation - 1738249246846.gif";
@@ -10,8 +10,12 @@ import { fetchReparti } from "../services/API/reparti-api";
 import { fetchAttivita } from "../services/API/attivita-api";
 import { fetchStatiCommessa } from "../services/API/statoCommessa-api";
 import { fetchStatiAvanzamento } from "../services/API/StatiAvanzamento-api";
+import { useAppData  } from "../context/AppDataContext";
+
 
 const MatchCommesse = () => {
+
+
   const [cards, setCards] = useState([]);
   const [commesse, setCommesse] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,32 +29,50 @@ const MatchCommesse = () => {
   const [attivita, setAttivita] = useState([]);
 const [statiCommessa, setStatiCommessa] = useState([]);
 const [statiAvanzamento, setStatiAvanzamento] = useState([]);
+  const { 
+setMissingTrelloCount
+} = useAppData();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const boardId = boardIds[selectedReparto];
-        const [boardCards, statoCommessaResponse] = await Promise.all([
+const [boardCards, boardLists, statoCommessaResponse] = await Promise.all([
   getBoardCards(boardId),
+  getBoardLists(boardId),
   apiClient.get(`/api/stato-commessa`),
 ]);
 
-setCards(boardCards);
+
+    const listaCompletate = boardLists.find(list =>
+        list.name.toLowerCase().includes("complet")
+      );
+
+      const idListaCompletate = listaCompletate ? listaCompletate.id : null;
+
+      // 🔥 ESCLUDO archiviate e completate
+      const activeCards = boardCards.filter(card => {
+        const isArchived = card.closed === true;
+        const isCompleted = idListaCompletate && card.idList === idListaCompletate;
+        return !isArchived && !isCompleted;
+      });
+
+setCards(activeCards);
 
 // se vuoi usare `statoCommessaResponse.data`, aggiungi eventualmente:
 setStatiCommessa(statoCommessaResponse.data);
 
   
-        const response = await apiClient.get(`/api/commesse`);
-        const parsedCommesse = response.data.map((commessa) => ({
-          ...commessa,
-          stati_avanzamento:
-            typeof commessa.stati_avanzamento === "string"
-              ? JSON.parse(commessa.stati_avanzamento)
-              : commessa.stati_avanzamento,
-        }));
-        setCommesse(parsedCommesse);
+      //  const response = await apiClient.get(`/api/commesse`);
+       // const parsedCommesse = response.data.map((commessa) => ({
+       //   ...commessa,
+       //   stati_avanzamento:
+        //    typeof commessa.stati_avanzamento === "string"
+        //      ? JSON.parse(commessa.stati_avanzamento)
+         //     : commessa.stati_avanzamento,
+       // }));
+        // setCommesse(parsedCommesse);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
          toast.error("Errore durante il recupero dei dati:", error);
@@ -66,6 +88,9 @@ setStatiCommessa(statoCommessaResponse.data);
     loadData();
   }, []);
 
+  useEffect(() => {
+  console.log("Commesse caricate:", commesse.length);
+}, [commesse]);
   const loadData = async () => {
     setLoading(true);
     try {
@@ -165,6 +190,7 @@ const { filteredCards, ignorateCards } = useMemo(() => {
   return { filteredCards: filtered, ignorateCards: ignorate };
 }, [cards, commesse]);
 
+
 useEffect(() => {
   setCardsIgnorate(ignorateCards);
 }, [ignorateCards]);
@@ -182,7 +208,12 @@ useEffect(() => {
     const cardDate = card.due ? new Date(card.due) : null;
     return cardDate && cardDate > today; // Data futura
   });
-
+useEffect(() => {
+  if (typeof setMissingTrelloCount === "function") {
+    const totalMissing = pastOrTodayCards.length + futureCards.length;
+    setMissingTrelloCount(totalMissing);
+  }
+}, [pastOrTodayCards, futureCards]);
   return (
     <div className="container">
        <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
