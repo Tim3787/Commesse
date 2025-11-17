@@ -5,6 +5,8 @@ import { getBoardCards, getBoardLists, moveCardToList } from "../services/API/tr
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import apiClient from "../config/axiosConfig";
+
 
 const TrelloBoardSoftware = () => {
   const [lists, setLists] = useState([]);
@@ -12,30 +14,113 @@ const TrelloBoardSoftware = () => {
   const [loading, setLoading] = useState(true);
   const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); // Stato per il filtro della commessa
+const [commesse, setCommesse] = useState([]);
+const [ setStatiAvanzamentoReparto] = useState([]);
+const RepartoID = 1;  // SOFTWARE (tu saprai quello corretto)
+
 
   const boardId = "606e8f6e25edb789343d0871";
 
-  useEffect(() => {
-    const fetchBoardData = async () => {
-      try {
-        setLoading(true);
+  const extractCommessa = (name) => {
+  // Cerca prima un numero di 5 cifre consecutive
+  const match5 = name.match(/\d{5}/);
+  if (match5) return match5[0];
 
-        const [boardLists, boardCards] = await Promise.all([
-          getBoardLists(boardId),
-          getBoardCards(boardId),
-        ]);
-        setLists(boardLists);
-        setCards(boardCards);
-      } catch (err) {
-        console.error("Errore durante il recupero dei dati della board:", err.message);
-           toast.error("Errore durante il recupero dei dati della board:", err.message);
-      } finally {
-        setLoading(false);
+  // Se non trova, prova con pattern tipo 21P03 (2 cifre + lettera + 2 cifre)
+  const matchSpecial = name.match(/\d{2}[A-Z]\d{2}/i);
+  if (matchSpecial) return matchSpecial[0];
+
+  return null;
+};
+
+
+const fetchCommesseEStati = async () => {
+  try {
+    const res = await apiClient.get("/api/commesse");
+
+    const parsed = res.data.map(commessa => ({
+      ...commessa,
+      stati_avanzamento:
+        typeof commessa.stati_avanzamento === "string"
+          ? JSON.parse(commessa.stati_avanzamento)
+          : commessa.stati_avanzamento,
+    }));
+
+    setCommesse(parsed);
+
+    const statiRes = await apiClient.get("/api/stati-avanzamento");
+    const statiValidi = statiRes.data.filter(
+      (stato) => stato.reparto_id === RepartoID
+    );
+    setStatiAvanzamentoReparto(statiValidi);
+  } catch (err) {
+    console.error("Errore caricamento commesse/stati", err);
+  }
+};
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      // 1️⃣ Carico commesse + stati avanzamento reparto
+      await fetchCommesseEStati();
+
+      // 2️⃣ Carico liste e cards da Trello
+      const [boardLists, boardCards] = await Promise.all([
+        getBoardLists(boardId),
+        getBoardCards(boardId),
+      ]);
+
+      // Per ogni card trovo la commessa e lo stato avanzamento del reparto software
+setCards(boardCards);
+setLists(boardLists);
+    } catch (err) {
+      console.error("Errore durante il recupero dei dati:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [boardId]);
+
+// 📌 Quando commesse è caricato → aggiorno le card con lo stato del reparto
+useEffect(() => {
+  if (commesse.length === 0 || cards.length === 0) return;
+
+  const cardsWithState = cards.map((card) => {
+    const numeroCommessa = extractCommessa(card.name);
+    let statoReparto = null;
+
+    if (numeroCommessa) {
+      const commessa = commesse.find(c => c.numero_commessa == numeroCommessa);
+
+      if (commessa?.stati_avanzamento) {
+
+        // 🔥 TROVA L'OGGETTO DEL REPARTO CORRETTO
+        const reparto = commessa.stati_avanzamento.find(
+          (r) => r.reparto_id === RepartoID
+        );
+
+        // 🔥 TROVA LO STATO ATTIVO
+        const statoAttivo = reparto?.stati_disponibili?.find(
+          (s) => s.isActive
+        );
+
+        statoReparto = statoAttivo?.nome_stato || null;
+
       }
-    };
+    }
 
-    fetchBoardData();
-  }, [boardId]);
+    return { ...card, statoReparto };
+  });
+
+  setCards(cardsWithState);
+
+}, [commesse, cards]);
+
+
 
   const handleCardDrop = async (card, targetListId) => {
     try {
@@ -93,6 +178,8 @@ const TrelloBoardSoftware = () => {
         (!commessaFilter || card.name.includes(commessaFilter)) // Filtro per commessa
     ),
   }));
+
+
 
 return (
       
@@ -175,7 +262,7 @@ const List = ({ list, onCardDrop, onEditCard }) => {
   );
 };
 
-const Card = ({ card}) => {
+const Card = ({ card }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "CARD",
     item: card,
@@ -184,6 +271,14 @@ const Card = ({ card}) => {
     }),
   }));
 
+  if (!card) {
+    console.error("Card undefined:", card);
+    return null;
+  }
+
+  const stato = card?.statoReparto ?? null;
+  const scadenza = card?.due ? new Date(card.due).toLocaleString() : "Nessuna scadenza";
+ 
   return (
     <div
       ref={drag}
@@ -193,14 +288,22 @@ const Card = ({ card}) => {
         cursor: "move",
       }}
     >
-      <h3>{card.name}</h3>
+      <h3>{card?.name || "Senza nome"}</h3>
+
+      {/* Stato avanzamento reparto */}
+      {stato && (
+        <div style={styles.badge}>
+          Stato su app: {stato}
+        </div>
+      )}
+
       <p>
-        <strong>Scadenza:</strong>{" "}
-        {card.due ? new Date(card.due).toLocaleString() : "Nessuna scadenza"}
+        <strong>Scadenza:</strong> {scadenza}
       </p>
     </div>
   );
 };
+
 
 // Gli stili rimangono invariati
 const styles = {
@@ -260,6 +363,17 @@ const styles = {
     display: "flex",
     gap: "10px",
   },
+  badge: {
+  backgroundColor: "#4b5563",
+  color: "white",
+  padding: "4px 8px",
+  borderRadius: "6px",
+  fontSize: "12px",
+  fontWeight: "bold",
+  marginBottom: "8px",
+  display: "inline-block",
+},
+
 };
 
 
