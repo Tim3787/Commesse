@@ -22,18 +22,15 @@ const RepartoID = 1;  // SOFTWARE (tu saprai quello corretto)
 
   const boardId = "606e8f6e25edb789343d0871";
 
-  const extractCommessa = (name) => {
-  // Cerca prima un numero di 5 cifre consecutive
-  const match5 = name.match(/\d{5}/);
-  if (match5) return match5[0];
+const extractCommessa = (name) => {
+  // Match molto potente:
+  //  - opzionale prefisso M- o R-
+  //  - numeri
+  //  - eventuale sotto-commessa tipo -25 o -2
+  const match = name.match(/^(M-|R-)?\d{4,8}(-\d{1,3})?/i);
 
-  // Se non trova, prova con pattern tipo 21P03 (2 cifre + lettera + 2 cifre)
-  const matchSpecial = name.match(/\d{2}[A-Z]\d{2}/i);
-  if (matchSpecial) return matchSpecial[0];
-
-  return null;
+  return match ? match[0].toUpperCase() : null;
 };
-
 
   // Carica commesse (con stati_avanzamento parsati)
   const fetchCommesse = async () => {
@@ -88,9 +85,11 @@ const RepartoID = 1;  // SOFTWARE (tu saprai quello corretto)
       let statoReparto = null;
 
       if (numeroCommessa) {
-        const commessa = commesse.find(
-          (c) => String(c.numero_commessa) === String(numeroCommessa)
-        );
+             const commessa = commesse.find(
+  (c) =>
+    String(c.numero_commessa).trim().toUpperCase() ===
+    String(numeroCommessa).trim().toUpperCase()
+);
 
         if (commessa?.stati_avanzamento && Array.isArray(commessa.stati_avanzamento)) {
           // trova il blocco del reparto giusto
