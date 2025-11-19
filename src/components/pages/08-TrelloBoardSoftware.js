@@ -15,7 +15,8 @@ const TrelloBoardSoftware = () => {
   const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(""); // Stato per il filtro della commessa
 const [commesse, setCommesse] = useState([]);
-const [ setStatiAvanzamentoReparto] = useState([]);
+const [rawCards, setRawCards] = useState([]);
+
 const RepartoID = 1;  // SOFTWARE (tu saprai quello corretto)
 
 
@@ -34,93 +35,81 @@ const RepartoID = 1;  // SOFTWARE (tu saprai quello corretto)
 };
 
 
-const fetchCommesseEStati = async () => {
-  try {
-    const res = await apiClient.get("/api/commesse");
-
-    const parsed = res.data.map(commessa => ({
-      ...commessa,
-      stati_avanzamento:
-        typeof commessa.stati_avanzamento === "string"
-          ? JSON.parse(commessa.stati_avanzamento)
-          : commessa.stati_avanzamento,
-    }));
-
-    setCommesse(parsed);
-
-    const statiRes = await apiClient.get("/api/stati-avanzamento");
-    const statiValidi = statiRes.data.filter(
-      (stato) => stato.reparto_id === RepartoID
-    );
-    setStatiAvanzamentoReparto(statiValidi);
-  } catch (err) {
-    console.error("Errore caricamento commesse/stati", err);
-  }
-};
-
-useEffect(() => {
-  const fetchData = async () => {
+  // Carica commesse (con stati_avanzamento parsati)
+  const fetchCommesse = async () => {
     try {
-      setLoading(true);
+      const res = await apiClient.get("/api/commesse");
 
-      // 1️⃣ Carico commesse + stati avanzamento reparto
-      await fetchCommesseEStati();
+      const parsed = res.data.map((commessa) => ({
+        ...commessa,
+        stati_avanzamento:
+          typeof commessa.stati_avanzamento === "string"
+            ? JSON.parse(commessa.stati_avanzamento)
+            : commessa.stati_avanzamento,
+      }));
 
-      // 2️⃣ Carico liste e cards da Trello
-      const [boardLists, boardCards] = await Promise.all([
-        getBoardLists(boardId),
-        getBoardCards(boardId),
-      ]);
-
-      // Per ogni card trovo la commessa e lo stato avanzamento del reparto software
-setCards(boardCards);
-setLists(boardLists);
+      setCommesse(parsed);
     } catch (err) {
-      console.error("Errore durante il recupero dei dati:", err);
-    } finally {
-      setLoading(false);
+      console.error("Errore caricamento commesse/stati", err);
     }
   };
 
-  fetchData();
-}, [boardId]);
+  // Primo effetto: carica commesse + liste Trello + card grezze
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-// 📌 Quando commesse è caricato → aggiorno le card con lo stato del reparto
-useEffect(() => {
-  if (commesse.length === 0 || cards.length === 0) return;
+        await fetchCommesse();
 
-  const cardsWithState = cards.map((card) => {
-    const numeroCommessa = extractCommessa(card.name);
-    let statoReparto = null;
+        const [boardLists, boardCards] = await Promise.all([
+          getBoardLists(boardId),
+          getBoardCards(boardId),
+        ]);
 
-    if (numeroCommessa) {
-      const commessa = commesse.find(c => c.numero_commessa == numeroCommessa);
-
-      if (commessa?.stati_avanzamento) {
-
-        // 🔥 TROVA L'OGGETTO DEL REPARTO CORRETTO
-        const reparto = commessa.stati_avanzamento.find(
-          (r) => r.reparto_id === RepartoID
-        );
-
-        // 🔥 TROVA LO STATO ATTIVO
-        const statoAttivo = reparto?.stati_disponibili?.find(
-          (s) => s.isActive
-        );
-
-        statoReparto = statoAttivo?.nome_stato || null;
-
+        setLists(boardLists);
+        setRawCards(boardCards); // 👈 salviamo le card grezze
+      } catch (err) {
+        console.error("Errore durante il recupero dei dati:", err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    return { ...card, statoReparto };
-  });
+    fetchData();
+  }, [boardId]);
 
-  setCards(cardsWithState);
+  // Secondo effetto: quando ho commesse + rawCards → calcolo statoReparto
+  useEffect(() => {
+    if (commesse.length === 0 || rawCards.length === 0) return;
 
-}, [commesse, cards]);
+    const cardsWithState = rawCards.map((card) => {
+      const numeroCommessa = extractCommessa(card.name);
+      let statoReparto = null;
 
+      if (numeroCommessa) {
+        const commessa = commesse.find(
+          (c) => String(c.numero_commessa) === String(numeroCommessa)
+        );
 
+        if (commessa?.stati_avanzamento && Array.isArray(commessa.stati_avanzamento)) {
+          // trova il blocco del reparto giusto
+          const reparto = commessa.stati_avanzamento.find(
+            (r) => r.reparto_id === RepartoID
+          );
+
+          // trova lo stato attivo
+          const statoAttivo = reparto?.stati_disponibili?.find((s) => s.isActive);
+
+          statoReparto = statoAttivo?.nome_stato || null;
+        }
+      }
+
+      return { ...card, statoReparto };
+    });
+
+    setCards(cardsWithState);
+  }, [commesse, rawCards, RepartoID]); // 👈 niente `cards` qui
 
   const handleCardDrop = async (card, targetListId) => {
     try {
