@@ -96,9 +96,9 @@ const aggiornaStatiInizialiSeConsegnata = (statoId) => {
         data_FAT: formatDate(commessa.data_FAT),
         altri_particolari: commessa.altri_particolari,
         cliente: commessa.cliente,
-        stato_commessa: parseInt(commessa.stato, 10) || 2,
+        stato_commessa: commessa.stato_commessa ? Number(commessa.stato_commessa) : 2,
       });
-aggiornaStatiInizialiSeConsegnata(commessa.stato);
+aggiornaStatiInizialiSeConsegnata(commessa.stato_commessa);
 
       // Inizializza le attività già assegnate alla commessa, se presenti
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
@@ -229,12 +229,20 @@ useEffect(() => {
           stato_iniziale: defaultStateSelections,
         };
 
-    if (isEditing) {
-      await apiClient.put(`/api/commesse/${editId}`, payload);
-      commessaId = editId;
-      const { data } = await apiClient.get(`/api/commesse/${editId}`);
-      commessaFinale = data;
-    } else {
+  if (isEditing) {
+  await apiClient.put(`/api/commesse/${editId}`, payload);
+  commessaId = editId;
+
+  const { data } = await apiClient.get(`/api/commesse/${editId}`);
+  commessaFinale = data;
+
+  // 🔥 Aggiorna il form con lo stato corretto subito
+  setFormData(prev => ({
+    ...prev,
+    stato_commessa: Number(commessaFinale.stato_commessa)
+  }));
+}
+    else {
       const { data } = await apiClient.post(`/api/commesse`, payload);
       commessaId = data.commessaId;
       const { data: nuovaCommessa } = await apiClient.get(`/api/commesse/${commessaId}`);
@@ -327,7 +335,9 @@ useEffect(() => {
     setFormData({
       ...formData,
       // Se il campo è "stato_commessa", converte il valore in numero
-      [name]: name === "stato_commessa" ? Number(value) : value,
+     [name]: name === "stato_commessa"
+    ? (value === "" ? null : Number(value))
+    : value
     });
 
   };
@@ -440,7 +450,7 @@ return (
             required
             className="w-400"
           >
-            <option value={0}>Seleziona uno stato</option>
+            <option value="">Seleziona uno stato</option>
             {stato_commessa.map((st) => (
               <option key={st.id} value={st.id}>
                 {st.nome_stato}
