@@ -201,7 +201,7 @@ return (
             />
           </div>
 </div>
-        <div className="Reparto-table-container mh-80">
+        <div className="Reparto-table-container mh-76">
         
         <div style={styles.board}>
           {filteredCardsByList.map((list) => (
@@ -235,23 +235,57 @@ const List = ({ list, onCardDrop, onEditCard }) => {
     }),
   }));
 
+  const isEmpty = !list.cards || list.cards.length === 0;
+  const isCollapsed = isEmpty && !isOver; // vuota e non in hover
+
   return (
     <div
       ref={drop}
       style={{
         ...styles.list,
-    backgroundColor: isOver ? "#212838" : "#111827",
-    border: "2px solid #fff",          // 👈 bordo bianco
-    borderRadius: 8,                    // opzionale
-    boxShadow: "0 0 0 1px #fff inset",  // opzionale: effetto contorno interno
+        // 👇 QUI override di flex, non solo width
+        flex: isCollapsed ? "0 0 40px" : "0 0 300px",
+        backgroundColor: isOver ? "#212838" : "#111827",
+        border: "2px solid #fff",
+        borderRadius: 8,
+        boxShadow: "0 0 0 1px #fff inset",
+        padding: isCollapsed ? 4 : 10,
+        minHeight: 80,
+        transition: "all 0.2s ease",
       }}
     >
-      <h2 style={styles.listTitle}>{list.name}</h2>
-      <div style={styles.cards}>
-        {list.cards.map((card) => (
-          <Card key={card.id} card={card} onEdit={onEditCard} />
-        ))}
-      </div>
+      <h2
+        style={{
+          ...styles.listTitle,
+          fontSize: isCollapsed ? 14 : 18,
+          writingMode: isCollapsed ? "vertical-rl" : "horizontal-tb",
+          textAlign: "center",
+          marginBottom: isCollapsed ? 0 : 10,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {list.name}
+      </h2>
+
+      {/* Quando è collassata non mostro le card */}
+      {!isCollapsed && (
+        <div style={styles.cards}>
+          {list.cards.map((card) => (
+            <Card key={card.id} card={card} onEdit={onEditCard} />
+          ))}
+        </div>
+      )}
+
+      {isEmpty && !isOver && (
+        <div style={{ fontSize: 12, textAlign: "center", marginTop: 4 }}>
+          Vuota
+        </div>
+      )}
+      {isEmpty && isOver && (
+        <div style={{ fontSize: 12, textAlign: "center", marginTop: 4 }}>
+          Rilascia qui
+        </div>
+      )}
     </div>
   );
 };
@@ -271,8 +305,7 @@ const Card = ({ card }) => {
   }
 
   const stato = card?.statoReparto ?? null;
-  const scadenza = card?.due ? new Date(card.due).toLocaleString() : "Nessuna scadenza";
- 
+
   return (
     <div
       ref={drag}
@@ -282,7 +315,7 @@ const Card = ({ card }) => {
         cursor: "move",
       }}
     >
-      <h3>{card?.name || "Senza nome"}</h3>
+      <h2>{card?.name || "Senza nome"}</h2>
 
       {/* Stato avanzamento reparto */}
       {stato && (
@@ -291,9 +324,6 @@ const Card = ({ card }) => {
         </div>
       )}
 
-      <p>
-        <strong>Scadenza:</strong> {scadenza}
-      </p>
     </div>
   );
 };
@@ -316,7 +346,7 @@ const styles = {
     display: "flex",
     gap: "20px",
     padding: "10px",
-    overflowX: "auto",
+
   },
   list: {
     flex: "0 0 300px",
