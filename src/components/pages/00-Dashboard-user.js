@@ -12,6 +12,7 @@ import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/no
 import { fetchDashboardActivities } from "../services/API/dashboard-api";
 import { fetchUserName } from "../services/API/utenti-api";
 import { fetchMyOpenNotes, fetchMyOpenActivities,fetchRepartoDashboard  } from "../services/API/attivitaCommesse-api";
+import { fetchClientiSpecifiche } from "../services/API/clientiSpecifiche-api";
 
 
 // Import per Toastify (notifiche)
@@ -86,6 +87,14 @@ const repartoIdPerManager = managerRepartoMap[userId] ?? null;
   };
   const daysInMonth = getDaysInMonth(currentMonth);
   
+const [clienteSpecsPopup, setClienteSpecsPopup] = useState({
+  open: false,
+  loading: false,
+  error: null,
+  specs: [],
+  clienteLabel: "",
+  repartoId: null,
+});
 
   // ------------------------------------------------------------------
   // Helper per formattare date in YYYY-MM-DD senza shift
@@ -205,6 +214,7 @@ useEffect(() => {
   activities.map(a => ({
     ...a,
     includedWeekends: a.included_weekends || [], // normalizza
+        clientHasSpecs: a.client_has_specs ?? false,
   }))
 );
       } catch (error) {
@@ -391,6 +401,55 @@ useEffect(() => {
 useEffect(() => {
 
 }, [monthlyActivities]);
+
+  // ------------------------------------------------------------------
+  // Specifiche cliente
+  // ------------------------------------------------------------------
+
+const openClienteSpecs = async (clienteFull, repartoId) => {
+  // Apri subito il popup in loading
+  setClienteSpecsPopup({
+    open: true,
+    loading: true,
+    error: null,
+    specs: [],
+    clienteLabel: clienteFull,
+    repartoId,
+  });
+
+  try {
+    // 🔎 chiamata API: filtra per cliente e reparto
+    const data = await fetchClientiSpecifiche({
+      cliente: clienteFull,
+      reparto_id: repartoId,
+    });
+
+    setClienteSpecsPopup(prev => ({
+      ...prev,
+      loading: false,
+      specs: data,
+    }));
+  } catch (e) {
+    console.error("Errore caricamento specifiche cliente", e);
+    setClienteSpecsPopup(prev => ({
+      ...prev,
+      loading: false,
+      error: "Errore durante il caricamento delle specifiche.",
+    }));
+  }
+};
+
+const closeClienteSpecs = () => {
+  setClienteSpecsPopup({
+    open: false,
+    loading: false,
+    error: null,
+    specs: [],
+    clienteLabel: "",
+    repartoId: null,
+  });
+};
+
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
   // ------------------------------------------------------------------
@@ -533,9 +592,25 @@ Hai {myNotesList.length} note aperte
                                 </svg>
                               </span>
                             )}
-                            <strong>Commessa: {activity.numero_commessa} </strong>
-                            <strong>Attività: {activity.nome_attivita}</strong>
-                            <strong>Descrizione: {activity.descrizione}</strong> 
+
+                            <strong>Commessa:</strong> {activity.numero_commessa} 
+                            <strong>Attività:</strong> {activity.nome_attivita}
+                                                        
+                            <strong>Descrizione:</strong>  {activity.descrizione}
+
+{activity.clientHasSpecs && (
+  <div className="flex-column-center">
+    <span className="client-specs-text">
+         <strong>Cliente con specifiche particolari. 👈</strong> 
+    </span>
+    <button
+      className="btn w-100 btn--warning btn--pill"
+      onClick={() => openClienteSpecs(activity.cliente, activity.reparto_id)}
+    >
+      Vedi specifiche
+    </button>
+  </div>
+)}
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗
@@ -545,9 +620,10 @@ Hai {myNotesList.length} note aperte
 
                           {/* Azioni relative all'attività: in base allo stato vengono mostrate le azioni appropriate */}
                           <div className="flex-column-center">
+                            <strong>Stato attività:</strong> 
                             {activity.stato === 1 && (
                               <>
-                                <span className="dashboasrd-user-activity-status">Attività iniziata</span>
+                                <span className="dashboasrd-user-activity-status">Iniziata</span>
                                 <button
                                   className="btn w-100 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
@@ -557,12 +633,12 @@ Hai {myNotesList.length} note aperte
                               </>
                             )}
                             {activity.stato === 2 && (
-                              <span className="dashboasrd-user-activity-status">Attività completata</span>
+                              <span className="dashboasrd-user-activity-status">Completata</span>
                             )}
                             {activity.stato === 0 && (
                               
                               <>
-                              <span className="dashboasrd-user-activity-status">Attività non iniziata</span>
+                              <span className="dashboasrd-user-activity-status">Non iniziata</span>
                                 <button
                                   className="btn w-100 btn--start btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 1)}
@@ -650,10 +726,59 @@ Hai {myNotesList.length} note aperte
               )}
             </div>
           </div>
+          
+{clienteSpecsPopup.open && (
+  <div className="modal-overlay" onClick={closeClienteSpecs}>
+    <div
+      className="modal"
+      onClick={(e) => e.stopPropagation()} // evita chiusura cliccando dentro
+    >
+      <h2>
+        Specifiche cliente<br />
+        <span className="modal-subtitle">
+          {clienteSpecsPopup.clienteLabel}
+        </span>
+      </h2>
+
+      {clienteSpecsPopup.loading && <p>Caricamento specifiche...</p>}
+
+      {clienteSpecsPopup.error && (
+        <p className="modal-error">{clienteSpecsPopup.error}</p>
+      )}
+
+      {!clienteSpecsPopup.loading && !clienteSpecsPopup.error && (
+        <>
+          {clienteSpecsPopup.specs.length === 0 ? (
+            <p>Nessuna specifica trovata per questo cliente/reparto.</p>
+          ) : (
+            <div className="specs-list">
+              {clienteSpecsPopup.specs.map((spec) => (
+                <div key={spec.id} className="spec-card">
+                  <h3>{spec.titolo}</h3>
+                  <p>{spec.descrizione}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="modal-actions">
+        <button
+          className="btn btn--pill btn--blue"
+          onClick={closeClienteSpecs}
+        >
+          Chiudi
+        </button>
+      </div>
+    </div>
+  </div>
+)}
            </div>
         );
       });
     })()}
+    
     </div>
 
 {popupScheda && (
@@ -669,6 +794,7 @@ Hai {myNotesList.length} note aperte
     }}
   />
 )}
+
 
 </div>
     </div>

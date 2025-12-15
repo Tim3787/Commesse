@@ -215,6 +215,7 @@ const navLinks = {
       ],
     },
     { to: "/SchedeTecnicheTable", label: "SCHEDE", icon: faBusinessTime },
+    { to: "/ClientiSpecifiche", label: "SPECIFICHE CLIENTI", icon: faBusinessTime },
     { to: "/VisualizzaTutteLeAttivita", label: "TUTTE LE ATTIVITA'", icon: faListCheck },
     { to: "/StatiAvanzamento", label: "TUTTI GLI STATI AVANZAMENTO", icon: faChartBar },
   ],

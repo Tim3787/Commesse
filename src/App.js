@@ -69,6 +69,7 @@ import MatchCommesse from "./components/pages/08-TrelloMatchCommesse";
 
 //Varie
 import PrenotazioneSale from "./components/pages/09-PrenotazioneSale";
+import ClientiSpecifiche from "./components/pages/07-ClientiSpecifiche.js";
 
 // Rotte protette
 import ProtectedRoute from "./components/utils/ProtectedRoute";
@@ -304,7 +305,7 @@ const registerDeviceToken = async () => {
     { path: "/MatchCommesse", component: <MatchCommesse />, requiredRole: 1 },
     { path: "/GestioneTabelle", component: <GestioneTabelle />, requiredRole: 1 },
   { path: "/00-Dashboard-user-calendar", component: <DashboardCalendar /> },
-
+    { path: "/ClientiSpecifiche", component: <ClientiSpecifiche />, requiredRole: 2 },
 
   ];
 
