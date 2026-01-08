@@ -542,8 +542,13 @@ const handleSearchInputChange = async (e) => {
         {/* Dropdown per le notifiche */}
         <CSSTransition in={isNotificationOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
-            <h4>Notifiche</h4>
+  
             <ul>
+             <h4>Notifiche</h4>
+                         {notifications.length > 0 && (
+              <button  className="btn btn--blue w-200 btn--pill"
+              style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={markAllAsRead}>Segna tutte come lette</button>
+            )}
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
@@ -555,9 +560,6 @@ const handleSearchInputChange = async (e) => {
                 <p>Nessuna notifica</p>
               )}
             </ul>
-            {notifications.length > 0 && (
-              <button onClick={markAllAsRead}>Segna tutte come lette</button>
-            )}
           </div>
         </CSSTransition>
 

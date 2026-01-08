@@ -26,6 +26,7 @@
 
 
 /* Dropdown Menu */
+/* OLD
 .dropdown-menu-nav {
 margin-top: 15px;
   width: 100%;
@@ -34,6 +35,23 @@ margin-top: 15px;
   padding: 10px 0;
 
 
+}
+*/
+
+/* Dropdown Menu NEW*/
+.dropdown-menu-nav {
+margin-top: 0px;
+  width: 100%;
+  height: 100vh;
+  background-color:  #111827;
+  color: #ffffff;
+  padding: 10px 0;
+  position: fixed;
+  display: flex;
+  z-index: 2000; /* Imposta un valore più alto dell'header */
+  color: var( --text-dark);
+  overflow-y: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dropdown-menu-nav  ul {
@@ -74,7 +92,7 @@ margin-top: 15px;
 /* Singola notifica */
 .dropdown-menu-nav ul li {
   display: flex;
-
+  color: rgb(255, 255, 255);
 }
 /* Nessuna notifica */
 .dropdown-menu-nav p {
@@ -82,6 +100,7 @@ margin-top: 15px;
   font-size: 14px;
   color: #777;
   text-align: center;
+  padding-left: 10px;
 }
 
 
@@ -155,10 +174,16 @@ margin-top: 15px;
 
 .search-suggestions{
   font-size: 16px;
-  max-height: 500px;
+  height: 100vh;
+  width: 100%;
     display: flex;
   flex-direction: column;
    overflow-y: auto;
+       transition: transform 0.3s ease, box-shadow 0.3s ease;
+         z-index: 2000; /* Imposta un valore più alto dell'header */
+           position: fixed;
+           background-color:  #111827;
+           left: 0;
 }
 
 .search-suggestions li{
@@ -167,14 +192,19 @@ margin-top: 15px;
 
 .search-dropdown {
   top: 60px; /* adatta in base al layout */
-  right: 20px;
-  margin-left: 20px;
   padding: 10px;
-  z-index: 1100;
+  z-index: 2000;
+  height: 100vh;
+  min-width: 100%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   max-width: fit-content;
+  overflow-y: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 2000; /* Imposta un valore più alto dell'header */
+  position: fixed;
+  background-color:  #111827;
+  
 }
-
 
 /* Stili per il dropdown con transizione */
 .dropdown-enter {
