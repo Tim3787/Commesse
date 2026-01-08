@@ -4,9 +4,10 @@ import CommessaDettagli from "../popup/CommessaDettagli";
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/02-StatoAvanzamento-reparto.css";
 import AttivitaCrea from "../popup/AttivitaCrea";
+import { getEmptyImage } from "react-dnd-html5-backend";
 
 // Import per il drag & drop
-import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { DndProvider, useDrag, useDrop, useDragLayer  } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 // Import per Trello (cards e liste)
@@ -330,6 +331,9 @@ const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(f
 const [showPopup, setShowPopup] = useState(false);
 const [isEditing, setIsEditing] = useState(false);
 const [selectedActivity, setSelectedActivity] = useState({});
+
+
+const [draggingCommessaId, setDraggingCommessaId] = useState(null);
 
 
   /* ===============================
@@ -861,15 +865,44 @@ if (RepartoName === "software") {
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
   // ----------------------------------------------------------------
-  function DraggableCommessa({ commessa, repartoId, activities, resources }) {
-    // Configura il drag per la commessa
-    const [{ isDragging }, drag] = useDrag(() => ({
+function DraggableCommessa({ commessa, repartoId, activities, resources }) {
+  const [{ isDragging }, drag, preview] = useDrag(
+    () => ({
       type: "COMMESSA",
-      item: { commessaId: commessa.commessa_id, repartoId },
+      item: { commessaId: commessa.commessa_id, repartoId }, // ✅ oggetto fisso, NO setState qui
       collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
+        isDragging: monitor.isDragging(),
       }),
-    }));
+    }),
+    [commessa.commessa_id, repartoId]
+  );
+
+  // ✅ nasconde il preview nativo
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
+
+  // ✅ gestisci lo “svuota tutto” solo quando cambia isDragging
+useEffect(() => {
+  if (isDragging) {
+    setDraggingCommessaId(commessa.commessa_id);
+
+    requestAnimationFrame(() => {
+      const el = tableHeaderRef.current;
+      if (!el) return;
+
+      const top = el.getBoundingClientRect().top;
+      // se l'header è ben sopra (quindi sei sceso tanto), allora scrolla
+      if (top < -150) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  } else {
+    setDraggingCommessaId(null);
+  }
+}, [isDragging, commessa.commessa_id]);
+
+
 
     // Filtra le attività per mostrare eventuali warning (attività completate con note) e attività non completate
     const warningActivities = activities.filter(
@@ -954,16 +987,15 @@ if (RepartoName === "software") {
     };
 
     // Rendering della card della commessa
-    return (
-   <div
-  ref={drag}
-  className={`commessa
-    ${isDragging ? "commessa--dragging" : ""}
-    ${confrontoConTrello && isDateDifferent ? "commessa--date-warning" : ""}
-    ${esisteSuTrello && isListDifferent ? "commessa--list-warning" : ""}
-  `}
-  onClick={() => handleCommessaClick(commessa)}
->
+  return (
+    <div
+      ref={drag}
+      className={`commessa ${isDragging ? "commessa--dragging" : ""}`}
+      onClick={() => {
+        if (isDragging) return;
+        handleCommessaClick(commessa);
+      }}
+    >
 
         <strong>{commessa.numero_commessa}</strong>
         <div>{commessa.cliente}</div>
@@ -1059,33 +1091,85 @@ deleteNote={deleteNote}
   // Componente Interno: DropZone
   // Rappresenta la cella di drop per il drag & drop delle commesse
   // ----------------------------------------------------------------
-  function DropZone({ stato, commesse, repartoId, activities, resources }) {
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "COMMESSA",
-      drop: (item) => handleActivityDrop(item.commessaId, repartoId, stato.id),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
+function DropZone({ stato, commesse, repartoId, activities, resources, draggingCommessaId }) {
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "COMMESSA",
+    drop: (item) => handleActivityDrop(item.commessaId, repartoId, stato.id),
+    collect: (monitor) => ({ isOver: !!monitor.isOver() }),
+  }));
 
-    return (
-      <td ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
-        {commesse.length === 0 ? (
-          <div className="dropzone-placeholder">Drop here</div>
-        ) : (
-          commesse.map((commessa) => (
-            <DraggableCommessa
-              key={commessa.commessa_id}
-              commessa={commessa}
-              repartoId={repartoId}
-              activities={activities}
-              resources={resources}
-            />
-          ))
-        )}
-      </td>
-    );
-  }
+  return (
+    <div ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
+      {draggingCommessaId ? (
+        <div className="dropzone-placeholder">Drop here</div>
+      ) : commesse.length === 0 ? (
+        <div className="dropzone-placeholder">Drop here</div>
+      ) : (
+        commesse.map((commessa) => (
+          <DraggableCommessa
+            key={commessa.commessa_id}
+            commessa={commessa}
+            repartoId={repartoId}
+            activities={activities}
+            resources={resources}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+const tableHeaderRef = React.useRef(null);
+
+function CustomDragLayer({ commesse }) {
+  const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
+    item: monitor.getItem(),
+    currentOffset: monitor.getClientOffset(), // ✅ segue il mouse
+    isDragging: monitor.isDragging(),
+  }));
+
+  if (!isDragging || !currentOffset || !item?.commessaId) return null;
+
+  const c = commesse.find((x) => x.commessa_id === item.commessaId);
+  if (!c) return null;
+
+  const style = {
+    position: "fixed",
+    pointerEvents: "none",
+    zIndex: 10000,
+    left: currentOffset.x + 12,
+    top: currentOffset.y + 12,
+  };
+
+  return (
+    <div style={style} className="drag-ghost">
+      <div className="commessa commessa--drag-ghost">
+        <strong>{c.numero_commessa}</strong>
+        <div>{c.cliente}</div>
+      </div>
+    </div>
+  );
+}
+
+function DragStateWatcher({ onEnd }) {
+  const isDragging = useDragLayer((monitor) => monitor.isDragging());
+
+  useEffect(() => {
+    if (!isDragging) onEnd(); // ✅ finito o cancellato (ESC compreso)
+  }, [isDragging, onEnd]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onEnd(); // ✅ fallback extra
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onEnd]);
+
+  return null;
+}
+
+
 
   // ----------------------------------------------------------------
   // Rendering del componente
@@ -1310,9 +1394,11 @@ deleteNote={deleteNote}
       {/* CONTENUTO PRINCIPALE */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
         <DndProvider backend={HTML5Backend}>
+            <DragStateWatcher onEnd={() => setDraggingCommessaId(null)} />
+            <CustomDragLayer commesse={commesse} />
           <div className= "mh-80  ">
             <table>
-              <thead>
+              <thead ref={tableHeaderRef}>
                 <tr>
                   {columnOrder.map((stato, index) => (
                     <DraggableColumn
@@ -1342,6 +1428,7 @@ deleteNote={deleteNote}
                         )}
                         activities={activities}
                         resources={resources}
+                          draggingCommessaId={draggingCommessaId}
                       />
                     </td>
                   ))}
@@ -1373,6 +1460,8 @@ deleteNote={deleteNote}
           </div>
         </DndProvider>
       </div>
+
+
     </div>
   );
 }
