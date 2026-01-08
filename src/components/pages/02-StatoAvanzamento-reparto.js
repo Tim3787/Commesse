@@ -1137,8 +1137,8 @@ function CustomDragLayer({ commesse }) {
     position: "fixed",
     pointerEvents: "none",
     zIndex: 10000,
-    left: currentOffset.x + 12,
-    top: currentOffset.y + 12,
+    left: currentOffset.x + 0,
+    top: currentOffset.y -50,
   };
 
   return (
