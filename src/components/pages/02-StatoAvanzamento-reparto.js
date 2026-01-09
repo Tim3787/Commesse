@@ -573,15 +573,17 @@ const reopenNote = async (activityId) => {
 
 
     // Ricarica le attività programmate dalla API
-  const handleReloadActivities = async () => {
-    try {
-      await refreshAttivitaProgrammate(); // aggiorna dal contesto
-      toast.success("Attività ricaricate con successo");
-    } catch (error) {
-      console.error("Errore durante il ricaricamento delle attività:", error);
-      toast.error("Errore durante il ricaricamento delle attività");
-    }
-  };
+const handleReloadActivities = async () => {
+  try {
+    await refreshAttivitaProgrammate(); // se ti serve per altre viste
+    await fetchActivities();            // ✅ aggiorna subito warning/unfinished in QUESTA pagina
+    toast.success("Attività ricaricate con successo");
+  } catch (error) {
+    console.error("Errore durante il ricaricamento delle attività:", error);
+    toast.error("Errore durante il ricaricamento delle attività");
+  }
+};
+
   /**
    * Estrae il numero della commessa (primi 5 caratteri) dal nome della card di Trello.
    */
@@ -1057,12 +1059,16 @@ deleteNote={deleteNote}
   Data Trello: {trelloDate}
   <br />
    <div className="flex-column-center">
-  <button
-    className="btn btn--pill w-100 btn--danger"
-    onClick={() => handleAlignDate(commessa.commessa_id, trelloCard.due)}
-  >
-    Allinea Data
-  </button>
+<button
+  className="btn btn--pill w-100 btn--danger"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleAlignDate(commessa.commessa_id, trelloCard.due);
+  }}
+>
+  Allinea Data
+</button>
 </div>
 </div>
           )}
@@ -1101,9 +1107,9 @@ function DropZone({ stato, commesse, repartoId, activities, resources, draggingC
   return (
     <div ref={drop} className={`dropzone ${isOver ? "highlight" : ""}`}>
       {draggingCommessaId ? (
-        <div className="dropzone-placeholder">Drop here</div>
+        <div className="dropzone-placeholder">Rilascia qua</div>
       ) : commesse.length === 0 ? (
-        <div className="dropzone-placeholder">Drop here</div>
+        <div className="dropzone-placeholder">Vuota</div>
       ) : (
         commesse.map((commessa) => (
           <DraggableCommessa
@@ -1392,7 +1398,11 @@ function DragStateWatcher({ onEnd }) {
       )}
 
       {/* CONTENUTO PRINCIPALE */}
-      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+      <div
+  className={`container ${isBurgerMenuOpen ? "shifted" : ""} ${
+    draggingCommessaId ? "is-dragging" : ""
+  }`}
+>
         <DndProvider backend={HTML5Backend}>
             <DragStateWatcher onEnd={() => setDraggingCommessaId(null)} />
             <CustomDragLayer commesse={commesse} />

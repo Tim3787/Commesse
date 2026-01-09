@@ -20,6 +20,7 @@
 .dropzone-placeholder{
   min-height: 100vh;
   min-width: 100%;
+  
 }
 
   .warning-note{
@@ -168,4 +169,27 @@
 
 .drag-ghost {
   pointer-events: none;
+}
+
+.container.is-dragging table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.container.is-dragging thead th {
+  padding: 6px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.container.is-dragging td,
+.container.is-dragging th {
+  width: 120px;
+  max-width: 120px;
+}
+
+.container.is-dragging td {
+  padding: 4px;
 }
