@@ -657,7 +657,7 @@ setMovingCommessa(cId);
             ...reparto,
             stati_disponibili: (reparto.stati_disponibili || []).map((stato) => ({
               ...stato,
-              isActive: toNum(stato.stato_id) === sId, // 👈 confronto numerico
+               isActive: toNum(stato.stato_id) === sId ? true : false, // ✅ spegne gli altri
             })),
           };
         }),
@@ -1430,12 +1430,13 @@ function DragStateWatcher({ onEnd }) {
                         stato={stato}
                         repartoId={RepartoID}
                         commesse={filteredCommesse.filter((commessa) =>
-                          commessa.stati_avanzamento.some(
-                            (reparto) =>
-                              reparto.reparto_id === RepartoID &&
-                              reparto.stati_disponibili.some((s) => s.stato_id === stato.id && s.isActive)
-                          ) || movingCommessa === commessa.commessa_id
-                        )}
+  commessa.stati_avanzamento.some(
+    (reparto) =>
+      Number(reparto.reparto_id) === Number(RepartoID) &&
+      reparto.stati_disponibili.some((s) => Number(s.stato_id) === Number(stato.id) && s.isActive)
+  )
+)}
+
                         activities={activities}
                         resources={resources}
                           draggingCommessaId={draggingCommessaId}
