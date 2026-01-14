@@ -8,7 +8,7 @@ import {
 } from "../services/API/schedeTecniche-api";
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaRiunioneCommessaForm({ scheda,  userId, editable, onClose}) {
+function SchedaSpecificheForm({ scheda,  userId, editable, onClose}) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); 
@@ -217,7 +217,7 @@ const handleDownloadPdf = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: "Scheda riunioni.pdf",
+      filename: "Scheda specifiche.pdf",
       html2canvas: {
         scale: 2,
       backgroundColor: null, 
@@ -235,7 +235,7 @@ const handleDownloadPdfAllVerbali = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: `Scheda_Riunioni_${scheda?.id ?? ""}.pdf`,
+      filename: `Scheda_specifiche_verbali_${scheda?.id ?? ""}.pdf`,
       html2canvas: { scale: 2, backgroundColor: "#ffffff" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     })
@@ -256,7 +256,6 @@ const handleDownloadPdfSingleVerbale = (nota) => {
     .from(refObj.current)
     .save();
 };
-
 
 
   // ===== EFFECTS =====
@@ -281,7 +280,11 @@ const handleDownloadPdfSingleVerbale = (nota) => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      
+      {/* TESTO SOLO PER PDF */}
+<div className="pdf-only">
+  {form.note}
+</div>
+
             {/* Dettagli su data creazione e autore */}
       {mostraDettagliSpunte && (
           <div className="row">
@@ -395,7 +398,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
                         <button onClick={() => handleDeleteNota(nota)} className="btn btn--danger w-200 btn--pill">
               Elimina
             </button>
-                            <button
+                <button
   onClick={() => handleDownloadPdfSingleVerbale(nota)}
   className="btn btn--shiny w-200 btn--pill"
 >
@@ -405,6 +408,8 @@ const handleDownloadPdfSingleVerbale = (nota) => {
         )}
       </>
     )}
+
+
   </li>
 ))}
       {/* Pulsante mostra/nascondi dettagli spunte */}
@@ -438,4 +443,4 @@ const handleDownloadPdfSingleVerbale = (nota) => {
   </div>
 );
 }
-export default SchedaRiunioneCommessaForm;
+export default SchedaSpecificheForm;

@@ -13,26 +13,46 @@ import SchedaMSQuadroForm from "../common/SchedaMSQuadroForm";
 import SchedaCollaudoReggiatriciForm from "../common/SchedaCollaudoReggiatriciForm";
 import SchedaCollaudoLineaForm from "../common/SchedaCollaudoLineaForm";
 import SchedaRiunioneCommessaForm from "../common/SchedaRiunioneCommessaForm";
-
-
+import SchedaSpecificheForm from "../common/SchedaSpecificheForm";
+import SchedaElettricoForm from "../common/SchedaElettricoForm";
 import { fetchCurrentUser } from "../services/API/utenti-api";
 
 function SchedaTecnica({ editable, commessaId,numero_commessa, onClose, schedaInModifica, setSchedaInModifica }) {
-  const [, setSchede] = useState([]);
-  const [, setLoading] = useState(true);
+const [schede, setSchede] = useState([]);
+const [loading, setLoading] = useState(true);
 const [tipoSelezionato, setTipoSelezionato] = useState(null);
   const token = sessionStorage.getItem("token");    
   const [user, setUser] = useState(null); 
 const [tipiSchede, setTipiSchede] = useState([]);
 
 
+const FORMS_BY_TIPO_ID = {
+  1: SchedaSviluppoForm,
+  2: SchedaCollaudoForm,
+  3: SchedaCollaudoReggiatriciForm,
+  4: SchedaMSQuadroForm,
+  5: SchedaCollaudoLineaForm,
+8: SchedaElettricoForm,
+  // esempi MULTI (nuovi modelli)
+  6: SchedaRiunioneCommessaForm,
+  7: SchedaSpecificheForm,
+};
+
+const tipoIdToNome = useMemo(() => {
+  const m = {};
+  tipiSchede.forEach(t => m[t.id] = t.nome);
+  return m;
+}, [tipiSchede]);
+
+
 useEffect(() => {
-    if (!commessaId) return;
-    fetchSchedeTecniche(commessaId)
-      .then(data => setSchede(data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
-  }, [commessaId]);
+  if (!commessaId) return;
+  setLoading(true);
+  fetchSchedeTecniche(commessaId)
+    .then(setSchede)
+    .catch(console.error)
+    .finally(() => setLoading(false));
+}, [commessaId]);
 
 
   const handleClosePopup = () => {
@@ -165,6 +185,7 @@ const handleNuovaScheda = async (tipo) => {
 }}
 
 >
+  
   <option value="">-- Seleziona tipo --</option>
   <optgroup label="Schede tecniche">
     {tipiSchede
@@ -200,6 +221,39 @@ onClick={() => {
       >
         Crea
       </button>
+     {/* LISTA SCHEDE MULTI ESISTENTI */}
+{!loading && (
+  <div className="w-200" style={{ marginTop: 20 }}>
+    <h3>Schede multi esistenti</h3>
+
+    {schede.filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "multi").length === 0 ? (
+      <div style={{ fontSize: 12, opacity: 0.7 }}>
+        Nessuna scheda multi creata per questa commessa.
+      </div>
+    ) : (
+      schede
+        .filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "multi")
+        .map(s => (
+          <button
+            key={s.id}
+            className="btn w-200 btn--ghost btn--pill mt-2"
+            onClick={() =>
+              setSchedaInModifica({
+                ...s,
+                tipo: s.tipo || tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`,
+              })
+            }
+            title={s.titolo || s.descrizione || ""}
+          >
+            {tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`}
+            {s.titolo ? ` – ${s.titolo}` : ` (#${s.id})`}
+          </button>
+        ))
+    )}
+  </div>
+)}
+
+
     </div>
   </>
 )}
@@ -211,99 +265,26 @@ onClick={() => {
   
   <div className="container-fix">
     
-    <h1>SCHEDA {schedaInModifica.tipo} –{numero_commessa}</h1>
+    <h1>
+  SCHEDA {schedaInModifica.tipo || tipoIdToNome[schedaInModifica.tipo_id] || `Tipo ${schedaInModifica.tipo_id}`} – {numero_commessa}
+</h1>
     {(() => {
-      const tipo = schedaInModifica.tipo?.toLowerCase();
-      switch (tipo) {
+      const TipoForm = FORMS_BY_TIPO_ID[schedaInModifica.tipo_id];
 
-        case "sviluppo-software":
-          return (
-            <SchedaSviluppoForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-              userId={user.risorsa_id}
-              username={user.username}
-              editable={editable}
-            />
-          );
+if (!TipoForm) return <p>⚠️ Modulo per questo tipo non ancora implementato.</p>;
 
-        case "collaudo-avvolgitori":
-          
-          return (
-            <SchedaCollaudoForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-               userId={user.risorsa_id}
-               username={user.username}
-               editable={editable}
-            />
-          );
-        case "collaudo-reggiatrici":
-          
-          return (
-            <SchedaCollaudoReggiatriciForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-               userId={user.risorsa_id}
-               username={user.username}
-               editable={editable}
-            />
-          );
+return (
+  <TipoForm
+    scheda={schedaInModifica}
+    commessa={numero_commessa}
+    onClose={() => setSchedaInModifica(null)}
+    onSave={handleSaveScheda}
+    userId={user.risorsa_id}
+    username={user.username}
+    editable={editable}
+  />
+);
 
-        case "messa-servizio-quadro":
-          
-          return (
-            <SchedaMSQuadroForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-               userId={user.risorsa_id}
-               username={user.username}
-               editable={editable}
-            />
-          );
-
-        case "collaudo-linea":
-          
-          return (
-            <SchedaCollaudoLineaForm
-              scheda={schedaInModifica}
-              commessa={numero_commessa}
-              onClose={() => setSchedaInModifica(null)}
-              onSave={handleSaveScheda}
-               userId={user.risorsa_id}
-               username={user.username}
-               editable={editable}
-            />
-          );
-
-        default:
-const categoria = tipoIdToCategoria?.[schedaInModifica?.tipo_id] ?? schedaInModifica?.categoria;
-
-if (categoria === "multi") {
-
-  return (
-    <SchedaRiunioneCommessaForm
-      scheda={schedaInModifica}
-      commessa={numero_commessa}
-      onClose={() => setSchedaInModifica(null)}
-      onSave={handleSaveScheda}
-      userId={user.risorsa_id}
-      username={user.username}
-      editable={editable}
-    />
-  );
-}
-
-          return <p>⚠️ Modulo per questo tipo non ancora implementato.</p>;
-      }
     })()}
   </div>
 )}
