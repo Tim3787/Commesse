@@ -582,6 +582,120 @@ const closeNote = async (activityId) => {
       toast.error("Errore durante l'eliminazione della nota.");
     }
   };
+
+
+  // ============================
+// COPY/PASTE (tasto destro)
+// ============================
+const [clipboardActivity, setClipboardActivity] = useState(null);
+
+const [contextMenu, setContextMenu] = useState({
+  visible: false,
+  x: 0,
+  y: 0,
+  type: null, // "activity" | "cell"
+  activity: null,
+  resourceId: null,
+  day: null,
+});
+
+const closeContextMenu = () =>
+  setContextMenu((p) => ({ ...p, visible: false, type: null, activity: null, resourceId: null, day: null }));
+
+// Chiudi menu con click fuori / ESC
+useEffect(() => {
+  const onClick = () => closeContextMenu();
+  const onKey = (e) => e.key === "Escape" && closeContextMenu();
+
+  if (contextMenu.visible) {
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKey);
+  }
+  return () => {
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKey);
+  };
+}, [contextMenu.visible]);
+
+// Calcola includedWeekends duplicando "gli offset" rispetto all'inizio
+function buildIncludedWeekendsForNewStart(originalActivity, newStartDateObj) {
+  const durata = Number(originalActivity.durata) || 0;
+  const origStart = normalizeDate(originalActivity.data_inizio);
+  const origIncluded = originalActivity.includedWeekends || [];
+
+  // offset (0..durata-1) in cui l'originale includeva un weekend
+  const includedOffsets = [];
+  let c1 = new Date(origStart);
+
+  for (let i = 0; i < durata; i++) {
+    const iso = formatDateOnly(c1);
+    const wd = c1.getDay();
+    if ((wd === 0 || wd === 6) && origIncluded.includes(iso)) {
+      includedOffsets.push(i);
+    }
+    c1.setDate(c1.getDate() + 1);
+  }
+
+  // applica gli stessi offset sul nuovo start (solo se il giorno risultante è weekend)
+  const res = [];
+  for (const off of includedOffsets) {
+    const c2 = new Date(newStartDateObj);
+    c2.setDate(c2.getDate() + off);
+    const wd2 = c2.getDay();
+    if (wd2 === 0 || wd2 === 6) {
+      res.push(formatDateOnly(c2));
+    }
+  }
+  return res;
+}
+
+// Incolla: crea una NUOVA attività duplicata in quella cella (se vuota)
+const pasteActivityToCell = async (resourceId, day) => {
+  if (!clipboardActivity) return;
+
+  const existing = getActivitiesForResourceAndDay(resourceId, day);
+  if (existing.length > 0) {
+    toast.warn("Cella già occupata.");
+    return;
+  }
+
+  try {
+    const newStart = normalizeDate(day);
+    const isoDate = toLocalISOString(newStart);
+
+    const includedWeekends = buildIncludedWeekendsForNewStart(clipboardActivity, newStart);
+
+    const payload = {
+      // copia campi base
+      commessa_id: clipboardActivity.commessa_id || "",
+      reparto_id: clipboardActivity.reparto_id || RepartoID,
+      attivita_id: clipboardActivity.attivita_id || "",
+      durata: clipboardActivity.durata || 1,
+      descrizione: clipboardActivity.descrizione_attivita || clipboardActivity.descrizione || "",
+      includedWeekends,
+
+      // nuova posizione
+      risorsa_id: resourceId,
+      data_inizio: isoDate,
+
+      // per sicurezza: nuova attività "pulita"
+      stato: 0,
+      note: null,
+    };
+
+    // NB: qui assumo che il tuo backend supporti POST /api/attivita_commessa
+    await apiClient.post("/api/attivita_commessa", payload);
+
+    toast.success("Attività incollata!");
+    await handleReloadActivities();
+  } catch (err) {
+    console.error("Errore incolla attività:", err);
+    toast.error("Errore durante l'incolla.");
+  }
+};
+
+
+
   // ========================================================
   // COMPONENTE: ResourceCell
   // Rappresenta una cella della tabella per una risorsa in un determinato giorno
@@ -603,7 +717,20 @@ const closeNote = async (activityId) => {
         onDoubleClick={() =>
           activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
         }
-      >
+       onContextMenu={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      type: "cell",
+      activity: null,
+      resourceId,
+      day: normalizedDay,
+    });
+  }}
+>
         {activities.map((activity) => (
           <DraggableActivity
             key={activity.id}
@@ -664,7 +791,24 @@ const closeNote = async (activityId) => {
             }}
             onDoubleClick={onDoubleClick}
             data-tooltip-id={`tooltip-${activity.id}`}
-          ></div>
+            onContextMenu={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setContextMenu({
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+    type: "activity",
+    activity,
+    resourceId: null,
+    day: null,
+  });
+}}
+
+          >
+
+            
+          </div>
           <Tooltip id={`tooltip-${activity.id}`} place="top" effect="solid"  style={{ zIndex: 9999 }}>
             <span style={{ whiteSpace: "pre-wrap" }}>{tooltipContent}</span>
           </Tooltip>
@@ -681,6 +825,20 @@ const closeNote = async (activityId) => {
         className={`activity ${activityClass}`}
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
         onDoubleClick={onDoubleClick}
+        onContextMenu={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setContextMenu({
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+    type: "activity",
+    activity,
+    resourceId: null,
+    day: null,
+  });
+}}
+
       >
         {activity.stato === 2 && activity.note &&   !isClosedNote(activity.note)  && (
           <span className="warning-icon" title="Nota presente nell'attività completata">
@@ -800,6 +958,71 @@ const closeNote = async (activityId) => {
   return (
     <div className="page-wrapper">
               <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+              {contextMenu.visible && (
+  <div
+    className="context-menu"
+    style={{
+      position: "fixed",
+      top: contextMenu.y,
+      left: contextMenu.x,
+      zIndex: 99999,
+      background: "#111",
+      color: "#fff",
+      borderRadius: "10px",
+      padding: "6px",
+      minWidth: "180px",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+    }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    {contextMenu.type === "activity" && (
+      <>
+        <button
+          className="context-menu-item"
+          onClick={() => {
+            setClipboardActivity(contextMenu.activity);
+            toast.info("Attività copiata");
+            closeContextMenu();
+          }}
+          style={{ width: "100%", padding: "10px", border: 0, background: "transparent", color: "inherit", textAlign: "left", cursor: "pointer" }}
+        >
+          Copia attività
+        </button>
+      </>
+    )}
+
+    {contextMenu.type === "cell" && (
+      <>
+        <button
+          className="context-menu-item"
+          disabled={!clipboardActivity}
+          onClick={async () => {
+            await pasteActivityToCell(contextMenu.resourceId, contextMenu.day);
+            closeContextMenu();
+          }}
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: 0,
+            background: "transparent",
+            color: !clipboardActivity ? "rgba(255,255,255,0.4)" : "inherit",
+            textAlign: "left",
+            cursor: !clipboardActivity ? "not-allowed" : "pointer",
+          }}
+        >
+          Incolla attività
+        </button>
+
+        {!clipboardActivity && (
+          <div style={{ padding: "0 10px 10px", fontSize: "12px", opacity: 0.7 }}>
+            (Prima copia un’attività)
+          </div>
+        )}
+      </>
+    )}
+  </div>
+)}
+
       <div className=" header">
         <h1>BACHECA REPARTO {RepartoName.toUpperCase()}</h1>
         <div className="flex-center header-row">
