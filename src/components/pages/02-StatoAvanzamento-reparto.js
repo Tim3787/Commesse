@@ -678,20 +678,60 @@ setMovingCommessa(cId);
   }
 };
 useEffect(() => {
-  if (movingCommessa === null) return;
+  if (movingCommessa == null) return;
 
-  // Quando activities cambiano, e la commessa ha ora il nuovo stato corretto, allora rimuovo la protezione
-  const moved = commesse.find(c => c.commessa_id === movingCommessa);
-
+  const moved = commesse.find((c) => Number(c.commessa_id) === Number(movingCommessa));
   if (!moved) return;
 
-  const reparto = moved.stati_avanzamento?.find(r => Number(r.reparto_id) === Number(RepartoID));
-  const hasActive = reparto?.stati_disponibili?.some(s => s.isActive);
+  const reparto = moved.stati_avanzamento?.find(
+    (r) => Number(r.reparto_id) === Number(RepartoID)
+  );
+  const hasActive = reparto?.stati_disponibili?.some((s) => s.isActive);
 
-  if (hasActive) {
-    setMovingCommessa(null);
-  }
-}, [activities, commesse, movingCommessa, RepartoID]);
+  if (hasActive) setMovingCommessa(null);
+}, [commesse, movingCommessa, RepartoID]);
+
+
+// ============================
+// CONTEXT MENU (tasto destro)
+// ============================
+const [ctxMenu, setCtxMenu] = useState({
+  visible: false,
+  x: 0,
+  y: 0,
+  commessaId: null,
+  openMoveList: false,
+});
+
+const openCtxMenu = (e, commessaId) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setCtxMenu({
+    visible: true,
+    x: e.clientX,
+    y: e.clientY,
+    commessaId,
+    openMoveList: true, // apre subito la lista colonne
+  });
+};
+
+const closeCtxMenu = () =>
+  setCtxMenu((p) => ({ ...p, visible: false, commessaId: null, openMoveList: false }));
+
+useEffect(() => {
+  if (!ctxMenu.visible) return;
+
+  const onClick = () => closeCtxMenu();
+  const onKey = (e) => e.key === "Escape" && closeCtxMenu();
+
+  document.addEventListener("click", onClick);
+  document.addEventListener("keydown", onKey);
+  return () => {
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKey);
+  };
+}, [ctxMenu.visible]);
+
 
   // ----------------------------------------------------------------
   // Gestione dell'ordine delle colonne
@@ -993,6 +1033,7 @@ useEffect(() => {
     <div
       ref={drag}
       className={`commessa ${isDragging ? "commessa--dragging" : ""}`}
+      onContextMenu={(e) => openCtxMenu(e, commessa.commessa_id)}
       onClick={() => {
         if (isDragging) return;
         handleCommessaClick(commessa);
@@ -1174,8 +1215,6 @@ function DragStateWatcher({ onEnd }) {
 
   return null;
 }
-
-
 
   // ----------------------------------------------------------------
   // Rendering del componente
@@ -1472,6 +1511,54 @@ function DragStateWatcher({ onEnd }) {
         </DndProvider>
       </div>
 
+{ctxMenu.visible && (
+  <div
+    style={{
+      position: "fixed",
+      top: ctxMenu.y,
+      left: ctxMenu.x,
+      zIndex: 99999,
+      background: "#111",
+      color: "#fff",
+      borderRadius: "10px",
+      padding: "6px",
+      minWidth: "220px",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+    }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <div style={{ padding: "8px 10px", fontSize: 12, opacity: 0.8 }}>
+      Sposta commessa
+    </div>
+
+    <div style={{ maxHeight: 320, overflow: "auto" }}>
+      {columnOrder.map((stato) => (
+        <button
+          key={stato.id}
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: 0,
+            background: "transparent",
+            color: "inherit",
+            textAlign: "left",
+            cursor: "pointer",
+            borderRadius: "8px",
+          }}
+          onClick={async () => {
+            // sposta la commessa nello stato scelto
+            await handleActivityDrop(ctxMenu.commessaId, RepartoID, stato.id);
+            closeCtxMenu();
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          ➜ {stato.nome_stato}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
     </div>
   );
