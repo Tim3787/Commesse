@@ -335,6 +335,8 @@ const [selectedActivity, setSelectedActivity] = useState({});
 
 const [draggingCommessaId, setDraggingCommessaId] = useState(null);
 
+const dropOpRef = React.useRef(0);
+
 
   /* ===============================
      APP DATA
@@ -403,6 +405,25 @@ const [draggingCommessaId, setDraggingCommessaId] = useState(null);
         .filter((reparto) => reparto.stato !== null) || []
     );
   };
+
+  const getAxiosErrorMessage = (error) => {
+  const status = error?.response?.status;
+  const serverMsg =
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.response?.data?.msg;
+
+  if (serverMsg) return serverMsg;
+
+  if (status === 401) return "Sessione scaduta: fai login di nuovo.";
+  if (status === 403) return "Azione non consentita (permessi).";
+  if (status === 409) return "Spostamento rifiutato: la commessa è stata aggiornata da un altro utente.";
+  if (status === 400) return "Richiesta non valida: controlla i dati inviati.";
+  if (status >= 500) return "Errore del server. Riprova tra poco.";
+
+  return "Impossibile completare lo spostamento.";
+};
+
 
   // ----------------------------------------------------------------
   // Chiamate API per recuperare dati dal backend
@@ -640,11 +661,27 @@ const handleReloadActivities = async () => {
   */
   const toNum = (v) => (v == null ? v : Number(v));
 
+const refetchCommesse = async () => {
+  const response = await apiClient.get("/api/commesse");
+  const parsed = response.data.map((c) => ({
+    ...c,
+    stati_avanzamento:
+      typeof c.stati_avanzamento === "string" ? JSON.parse(c.stati_avanzamento) : c.stati_avanzamento,
+  }));
+  setCommesse(parsed);
+  return parsed;
+};
+
 const handleActivityDrop = async (commessaId, repartoId, newStatoId) => {
   const cId = toNum(commessaId);
   const rId = toNum(repartoId);
   const sId = toNum(newStatoId);
-setMovingCommessa(cId);
+
+  setMovingCommessa(cId);
+
+  // ✅ id operazione (serve per evitare rollback “vecchi”)
+  const opId = ++dropOpRef.current;
+
   // ✅ Aggiornamento ottimistico: la card si sposta subito
   setCommesse((prevCommesse) =>
     prevCommesse.map((commessa) => {
@@ -657,7 +694,7 @@ setMovingCommessa(cId);
             ...reparto,
             stati_disponibili: (reparto.stati_disponibili || []).map((stato) => ({
               ...stato,
-               isActive: toNum(stato.stato_id) === sId ? true : false, // ✅ spegne gli altri
+              isActive: toNum(stato.stato_id) === sId, // ✅ attiva solo quello scelto
             })),
           };
         }),
@@ -669,14 +706,27 @@ setMovingCommessa(cId);
     await apiClient.put(`/api/commesse/${cId}/reparti/${rId}/stato`, {
       stato_id: sId,
       is_active: true,
-      
     });
   } catch (error) {
-    console.error("Errore durante l'aggiornamento dello stato:", error);
-    // opzionale: fai un refetch per ripristinare lo stato corretto in caso di errore
-    // await refetchCommesse();
+    console.error(error);
+
+    // ✅ se nel frattempo è partita un'altra operazione, ignora questo errore
+    if (opId !== dropOpRef.current) return;
+
+    toast.error(getAxiosErrorMessage(error));
+
+    try {
+      await refetchCommesse();
+    } catch (e) {
+      toast.error("Errore nel ripristino: ricarica la pagina.");
+    } finally {
+      setMovingCommessa(null);
+    }
   }
 };
+
+
+
 useEffect(() => {
   if (movingCommessa == null) return;
 

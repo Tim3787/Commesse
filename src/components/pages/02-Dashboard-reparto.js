@@ -117,6 +117,26 @@ const isClosedNote = (text) =>
 const closeNoteText = (text) =>
   isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ""}`.trim();
 
+const activityDropOpRef = useRef(0);
+const [movingActivityId, setMovingActivityId] = useState(null);
+
+const getAxiosErrorMessage = (error) => {
+  const status = error?.response?.status;
+  const serverMsg =
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.response?.data?.msg;
+
+  if (serverMsg) return serverMsg;
+
+  if (status === 401) return "Sessione scaduta: fai login di nuovo.";
+  if (status === 403) return "Azione non consentita (permessi).";
+  if (status === 409) return "Spostamento rifiutato: attività aggiornata da un altro utente.";
+  if (status === 400) return "Richiesta non valida.";
+  if (status >= 500) return "Errore del server. Riprova tra poco.";
+
+  return "Impossibile completare lo spostamento attività.";
+};
 
 
 
@@ -437,20 +457,26 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
   };
 
   // Elimina un'attività dopo conferma
-  const handleDelete = async (id) => {
-    if (window.confirm("Sei sicuro di voler eliminare questa attività?")) {
-      try {
-        await deleteAttivitaCommessa(id, token, { headers: { Authorization: `Bearer ${token}` } });
-        setActivities((prevActivities) =>
-          prevActivities.filter((activity) => activity.id !== id)
-        );
-      } catch (error) {
-        console.error("Errore durante l'eliminazione dell'attività:", error);
-        toast.error("Si è verificato un errore durante l'eliminazione dell'attività.");
-      }
-    }
-  };
-  
+const handleDelete = async (id) => {
+  if (!window.confirm("Sei sicuro di voler eliminare questa attività?")) return;
+
+  let snapshot;
+  setActivities((prev) => {
+    snapshot = prev;
+    return prev.filter((a) => a.id !== id);
+  });
+
+  try {
+    await deleteAttivitaCommessa(id, token, { headers: { Authorization: `Bearer ${token}` } });
+    toast.success("Attività eliminata");
+  } catch (error) {
+    console.error(error);
+    toast.error("Errore eliminazione: ripristino...");
+    setActivities(snapshot);
+  }
+};
+
+
 
 
 
@@ -496,29 +522,30 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
   // ========================================================
   // Gestisce il drop di un'attività in una nuova cella (nuova risorsa e/o nuovo giorno)
 const handleActivityDrop = async (activity, newResourceId, newDate) => {
-  try {
+  const opId = ++activityDropOpRef.current;
+  setMovingActivityId(activity.id);
 
+  try {
     const newStart = normalizeDate(newDate);
     const isoDate = toLocalISOString(newStart);
     const durata = Number(activity.durata) || 0;
+
     const originalIncluded = activity.includedWeekends || [];
 
+    // ricostruisce includedWeekends coerente con la nuova data
     const updatedIncludedWeekends = [];
     let cursor = new Date(newStart);
 
     for (let i = 0; i < durata; i++) {
       const iso = formatDateOnly(cursor);
-      const day = cursor.getDay(); // 0 = domenica, 6 = sabato
-
-      // Aggiungi solo se il giorno è sabato o domenica e presente negli originali
+      const day = cursor.getDay();
       if ((day === 0 || day === 6) && originalIncluded.includes(iso)) {
         updatedIncludedWeekends.push(iso);
       }
-
       cursor.setDate(cursor.getDate() + 1);
     }
 
-    // Se la nuova data è sabato o domenica, e non è già dentro, aggiungila
+    // se il nuovo start è weekend, assicurati che sia incluso
     const newStartDay = newStart.getDay();
     if ((newStartDay === 0 || newStartDay === 6) && !updatedIncludedWeekends.includes(isoDate)) {
       updatedIncludedWeekends.push(isoDate);
@@ -528,19 +555,43 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       ...activity,
       risorsa_id: newResourceId,
       data_inizio: isoDate,
-      descrizione: activity.descrizione_attivita || "",
+      descrizione: activity.descrizione_attivita || activity.descrizione || "",
       includedWeekends: updatedIncludedWeekends,
     };
 
+    // ✅ 1) UPDATE OTTIMISTICO (UI immediata)
+    setActivities((prev) =>
+      prev.map((a) => (a.id === activity.id ? { ...a, ...updatedActivity } : a))
+    );
+
+    // ✅ 2) SERVER UPDATE
     await apiClient.put(`/api/attivita_commessa/${activity.id}`, updatedActivity);
 
-    const updatedActivities = await fetchAttivitaCommessa();
-    setActivities(updatedActivities);
-
+    // ✅ 3) (opzionale) piccolo toast solo se è l'ultima operazione
+    if (opId === activityDropOpRef.current) {
+      toast.success("Attività spostata");
+      setMovingActivityId(null);
+    }
   } catch (error) {
     console.error("Errore durante l'aggiornamento dell'attività:", error);
+
+    // se nel frattempo è partita un'altra operazione, ignora questo errore
+    if (opId !== activityDropOpRef.current) return;
+
+    toast.error(getAxiosErrorMessage(error));
+
+    // ✅ rollback sicuro: refetch
+    try {
+      const updatedActivities = await fetchAttivitaCommessa();
+      setActivities(updatedActivities);
+    } catch (e) {
+      toast.error("Errore nel ripristino attività: ricarica la pagina.");
+    } finally {
+      setMovingActivityId(null);
+    }
   }
 };
+
 
   // ========================================================
   // GESTIONE NOTE
@@ -702,14 +753,17 @@ const pasteActivityToCell = async (resourceId, day) => {
   // ========================================================
   function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick, isWeekend, viewMode }) {
     const normalizedDay = normalizeDate(day);
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "ACTIVITY",
-      drop: (item) => onActivityDrop(item, resourceId, normalizedDay),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
-    const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${isOver ? "highlight" : ""}`;
+    const [{ isOver, canDrop }, drop] = useDrop(() => ({
+  accept: "ACTIVITY",
+  canDrop: (item) => movingActivityId !== item.id,
+  drop: (item) => onActivityDrop(item, resourceId, normalizedDay),
+  collect: (monitor) => ({
+    isOver: !!monitor.isOver(),
+    canDrop: monitor.canDrop(),
+  }),
+}));
+    const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${isOver && canDrop ? "highlight" : ""}`;
+
     return (
       <td
         ref={drop}
@@ -750,6 +804,7 @@ const pasteActivityToCell = async (resourceId, day) => {
   function DraggableActivity({ activity, onDoubleClick, viewMode }) {
     const [{ isDragging }, drag] = useDrag(() => ({
       type: "ACTIVITY",
+      canDrag: () => movingActivityId !== activity.id, 
       item: { ...activity },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
