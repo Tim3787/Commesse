@@ -307,28 +307,35 @@ function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
     }
   };
 
-const handleDownloadPdf = () => {
+const handleDownloadPdf = async () => {
   const element = schedaRef.current;
-
-
+if (!element) return;
   element.classList.add("pdf-dark-mode");
+  element.classList.add("pdf-exporting");
 
-  html2pdf()
-    .set({
-      margin: 10,
+  try {
+    await html2pdf()
+      .set({
+        margin: 10,
       filename: "Scheda sviluppo.pdf",
-      html2canvas: {
-        scale: 2,
-        backgroundColor: null, 
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    })
-    .from(element)
-    .save()
-    .then(() => {
-      element.classList.remove("pdf-dark-mode");
-    });
+      pagebreak: { mode: ["css", "legacy", "avoid-all"] },
+        html2canvas: {
+          scale: 2,
+          backgroundColor: null,
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(element)
+      .save();
+  } finally {
+    element.classList.remove("pdf-dark-mode");
+    element.classList.remove("pdf-exporting");
+  }
 };
+
 
 
   // ===== EFFECTS =====
@@ -498,7 +505,7 @@ const renderTabellaComponentiSiemens = () => {
       <div className="flex-column-left">
         <h1>HARDWARE</h1>
         {vociChecklist1.map((voce) => (
-          <label key={voce} className="flex items-center">
+          <label key={voce} className="flex items-center check-row">
             <input
               type="checkbox"
               checked={form.checklist?.[voce]?.fatto || false}
@@ -519,7 +526,7 @@ const renderTabellaComponentiSiemens = () => {
       <div className="flex-column-left">
         <h1>SOFTWARE</h1>
         {vociChecklist2.map((voce) => (
-          <label key={voce} className="flex items-center">
+          <label key={voce} className="flex items-center check-row">
             <input
               type="checkbox"
               checked={form.checklist?.[voce]?.fatto || false}
@@ -540,7 +547,7 @@ const renderTabellaComponentiSiemens = () => {
       <div className="flex-column-left">
         <h1>HMI</h1>
         {vociChecklist3.map((voce) => (
-          <label key={voce} className="flex items-center">
+          <label key={voce} className="flex items-center check-row">
             <input
               type="checkbox"
               checked={form.checklist?.[voce]?.fatto || false}
@@ -561,7 +568,7 @@ const renderTabellaComponentiSiemens = () => {
       <div className="flex-column-left">
         <h1>ARCHIVIO</h1>
         {vociChecklist4.map((voce) => (
-          <label key={voce} className="flex items-center">
+          <label key={voce} className="flex items-center check-row">
             <input
               type="checkbox"
               checked={form.checklist?.[voce]?.fatto || false}
@@ -578,20 +585,26 @@ const renderTabellaComponentiSiemens = () => {
         ))}
       </div>
 
-      {/* Campo note */}
-      <h1>Note</h1>
-      <textarea
-        name="note"
-        className="w-w"
-        ref={textareaRef}
-        value={form.note}
-        onChange={(e) => {
-          handleChange(e);
-          handleNoteChange(e);
-          autoResizeTextarea();
-        }}
-        readOnly={!editable}
-      />
+{/* NOTE */}
+<div className="note-pdf-wrap">
+  <h1 className="note-title">Note</h1>
+
+  <textarea
+    name="note"
+    className="w-w note-textarea"
+    ref={textareaRef}
+    value={form.note}
+    onChange={(e) => {
+      handleNoteChange(e);
+      autoResizeTextarea();
+    }}
+    readOnly={!editable}
+  />
+
+  <div className="w-w note-print">
+    {form.note}
+  </div>
+</div>
 
       {/* Suggerimenti tag visibili sotto il campo note */}
       {editable && suggestionsVisibili.length > 0 && (

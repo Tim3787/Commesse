@@ -239,29 +239,34 @@ const handleNoteChange = (e) => {
   }
 };
 
-const handleDownloadPdf = () => {
+const handleDownloadPdf = async () => {
   const element = pdfRef.current;
-
-  // Aggiunge classe temporanea
+if (!element) return;
   element.classList.add("pdf-dark-mode");
+  element.classList.add("pdf-exporting");
 
-  html2pdf()
-    .set({
-      margin: 10,
-      filename: "Scheda collaudo.pdf",
-      html2canvas: {
-        scale: 2,
-        backgroundColor: null, // <- IMPORTANTE: evita di forzare il bianco
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    })
-    .from(element)
-    .save()
-    .then(() => {
-      element.classList.remove("pdf-dark-mode");
-    });
+  try {
+    await html2pdf()
+      .set({
+        margin: 10,
+        filename: "Scheda collaudo.pdf",
+        pagebreak: { mode: ["css", "legacy", "avoid-all"] },
+        html2canvas: {
+          scale: 2,
+          backgroundColor: null,
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(element)
+      .save();
+  } finally {
+    element.classList.remove("pdf-dark-mode");
+    element.classList.remove("pdf-exporting");
+  }
 };
-
     return (
       <div ref={schedaRef} className="flex-column-center">
          <div className="flex-column-left">
@@ -302,7 +307,7 @@ const handleDownloadPdf = () => {
         <div className="flex-column-left">
           <h1>SICUREZZE</h1>
           {vociChecklist1.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
@@ -325,7 +330,7 @@ const handleDownloadPdf = () => {
         <div className="flex-column-left">
           <h1>INVERTER</h1>
           {vociChecklist2.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -349,7 +354,7 @@ const handleDownloadPdf = () => {
         <div className="flex-column-left">
           <h1>PRESTIRO</h1>
           {vociChecklist3.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -373,7 +378,7 @@ const handleDownloadPdf = () => {
            <h1>
 CONTEGGI E CENTRAGGI</h1>
           {vociChecklist4.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -396,7 +401,7 @@ CONTEGGI E CENTRAGGI</h1>
                 <div className="flex-column-left">
            <h1>SEGNALAZIONI</h1>
           {vociChecklist5.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -419,7 +424,7 @@ CONTEGGI E CENTRAGGI</h1>
           <div className="flex-column-left">
            <h1>COLLAUDO</h1>
           {vociChecklist6.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -442,7 +447,7 @@ CONTEGGI E CENTRAGGI</h1>
         <div className="flex-column-left">
            <h1>SEGNALI SCAMBIO</h1>
           {vociChecklist7.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                checked={form.checklist?.[voce]?.fatto || false}
@@ -465,7 +470,7 @@ CONTEGGI E CENTRAGGI</h1>
         <h1>Note</h1>
         <textarea
   name="note"
-  className="w-w"
+   className="w-w note-textarea"
     ref={textareaRef} 
   value={form.note}
   onChange={(e) => {

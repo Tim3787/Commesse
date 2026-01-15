@@ -359,6 +359,86 @@ Table
   border: 1px solid #ccc !important;
 }
 
+/* UI: voglio resize verticale */
+.note-textarea{
+  overflow: hidden;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* PDF: durante export disabilito resize (inutile) */
+.pdf-exporting .note-textarea{
+  resize: none !important;
+}
+
+/* UI: wrapper neutro */
+.note-pdf-wrap { width: 100%; }
+
+/* PDF: il blocco note parte a pagina nuova e non lascia titolo orfano */
+.pdf-exporting .note-pdf-wrap{
+  page-break-before: always;
+  break-before: page;
+}
+
+/* div stampabile: di default NON si vede */
+.note-print {
+  display: none;
+  white-space: pre-wrap;     /* mantiene a-capo e spazi */
+  word-break: break-word;    /* evita tagli su parole lunghe */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* quando esporti in PDF: nascondi textarea e mostra div */
+.pdf-exporting .note-textarea {
+  display: none !important;
+}
+.pdf-exporting .note-print {
+  display: block !important;
+}
+
+/* evita che una singola riga checklist venga spezzata tra pagine */
+.check-row {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* evita spezzature brutte delle sezioni */
+.check-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+/* forza le NOTE a partire da una nuova pagina nel PDF */
+.pdf-exporting .note-page {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* evita che il contenuto delle note venga spezzato male */
+.pdf-exporting .note-print {
+  white-space: pre-wrap;
+  word-break: break-word;
+  break-inside: auto;
+}
+.note-block {
+    overflow: hidden;
+    resize: none;
+    min-height: 120px;
+}
+.pdf-exporting .note-block {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* se non c'è spazio, tutto il blocco va a pagina nuova */
+.pdf-exporting .note-block {
+  page-break-before: auto;
+}
+
+
 .attivita-list {
   display: grid;
 

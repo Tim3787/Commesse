@@ -194,10 +194,10 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
 
   const handleDownloadPdf = async () => {
     const element = schedaRef.current;
-    if (!element) return;
-
+  if (!element) return;
     element.classList.add("pdf-dark-mode");
-
+    element.classList.add("pdf-exporting");
+  
     try {
       await html2pdf()
         .set({
@@ -259,11 +259,11 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
             </label>
           </div>
         )}
-
+<div className="note-pdf-wrap">
         <div className="flex-column-left">
           <h1>FASE PREPARAZIONE E MONTAGGIO BM</h1>
           {vociChecklist1.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
@@ -294,7 +294,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
         <div className="flex-column-left">
           <h1>FASE PRECOLLAUDO</h1>
           {vociChecklist2.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
@@ -318,7 +318,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
         <div className="flex-column-left">
           <h1>FASE SMONTAGGIO</h1>
           {vociChecklist3.map((voce) => (
-            <label key={voce} className="flex items-center">
+            <label key={voce} className="flex items-center check-row">
               <input
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
@@ -338,19 +338,30 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
             </label>
           ))}
         </div>
+        </div>
+{/* NOTE */}
+<div className="note-pdf-wrap">
+  <h1 className="note-title">Note</h1>
 
-        <h1>Note</h1>
-        <textarea
-          name="note"
-          className="w-w"
-          ref={textareaRef}
-          value={form.note}
-          onChange={(e) => {
-            handleNoteChange(e);
-            autoResizeTextarea();
-          }}
-          readOnly={!editable}
-        />
+  <textarea
+    name="note"
+    className="w-w note-textarea"
+    ref={textareaRef}
+    value={form.note}
+    onChange={(e) => {
+      handleNoteChange(e);
+      autoResizeTextarea();
+    }}
+    readOnly={!editable}
+  />
+
+  <div className="w-w note-print">
+    {form.note}
+  </div>
+</div>
+
+
+
 
         {/* qui eventualmente renderizzi suggestionsVisibili se ti serve */}
       </div>

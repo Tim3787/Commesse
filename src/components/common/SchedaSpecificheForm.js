@@ -208,27 +208,33 @@ function VerbaliPdf({ scheda, noteList }) {
 }
 
 
-const handleDownloadPdf = () => {
+const handleDownloadPdf = async () => {
   const element = schedaRef.current;
-
-
+if (!element) return;
   element.classList.add("pdf-dark-mode");
+  element.classList.add("pdf-exporting");
 
-  html2pdf()
-    .set({
-      margin: 10,
+  try {
+    await html2pdf()
+      .set({
+        margin: 10,
       filename: "Scheda specifiche.pdf",
-      html2canvas: {
-        scale: 2,
-      backgroundColor: null, 
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    })
-    .from(element)
-    .save()
-    .then(() => {
-      element.classList.remove("pdf-dark-mode");
-    });
+      pagebreak: { mode: ["css", "legacy", "avoid-all"] },
+        html2canvas: {
+          scale: 2,
+          backgroundColor: null,
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(element)
+      .save();
+  } finally {
+    element.classList.remove("pdf-dark-mode");
+    element.classList.remove("pdf-exporting");
+  }
 };
 
 const handleDownloadPdfAllVerbali = () => {
@@ -297,7 +303,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
       <textarea
          style={{ minHeight: "200px" }}
         name="note"
-        className="w-w"
+         className="w-w note-textarea"
         ref={textareaRef}
         value={form.note}
         onChange={(e) => {
