@@ -26,7 +26,7 @@ function CalendarioAttivita() {
   const [loading, setLoading] = useState(false);
 
   const containerRef = useRef(null);
-  const todayRef = useRef(null);
+ 
 
   // ✅ NEW: repartoSelezionato 0 = TUTTI
   const [repartoSelezionato, setRepartoSelezionato] = useState(0);
@@ -267,30 +267,57 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
   };
 
   // Scroll a oggi
-  const scrollToToday = () => {
-    const today = new Date();
-    const sameMonth =
-      currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
+const scrollToToday = () => {
+  const today = new Date();
 
-    const doScroll = () => {
-      if (todayRef.current && containerRef.current) {
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const todayRect = todayRef.current.getBoundingClientRect();
-        const offsetLeft = todayRect.left - containerRect.left;
-        containerRef.current.scrollTo({
-          left: offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2,
-          behavior: "smooth",
-        });
-      }
-    };
+  const doScrollForMonth = (monthDate) => {
+    if (!containerRef.current) return;
 
-    if (!sameMonth) {
-      setCurrentMonth(today);
-      setTimeout(() => requestAnimationFrame(doScroll), 300);
-    } else {
-      requestAnimationFrame(doScroll);
-    }
+    const monthDays = getDaysInMonth(monthDate);
+
+    const dayIndex = monthDays.findIndex(
+      (d) =>
+        d.getDate() === today.getDate() &&
+        d.getMonth() === today.getMonth() &&
+        d.getFullYear() === today.getFullYear()
+    );
+
+    if (dayIndex === -1) return;
+
+    const table = containerRef.current.querySelector("table");
+    const ths = table?.querySelectorAll("thead th");
+    const th = ths?.[dayIndex + 1]; // +1 perché prima colonna è "Reparto/Risorsa"
+    if (!th) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const thRect = th.getBoundingClientRect();
+    const offsetLeft = thRect.left - containerRect.left;
+
+    containerRef.current.scrollTo({
+      left: offsetLeft - containerRef.current.clientWidth / 2 + thRect.width / 2,
+      behavior: "smooth",
+    });
   };
+
+  const sameMonth =
+    currentMonth.getMonth() === today.getMonth() &&
+    currentMonth.getFullYear() === today.getFullYear();
+
+  if (!sameMonth) {
+    const nextMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    setCurrentMonth(nextMonth);
+
+    // aspetta che React renderizzi la nuova tabella
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        doScrollForMonth(nextMonth);
+      });
+    });
+  } else {
+    requestAnimationFrame(() => doScrollForMonth(currentMonth));
+  }
+};
+
 
   // ------------------------------------------------------------------
   // ✅ Cambio reparto con "TUTTI"
@@ -550,87 +577,72 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
       )}
 
       {/* CONTENITORE PRINCIPALE */}
-      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
+   <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
+  <div
+    className="Reparto-table-container mh-72"
+    ref={containerRef}
+    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
+  >
+    <table>
+      <thead>
+        <tr>
+          <th>Reparto / Risorsa</th>
+          {daysInMonth.map((day, index) => {
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+            const isToday = day.toDateString() === new Date().toDateString();
+            const weekNumber = getWeekNumber(day);
+            const showWeekNumber =
+              index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
 
-        
+            return (
+              <th
+                key={day.toISOString()}
+                className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+              >
+                <div>{day.toLocaleDateString()}</div>
+                {showWeekNumber && (
+                  <div className="week-number">Settimana {weekNumber}</div>
+                )}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
 
-        {/* ✅ Render sezioni: se TUTTI (0) => tutte visibili; altrimenti solo quella attiva */}
-      <div
-  className="Reparto-table-container mh-72"
-  ref={containerRef}
-  style={{ overflowX: "auto", whiteSpace: "nowrap" }}
->
-  <table>
-    <thead>
-      <tr>
-        <th>Reparto / Risorsa</th>
-        {daysInMonth.map((day, index) => {
-          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-          const isToday = day.toDateString() === new Date().toDateString();
-          const weekNumber = getWeekNumber(day);
-          const showWeekNumber =
-            index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
-
-          return (
-            <th
-              key={day.toISOString()}
-              className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-              ref={isToday ? todayRef : null}
-            >
-              <div>{day.toLocaleDateString()}</div>
-              {showWeekNumber && <div className="week-number">Settimana {weekNumber}</div>}
-            </th>
-          );
-        })}
-      </tr>
-    </thead>
-
-    <tbody>
-      {repartoOrder
-       .filter((rid) =>
-  groupedByReparto[rid]?.some((r) =>
-    resourceHasActivitiesInMonth(r.id)
-  )
-)
-
-        .map((rid) => (
-          <React.Fragment key={rid}>
-            {/* Riga header reparto dentro la stessa tabella */}
-            <tr className="reparto-row">
-              <td colSpan={daysInMonth.length + 1} className="reparto-cell">
-                <strong>{repartiMap[rid] || `Reparto ${rid}`}</strong>
-              </td>
-            </tr>
-
-            {/* Righe risorse del reparto */}
-            {groupedByReparto[rid]
-  .filter((resource) => resourceHasActivitiesInMonth(resource.id))
-  .map((resource) => (
-
-              <tr key={resource.id}>
-                <td className="resource-name">
-                  {resource.nome}
+      <tbody>
+        {repartoOrder
+          .filter((rid) =>
+            groupedByReparto[rid]?.some((r) => resourceHasActivitiesInMonth(r.id))
+          )
+          .map((rid) => (
+            <React.Fragment key={rid}>
+              <tr className="reparto-row">
+                <td colSpan={daysInMonth.length + 1} className="reparto-cell">
+                  <strong>{repartiMap[rid] || `Reparto ${rid}`}</strong>
                 </td>
-
-                {daysInMonth.map((day, index) => {
-                  const activitiesForDay = getActivitiesForResourceAndDay(resource.id, day);
-                  return (
-                    <ResourceCell
-                      key={`${resource.id}-${index}`}
-                      activities={activitiesForDay}
-                    />
-                  );
-                })}
               </tr>
-            ))}
-          </React.Fragment>
-        ))}
-    </tbody>
-  </table>
-</div>
 
-      </div>
-    </div>
+              {groupedByReparto[rid]
+                .filter((resource) => resourceHasActivitiesInMonth(resource.id))
+                .map((resource) => (
+                  <tr key={resource.id}>
+                    <td className="resource-name">{resource.nome}</td>
+
+                    {daysInMonth.map((day, index) => (
+                      <ResourceCell
+                        key={`${resource.id}-${index}`}
+                        activities={getActivitiesForResourceAndDay(resource.id, day)}
+                      />
+                    ))}
+                  </tr>
+                ))}
+            </React.Fragment>
+          ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
   );
 }
 
