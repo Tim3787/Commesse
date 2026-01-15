@@ -112,7 +112,7 @@ const componentiSiemens = [
 ];
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaMSQuadroForm({ scheda, onSave, userId, editable, username }) {
+function SchedaMSQuadroForm({ scheda,commessa, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); // contiene solo la parte da esportare in PDF
@@ -255,7 +255,7 @@ function SchedaMSQuadroForm({ scheda, onSave, userId, editable, username }) {
       setFiltroTag("");
     }
   };
-
+const filename = `Scheda servizio QE commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
 if (!element) return;
@@ -266,7 +266,7 @@ if (!element) return;
     await html2pdf()
       .set({
         margin: 10,
-      filename: "Scheda servizio QE.pdf",
+      filename,
       pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         html2canvas: {
           scale: 2,
@@ -368,7 +368,7 @@ const renderTabellaComponentiSiemens = () => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      
+                <h1>Scheda servizio QE commessa: {commessa}</h1>
       {/* Sezione revisioni */}
       <div className="flex-column-left">
         <label>Revisione schema:</label>

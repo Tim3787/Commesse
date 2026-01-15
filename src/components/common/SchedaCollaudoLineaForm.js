@@ -62,7 +62,7 @@ const vociChecklist8 = [
 
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaCollaudoLineaForm({ scheda, onSave, userId, editable, username }) {
+function SchedaCollaudoLineaForm({ scheda,commessa, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); // contiene solo la parte da esportare in PDF
@@ -209,7 +209,7 @@ function SchedaCollaudoLineaForm({ scheda, onSave, userId, editable, username })
       setFiltroTag("");
     }
   };
-
+ const filename = `Scheda collaudo commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
 if (!element) return;
@@ -220,7 +220,7 @@ if (!element) return;
     await html2pdf()
       .set({
         margin: 10,
-      filename: "Scheda collaudo.pdf",
+      filename,
       pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         html2canvas: {
           scale: 2,
@@ -264,13 +264,13 @@ if (!element) return;
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      
+                <h1>Scheda collaudo commessa: {commessa}</h1>
       {/* Sezione revisioni */}
       <div className="flex-column-left">
         <label>Revisione Master:</label>
         <input
           name="RevSoftware"
-          className="w-200"
+          className="w-400"
           value={form.RevSoftware}
           onChange={handleChange}
           readOnly={!editable}
@@ -278,7 +278,7 @@ if (!element) return;
         <label>Revisione Macchina:</label>
         <input
           name="RevMacchina"
-          className="w-200"
+          className="w-400"
           value={form.RevMacchina}
           onChange={handleChange}
           readOnly={!editable}
@@ -286,7 +286,7 @@ if (!element) return;
         <label>Revisione schema:</label>
         <input
           name="RevSchema"
-          className="w-200"
+          className="w-400"
           value={form.RevSchema}
           onChange={handleChange}
           readOnly={!editable}

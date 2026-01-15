@@ -207,7 +207,7 @@ function VerbaliPdf({ scheda, noteList }) {
   );
 }
 
-
+const filename = `Scheda specifiche commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
 if (!element) return;
@@ -218,7 +218,7 @@ if (!element) return;
     await html2pdf()
       .set({
         margin: 10,
-      filename: "Scheda specifiche.pdf",
+      filename,
       pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         html2canvas: {
           scale: 2,
@@ -241,7 +241,7 @@ const handleDownloadPdfAllVerbali = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: `Scheda_specifiche_verbali_${scheda?.id ?? ""}.pdf`,
+      filename,
       html2canvas: { scale: 2, backgroundColor: "#ffffff" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     })
@@ -255,7 +255,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
   html2pdf()
     .set({
       margin: 10,
-      filename: `Verbale_${nota.id}_Scheda_${scheda?.id ?? ""}.pdf`,
+      filename,
       html2canvas: { scale: 2, backgroundColor: "#ffffff" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     })
@@ -286,6 +286,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
+      <h1>Scheda specifiche commessa: {commessa}</h1>
       {/* TESTO SOLO PER PDF */}
 <div className="pdf-only">
   {form.note}

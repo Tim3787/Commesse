@@ -159,7 +159,7 @@ const componentiSiemens = [
 ];
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
+function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); // contiene solo la parte da esportare in PDF
@@ -306,7 +306,7 @@ function SchedaSviluppoForm({ scheda, onSave, userId, editable, username }) {
       setFiltroTag("");
     }
   };
-
+ const filename = `Scheda sviluppo commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
 if (!element) return;
@@ -317,7 +317,7 @@ if (!element) return;
     await html2pdf()
       .set({
         margin: 10,
-      filename: "Scheda sviluppo.pdf",
+      filename,
       pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         html2canvas: {
           scale: 2,
@@ -455,13 +455,13 @@ const renderTabellaComponentiSiemens = () => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      
+      <h1>Scheda sviluppo commessa: {commessa}</h1>
       {/* Sezione revisioni */}
       <div className="flex-column-left">
         <label>Revisione Master:</label>
         <input
           name="RevSoftware"
-          className="w-200"
+          className="w-400"
           value={form.RevSoftware}
           onChange={handleChange}
           readOnly={!editable}
@@ -469,7 +469,7 @@ const renderTabellaComponentiSiemens = () => {
         <label>Revisione Macchina:</label>
         <input
           name="RevMacchina"
-          className="w-200"
+          className="w-400"
           value={form.RevMacchina}
           onChange={handleChange}
           readOnly={!editable}
@@ -477,7 +477,7 @@ const renderTabellaComponentiSiemens = () => {
         <label>Revisione schema:</label>
         <input
           name="RevSchema"
-          className="w-200"
+          className="w-400"
           value={form.RevSchema}
           onChange={handleChange}
           readOnly={!editable}

@@ -264,10 +264,7 @@ onClick={() => {
 {schedaInModifica && user?.id && (
   
   <div className="container-fix">
-    
-    <h1>
-  SCHEDA {schedaInModifica.tipo || tipoIdToNome[schedaInModifica.tipo_id] || `Tipo ${schedaInModifica.tipo_id}`} – {numero_commessa}
-</h1>
+
     {(() => {
       const TipoForm = FORMS_BY_TIPO_ID[schedaInModifica.tipo_id];
 

@@ -30,7 +30,7 @@ const vociChecklist3 = [
   "Foto materiale da spedire ",
 ];
 
-function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
+function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, username }) {
   const schedaRef = useRef();
   const textareaRef = useRef(null);
 
@@ -191,7 +191,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
       }).catch((err) => console.error("Errore salvataggio tag:", err));
     }
   };
-
+ const filename = `Scheda elettrico commessa:${commessa}.pdf`;
   const handleDownloadPdf = async () => {
     const element = schedaRef.current;
   if (!element) return;
@@ -202,7 +202,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
       await html2pdf()
         .set({
           margin: 10,
-          filename: "Scheda elettrico.pdf",
+          filename,
           html2canvas: { scale: 2, backgroundColor: null },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         })
@@ -221,9 +221,21 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
     autoResizeTextarea();
   }, [form.note]);
 
+  // --- PERMESSO: solo il creatore può modificare intestazione + note ---
+const createdBy = (scheda?.creato_da_nome || "").trim();
+const currentUser = (username || "").trim();
+
+const canEditHeaderAndNote =
+  editable &&
+  createdBy &&
+  currentUser &&
+  createdBy.toLowerCase() === currentUser.toLowerCase();
+
+
   return (
     <div>
       <div ref={schedaRef} className="flex-column-center">
+                  <h1>Scheda elettrica commessa: {commessa}</h1>
         <div className="flex-column-left">
           {headerFields.map((f) => (
             <div key={f.name} className="flex-column-left">
@@ -233,12 +245,35 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
                 className="w-400"
                 value={form[f.name]}
                 onChange={handleChange}
-                readOnly={!editable}
+                readOnly={!canEditHeaderAndNote}
+disabled={!canEditHeaderAndNote}
+
               />
             </div>
           ))}
         </div>
+        {/* NOTE */}
+<div className="note-pdf-wrap">
+  <h1 className="note-title">Specifiche montaggio</h1>
 
+  <textarea
+    name="note"
+    className="w-w note-textarea"
+    ref={textareaRef}
+    value={form.note}
+    onChange={(e) => {
+      handleNoteChange(e);
+      autoResizeTextarea();
+    }}
+    readOnly={!canEditHeaderAndNote}
+disabled={!canEditHeaderAndNote}
+
+  />
+
+  <div className="w-w note-print">
+    {form.note}
+  </div>
+</div>
         <button
           className="btn w-200 btn--shiny btn--pill"
           onClick={() => setMostraDettagliSpunte((p) => !p)}
@@ -259,6 +294,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
             </label>
           </div>
         )}
+
 <div className="note-pdf-wrap">
         <div className="flex-column-left">
           <h1>FASE PREPARAZIONE E MONTAGGIO BM</h1>
@@ -339,33 +375,14 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
           ))}
         </div>
         </div>
-{/* NOTE */}
-<div className="note-pdf-wrap">
-  <h1 className="note-title">Note</h1>
-
-  <textarea
-    name="note"
-    className="w-w note-textarea"
-    ref={textareaRef}
-    value={form.note}
-    onChange={(e) => {
-      handleNoteChange(e);
-      autoResizeTextarea();
-    }}
-    readOnly={!editable}
-  />
-
-  <div className="w-w note-print">
-    {form.note}
-  </div>
-</div>
+   </div>
 
 
 
 
         {/* qui eventualmente renderizzi suggestionsVisibili se ti serve */}
-      </div>
-
+      
+ <div className="flex-column-center">
       <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
         Scarica PDF
       </button>
@@ -375,6 +392,7 @@ function SchedaElettricoForm({ scheda, onSave, userId, editable, username }) {
           Salva
         </button>
       )}
+   </div>
     </div>
   );
 }

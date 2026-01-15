@@ -8,7 +8,7 @@ import {
 } from "../services/API/schedeTecniche-api";
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaRiunioneCommessaForm({ scheda,  userId, editable, onClose}) {
+function SchedaRiunioneCommessaForm({ scheda,commessa,  userId, editable, onClose}) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); 
@@ -207,7 +207,7 @@ function VerbaliPdf({ scheda, noteList }) {
   );
 }
 
-
+ const filename = `Scheda riunioni commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
 if (!element) return;
@@ -218,7 +218,7 @@ if (!element) return;
     await html2pdf()
       .set({
         margin: 10,
-      filename: "Scheda riunioni.pdf",
+      filename,
       pagebreak: { mode: ["css", "legacy", "avoid-all"] },
         html2canvas: {
           scale: 2,
@@ -242,7 +242,7 @@ const handleDownloadPdfAllVerbali = () => {
   html2pdf()
     .set({
       margin: 10,
-      filename: `Scheda_Riunioni_${scheda?.id ?? ""}.pdf`,
+      filename,
       html2canvas: { scale: 2, backgroundColor: "#ffffff" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     })
@@ -256,7 +256,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
   html2pdf()
     .set({
       margin: 10,
-      filename: `Verbale_${nota.id}_Scheda_${scheda?.id ?? ""}.pdf`,
+      filename,
       html2canvas: { scale: 2, backgroundColor: "#ffffff" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     })
@@ -288,7 +288,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      
+         <h1>Scheda riunioni commessa: {commessa}</h1>
             {/* Dettagli su data creazione e autore */}
       {mostraDettagliSpunte && (
           <div className="row">
