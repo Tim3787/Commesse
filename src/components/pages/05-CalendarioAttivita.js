@@ -3,97 +3,141 @@ import "../style/05-CalendarioAttivita.css";
 import logo from "../img/Animation - 1738249246846.gif";
 import { getDaysInMonth } from "../assets/date";
 
-// Import icone FontAwesome
+// FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash,faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
-// Import API per le varie entità
+// API
 import { fetchRisorse } from "../services/API/risorse-api";
 import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
 
-// Import per Toastify (notifiche)
+// Toastify
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-/**
- * Componente CalendarioAttivita
- * Visualizza un calendario mensile in cui vengono mostrate le attività 
- * per ciascuna risorsa, organizzate per reparti.
- */
 function CalendarioAttivita() {
   // ------------------------------------------------------------------
   // Stati e Ref
   // ------------------------------------------------------------------
-  const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
-  const [activities, setActivities] = useState([]);               // Elenco delle attività (prenotazioni) caricate
-  const [resources, setResources] = useState([]);                 // Elenco delle risorse (utenti)
-  const [loading, setLoading] = useState(false);                  // Stato di caricamento generale
-  const [repartoSelezionato, setRepartoSelezionato] = useState(1); 
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activities, setActivities] = useState([]);
+  const [filteredActivities, setFilteredActivities] = useState([]); // ✅ NEW
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const containerRef = useRef(null);
-const [visibleSections, setVisibleSections] = useState({
-  1: true,
-  2: false,
-  3: false,
-  13: false,
-  14: false,
-  15: false,
-  16: false,
-  18: false,
-});
-
-
-  // Stato per controllare la visibilità delle sezioni per ogni reparto  
-const repartiDisponibili = [
-  { id: 1, nome: "Reparto Software" },
-  { id: 2, nome: "Reparto Elettrico" },
-  { id: 3, nome: "Reparto Meccanico" },
-  { id: 13, nome: "Reparto Commerciale" },
-  { id: 14, nome: "Reparto Tecnico elettrico" },
-  { id: 15, nome: "Reparto Quadri" },
-  { id: 16, nome: "Reparto Tecnico meccanico" },
-  { id: 18, nome: "Reparto Service" },
-];
-  // Ref per la colonna corrispondente al giorno di oggi (per scroll automatico)
   const todayRef = useRef(null);
-  // Calcola tutti i giorni del mese corrente utilizzando la funzione helper getDaysInMonth
-  const daysInMonth = getDaysInMonth(currentMonth);
-const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
-  month: "long",
-  year: "numeric",
-}).replace(/^./, c => c.toUpperCase());
 
- // Restituisce il numero di settimana
- const getWeekNumber = (d) => {
-  // Crea una copia della data in UTC
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  // Sposta la data al giovedì della settimana corrente (necessario per il calcolo ISO)
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  // Calcola il primo giorno dell'anno in UTC
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  // Calcola il numero di settimane (differenza in giorni diviso per 7)
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  // ✅ NEW: repartoSelezionato 0 = TUTTI
+  const [repartoSelezionato, setRepartoSelezionato] = useState(0);
+
+  // ✅ NEW: filtri come DashboardReparto
+  const [filters, setFilters] = useState({
+    commessa: "",
+    risorsa: "",
+    attivita: "",
+  });
+
+  // ✅ NEW: autocomplete
+  const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
+  const [suggestionsRisorsa, setSuggestionsRisorsa] = useState([]);
+  const [suggestionsAttivita, setSuggestionsAttivita] = useState([]);
+
+  const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
+  const [showRisorsaSuggestions, setShowRisorsaSuggestions] = useState(false);
+  const [showAttivitaSuggestions, setShowAttivitaSuggestions] = useState(false);
+
+  // Stato visibilità sezioni per reparto
+  const [visibleSections, setVisibleSections] = useState({
+    1: true,
+    2: false,
+    3: false,
+    13: false,
+    14: false,
+    15: false,
+    16: false,
+    18: false,
+  });
+
+  const repartiDisponibili = [
+    { id: 0, nome: "TUTTI I REPARTI" }, // ✅ NEW
+    { id: 1, nome: "Reparto Software" },
+    { id: 2, nome: "Reparto Elettrico" },
+    { id: 3, nome: "Reparto Meccanico" },
+    { id: 13, nome: "Reparto Commerciale" },
+    { id: 14, nome: "Reparto Tecnico elettrico" },
+    { id: 15, nome: "Reparto Quadri" },
+    { id: 16, nome: "Reparto Tecnico meccanico" },
+    { id: 18, nome: "Reparto Service" },
+  ];
+
+  const repartiMap = {
+  1: "Reparto Software",
+  2: "Reparto Elettrico",
+  3: "Reparto Meccanico",
+  13: "Reparto Commerciale",
+  14: "Reparto Tecnico elettrico",
+  15: "Reparto Quadri",
+  16: "Reparto Tecnico meccanico",
+  18: "Reparto Service",
 };
- const formatDateOnly = dateObj => {
+
+// Risorse filtrate per reparto selezionato (0 = tutti)
+const resourcesForTable = resources.filter((r) =>
+  repartoSelezionato === 0 ? true : Number(r.reparto_id) === Number(repartoSelezionato)
+);
+
+// Raggruppa per reparto_id
+const groupedByReparto = resourcesForTable.reduce((acc, r) => {
+  const rid = Number(r.reparto_id);
+  if (!acc[rid]) acc[rid] = [];
+  acc[rid].push(r);
+  return acc;
+}, {});
+
+// Ordine reparti (come il tuo)
+const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
+
+
+  const daysInMonth = getDaysInMonth(currentMonth);
+
+  const meseCorrente = currentMonth
+    .toLocaleDateString("it-IT", { month: "long", year: "numeric" })
+    .replace(/^./, (c) => c.toUpperCase());
+
+  // ------------------------------------------------------------------
+  // Helpers date
+  // ------------------------------------------------------------------
+  const getWeekNumber = (d) => {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  };
+
+  const formatDateOnly = (dateObj) => {
     const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const d = String(dateObj.getDate()).padStart(2, '0');
+    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const d = String(dateObj.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   };
 
-  const normalizeDate = date => {
+  const normalizeDate = (date) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     return d;
   };
 
-  const getActivityDates = activity => {
+  const getActivityDates = (activity) => {
     const dates = [];
     const start = normalizeDate(new Date(activity.data_inizio));
     const total = Number(activity.durata) || 0;
     let cursor = new Date(start);
+
     while (dates.length < total) {
       const wd = cursor.getDay();
       const clone = new Date(cursor.getTime());
+
       if (wd >= 1 && wd <= 5) {
         dates.push(clone);
       } else {
@@ -107,23 +151,25 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     return dates;
   };
 
-  const getActivitiesForResourceAndDay = (resourceId, day) => {
-    const isoDay = formatDateOnly(normalizeDate(day));
-    return activities.filter((activity) => {
-      if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
-      const dates = getActivityDates(activity).map((d) => formatDateOnly(d));
-      return dates.includes(isoDay);
-    });
-  };
 
+  
+    // Stato per il menu a burger (filtri e opzioni)
+    const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
+  
+    // ----------------------------
+    // Funzione per aprire/chiudere il menu a burger
+    // ----------------------------
+    const toggleBurgerMenu = () => {
+      setIsBurgerMenuOpen((prev) => !prev);
+    };
+  
   // ------------------------------------------------------------------
-  // Effetto: Fetch iniziale dei dati (attività e risorse)
+  // Fetch iniziale
   // ------------------------------------------------------------------
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Esegue in parallelo il fetch delle attività e delle risorse
         const [activitiesData, resourcesData] = await Promise.all([
           fetchAttivitaCommessa(),
           fetchRisorse(),
@@ -132,7 +178,7 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
         setResources(resourcesData);
       } catch (error) {
         console.error("Errore durante il recupero dei dati:", error);
-        toast.error("Errore durante il recupero dei dati:", error);
+        toast.error("Errore durante il recupero dei dati");
       } finally {
         setLoading(false);
       }
@@ -140,30 +186,92 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     fetchData();
   }, [currentMonth]);
 
+  // ------------------------------------------------------------------
+  // ✅ FILTRI: calcolo filteredActivities
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const f = activities.filter((a) => {
+      const commessaMatch = filters.commessa
+        ? String(a.numero_commessa || "")
+            .toLowerCase()
+            .includes(filters.commessa.toLowerCase())
+        : true;
+
+      const risorsaMatch = filters.risorsa
+        ? String(a.risorsa || a.nome_risorsa || "")
+            .toLowerCase()
+            .includes(filters.risorsa.toLowerCase())
+        : true;
+
+      const attivitaMatch = filters.attivita
+        ? String(a.nome_attivita || "")
+            .toLowerCase()
+            .includes(filters.attivita.toLowerCase())
+        : true;
+
+      return commessaMatch && risorsaMatch && attivitaMatch;
+    });
+
+    setFilteredActivities(f);
+  }, [activities, filters]);
 
   // ------------------------------------------------------------------
-  // Funzioni di Navigazione tra Mesi
+  // ✅ SUGGERIMENTI (come DashboardReparto, ma adattato ai dati che hai qui)
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const commesseSuggs = activities
+      .map((a) => a.numero_commessa)
+      .filter((v) => v !== null && v !== undefined)
+      .filter((v, i, self) => self.indexOf(v) === i);
+    setSuggestionsCommessa(commesseSuggs);
+  }, [activities]);
+
+  useEffect(() => {
+    const risorsaSuggs = resources
+      .map((r) => r.nome)
+      .filter(Boolean)
+      .filter((v, i, self) => self.indexOf(v) === i);
+    setSuggestionsRisorsa(risorsaSuggs);
+  }, [resources]);
+
+  useEffect(() => {
+    const attivitaSuggs = activities
+      .map((a) => a.nome_attivita)
+      .filter(Boolean)
+      .filter((v, i, self) => self.indexOf(v) === i);
+    setSuggestionsAttivita(attivitaSuggs);
+  }, [activities]);
+
+  // Chiudi suggestions cliccando fuori
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".suggestion-wrapper") && !event.target.closest(".w-200")) {
+        setShowCommessaSuggestions(false);
+        setShowRisorsaSuggestions(false);
+        setShowAttivitaSuggestions(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  // ------------------------------------------------------------------
+  // Navigazione mesi
   // ------------------------------------------------------------------
   const goToPreviousMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-    );
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-    );
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  
-    // ------------------------------------------------------------------
-    // Effetto: Scrolla automaticamente al giorno corrente se non già fatto
-    // ------------------------------------------------------------------
-  // Scrolla alla colonna corrispondente ad oggi
+  // Scroll a oggi
   const scrollToToday = () => {
     const today = new Date();
-    const sameMonth = currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
+    const sameMonth =
+      currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
+
     const doScroll = () => {
       if (todayRef.current && containerRef.current) {
         const containerRect = containerRef.current.getBoundingClientRect();
@@ -175,121 +283,82 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
         });
       }
     };
-   if (!sameMonth) {
-  setCurrentMonth(today);
-  setTimeout(() => {
-    requestAnimationFrame(doScroll);
-  }, 300); // più tempo per il rendering
-} else {
-  requestAnimationFrame(doScroll);
-}
-  };
 
-  
-const handleRepartoChange = (id) => {
-  setRepartoSelezionato(id);
-  setVisibleSections({
-    ...Object.keys(visibleSections).reduce((acc, key) => {
-      acc[key] = false;
-      return acc;
-    }, {}),
-    [id]: true, // attiva solo il selezionato
-  });
-};
-
-  /**
-   * Renderizza la sezione di un reparto.
-   * Mostra un'intestazione con un pulsante per espandere/contrarre e, se visibile,
-   * una tabella con le attività per ogni risorsa del reparto.
-   */
-  const renderRepartoSection = (repartoId) => {
-    const isVisible = visibleSections[repartoId];
-    const repartoResources = resources.filter(
-      (resource) => Number(resource.reparto_id) === repartoId
-    );
-    return (
-      <React.Fragment key={repartoId}>
-          <div
-    className="Reparto-table-container mh-72"
-    ref={containerRef}
-    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
-  >
-            <table > 
-      <thead>
-        <tr>
-          <th>Risorsa</th>
-          {daysInMonth.map((day, index) => {
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            const isToday = day.toDateString() === new Date().toDateString();
-            const weekNumber = getWeekNumber(day);
-            const showWeekNumber =
-              index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
-
-            return (
-              <th
-                key={day.toISOString()}
-                className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-                ref={isToday ? todayRef : null}
-              >
-                <div>{day.toLocaleDateString()}</div>
-                {showWeekNumber && (
-                  <div className="week-number">Settimana {weekNumber}</div>
-                )}
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-
-        {isVisible && (
-          <tbody>
-            {repartoResources.map((resource) => (
-              <tr key={resource.id}>
-                <td>{resource.nome}</td>
-                {daysInMonth.map((day, index) => {
-                  const activitiesForDay = getActivitiesForResourceAndDay(
-                    resource.id,
-                    day
-                  );
-                  return (
-                    <ResourceCell
-                      key={`${resource.id}-${index}`}
-                      activities={activitiesForDay}
-                    />
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-          
-        )}
-                </table>
-        </div>
-      </React.Fragment>
-    );
+    if (!sameMonth) {
+      setCurrentMonth(today);
+      setTimeout(() => requestAnimationFrame(doScroll), 300);
+    } else {
+      requestAnimationFrame(doScroll);
+    }
   };
 
   // ------------------------------------------------------------------
-  // Componente Interno: ResourceCell
-  // Renderizza una cella della tabella per una risorsa, mostrando le attività del giorno
+  // ✅ Cambio reparto con "TUTTI"
+  // ------------------------------------------------------------------
+  const handleRepartoChange = (id) => {
+    setRepartoSelezionato(id);
+
+    if (id === 0) {
+      // ✅ TUTTI: apri tutte le sezioni
+      const allOpen = {};
+      Object.keys(visibleSections).forEach((k) => (allOpen[k] = true));
+      setVisibleSections(allOpen);
+      return;
+    }
+
+    // singolo reparto: attiva solo quello scelto
+    setVisibleSections({
+      ...Object.keys(visibleSections).reduce((acc, key) => {
+        acc[key] = false;
+        return acc;
+      }, {}),
+      [id]: true,
+    });
+  };
+
+  // ------------------------------------------------------------------
+  // Attività per risorsa e giorno (usa filteredActivities)
+  // ------------------------------------------------------------------
+  const getActivitiesForResourceAndDay = (resourceId, day) => {
+    const isoDay = formatDateOnly(normalizeDate(day));
+    return filteredActivities.filter((activity) => {
+      if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
+      const dates = getActivityDates(activity).map((d) => formatDateOnly(d));
+      return dates.includes(isoDay);
+    });
+  };
+
+  const resourceHasActivitiesInMonth = (resourceId) => {
+  return filteredActivities.some((activity) => {
+    if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
+
+    const dates = getActivityDates(activity);
+    return dates.some(
+      (d) =>
+        d.getMonth() === currentMonth.getMonth() &&
+        d.getFullYear() === currentMonth.getFullYear()
+    );
+  });
+};
+
+
+  // ------------------------------------------------------------------
+  // Cell
   // ------------------------------------------------------------------
   function ResourceCell({ activities }) {
     return (
       <td>
         {activities.map((activity) => {
           const activityClass =
-            activity.stato === 0
-              ? "activity not-started"
-              : activity.stato === 1
-              ? "activity started"
-              : "activity completed";
-          // Verifica se l'attività riguarda una trasferta (es. "trasferta" incluso nel nome)
-          const isTrasferta = activity.nome_attivita
-            ?.toLowerCase()
-            .includes("trasferta");
+            activity.stato === 0 ? "activity not-started" : activity.stato === 1 ? "activity started" : "activity completed";
+
+          const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+
           return (
-            <div key={activity.id} className={`activity ${activityClass}`}
-            style={{minWidth:"150px",minHeight:"70px", fontSize:"14px"}}
+            <div
+              key={activity.id}
+              className={`activity ${activityClass}`}
+              style={{ minWidth: "150px", minHeight: "70px", fontSize: "14px" }}
             >
               <strong>Commessa:</strong> {activity.numero_commessa}
               <br />
@@ -301,11 +370,7 @@ const handleRepartoChange = (id) => {
               )}
               <br />
               <strong>Stato:</strong>{" "}
-              {activity.stato === 0
-                ? "Non iniziata"
-                : activity.stato === 1
-                ? "Iniziata"
-                : "Completata"}
+              {activity.stato === 0 ? "Non iniziata" : activity.stato === 1 ? "Iniziata" : "Completata"}
             </div>
           );
         })}
@@ -314,62 +379,258 @@ const handleRepartoChange = (id) => {
   }
 
   // ------------------------------------------------------------------
-  // Rendering Principale
+  // Render
   // ------------------------------------------------------------------
   return (
-   <div className="page-wrapper">
-      <div className=" header">
-        <h1>CALENDARIO ATTIVITÀ </h1>
+    <div className="page-wrapper">
+      <div className="header">
+        <h1>CALENDARIO ATTIVITÀ</h1>
+
         <div className="flex-center header-row">
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-                    <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
+
+          <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
             OGGI
           </button>
-         <div className="header-row-month"> {meseCorrente}</div>
+
+          <div className="header-row-month">{meseCorrente}</div>
+
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
-           <FontAwesomeIcon icon={faChevronRight} />
+            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
+
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+
         {loading && (
           <div className="loading-overlay">
             <img src={logo} alt="Logo" className="logo-spinner" />
           </div>
         )}
-      </div>
-      
-        {/* Tabella con il calendario e le sezioni per ciascun reparto */}
-<div className="container">
-  {/* 🔽 Selezione reparto fuori dalla tabella */}
-  <div
-  style={{marginLeft:"10px"}}
-  >
-    <select
-      id="reparto-select"
-      value={repartoSelezionato}
-      onChange={(e) => handleRepartoChange(Number(e.target.value))}
-      className="w-200"
-    >
-      {repartiDisponibili.map((rep) => (
-        <option key={rep.id} value={rep.id}>
-          {rep.nome}
-        </option>
-      ))}
-    </select>
-  </div>
 
-{Object.entries(visibleSections).map(([id, visible]) =>
-  visible
-    ? renderRepartoSection(
-        Number(id),
-        repartiDisponibili.find((r) => r.id === Number(id))?.nome || ""
-      )
-    : null
-)}
+
+
+                           {/* Bottone per aprire/chiudere il menu */}
+            <div className="burger-header" >
+        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
+          Filtri ed Opzioni
+        </button>
         </div>
+              </div>
+
+
+      {/* BURGER MENU (Filtri e Opzioni) */}
+      {isBurgerMenuOpen && (
+        <div className="burger-menu">
+          <div className="burger-menu-header">
+            <button onClick={toggleBurgerMenu} className="btn w-50 btn--ghost">
+              <FontAwesomeIcon icon={faEyeSlash} className="burger-menu-close" />
+            </button>
+          </div>
+          <div className="burger-menu-content">
+            {/* Opzioni di visualizzazione */}
+              <h3>Filtri </h3>
+     
+
+<div style={{ marginLeft: "10px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "flex-start" }}>
+          {/* Reparto */}
+          <select
+            id="reparto-select"
+            value={repartoSelezionato}
+            onChange={(e) => handleRepartoChange(Number(e.target.value))}
+            className="w-200"
+          >
+            {repartiDisponibili.map((rep) => (
+              <option key={rep.id} value={rep.id}>
+                {rep.nome}
+              </option>
+            ))}
+          </select>
+
+          {/* ✅ Filtri autocomplete */}
+          <div className="suggestion-wrapper w-200">
+            <input
+              type="text"
+              placeholder="Filtra per commessa"
+              value={filters.commessa}
+              onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
+              onFocus={() => setShowCommessaSuggestions(true)}
+              className="w-200"
+            />
+            {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
+              <ul className="suggestions-list w-200">
+                {suggestionsCommessa
+                  .filter((value) => value.toString().toLowerCase().includes(filters.commessa.toLowerCase()))
+                  .map((value, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        setFilters({ ...filters, commessa: value });
+                        setShowCommessaSuggestions(false);
+                      }}
+                    >
+                      {value}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="suggestion-wrapper w-200">
+            <input
+              type="text"
+              placeholder="Filtra per risorsa"
+              value={filters.risorsa}
+              onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
+              onFocus={() => setShowRisorsaSuggestions(true)}
+              className="w-200"
+            />
+            {showRisorsaSuggestions && suggestionsRisorsa.length > 0 && (
+              <ul className="suggestions-list w-200">
+                {suggestionsRisorsa
+                  .filter((value) => value.toLowerCase().includes(filters.risorsa.toLowerCase()))
+                  .map((value, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        setFilters({ ...filters, risorsa: value });
+                        setShowRisorsaSuggestions(false);
+                      }}
+                    >
+                      {value}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="suggestion-wrapper w-200">
+            <input
+              type="text"
+              placeholder="Filtra per attività"
+              value={filters.attivita}
+              onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
+              onFocus={() => setShowAttivitaSuggestions(true)}
+              className="w-200"
+            />
+            {showAttivitaSuggestions && suggestionsAttivita.length > 0 && (
+              <ul className="suggestions-list w-200">
+                {suggestionsAttivita
+                  .filter((value) => value.toLowerCase().includes(filters.attivita.toLowerCase()))
+                  .map((value, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        setFilters({ ...filters, attivita: value });
+                        setShowAttivitaSuggestions(false);
+                      }}
+                    >
+                      {value}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+
+          {/* ✅ Reset filtri (comodo) */}
+          <button
+            className="btn btn--pill w-200 btn--blue"
+            onClick={() => setFilters({ commessa: "", risorsa: "", attivita: "" })}
+          >
+            Reset filtri
+          </button>
+        </div>
+
+
+</div>
+  
+            </div>
+      )}
+
+      {/* CONTENITORE PRINCIPALE */}
+      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} ref={containerRef}>
+
+        
+
+        {/* ✅ Render sezioni: se TUTTI (0) => tutte visibili; altrimenti solo quella attiva */}
+      <div
+  className="Reparto-table-container mh-72"
+  ref={containerRef}
+  style={{ overflowX: "auto", whiteSpace: "nowrap" }}
+>
+  <table>
+    <thead>
+      <tr>
+        <th>Reparto / Risorsa</th>
+        {daysInMonth.map((day, index) => {
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+          const isToday = day.toDateString() === new Date().toDateString();
+          const weekNumber = getWeekNumber(day);
+          const showWeekNumber =
+            index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
+
+          return (
+            <th
+              key={day.toISOString()}
+              className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+              ref={isToday ? todayRef : null}
+            >
+              <div>{day.toLocaleDateString()}</div>
+              {showWeekNumber && <div className="week-number">Settimana {weekNumber}</div>}
+            </th>
+          );
+        })}
+      </tr>
+    </thead>
+
+    <tbody>
+      {repartoOrder
+       .filter((rid) =>
+  groupedByReparto[rid]?.some((r) =>
+    resourceHasActivitiesInMonth(r.id)
+  )
+)
+
+        .map((rid) => (
+          <React.Fragment key={rid}>
+            {/* Riga header reparto dentro la stessa tabella */}
+            <tr className="reparto-row">
+              <td colSpan={daysInMonth.length + 1} className="reparto-cell">
+                <strong>{repartiMap[rid] || `Reparto ${rid}`}</strong>
+              </td>
+            </tr>
+
+            {/* Righe risorse del reparto */}
+            {groupedByReparto[rid]
+  .filter((resource) => resourceHasActivitiesInMonth(resource.id))
+  .map((resource) => (
+
+              <tr key={resource.id}>
+                <td className="resource-name">
+                  {resource.nome}
+                </td>
+
+                {daysInMonth.map((day, index) => {
+                  const activitiesForDay = getActivitiesForResourceAndDay(resource.id, day);
+                  return (
+                    <ResourceCell
+                      key={`${resource.id}-${index}`}
+                      activities={activitiesForDay}
+                    />
+                  );
+                })}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
+    </div>
   );
 }
 
