@@ -380,6 +380,17 @@ Table
   break-before: page;
 }
 
+
+/* UI: wrapper neutro */
+.note-page { width: 100%; }
+
+/* PDF: il blocco note parte a pagina nuova e non lascia titolo orfano */
+.pdf-exporting .note-page{
+  page-break-before: always;
+  break-before: page;
+}
+
+
 /* div stampabile: di default NON si vede */
 .note-print {
   display: none;
@@ -399,6 +410,46 @@ Table
 .pdf-exporting .note-print {
   display: block !important;
 }
+
+
+/* ---- STAMPA/PDF: testo intestazione (anti clipping p/q/g) ---- */
+.header-print{
+  display: inline-block;      /* importantissimo per evitare clipping */
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;           /* più alto */
+  padding-bottom: 3px;        /* spazio discendenti */
+  overflow: visible !important;
+}
+
+/* quando esporti con html2pdf */
+.pdf-exporting .header-print{
+  display: inline-block;
+  line-height: 1.4;
+  padding-bottom: 3px;
+  overflow: visible !important;
+}
+
+/* anche il wrapper, nel dubbio */
+.header-field{
+  overflow: visible !important;
+}
+
+
+/* DEFAULT SCHERMO */
+.no-print { display: block !important; }
+.only-print { display: none !important; }
+
+/* SOLO PDF EXPORT (html2pdf) */
+.pdf-exporting .no-print { display: none !important; }
+.pdf-exporting .only-print { display: block !important; }
+
+/* SOLO STAMPA BROWSER */
+@media print {
+  .no-print { display: none !important; }
+  .only-print { display: block !important; }
+}
+
 
 /* evita che una singola riga checklist venga spezzata tra pagine */
 .check-row {

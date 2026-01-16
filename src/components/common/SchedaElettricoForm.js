@@ -210,6 +210,7 @@ function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, userna
         .save();
     } finally {
       element.classList.remove("pdf-dark-mode");
+      element.classList.remove("pdf-exporting");
     }
   };
 
@@ -238,19 +239,26 @@ const canEditHeaderAndNote =
                   <h1>Scheda elettrica commessa: {commessa}</h1>
         <div className="flex-column-left">
           {headerFields.map((f) => (
-            <div key={f.name} className="flex-column-left">
-              <label>{f.label}</label>
-              <input
-                name={f.name}
-                className="w-400"
-                value={form[f.name]}
-                onChange={handleChange}
-                readOnly={!canEditHeaderAndNote}
-disabled={!canEditHeaderAndNote}
+  <div key={f.name} className="flex-column-left header-field">
+    <label className="header-label">{f.label}</label>
 
-              />
-            </div>
-          ))}
+    {/* SCHERMO */}
+    <input
+      name={f.name}
+      className="w-400 header-input no-print"
+      value={form[f.name] || ""}
+      onChange={handleChange}
+      readOnly={!canEditHeaderAndNote}
+      disabled={!canEditHeaderAndNote}
+    />
+
+    {/* STAMPA / PDF */}
+    <div className="w-400 header-print only-print">
+      {form[f.name] || ""}
+    </div>
+  </div>
+))}
+
         </div>
         {/* NOTE */}
 <div className="note-pdf-wrap">
