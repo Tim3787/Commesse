@@ -136,8 +136,14 @@ function StatoAvanzamentoReparti() {
           "E: Schema destinato a Alan",
           "E: Schema destinato a Alessio",
           "E: Schema destinato a Simone",
+            "E: Schema destinato a Matteo",
+          "E: Commesse sospese",
         ],
-        analisi: ["E: Analisi documentazione"],
+        analisi: [
+          "E: Analisi documentazione",
+        "E: Commesse sospese",
+  
+        ],
         sviluppo: ["E: Sviluppo"],
         controllo: [
           "E: Controllo schema prima del lancio",
@@ -145,8 +151,22 @@ function StatoAvanzamentoReparti() {
           "E: Materiale impegnato da gestionale da ufficio acquisti",
           "E: Priorità commesse da prelevare",
         ],
-        "bm in preparazione": ["E: Materiale BM in preparazione"],
-        "bm pronto": ["Materiale BM Completo"],
+
+        "bm in preparazione": [
+          "E: Materiale BM in preparazione",
+            "E: Documentazione da aggiornare",
+            "Materiale BM Completo",
+        ],
+
+        "bm pronto": [
+          "Materiale BM Completo",
+          "E: Materiale impegnato da gestionale da ufficio acquisti",
+             "E: Documentazione da aggiornare",
+
+        ],
+
+
+
         completate: [
           "E: Completate",
           "E: Documentazione da aggiornare",
@@ -162,7 +182,13 @@ function StatoAvanzamentoReparti() {
           "E: Materiale BM Completo",
         ],
         "macchina in cablaggio": ["E: Montaggio bordo macchina"],
-        "macchina in pre-collaudo": ["E: Montaggio bordo macchina"],
+
+        "macchina in collaudo": [
+          "E: Montaggio bordo macchina",
+                    "E: Documentazione da aggiornare",
+          "E: Documentazione aggiornata, ok a mauro per invio schema definitivo",
+          "E: inizio smontaggio meccanico, vedi data inserita da Massimo per poter pianificare lo smontaggio elettrico",
+        ],
         "macchina in smontaggio": [
           "E: Completate",
           "E: Documentazione da aggiornare",
@@ -191,6 +217,7 @@ function StatoAvanzamentoReparti() {
           "M: Prog. destinata a Claudio",
           "M: Prog. destinata a Denis",
           "M: Prog. destinata a Paolo",
+          "M: Prog. destinata a Riccardo",
            "M: In attesa di conferma del lay-out / 3d da parte del cliente, per lancio commessa",
             "M: in attesa di info per procedere (solo se la commessa è totalmente bloccata)",
             "M: Proget. Meccanica",
@@ -198,11 +225,35 @@ function StatoAvanzamentoReparti() {
             "M: Inizio ordine materiale",
             "M: ord.matt. completo",
             "M: Priorità rispetto al calendario per priorità preparazione materiale",
-            "M: Preparazione materiale in laovorazione",
 "M: pre. mat. quasi completo",
 "M: Materiale da sollecitare",
 "M: Materiale già sollecitato",
  "M: Materiale completo",
+ "M: Commesse sospese",
+ 
+        ],
+               "analisi": [
+          "M: In entrata",
+          "M: Progettazione e/o realizzazione ESTERNA",
+          "M: Prog. destinata a Alessandro",
+          "M: Prog. destinata a Gianni",
+          "M: Prog. destinata a Claudio",
+          "M: Prog. destinata a Denis",
+          "M: Prog. destinata a Paolo",
+          "M: Prog. destinata a Riccardo",
+           "M: In attesa di conferma del lay-out / 3d da parte del cliente, per lancio commessa",
+            "M: in attesa di info per procedere (solo se la commessa è totalmente bloccata)",
+            "M: Proget. Meccanica",
+            "M: Distinta Lanciata",
+            "M: Inizio ordine materiale",
+            "M: ord.matt. completo",
+            "M: Priorità rispetto al calendario per priorità preparazione materiale",
+            "M: Preparazione materiale in lavorazione",
+"M: pre. mat. quasi completo",
+"M: Materiale da sollecitare",
+"M: Materiale già sollecitato",
+ "M: Materiale completo",
+  "M: Commesse sospese",
         ],
 
                "montaggio programmato": [
@@ -230,10 +281,14 @@ function StatoAvanzamentoReparti() {
           "M: Mont. mec. In corso",
            "M - Inizio bordomacchina e montaggio in corso (inserire data di massima nella scheda relativa)",
 "M: Line pronte al 80/90% messe in ordine prioritario per inizio collaudo (inserire data di massima nella scheda relativa)",
+"M: Materiale da sollecitare",
         ],
                        "montaggio completato": [
            "M: Montaggio completo",
            "M: Bordo macchina in corso",
+
+        ],
+                               "collaudo": [
             "M: Collaudo",
             "M: Collaudo completato in attesa del FAT/smontaggio",
             "M: Altre attività extra da fare prima dello smontaggio/spedizione",
@@ -245,6 +300,12 @@ function StatoAvanzamentoReparti() {
             "M: Collaudo",
             "M: Collaudo completato in attesa del FAT/smontaggio",
             "M: Altre attività extra da fare prima dello smontaggio/spedizione",
+
+        ],
+                                       "completate": [
+           "M: Evasa in attesa di installazione o avviamento",
+           "M: Macchina in magazzino pronto per la spedizione",
+
 
         ],
       },

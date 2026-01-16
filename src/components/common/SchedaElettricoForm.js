@@ -261,7 +261,7 @@ const canEditHeaderAndNote =
 
         </div>
         {/* NOTE */}
-<div className="note-pdf-wrap">
+<div className="note-page">
   <h1 className="note-title">Specifiche montaggio</h1>
 
   <textarea

@@ -586,7 +586,7 @@ const renderTabellaComponentiSiemens = () => {
       </div>
 
 {/* NOTE */}
-<div className="note-pdf-wrap">
+<div className="note-page">
   <h1 className="note-title">Note</h1>
 
   <textarea
