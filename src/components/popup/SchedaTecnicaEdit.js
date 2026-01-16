@@ -15,6 +15,8 @@ import SchedaCollaudoLineaForm from "../common/SchedaCollaudoLineaForm";
 import SchedaRiunioneCommessaForm from "../common/SchedaRiunioneCommessaForm";
 import SchedaSpecificheForm from "../common/SchedaSpecificheForm";
 import SchedaElettricoForm from "../common/SchedaElettricoForm";
+import SchedaRevElettricheForm from "../common/SchedaRevElettricheForm";
+
 import { fetchCurrentUser } from "../services/API/utenti-api";
 
 function SchedaTecnica({ editable, commessaId,numero_commessa, onClose, schedaInModifica, setSchedaInModifica }) {
@@ -36,6 +38,7 @@ const FORMS_BY_TIPO_ID = {
   // esempi MULTI (nuovi modelli)
   6: SchedaRiunioneCommessaForm,
   7: SchedaSpecificheForm,
+  9:SchedaRevElettricheForm,
 };
 
 const tipoIdToNome = useMemo(() => {

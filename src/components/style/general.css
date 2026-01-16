@@ -389,6 +389,21 @@ Table
   page-break-before: always;
   break-before: page;
 }
+/* SCHERMO: non mostrare testo-only-pdf */
+.only-pdf { display: none !important; }
+
+/* PDF (html2pdf): mostra testo-only-pdf e nascondi textarea */
+.pdf-exporting .only-pdf{
+  display: block !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+  padding-bottom: 4px; /* anti taglio p/q/g */
+}
+
+.pdf-exporting .no-pdf{
+  display: none !important;
+}
 
 
 /* div stampabile: di default NON si vede */

@@ -8,7 +8,7 @@ import {
 } from "../services/API/schedeTecniche-api";
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose}) {
+function SchedaSpecificheForm({ scheda,commessa,  userId, editable, onClose}) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef(); 
@@ -181,7 +181,7 @@ function VerbalePdf({ scheda, nota }) {
 function VerbaliPdf({ scheda, noteList }) {
   return (
     <div style={{ fontFamily: "Arial", color: "#000", background: "#fff", padding: 12 }}>
-      <h2>Scheda specifiche commessa: {commessa}</h2>
+      <h2>Scheda revisioni elettriche commessa: {commessa}</h2>
 
       <div style={{ fontSize: 12, marginBottom: 10, color: "#000" }}>
         Scheda numero{scheda?.id ?? ""} creata da {scheda?.creato_da_nome ?? ""}
@@ -195,7 +195,7 @@ function VerbaliPdf({ scheda, noteList }) {
           style={{ pageBreakAfter: i === noteList.length - 1 ? "auto" : "always" }}
         >
           <div style={{ fontSize: 12, marginBottom: 6, color: "#000" }}>
-           Specifica {i + 1} creata da  {n.creato_da_nome || "Autore sconosciuto"}
+          Revisione {i + 1} creata da  {n.creato_da_nome || "Autore sconosciuto"}
           </div>
 
           <div style={{ border: "1px solid #ccc", padding: 10, whiteSpace: "pre-wrap", color: "#000" }}>
@@ -286,12 +286,11 @@ const handleDownloadPdfSingleVerbale = (nota) => {
     
     {/* Contenitore principale della scheda */}
     <div ref={schedaRef} className="flex-column-center">
-      <h1>Scheda specifiche commessa: {commessa}</h1>
+      <h1>Scheda revisioni elettriche commessa:  {commessa}</h1>
 {/* TESTO SOLO PER PDF */}
 <div className="only-pdf">
   {form.note}
 </div>
-
 
 
             {/* Dettagli su data creazione e autore */}
@@ -368,7 +367,7 @@ const handleDownloadPdfSingleVerbale = (nota) => {
   <li key={nota.id} className="nota-item" style={{ listStyleType: "none",marginTop: "10px" }}>
     {mostraDettagliSpunte && (
     <div  className="row" style={{ fontFamily: "serif", color: "darkgray" }}>
-      Verbale creato il: {new Date(nota.data_creazione).toLocaleString("it-IT")} da {nota.creato_da_nome || "Autore sconosciuto"}
+      Revisione creata il: {new Date(nota.data_creazione).toLocaleString("it-IT")} da {nota.creato_da_nome || "Autore sconosciuto"}
       {nota.modificato_da_nome && nota.data_ultima_modifica !== nota.data_creazione && (
   <div className="row" style={{ marginBottom: "10px" }}>
     Ultima modifica il : {new Date(nota.data_ultima_modifica).toLocaleString("it-IT")} da {nota.modificato_da_nome}
