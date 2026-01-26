@@ -19,3 +19,26 @@ export const fetchDashboardActivities = async (monthStartDate, token) => {
     throw error;
   }
 };
+export const fetchDashboardActivityById = async (activityId, token) => {
+  try {
+    const response = await apiClient.get(`/api/users/dashboard/${activityId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Errore durante il recupero dettaglio attività:", error);
+    throw error;
+  }
+};
+export const fetchDeptActivityById = async (repartoId, activityId, token) => {
+  try {
+    const response = await apiClient.get(
+      `/api/users/reparto-dashboard/${repartoId}/activity/${activityId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Errore durante il recupero dettaglio attività reparto:", error);
+    throw error;
+  }
+};

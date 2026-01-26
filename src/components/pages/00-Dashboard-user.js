@@ -9,7 +9,7 @@ import SchedaTecnica from "../popup/SchedaTecnicaEdit.js";
 
 // Import API per le varie entità
 import { updateActivityStatusAPI, updateActivityNotes } from "../services/API/notifiche-api";
-import { fetchDashboardActivities } from "../services/API/dashboard-api";
+import { fetchDashboardActivities,fetchDashboardActivityById,fetchDeptActivityById  } from "../services/API/dashboard-api";
 import { fetchUserName } from "../services/API/utenti-api";
 import { fetchMyOpenNotes, fetchMyOpenActivities,fetchRepartoDashboard  } from "../services/API/attivitaCommesse-api";
 import { fetchClientiSpecifiche } from "../services/API/clientiSpecifiche-api";
@@ -95,6 +95,68 @@ const [clienteSpecsPopup, setClienteSpecsPopup] = useState({
   clienteLabel: "",
   repartoId: null,
 });
+
+
+const [selectedActivity, setSelectedActivity] = useState(null);
+const [selectedLoading, setSelectedLoading] = useState(false);
+const openSelectedActivity = async (activityId) => {
+  try {
+    setSelectedLoading(true);
+    setSelectedActivity(null);
+
+    // se ce l’hai già in monthlyActivities, evita chiamata
+    const local = monthlyActivities.find(a => a.id === activityId);
+    if (local) {
+      setSelectedActivity(local);
+      return;
+    }
+
+    // altrimenti fetch dettaglio dal backend
+    const full = await fetchDashboardActivityById(activityId, token);
+    setSelectedActivity({
+      ...full,
+      includedWeekends: full.included_weekends || full.includedWeekends || [],
+      clientHasSpecs: full.client_has_specs ?? full.clientHasSpecs ?? false,
+    });
+  } catch (e) {
+    console.error("Errore caricamento attività selezionata", e);
+    toast.error("Errore caricamento attività selezionata.");
+  } finally {
+    setSelectedLoading(false);
+  }
+};
+const openSelectedDeptActivity = async (activityId) => {
+  if (!repartoIdPerManager) {
+    toast.error("Nessun reparto manager associato.");
+    return;
+  }
+
+  try {
+    setSelectedLoading(true);
+
+    // se è già in monthlyActivities (mese corrente) usa local
+    const local = monthlyActivities.find(a => a.id === activityId);
+    if (local) {
+      setSelectedActivity(local);
+      return;
+    }
+
+    // chiama endpoint manager (reparto del manager)
+    const full = await fetchDeptActivityById(repartoIdPerManager, activityId, token);
+
+    setSelectedActivity({
+      ...full,
+      includedWeekends: full.included_weekends || full.includedWeekends || [],
+      clientHasSpecs: full.client_has_specs ?? full.clientHasSpecs ?? false,
+    });
+  } catch (e) {
+    console.error(e);
+    toast.error("Errore caricamento attività reparto.");
+  } finally {
+    setSelectedLoading(false);
+  }
+};
+
 
   // ------------------------------------------------------------------
   // Helper per formattare date in YYYY-MM-DD senza shift
@@ -251,23 +313,26 @@ useEffect(() => {
   // ------------------------------------------------------------------
   // Funzione per aggiornare lo stato di un'attività (es. da "non iniziata" a "iniziata" o "completata")
   // ------------------------------------------------------------------
-  const updateActivityStatus = async (activityId, newStatus) => {
-    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
-    try {
-      await updateActivityStatusAPI(activityId, newStatus, token);
-      // Aggiorna localmente lo stato dell'attività
-      setMonthlyActivities((prev) =>
-        prev.map((activity) =>
-          activity.id === activityId ? { ...activity, stato: newStatus } : activity
-        )
-      );
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
-      alert("Si è verificato un errore durante l'aggiornamento dello stato.");
-    } finally {
-      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
-    }
-  };
+const updateActivityStatus = async (activityId, newStatus) => {
+  setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+  try {
+    await updateActivityStatusAPI(activityId, newStatus, token);
+
+    setMonthlyActivities((prev) =>
+      prev.map((a) => (a.id === activityId ? { ...a, stato: newStatus } : a))
+    );
+
+    setSelectedActivity((prev) =>
+      prev && prev.id === activityId ? { ...prev, stato: newStatus } : prev
+    );
+
+  } catch (error) {
+    console.error("Errore durante l'aggiornamento dello stato:", error);
+    alert("Si è verificato un errore durante l'aggiornamento dello stato.");
+  } finally {
+    setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
+  }
+};
 
   // ------------------------------------------------------------------
   // Gestione delle note per le attività
@@ -289,6 +354,10 @@ const saveNote = async (activityId) => {
     setMonthlyActivities((prev) =>
       prev.map((a) => (a.id === activityId ? { ...a, note: finalText } : a))
     );
+    setSelectedActivity(prev =>
+  prev && prev.id === activityId ? { ...prev, note: finalText } : prev
+);
+
     setNoteUpdates((prev) => ({ ...prev, [activityId]: finalText }));
   } catch (error) {
     console.error("Errore durante il salvataggio della nota:", error);
@@ -308,6 +377,10 @@ const saveNote = async (activityId) => {
           activity.id === activityId ? { ...activity, note: null } : activity
         )
       );
+      setSelectedActivity(prev =>
+  prev && prev.id === activityId ? { ...prev, note: null } : prev
+);
+
       setNoteUpdates((prev) => ({ ...prev, [activityId]: "" }));
     } catch (error) {
       console.error("Errore durante l'eliminazione della nota:", error);
@@ -318,18 +391,22 @@ const saveNote = async (activityId) => {
 // Chiudi la nota associata a un'attività (senza cancellarla)
 const closeNote = async (activityId) => {
   try {
-    const activity = monthlyActivities.find((a) => a.id === activityId);
+    const activity = monthlyActivities.find((a) => a.id === activityId) || selectedActivity;
     if (!activity) return;
 
     const newText = closeNoteText(activity.note);
     await updateActivityNotes(activityId, newText, token);
 
     toast.success("Nota chiusa con successo!");
+
     setMonthlyActivities((prev) =>
       prev.map((a) => (a.id === activityId ? { ...a, note: newText } : a))
     );
 
-    // Se stavi editando la textarea, sincronizza anche il buffer locale
+    setSelectedActivity((prev) =>
+      prev && prev.id === activityId ? { ...prev, note: newText } : prev
+    );
+
     setNoteUpdates((prev) => ({ ...prev, [activityId]: newText }));
   } catch (error) {
     console.error("Errore durante la chiusura della nota:", error);
@@ -337,19 +414,26 @@ const closeNote = async (activityId) => {
   }
 };
 
+
 // (Opzionale) Riapri la nota se serve
 const reopenNote = async (activityId) => {
   try {
-    const activity = monthlyActivities.find((a) => a.id === activityId);
+    const activity = monthlyActivities.find((a) => a.id === activityId) || selectedActivity;
     if (!activity) return;
 
     const newText = reopenNoteText(activity.note);
     await updateActivityNotes(activityId, newText, token);
 
     toast.success("Nota riaperta!");
+
     setMonthlyActivities((prev) =>
       prev.map((a) => (a.id === activityId ? { ...a, note: newText } : a))
     );
+
+    setSelectedActivity((prev) =>
+      prev && prev.id === activityId ? { ...prev, note: newText } : prev
+    );
+
     setNoteUpdates((prev) => ({ ...prev, [activityId]: newText }));
   } catch (error) {
     console.error("Errore durante la riapertura della nota:", error);
@@ -449,6 +533,20 @@ const closeClienteSpecs = () => {
     repartoId: null,
   });
 };
+const autoResize = (el) => {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+};
+useEffect(() => {
+  // aspetta che React abbia renderizzato il textarea
+  const t = setTimeout(() => {
+    const el = document.querySelector(".activity textarea");
+    autoResize(el);
+  }, 0);
+
+  return () => clearTimeout(t);
+}, [selectedActivity]);
 
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
@@ -479,7 +577,10 @@ const closeClienteSpecs = () => {
 
 <ul>
   {myOpenList.map(a => (
-    <li  style={{ marginBottom: "10px"}} key={a.id}>
+    <li  style={{ marginBottom: "10px"}} 
+    key={a.id}
+      onClick={() => openSelectedActivity(a.id)}   // ✅ seleziona
+    >
   {a.numero_commessa} — {a.nome_attivita}  
 
  --  Iniziata il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
@@ -492,11 +593,17 @@ const closeClienteSpecs = () => {
 Hai {myNotesList.length} note aperte
 <ul>
   {myNotesList.map(a => (
-    <li key={a.id}>
-  {a.numero_commessa} — {a.nome_attivita}  
-
-  --  Iniziata il : {new Date(a.data_inizio).toLocaleDateString('it-IT')}
+    <li
+  key={a.id}
+  title={a.note || "—"}                 // ✅ tooltip nota
+  style={{ cursor: "pointer", marginBottom: "10px" }}
+  onClick={() => openSelectedActivity(a.id)}   // ✅ seleziona
+>
+  {a.numero_commessa} — {a.nome_attivita}
+  {" -- Iniziata il : "}
+  {new Date(a.data_inizio).toLocaleDateString("it-IT")}
 </li>
+
 
   ))}
 </ul>
@@ -515,8 +622,16 @@ Hai {myNotesList.length} note aperte
  marginBottom: "10px",
     display: "flex",
     flexWrap: "wrap",
-    gap: "6px"
+    gap: "6px",
+     cursor: "pointer",
+    
   }}
+ onClick={() => {
+  console.log("ROW CLICK:", a);
+  openSelectedDeptActivity(a.id);
+}}
+
+
 >
   <span><strong>Commessa:</strong> {a.numero_commessa}</span>
   <span>—</span>
@@ -533,12 +648,21 @@ Hai {myNotesList.length} note aperte
       {deptData.openNotes.map(a => (
          <li
     key={a.id}
+      title={a.note || "—"}   
     style={{
  marginBottom: "10px",
     display: "flex",
     flexWrap: "wrap",
-    gap: "6px"
+    gap: "6px",
+     cursor: "pointer",
+     
   }}
+   onClick={() => {
+  console.log("ROW CLICK:", a);
+  openSelectedDeptActivity(a.id);
+}}
+
+
 >
            <span><strong>Commessa:</strong> {a.numero_commessa}</span>
   <span>—</span>
@@ -558,12 +682,24 @@ Hai {myNotesList.length} note aperte
 <hr style={{ margin: "10px 0" }} />
 
     {/* ATTIVITA DI OGGI */}
-    <h1>ATTIVITA' DI OGGI</h1>
+    <h1>{selectedActivity ? "ATTIVITÀ SELEZIONATA" : "ATTIVITÀ DI OGGI"}</h1>
 
-    {(() => {
-      const todays = getActivitiesForDay(new Date());
-      if (!todays.length) return <p>✅ Nessuna attività oggi</p>;
-      return todays.map((activity) => {
+{selectedActivity && (
+  <button
+    className="btn btn--pill w-200 btn--blue"
+    onClick={() => setSelectedActivity(null)}
+  >
+    Torna ad oggi
+  </button>
+)}
+
+{selectedLoading ? (
+  <p>Caricamento attività...</p>
+) : (() => {
+  const list = selectedActivity ? [selectedActivity] : getActivitiesForDay(new Date());
+  if (!list.length) return <p>✅ Nessuna attività oggi</p>;
+
+  return list.map((activity) => {
 
         const activityClass =
           activity.stato === 0 ? "activity not-started"
@@ -664,6 +800,11 @@ Hai {myNotesList.length} note aperte
     const isClosed = isClosedNote(activity.note);
     return (
       <textarea
+  ref={(el) => {
+    // autosize subito quando monta / cambia activity
+    if (el) autoResize(el);
+  }}
+  onInput={(e) => autoResize(e.target)} // autosize mentre scrivi/incolli
         placeholder={isClosed ? "Nota chiusa" : "Aggiungi una nota..."}
         className={`textarea w-200 ${isClosed ? "is-locked" : ""}`}
         value={
