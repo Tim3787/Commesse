@@ -10,7 +10,7 @@
     border: 1px solid #ddd;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-
+max-width: 500px;
     white-space: normal;        
     overflow-wrap: break-word;   
     /* Opzionale: se il testo è particolarmente lungo e vuoi spezzare le parole ovunque:

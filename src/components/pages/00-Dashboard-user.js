@@ -678,7 +678,7 @@ Hai {myNotesList.length} note aperte
 </div>
  <div className="flex-column-center">
   <button  className="btn btn--pill w-400 btn--blue" onClick={() => navigate("/00-Dashboard-user-calendar")}>Vai al calendario</button>
-</div>
+
 <hr style={{ margin: "10px 0" }} />
 
     {/* ATTIVITA DI OGGI */}
@@ -692,7 +692,7 @@ Hai {myNotesList.length} note aperte
     Torna ad oggi
   </button>
 )}
-
+</div>
 {selectedLoading ? (
   <p>Caricamento attività...</p>
 ) : (() => {
@@ -712,7 +712,7 @@ Hai {myNotesList.length} note aperte
 
                       return (
                         <div className="flex-column-center">
-                        <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "200px"} } >
+                        <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "300px"} } >
                           <div className="flex-column-center">
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
                             {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
