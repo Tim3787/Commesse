@@ -5,6 +5,9 @@ import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/02-StatoAvanzamento-reparto.css";
 import AttivitaCrea from "../popup/AttivitaCrea";
 import { getEmptyImage } from "react-dnd-html5-backend";
+import iconOk from "../img/icons8-ok-48.png";
+import iconDev from "../img/icons8-saturazione-48.png";
+
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop, useDragLayer  } from "react-dnd";
@@ -336,6 +339,43 @@ function StatoAvanzamentoReparti() {
     },
   };
 
+  // 🔹 regole indicatori: quando sono nel reparto X, guardo lo stato del reparto Y
+const repartoIndicators = {
+  software: [
+    {
+      // su SOFTWARE mostra OK se ELETTRICO è in "completate"
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["completate","Controllo","In attesa di revisione finale", ],
+      icon: iconOk,
+      title: "Elettrico completato",
+            text: "Elettrico:",       
+      showText: true,     
+    },
+        {
+      // su SOFTWARE mostra OK se ELETTRICO è in "completate"
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Sviluppo", ],
+      icon: iconDev,
+      title: "Elettrico sviluppo",
+            text: "Elettrico:",       
+      showText: true,     
+    },
+  ],
+  elettrico: [
+    {
+      // su ELETTRICO mostra DEV se SOFTWARE è in "sviluppo"
+      otherReparto: "software",
+      whenStates: ["sviluppo"],
+      icon: iconDev,
+      title: "Software in sviluppo",
+      text: "Software",       
+      showText: true,     
+    },
+  ],
+  // aggiungine quanti vuoi...
+};
+
+
   // Legge il parametro dinamico "reparto" dall'URL e imposta i dati del reparto
   const { reparto } = useParams();
   const repartoData = repartoConfig[reparto] || {};
@@ -485,6 +525,13 @@ const dropOpRef = React.useRef(0);
   return "Impossibile completare lo spostamento.";
 };
 
+const getActiveStateNameByRepartoName = (commessa, targetRepartoName) => {
+  const rep = commessa?.stati_avanzamento?.find(
+    (r) => normalize(r.reparto_nome) === normalize(targetRepartoName)
+  );
+  const active = rep?.stati_disponibili?.find((s) => s.isActive);
+  return active?.nome_stato || null; // nome_stato APP
+};
 
   // ----------------------------------------------------------------
   // Chiamate API per recuperare dati dal backend
@@ -1087,6 +1134,24 @@ useEffect(() => {
     // Recupera gli stati attivi per la commessa e seleziona quello relativo al reparto corrente
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
    const statoAttivo = statiAttivi.find((s) => s.reparto_nome.toLowerCase() === RepartoName);
+const indicatorsToShow = (repartoIndicators[RepartoName] || [])
+  .map((rule) => {
+    const otherState = getActiveStateNameByRepartoName(commessa, rule.otherReparto);
+    const match = rule.whenStates
+      .map(normalize)
+      .includes(normalize(otherState));
+
+ return match
+  ? {
+      icon: rule.icon,
+      title: rule.title,
+      text: rule.text,                 // ✅
+      showText: rule.showText ?? true, // ✅ default true
+      key: `${rule.otherReparto}-${otherState}`,
+    }
+  : null;
+  })
+  .filter(Boolean);
 
     // Verifica se la lista Trello corrente corrisponde a quella attesa dall'accoppiamento
     const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
@@ -1174,6 +1239,7 @@ useEffect(() => {
             )}
         </div>
 
+
         {/* Mostra il componente WarningDetails se sono presenti warning (note) */}
         {allarmiNote && warningActivities.length > 0 && (
   <WarningDetails
@@ -1233,6 +1299,25 @@ deleteNote={deleteNote}
 </div>
 
         )}
+{indicatorsToShow.length > 0 && (
+  <div className="reparto-indicators">
+    {indicatorsToShow.map((it) => (
+      <div key={it.key} className="reparto-indicator-badge" title={it.title}>
+        
+        {it.showText && it.text && (
+          <span className="reparto-indicator-text">{it.text}</span>
+        )}
+        {it.icon && (
+          <img
+            src={it.icon}
+            className="reparto-indicator-icon"
+            alt={it.title}
+          />
+        )}
+      </div>
+    ))}
+  </div>
+)}
       </div>
     );
   }
@@ -1634,6 +1719,7 @@ function DragStateWatcher({ onEnd }) {
       borderRadius: "10px",
       padding: "6px",
       minWidth: "220px",
+      maxWidth: "300px",
       boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
     }}
     onClick={(e) => e.stopPropagation()}
@@ -1642,7 +1728,7 @@ function DragStateWatcher({ onEnd }) {
       Sposta commessa
     </div>
 
-    <div style={{ maxHeight: 320, overflow: "auto" }}>
+    <div style={{ maxHeight: 200, overflow: "auto" }}>
       {columnOrder.map((stato) => (
         <button
           key={stato.id}
