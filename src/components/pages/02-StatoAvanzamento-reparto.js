@@ -7,7 +7,10 @@ import AttivitaCrea from "../popup/AttivitaCrea";
 import { getEmptyImage } from "react-dnd-html5-backend";
 import iconOk from "../img/icons8-ok-48.png";
 import iconDev from "../img/icons8-saturazione-48.png";
-import iconFlag from "../img/icons8-nastro-segnalibro-48.png";
+import iconWIP from "../img/icons8-servizi-48.png";
+import iconWarn from "../img/icons8-attenzione-48.png";
+import iconDone from "../img/icons8-bandiera-a-scacchi-48.png";
+
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop, useDragLayer  } from "react-dnd";
@@ -341,9 +344,10 @@ function StatoAvanzamentoReparti() {
 
   // 🔹 regole indicatori: quando sono nel reparto X, guardo lo stato del reparto Y
 const repartoIndicators = {
-  software: [
+                                                                                        software: [
+ /* TECNICO ELETTRICO */                          
     {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["completate","controllate","In attesa di revisione finale", ],
       icon: iconOk,
       title: "Schema completato",
@@ -351,35 +355,77 @@ const repartoIndicators = {
       showText: true,     
     },
         {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Controllo" ],
-      icon: iconFlag,
+      ifSelfNotIn: ["Sviluppo"],
+      icon: iconDev,
+      title: "Schema in controllo",
+            text: "Schema in controllo",       
+      showText: true,     
+    },
+            {
+      otherReparto: "tecnico elettrico",
+      whenStates: ["Controllo" ],
+          ifSelfIn: ["Sviluppo"],
+      icon: iconWarn,
       title: "Schema in controllo",
             text: "Schema in controllo",       
       showText: true,     
     },
         {
-
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Sviluppo", ],
+       ifSelfNotIn: ["Sviluppo"],
       icon: iconDev,
       title: "Schema in sviluppo",
             text: "Schema in sviluppo",       
       showText: true,     
     },
+        {
+      otherReparto: "tecnico elettrico",
+      whenStates: ["Sviluppo", ],
+      ifSelfIn: ["Sviluppo"],
+      icon: iconWarn,
+      title: "Schema in sviluppo",
+            text: "Schema in sviluppo",       
+      showText: true,     
+    },
 
+        {
+      otherReparto: "tecnico elettrico",
+      whenStates: ["In Entrata","analisi", "sviluppo programmato"],
+      ifSelfIn: ["Sviluppo"],
+      icon: iconWarn,
+      title: "Schema non pronto!",
+       text: "Schema non pronto!",       
+      showText: true,     
+    },
+
+
+     /* ELETTRICO */      
             {
 
-      otherReparto: "Elettrico",
+      otherReparto: "elettrico",
       whenStates: ["Macchina in cablaggio", ],
       icon: iconDev,
       title: "Macchina in cablaggio",
             text: "Macchina in cablaggio",       
       showText: true,     
     },
+            {
+
+      otherReparto: "elettrico",
+      whenStates: ["Bm in preparazione", ],
+      icon: iconDev,
+      title: "Bm in preparazione",
+            text: "Bm in preparazione",       
+      showText: true,     
+    },
+    
+     /* MECCANICO */
                 {
 
-      otherReparto: "Meccanico",
+      otherReparto: "meccanico",
       whenStates: ["Montaggio in corso", ],
       icon: iconDev,
       title: "Montaggio in corso",
@@ -388,7 +434,7 @@ const repartoIndicators = {
     },
                     {
 
-      otherReparto: "Meccanico",
+      otherReparto: "meccanico",
       whenStates: ["Montaggio completato"," Smontaggio programmato"," Smontaggio completato" ],
       icon: iconOk,
       title: "Montaggio completato",
@@ -400,7 +446,9 @@ const repartoIndicators = {
 
 
 
-  elettrico: [
+                                                                                       elettrico: [
+   
+    /* SOFTWARE */                                                                                   
     {
       otherReparto: "software",
       whenStates: ["sviluppo"],
@@ -420,7 +468,7 @@ const repartoIndicators = {
             {
       otherReparto: "software",
       whenStates: ["Collaudo"],
-      icon: iconDev,
+      icon: iconWIP,
       title: "Collaudo in corso",
       text: "Collaudo in corso",       
       showText: true,     
@@ -428,14 +476,15 @@ const repartoIndicators = {
                 {
       otherReparto: "software",
       whenStates: ["Collaudo terminato"],
-      icon: iconOk,
+      icon: iconDone,
       title: "Collaudo terminato",
       text: "Collaudo terminato",       
       showText: true,     
     },
 
+        /* TECNICO ELETTRICO */    
       {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["completate","controllate","In attesa di revisione finale", ],
       icon: iconOk,
       title: "Schema completato",
@@ -443,16 +492,16 @@ const repartoIndicators = {
       showText: true,     
     },
         {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Controllo" ],
-      icon: iconFlag,
+      icon: iconDev,
       title: "Schema in controllo",
             text: "Schema in controllo",       
       showText: true,     
     },
         {
 
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Sviluppo", ],
       icon: iconDev,
       title: "Schema in sviluppo",
@@ -460,10 +509,28 @@ const repartoIndicators = {
       showText: true,     
     },
 
+     /* MECCANICO */   
+    {
+      otherReparto: "meccanico",
+      whenStates: ["Montaggio in corso", ],
+      icon: iconDev,
+      title: "Montaggio in corso",
+            text: "Montaggio in corso",       
+      showText: true,     
+    },
+                    {
+
+      otherReparto: "meccanico",
+      whenStates: ["Montaggio completato"," Smontaggio programmato"," Smontaggio completato" ],
+      icon: iconOk,
+      title: "Montaggio completato",
+            text: "Montaggio completato",       
+      showText: true,     
+    },
 
   ],
 
-    meccanico: [
+                                                                                     meccanico: [
     {
       otherReparto: "software",
       whenStates: ["sviluppo"],
@@ -491,30 +558,32 @@ const repartoIndicators = {
                 {
       otherReparto: "software",
       whenStates: ["Collaudo terminato"],
-      icon: iconOk,
+      icon: iconDone,
       title: "Collaudo terminato",
       text: "Collaudo terminato",       
       showText: true,     
     },
       {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["completate","controllate","In attesa di revisione finale", ],
       icon: iconOk,
       title: "Schema completato",
             text: "Schema completato",       
       showText: true,     
     },
+
+    
         {
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Controllo" ],
-      icon: iconFlag,
+      icon: iconDev,
       title: "Schema in controllo",
             text: "Schema in controllo",       
       showText: true,     
     },
         {
 
-      otherReparto: "Tecnico elettrico",
+      otherReparto: "tecnico elettrico",
       whenStates: ["Sviluppo", ],
       icon: iconDev,
       title: "Schema in sviluppo",
@@ -524,15 +593,102 @@ const repartoIndicators = {
 
             {
 
-      otherReparto: "Elettrico",
+      otherReparto: "elettrico",
       whenStates: ["Macchina in cablaggio", ],
       icon: iconDev,
       title: "Macchina in cablaggio",
             text: "Macchina in cablaggio",       
       showText: true,     
     },
+
+                {
+
+      otherReparto: "elettrico",
+      whenStates: ["Bm in preparazione", ],
+      icon: iconDev,
+      title: "Bm in preparazione",
+            text: "Bm in preparazione",       
+      showText: true,     
+    },
   ],
-  // aggiungine quanti vuoi...
+                                                                                       "tecnico elettrico": [
+ 
+/* SOFTWARE */                                                                                   
+    {
+      otherReparto: "software",
+      whenStates: ["sviluppo"],
+      icon: iconDev,
+      title: "Software in sviluppo",
+      text: "Sviluppo software",       
+      showText: true,     
+    },
+       {
+      otherReparto: "software",
+      whenStates: ["Pronta per collaudo","No software",],
+      icon: iconOk,
+      title: "Software completato",
+      text: "Software completato",       
+      showText: true,     
+    },
+            {
+      otherReparto: "software",
+      whenStates: ["Collaudo"],
+      icon: iconWIP,
+      title: "Collaudo in corso",
+      text: "Collaudo in corso",       
+      showText: true,     
+    },
+                {
+      otherReparto: "software",
+      whenStates: ["Collaudo terminato"],
+      icon: iconDone,
+      title: "Collaudo terminato",
+      text: "Collaudo terminato",       
+      showText: true,     
+    },
+
+     /* ELETTRICO */      
+            {
+
+      otherReparto: "elettrico",
+      whenStates: ["Macchina in cablaggio", ],
+      icon: iconDev,
+      title: "Macchina in cablaggio",
+            text: "Macchina in cablaggio",       
+      showText: true,     
+    },
+            {
+
+      otherReparto: "elettrico",
+      whenStates: ["Bm in preparazione", ],
+      icon: iconDev,
+      title: "Bm in preparazione",
+            text: "Bm in preparazione",       
+      showText: true,     
+    },
+    
+     /* MECCANICO */
+                {
+
+      otherReparto: "meccanico",
+      whenStates: ["Montaggio in corso", ],
+      icon: iconDev,
+      title: "Montaggio in corso",
+            text: "Montaggio in corso",       
+      showText: true,     
+    },
+                    {
+
+      otherReparto: "meccanico",
+      whenStates: ["Montaggio completato"," Smontaggio programmato"," Smontaggio completato" ],
+      icon: iconOk,
+      title: "Montaggio completato",
+            text: "Montaggio completato",       
+      showText: true,     
+    },
+  ],
+
+
 };
 
 
@@ -740,6 +896,15 @@ const handleEditActivity = (activity) => {
 
   // Elimina la nota associata a un'attività
   const deleteNote = async (activityId) => {
+     const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE la nota?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
     try {
       await updateActivityNotes(activityId, null, token);
       
@@ -757,6 +922,7 @@ const handleEditActivity = (activity) => {
 
 // Chiudi la nota associata a un'attività (senza cancellarla)
 const closeNote = async (activityId) => {
+   
   try {
     const activity = activities.find((a) => a.id === activityId);
     if (!activity) return;
@@ -1294,24 +1460,38 @@ useEffect(() => {
     // Recupera gli stati attivi per la commessa e seleziona quello relativo al reparto corrente
     const statiAttivi = getStatiAttiviPerCommessa(commessa);
    const statoAttivo = statiAttivi.find((s) => s.reparto_nome.toLowerCase() === RepartoName);
+const selfState = getActiveStateNameByRepartoName(commessa, RepartoName);
+
+const inList = (list, value) =>
+  Array.isArray(list) && list.map(normalize).includes(normalize(value));
+
 const indicatorsToShow = (repartoIndicators[RepartoName] || [])
   .map((rule) => {
     const otherState = getActiveStateNameByRepartoName(commessa, rule.otherReparto);
-    const match = rule.whenStates
-      .map(normalize)
-      .includes(normalize(otherState));
 
- return match
-  ? {
+    const matchOther = inList(rule.whenStates, otherState);
+    if (!matchOther) return null;
+
+    // ✅ deve essere IN (ifSelfIn) → se non lo è, scarta
+    if (rule.ifSelfIn && !inList(rule.ifSelfIn, selfState)) {
+      return null;
+    }
+
+    // ✅ NON deve essere IN (ifSelfNotIn) → se lo è, scarta
+    if (rule.ifSelfNotIn && inList(rule.ifSelfNotIn, selfState)) {
+      return null;
+    }
+
+    return {
       icon: rule.icon,
       title: rule.title,
-      text: rule.text,                 // ✅
-      showText: rule.showText ?? true, // ✅ default true
-      key: `${rule.otherReparto}-${otherState}`,
-    }
-  : null;
+      text: rule.text,
+      showText: rule.showText ?? true,
+      key: `${rule.otherReparto}-${otherState}-${rule.title || ""}`,
+    };
   })
   .filter(Boolean);
+
 
     // Verifica se la lista Trello corrente corrisponde a quella attesa dall'accoppiamento
     const isListDifferent = !accoppiamentoStati[normalize(statoAttivo?.stato?.nome_stato)]?.includes(trelloListName);
@@ -1438,7 +1618,7 @@ deleteNote={deleteNote}
   <br />
    <div className="flex-column-center">
 <button
-  className="btn btn--pill w-100 btn--danger"
+  className="btn btn--pill w-100 btn--warning"
   onClick={(e) => {
     e.preventDefault();
     e.stopPropagation();

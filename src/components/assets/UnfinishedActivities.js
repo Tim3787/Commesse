@@ -9,7 +9,6 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
 
   return (
     <div className="unfinished-section">
-      <div>
         {unfinishedActivities.map((activity) => {
           const resourceName = resources.find(
             (resource) => resource.id === activity.risorsa_id
@@ -17,7 +16,8 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
 
           return (
             <div key={activity.id} className="unfinished-card">
-
+                    <div className="flex-column-center">
+                <strong>ATTIVITÀ INCOMPLETA</strong>
               <span
                 className="unfinished-icon"
                 title={`
@@ -37,11 +37,8 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
                   <path d="M12 0C5.371 0 0 5.371 0 12s5.371 12 12 12 12-5.371 12-12S18.629 0 12 0zm1 17h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
               </span>
-              <br />
-              <strong>ATTIVITÀ INCOMPLETA<br />{activity.nome_attivita}</strong>
-
-
-                         <div className="flex-column-center">
+              {activity.nome_attivita}
+           <div className="flex-column-center">
                   <button
   className="btn btn--pill btn--blue w-100"
   onClick={(e) => {
@@ -53,12 +50,14 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
 </button>
 
                 </div>
-
+</div>
             </div>
           );
+          
         })}
-      </div>
+        
     </div>
+    
   );
 }
 

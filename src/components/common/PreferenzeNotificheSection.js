@@ -76,6 +76,15 @@ useEffect(() => {
   };
 
   const handleDelete = async (categoria) => {
+         const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
     try {
       await deleteNotificationPreferenceAPI(categoria, token);
       toast.success("Preferenza eliminata!");

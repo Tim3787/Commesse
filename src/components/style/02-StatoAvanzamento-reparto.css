@@ -4,6 +4,8 @@
   padding: 15px;
   border-radius: 5px;
   margin-bottom: 20px;
+  margin-left: 10px;
+    margin-right: 10px;
   font-size: 16px;
   border: 2px solid #146da8;
   color: var( --text-light);
@@ -30,6 +32,8 @@
   .commessa--dragging {
   opacity: 0.5;
 }
+
+
 
 .commessa--date-warning {
   background-color: #ffcccc; /* rosso chiaro */
@@ -109,7 +113,7 @@
 .warning-icon {
   display: inline-block;
   margin-top: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   cursor: help;
 }
 
@@ -118,7 +122,7 @@
 }
 
 .unfinished-card {
-  padding: 10px;
+  padding-top: 10px;
   background-color: #020536;
   border: 1px solid #ffcc00;
   border-radius: 6px;
@@ -129,7 +133,7 @@
 .unfinished-icon {
   display: inline-block;
   margin-top: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   cursor: help;
 }
 

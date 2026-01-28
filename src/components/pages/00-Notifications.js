@@ -87,6 +87,15 @@ const notificheFiltrate = categoriaFiltro === "tutte"
 
   // Funzione per eliminare una singola notifica
   const deleteNotification = async (id) => {
+             const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
     try {
       await apiClient.delete(`/api/notifiche/${id}`);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -98,6 +107,15 @@ const notificheFiltrate = categoriaFiltro === "tutte"
 
   // Funzione per eliminare tutte le notifiche per la risorsa corrente
   const deleteAllNotifications = async () => {
+             const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
     if (!userId) {
       console.error("User ID non trovato in sessionStorage.");
       toast.error("Impossibile eliminare le notifiche: ID utente mancante.");

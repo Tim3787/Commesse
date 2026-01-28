@@ -367,6 +367,15 @@ const saveNote = async (activityId) => {
 
 
   const deleteNote = async (activityId) => {
+             const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
     try {
       // Invia null per eliminare la nota sul backend
       await updateActivityNotes(activityId, null, token);
