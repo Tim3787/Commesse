@@ -7,7 +7,7 @@ import AttivitaCrea from "../popup/AttivitaCrea";
 import { getEmptyImage } from "react-dnd-html5-backend";
 import iconOk from "../img/icons8-ok-48.png";
 import iconDev from "../img/icons8-saturazione-48.png";
-
+import iconFlag from "../img/icons8-nastro-segnalibro-48.png";
 
 // Import per il drag & drop
 import { DndProvider, useDrag, useDrop, useDragLayer  } from "react-dnd";
@@ -343,32 +343,192 @@ function StatoAvanzamentoReparti() {
 const repartoIndicators = {
   software: [
     {
-      // su SOFTWARE mostra OK se ELETTRICO è in "completate"
       otherReparto: "Tecnico elettrico",
-      whenStates: ["completate","Controllo","In attesa di revisione finale", ],
+      whenStates: ["completate","controllate","In attesa di revisione finale", ],
       icon: iconOk,
-      title: "Elettrico completato",
-            text: "Elettrico:",       
+      title: "Schema completato",
+            text: "Schema completato",       
       showText: true,     
     },
         {
-      // su SOFTWARE mostra OK se ELETTRICO è in "completate"
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Controllo" ],
+      icon: iconFlag,
+      title: "Schema in controllo",
+            text: "Schema in controllo",       
+      showText: true,     
+    },
+        {
+
       otherReparto: "Tecnico elettrico",
       whenStates: ["Sviluppo", ],
       icon: iconDev,
-      title: "Elettrico sviluppo",
-            text: "Elettrico:",       
+      title: "Schema in sviluppo",
+            text: "Schema in sviluppo",       
+      showText: true,     
+    },
+
+            {
+
+      otherReparto: "Elettrico",
+      whenStates: ["Macchina in cablaggio", ],
+      icon: iconDev,
+      title: "Macchina in cablaggio",
+            text: "Macchina in cablaggio",       
+      showText: true,     
+    },
+                {
+
+      otherReparto: "Meccanico",
+      whenStates: ["Montaggio in corso", ],
+      icon: iconDev,
+      title: "Montaggio in corso",
+            text: "Montaggio in corso",       
+      showText: true,     
+    },
+                    {
+
+      otherReparto: "Meccanico",
+      whenStates: ["Montaggio completato"," Smontaggio programmato"," Smontaggio completato" ],
+      icon: iconOk,
+      title: "Montaggio completato",
+            text: "Montaggio completato",       
       showText: true,     
     },
   ],
+
+
+
+
   elettrico: [
     {
-      // su ELETTRICO mostra DEV se SOFTWARE è in "sviluppo"
       otherReparto: "software",
       whenStates: ["sviluppo"],
       icon: iconDev,
       title: "Software in sviluppo",
-      text: "Software",       
+      text: "Sviluppo software",       
+      showText: true,     
+    },
+       {
+      otherReparto: "software",
+      whenStates: ["Pronta per collaudo","No software",],
+      icon: iconOk,
+      title: "Software completato",
+      text: "Software completato",       
+      showText: true,     
+    },
+            {
+      otherReparto: "software",
+      whenStates: ["Collaudo"],
+      icon: iconDev,
+      title: "Collaudo in corso",
+      text: "Collaudo in corso",       
+      showText: true,     
+    },
+                {
+      otherReparto: "software",
+      whenStates: ["Collaudo terminato"],
+      icon: iconOk,
+      title: "Collaudo terminato",
+      text: "Collaudo terminato",       
+      showText: true,     
+    },
+
+      {
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["completate","controllate","In attesa di revisione finale", ],
+      icon: iconOk,
+      title: "Schema completato",
+            text: "Schema completato",       
+      showText: true,     
+    },
+        {
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Controllo" ],
+      icon: iconFlag,
+      title: "Schema in controllo",
+            text: "Schema in controllo",       
+      showText: true,     
+    },
+        {
+
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Sviluppo", ],
+      icon: iconDev,
+      title: "Schema in sviluppo",
+            text: "Schema in sviluppo",       
+      showText: true,     
+    },
+
+
+  ],
+
+    meccanico: [
+    {
+      otherReparto: "software",
+      whenStates: ["sviluppo"],
+      icon: iconDev,
+      title: "Software in sviluppo",
+      text: "Sviluppo software",       
+      showText: true,     
+    },
+        {
+      otherReparto: "software",
+      whenStates: ["Pronta per collaudo","No software",],
+      icon: iconOk,
+      title: "Software completato",
+      text: "Software completato",       
+      showText: true,     
+    },
+            {
+      otherReparto: "software",
+      whenStates: ["Collaudo"],
+      icon: iconDev,
+      title: "Collaudo in corso",
+      text: "Collaudo in corso",       
+      showText: true,     
+    },
+                {
+      otherReparto: "software",
+      whenStates: ["Collaudo terminato"],
+      icon: iconOk,
+      title: "Collaudo terminato",
+      text: "Collaudo terminato",       
+      showText: true,     
+    },
+      {
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["completate","controllate","In attesa di revisione finale", ],
+      icon: iconOk,
+      title: "Schema completato",
+            text: "Schema completato",       
+      showText: true,     
+    },
+        {
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Controllo" ],
+      icon: iconFlag,
+      title: "Schema in controllo",
+            text: "Schema in controllo",       
+      showText: true,     
+    },
+        {
+
+      otherReparto: "Tecnico elettrico",
+      whenStates: ["Sviluppo", ],
+      icon: iconDev,
+      title: "Schema in sviluppo",
+            text: "Schema in sviluppo",       
+      showText: true,     
+    },
+
+            {
+
+      otherReparto: "Elettrico",
+      whenStates: ["Macchina in cablaggio", ],
+      icon: iconDev,
+      title: "Macchina in cablaggio",
+            text: "Macchina in cablaggio",       
       showText: true,     
     },
   ],

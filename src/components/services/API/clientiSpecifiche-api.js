@@ -27,7 +27,15 @@ export const updateClienteSpecifica = async (id, payload) => {
 };
 
 // DELETE (soft delete lato server)
-export const deleteClienteSpecifica = async (id) => {
+export const disableClienteSpecifica = async (id) => {
   const response = await apiClient.delete(`/api/clienti-specifiche/${id}`);
+  return response.data;
+};
+
+// DELETE HARD (cancellazione definitiva)
+export const deleteClienteSpecifica = async (id) => {
+  const response = await apiClient.delete(
+    `/api/clienti-specifiche/${id}/hard`
+  );
   return response.data;
 };

@@ -7,6 +7,7 @@ import {
   fetchClientiSpecifiche,
   createClienteSpecifica,
   updateClienteSpecifica,
+  disableClienteSpecifica,
   deleteClienteSpecifica,
 } from "../services/API/clientiSpecifiche-api";
 
@@ -146,7 +147,7 @@ const loadData = async () => {
 
     try {
       setLoading(true);
-      await deleteClienteSpecifica(item.id);
+      await disableClienteSpecifica(item.id);
       toast.success("Scheda cliente disattivata.");
       await loadData();
     } catch (err) {
@@ -157,6 +158,31 @@ const loadData = async () => {
     }
   };
 
+  const handleHardDelete = async (item) => {
+  const first = window.confirm(
+    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE la scheda "${item.titolo}" (${item.cliente})?`
+  );
+  if (!first) return;
+
+  const second = window.confirm(
+    "Conferma finale: l'operazione è irreversibile. Continuare?"
+  );
+  if (!second) return;
+
+  try {
+    setLoading(true);
+    await deleteClienteSpecifica(item.id);
+    toast.success("Scheda eliminata definitivamente.");
+    await loadData();
+  } catch (err) {
+    console.error("Errore hard delete scheda cliente:", err);
+    toast.error("Errore durante l'eliminazione definitiva della scheda cliente.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
   // filtraggio lato frontend
   const filteredSpecifiche = specifiche.filter((s) => {
     const matchCliente = s.cliente
@@ -284,6 +310,8 @@ const loadData = async () => {
                   Annulla modifica
                 </button>
               )}
+
+
             </div>
           </form>
 </div>
@@ -345,7 +373,8 @@ const loadData = async () => {
                     <td style={{ maxWidth: 400, whiteSpace: "pre-wrap" }}>
                       {item.descrizione}
                     </td>
-                    <td>{item.attivo ? "Sì" : "No"}</td>
+                    <td>{Number(item.attivo) === 1 ? "Sì" : "No"}</td>
+
                     <td>
                       <button
                         className="btn w-100 btn--warning btn--pill"
@@ -359,6 +388,15 @@ const loadData = async () => {
                       >
                         Disattiva
                       </button>
+                      {Number(item.attivo) !== 1 && (
+  <button
+    className="btn w-100 btn--danger btn--pill"
+    onClick={() => handleHardDelete(item)}
+  >
+    Elimina
+  </button>
+)}
+
                     </td>
                   </tr>
                 ))

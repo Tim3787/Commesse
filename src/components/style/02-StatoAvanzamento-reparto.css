@@ -1,11 +1,11 @@
 
 .commessa {
   text-align: center;
-  padding: 5px;
+  padding: 15px;
   border-radius: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
   font-size: 16px;
-  border: 1px solid #146da8;
+  border: 2px solid #146da8;
   color: var( --text-light);
    background-image: linear-gradient(135deg, #020536, #032c61,  #020536);
 }
@@ -207,8 +207,9 @@
   align-items:center;
   gap:6px;
   padding:4px 8px;
+  margin-top: 6px;
   border-radius:999px;
-  background:rgba(255,255,255,0.08);
+  background:rgba(255, 255, 255, 0.322);
   font-size:12px;
   line-height:1;
   white-space:nowrap;
