@@ -16,6 +16,7 @@ import SchedaRiunioneCommessaForm from "../common/SchedaRiunioneCommessaForm";
 import SchedaSpecificheForm from "../common/SchedaSpecificheForm";
 import SchedaElettricoForm from "../common/SchedaElettricoForm";
 import SchedaRevElettricheForm from "../common/SchedaRevElettricheForm";
+import SchedaAppuntiForm from "../common/SchedaAppuntiForm.js";
 
 import { fetchCurrentUser } from "../services/API/utenti-api";
 
@@ -35,10 +36,13 @@ const FORMS_BY_TIPO_ID = {
   4: SchedaMSQuadroForm,
   5: SchedaCollaudoLineaForm,
 8: SchedaElettricoForm,
+
   // esempi MULTI (nuovi modelli)
   6: SchedaRiunioneCommessaForm,
   7: SchedaSpecificheForm,
   9:SchedaRevElettricheForm,
+  10:SchedaAppuntiForm,
+
 };
 
 const tipoIdToNome = useMemo(() => {
@@ -122,36 +126,66 @@ const handleSaveScheda = async (valoriAggiornati) => {
   }
 };
 
-
-
-
 const handleNuovaScheda = async (tipo) => {
   try {
     const esistenti = await fetchSchedeTecniche(commessaId);
+    const isAppunti = tipo.id === 10;
 
-    // per le schede tecniche evita duplicati, per le multi no
+    // ✅ APPUNTI: 1 per utente (apri se esiste, altrimenti crea)
+    if (isAppunti) {
+      const giaEsisteAppuntiUtente = esistenti.find(
+        (s) => s.tipo_id === 10 && s.creata_da === user.id
+      );
+
+      if (giaEsisteAppuntiUtente) {
+        setSchedaInModifica(giaEsisteAppuntiUtente);
+        return;
+      }
+
+      const titoloAppunti = `Appunti – ${user?.nome || user?.username || "Utente"}`;
+
+      const nuova = await createSchedaTecnica({
+        commessa_id: commessaId,
+        tipo_id: 10,
+        categoria: "multi",
+        titolo: titoloAppunti,
+        descrizione: null,
+        creata_da: user.id,
+      });
+
+      setSchedaInModifica({
+        ...nuova,
+        categoria: "multi",
+        tipo: tipo.nome,
+      });
+      return;
+    }
+
+    // ✅ TECNICHE: singleton (no duplicati)
     const giaEsiste = tipo.categoria === "tecnica"
-      ? esistenti.find(s => s.tipo_id === tipo.id)
+      ? esistenti.find((s) => s.tipo_id === tipo.id)
       : null;
 
     if (giaEsiste) {
       setSchedaInModifica(giaEsiste);
-    } else {
-      const nuova = await createSchedaTecnica({
-        commessa_id: commessaId,
-        tipo_id: tipo.id,
-        categoria: tipo.categoria,
-        titolo: tipo.categoria === "multi" ? "" : null,
-        descrizione: tipo.categoria === "multi" ? "" : null,
-        creata_da: user.id,
-      });
-
-      setSchedaInModifica({ 
-        ...nuova, 
-        categoria: tipo.categoria, 
-        tipo: tipo.nome 
-      });
+      return;
     }
+
+    // ✅ MULTI: crea sempre (oppure con titolo vuoto)
+    const nuova = await createSchedaTecnica({
+      commessa_id: commessaId,
+      tipo_id: tipo.id,
+      categoria: tipo.categoria,
+      titolo: tipo.categoria === "multi" ? "" : null,
+      descrizione: tipo.categoria === "multi" ? "" : null,
+      creata_da: user.id,
+    });
+
+    setSchedaInModifica({
+      ...nuova,
+      categoria: tipo.categoria,
+      tipo: tipo.nome,
+    });
   } catch (err) {
     console.error(err);
     alert("Errore nella creazione o apertura della scheda");
@@ -190,7 +224,7 @@ const handleNuovaScheda = async (tipo) => {
 >
   
   <option value="">-- Seleziona tipo --</option>
-  <optgroup label="Schede tecniche">
+  <optgroup label="Schede di processo">
     {tipiSchede
       .filter(t => t.categoria === "tecnica")
       .map(tipo => (
@@ -199,7 +233,7 @@ const handleNuovaScheda = async (tipo) => {
         </option>
       ))}
   </optgroup>
-  <optgroup label="Schede multi">
+  <optgroup label="Altre schede">
     {tipiSchede
       .filter(t => t.categoria === "multi")
       .map(tipo => (
@@ -226,11 +260,12 @@ onClick={() => {
       </button>
      {/* LISTA SCHEDE MULTI ESISTENTI */}
 {!loading && (
-  <div className="w-200" style={{ marginTop: 20 }}>
-    <h3>Schede multi esistenti</h3>
+  <div
+   className="flex-column-center" style={{ marginTop: 20 }}>
+    <h3>Schede esistenti</h3>
 
     {schede.filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "multi").length === 0 ? (
-      <div style={{ fontSize: 12, opacity: 0.7 }}>
+      <div style={{ fontSize: 14, opacity: 0.7 }}>
         Nessuna scheda multi creata per questa commessa.
       </div>
     ) : (
@@ -238,6 +273,7 @@ onClick={() => {
         .filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "multi")
         .map(s => (
           <button
+          style={{ fontSize: 16}}
             key={s.id}
             className="btn w-200 btn--ghost btn--pill mt-2"
             onClick={() =>
@@ -248,14 +284,48 @@ onClick={() => {
             }
             title={s.titolo || s.descrizione || ""}
           >
-            {tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`}
-            {s.titolo ? ` – ${s.titolo}` : ` (#${s.id})`}
+{(s.titolo && s.titolo.trim())
+  ? s.titolo
+  : `${tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`} `}
+
           </button>
         ))
     )}
   </div>
 )}
+{!loading && (
+  <div className="flex-column-center" style={{ marginTop: 20 }}>
+    <h3>Schede di processo esistenti</h3>
 
+    {schede.filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "tecnica").length === 0 ? (
+      <div style={{ fontSize: 14, opacity: 0.7 }}>
+        Nessuna scheda multi creata per questa commessa.
+      </div>
+    ) : (
+      schede
+        .filter(s => (tipoIdToCategoria?.[s.tipo_id] ?? s.categoria) === "tecnica")
+        .map(s => (
+          <button
+           style={{ fontSize: 16}}
+            key={s.id}
+            className="btn w-200 btn--ghost btn--pill mt-2"
+            onClick={() =>
+              setSchedaInModifica({
+                ...s,
+                tipo: s.tipo || tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`,
+              })
+            }
+            title={s.titolo || s.descrizione || ""}
+          >
+{(s.titolo && s.titolo.trim())
+  ? s.titolo
+  : `${tipoIdToNome[s.tipo_id] || `Tipo ${s.tipo_id}`} `}
+
+          </button>
+        ))
+    )}
+  </div>
+)}
 
     </div>
   </>

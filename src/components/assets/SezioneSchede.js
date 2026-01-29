@@ -35,7 +35,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
         })
       }
     > 
-    📜- {s.tipo} -📜
+    📜- {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}-📜
     </button>
                 </li>
               ))}

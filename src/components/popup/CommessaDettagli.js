@@ -318,7 +318,7 @@ useEffect(() => {
   })
 }
     > 
-    {s.tipo}
+   {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
     </button>
                 </li>
               ))}

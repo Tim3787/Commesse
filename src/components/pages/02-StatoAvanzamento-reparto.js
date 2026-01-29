@@ -648,10 +648,40 @@ const repartoIndicators = {
                 {
 
       otherReparto: "elettrico",
-      whenStates: ["Bm in preparazione", ],
+      whenStates: ["Bm in preparazione", "Bm pronto" ],
       icon: iconDev,
-      title: "Bm in preparazione",
-            text: "Bm in preparazione",       
+      title: "Preparazione materiale elettrico",
+            text: "Preparazione materiale elettrico",       
+      showText: true,     
+    },
+
+                    {
+
+      otherReparto: "elettrico",
+      whenStates: ["Macchina in collaudo", ],
+      icon: iconDev,
+      title: "Collaudo elettrico",
+            text: "Collaudo elettrico",       
+      showText: true,     
+    },
+
+                        {
+
+      otherReparto: "elettrico",
+      whenStates: ["Macchina in smontaggio", ],
+      icon: iconDev,
+      title: "Macchina in smontaggio",
+            text: "Macchina in smontaggio",       
+      showText: true,     
+    },
+
+                            {
+
+      otherReparto: "elettrico",
+      whenStates: ["Completate", ],
+      icon: iconDone,
+      title: "Elettrico completato",
+            text: "Elettrico completato",       
       showText: true,     
     },
   ],

@@ -17,14 +17,25 @@ export const fetchSchedeTecniche = async (commessaId = null) => {
   }
 };
 
-export const createSchedaTecnica = async ({ commessa_id, tipo_id, creata_da}) => {
+export const createSchedaTecnica = async ({
+  commessa_id,
+  tipo_id,
+  creata_da,
+  categoria = null,
+  titolo = "",
+  descrizione = null,
+}) => {
   const response = await apiClient.post("/api/schedeTecniche", {
     commessa_id,
     tipo_id,
-    creata_da
+    creata_da,
+    categoria,
+    titolo,
+    descrizione,
   });
   return response.data;
 };
+
 
 
 export const updateSchedaTecnica = async (id, schedaData) => {
