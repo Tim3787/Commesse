@@ -334,7 +334,7 @@ const applyFilters = () => {
 
       {/* CONTAINER PRINCIPALE: la tabella si sposta se il menu a burger è aperto */}
       <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
-        {/* Tabella delle commesse */}
+         <div className= "Reparto-table-container mh-80 ">
         <table>
           <thead>
           <tr>
@@ -387,6 +387,7 @@ const applyFilters = () => {
 )}
       </div>
     </div>
+     </div>
   );
 }
 

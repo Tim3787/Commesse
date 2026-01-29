@@ -7,7 +7,6 @@ import {
   fetchClientiSpecifiche,
   createClienteSpecifica,
   updateClienteSpecifica,
-  disableClienteSpecifica,
   deleteClienteSpecifica,
 } from "../services/API/clientiSpecifiche-api";
 
@@ -136,27 +135,6 @@ const loadData = async () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (item) => {
-    if (
-      !window.confirm(
-        `Vuoi disattivare la scheda "${item.titolo}" per il cliente "${item.cliente}"?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await disableClienteSpecifica(item.id);
-      toast.success("Scheda cliente disattivata.");
-      await loadData();
-    } catch (err) {
-      console.error("Errore eliminazione scheda cliente:", err);
-      toast.error("Errore durante l'eliminazione della scheda cliente.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleHardDelete = async (item) => {
   const first = window.confirm(
@@ -177,6 +155,25 @@ const loadData = async () => {
   } catch (err) {
     console.error("Errore hard delete scheda cliente:", err);
     toast.error("Errore durante l'eliminazione definitiva della scheda cliente.");
+  } finally {
+    setLoading(false);
+  }
+};
+const handleToggleAttivo = async (item) => {
+  try {
+    setLoading(true);
+    await updateClienteSpecifica(item.id, {
+      cliente: item.cliente,
+      reparto_id: item.reparto_id,
+      titolo: item.titolo,
+      descrizione: item.descrizione,
+      attivo: Number(item.attivo) !== 1, // toggle
+    });
+    toast.success(Number(item.attivo) === 1 ? "Scheda disattivata." : "Scheda riattivata.");
+    await loadData();
+  } catch (err) {
+    console.error("Errore toggle attivo:", err);
+    toast.error("Errore durante l'aggiornamento dello stato.");
   } finally {
     setLoading(false);
   }
@@ -221,7 +218,7 @@ const loadData = async () => {
       </div>
 
       {/* CONTENUTO */}
-      <div className="container">
+      <div className="container mh-80 ">
   <div className="flex-column-center">
         {/* FORM CREAZIONE / MODIFICA */}
 
@@ -382,12 +379,12 @@ const loadData = async () => {
                       >
                         Modifica
                       </button>
-                      <button
-                        className="btn w-100 btn--danger btn--pill"
-                        onClick={() => handleDelete(item)}
-                      >
-                        Disattiva
-                      </button>
+<button
+  className={`btn w-100 btn--pill ${Number(item.attivo) === 1 ? "btn--danger" : "btn--blue"}`}
+  onClick={() => handleToggleAttivo(item)}
+>
+  {Number(item.attivo) === 1 ? "Disattiva" : "Riattiva"}
+</button>
                       {Number(item.attivo) !== 1 && (
   <button
     className="btn w-100 btn--danger btn--pill"

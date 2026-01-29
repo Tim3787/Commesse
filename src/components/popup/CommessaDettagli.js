@@ -304,25 +304,43 @@ useEffect(() => {
           {schede.length === 0 ? (
             <p>Nessuna scheda</p>
           ) : (
-           <ul style={{ listStyleType: "none", padding: 2,margin: 0, height: "fit-content" }}>
+           
+            <div className="table-wrap">
+  <table className="table-schede">
+    <thead>
+      <tr>
+        <th style={{ width: "45%" }}>Titolo</th>
+        <th style={{ width: "15%", textAlign: "right" }}>Azioni</th>
+      </tr>
+    </thead>
 
-              {schede.map((s) => (
-                <li key={s.id}>
-                  <button
-      className="btn btn-txt-white"
-      onClick={() =>
-  apriPopupScheda({
-    commessaId: localCommessa.commessa_id,
-    numero_commessa: localCommessa.numero_commessa,
-    schedaInModifica: s,
-  })
-}
-    > 
-   {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
-    </button>
-                </li>
-              ))}
-            </ul>
+    <tbody>
+      {schede.map((s) => (
+        <tr key={s.id}>
+          <td className="td-strong">
+             {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
+          </td>
+
+          <td style={{ textAlign: "right" }}>
+            <button
+              className="btn btn--blue btn--pill"
+              onClick={() =>
+                apriPopupScheda({
+                  commessaId: localCommessa.commessa_id,
+                  numero_commessa: localCommessa.numero_commessa,
+                  schedaInModifica: s,
+                })
+              }
+            >
+              Apri
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
           )}
      <div className="flex-column-center">
 </div>

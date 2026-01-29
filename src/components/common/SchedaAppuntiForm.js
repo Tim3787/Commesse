@@ -142,11 +142,12 @@ function SchedaAppuntiForm({ scheda, commessa, onSave, userId, editable, usernam
    </div>
  <div className="flex-column-center">
 
-      {editable && (
-        <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-          Salva
-        </button>
-      )}
+{canEditHeaderAndNote && (
+  <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+    Salva
+  </button>
+)}
+
    </div>
     </div>
   );
