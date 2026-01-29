@@ -438,7 +438,7 @@ const repartoIndicators = {
         {
       otherReparto: "tecnico elettrico",
       whenStates: ["In Entrata","analisi", "sviluppo programmato"],
-      ifSelfIn: ["Sviluppo"],
+      ifSelfIn: ["Sviluppo","Pronta per collaudo"],
       icon: iconWarn,
       title: "Schema non pronto!",
        text: "Schema non pronto!",       
