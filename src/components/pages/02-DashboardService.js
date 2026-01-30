@@ -907,124 +907,125 @@ const closeNote = async (activityId) => {
 
 
     // Modalità "full": visualizzazione dettagliata dell'attività
-    return (
-      <div
-        ref={drag}
-        className={`activity ${activityClass}`}
-        style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
-        onDoubleClick={onDoubleClick}
-        onContextMenu={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  setContextMenu({
-    visible: true,
-    x: e.clientX,
-    y: e.clientY,
-    type: "activity",
-    activity,
-    resourceId: null,
-    day: null,
-  });
-}}
+    // Modalità "full": visualizzazione dettagliata dell'attività (COMPATTATA)
+return (
+  <div
+    ref={drag}
+    className={`activity ${activityClass} ${isDragging ? "is-dragging" : ""}`}
+    style={{
+      opacity: isDragging ? 0.5 : 1,
+      cursor: "move",
+      minWidth: "150px",
+    }}
+    onDoubleClick={onDoubleClick}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setContextMenu({
+        visible: true,
+        x: e.clientX,
+        y: e.clientY,
+        type: "activity",
+        activity,
+        resourceId: null,
+        day: null,
+      });
+    }}
+  >
+    {/* HEADER sempre visibile */}
+    <div className="flex-column-center">
+      <strong>{activity.numero_commessa}</strong>
 
-      >
-        {activity.stato === 2 && activity.note &&   !isClosedNote(activity.note)  && (
-          <span className="warning-icon" title="Nota presente nell'attività completata">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="#e60000"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
-            </svg>
-          </span>
-        )}
-        <br />
-        <strong>Commessa: {activity.numero_commessa}</strong>
-        <br />
-        <strong>Attività: {activity.nome_attivita}</strong>
-        <br />
-        {ViewStato && (
-          <strong>
-           Stato:{" "}
-           {activity.stato === 0
-            ? "Non iniziata"
-            : activity.stato === 1
-            ? "Iniziata"
-            : "Completata"}
-          </strong>
-        )}
+      {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
+        <span className="warning-icon" title="Nota presente nell'attività completata">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e60000" viewBox="0 0 24 24">
+            <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+          </svg>
+        </span>
+      )}
+    </div>
 
-        <br />
-        {activity.reparto?.toLowerCase() === "service" && (
+    <strong>Attività: {activity.nome_attivita}</strong>
+    <br />
+
+    {/* TUTTO QUELLO CHE NON VUOI NEL GHOST va dentro queste sezioni */}
+    <div className="activity-hover-actions">
+      {ViewStato && (
+        <strong>
+          Stato:{" "}
+          {activity.stato === 0 ? "Non iniziata" : activity.stato === 1 ? "Iniziata" : "Completata"}
+        </strong>
+      )}
+
+      <br />
+
+      {/* Nel service vuoi la descrizione */}
+      <br />
+      <strong>Descrizione: {activity.descrizione_attivita || ""}</strong>
+      <br />
+
+      <div className="flex-column-center" style={{ marginTop: "5px" }}>
+        {ViewButtons && activity.stato === 1 && (
           <>
-            <br />
-            <strong>Descrizione: {activity.descrizione_attivita || ""}</strong>
-            <br />
+            <button
+              className="btn w-100 btn--complete btn--pill"
+              onClick={() => updateActivityStatus(activity.id, 2)}
+              disabled={loadingActivities[activity.id]}
+            >
+              {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+            </button>
+
+            <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
+              Elimina attività
+            </button>
           </>
         )}
-        <div className="flex-column-center"
-        style={{marginTop:"5px"}}
-        >
-          {ViewButtons && activity.stato === 1 && (
-            <>
-              <button
-                className="btn w-100 btn--complete btn--pill "
-                onClick={() => updateActivityStatus(activity.id, 2)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
-              </button>
-              <button className="btn w-100 btn--warning btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina attività
-              </button>
-            </>
-          )}
-          {ViewButtons && activity.stato === 0 && (
-            <>
-              <button
-                className="btn w-100 btn--start btn--pill"
-                onClick={() => updateActivityStatus(activity.id, 1)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
-              </button>
-              <button
-                className="btn w-100 btn--complete btn--pill"
-                onClick={() => updateActivityStatus(activity.id, 2)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
-              </button>
-              <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina attività
-              </button>
-            </>
-          )}
-        </div>
-        <div className="flex-column-center">
-  {ViewNote && activity.note &&   !isClosedNote(activity.note) && (
-    <>
-      <div className="note">Note: {activity.note}</div>
-      <button
-        className="btn w-100 btn--danger btn--pill"
-        onClick={() => deleteNote(activity.id)}
-      >
-        Elimina Nota
-      </button>
-                  <button
-                className="btn btn--pill btn--danger w-100"
-                onClick={() => closeNote(activity.id)}
-              >
-                Chiudi nota
-              </button>
-    </>
-  )}
-</div>
+
+        {ViewButtons && activity.stato === 0 && (
+          <>
+            <button
+              className="btn w-100 btn--start btn--pill"
+              onClick={() => updateActivityStatus(activity.id, 1)}
+              disabled={loadingActivities[activity.id]}
+            >
+              {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
+            </button>
+
+            <button
+              className="btn w-100 btn--complete btn--pill"
+              onClick={() => updateActivityStatus(activity.id, 2)}
+              disabled={loadingActivities[activity.id]}
+            >
+              {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+            </button>
+
+            <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
+              Elimina attività
+            </button>
+          </>
+        )}
       </div>
-    );
+    </div>
+
+    <div className="activity-hover-notes">
+      <div className="flex-column-center">
+        {ViewNote && activity.note && !isClosedNote(activity.note) && (
+          <>
+            <div className="note">Note: {activity.note}</div>
+
+            <button className="btn btn--pill btn--warning w-100" onClick={() => closeNote(activity.id)}>
+              Chiudi nota
+            </button>
+            <button className="btn w-100 btn--danger btn--pill" onClick={() => deleteNote(activity.id)}>
+              Elimina Nota
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
   }
 
   // ========================================================

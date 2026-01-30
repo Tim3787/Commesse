@@ -28,6 +28,75 @@
     text-decoration-color: #01c3f3; 
   }
 
+/* Di default nascosti */
+.activity .activity-hover-actions,
+.activity .activity-hover-notes {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 560ms ease, max-height 560ms ease;
+}
+
+/* Aperto SOLO se hover E NON dragging */
+.activity:hover:not(.is-dragging) .activity-hover-actions,
+.activity:hover:not(.is-dragging) .activity-hover-notes {
+  opacity: 1;
+  max-height: 600px;
+  pointer-events: auto;
+}
+
+/* ==========================
+   DRAG: ghost pulito
+   ========================== */
+
+/* Quando trasciniamo, nel ghost vogliamo SOLO intestazione (commessa + attività).
+   Quindi nascondiamo tutto ciò che è "azioni/hover/note". */
+.activity.is-dragging .activity-hover-actions,
+.activity.is-dragging .activity-hover-notes,
+.activity.is-dragging button,
+.activity.is-dragging .note {
+  display: none !important;
+}
+
+/* Se vuoi, puoi anche rendere più "compatta" la card durante drag */
+.activity.is-dragging {
+  padding: 8px 10px !important;
+}
+
+/* (opzionale) evita che eventuali elementi assoluti/hover disturbino il ghost */
+.activity.is-dragging * {
+  pointer-events: none !important;
+}
+
+.drag-preview {
+  min-width: 170px;      /* simile al tuo full */
+  max-width: 240px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  opacity: 0.95;
+}
+
+/* Testi più “chiusi” */
+.drag-preview__title {
+  margin-bottom: 4px;
+}
+
+.drag-preview__sub {
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drag-preview__meta {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
 /* ==============================
 Responsive Design
 ============================== */

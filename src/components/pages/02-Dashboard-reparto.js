@@ -815,13 +815,14 @@ const pasteActivityToCell = async (resourceId, day) => {
   // ========================================================
   function DraggableActivity({ activity, onDoubleClick, viewMode }) {
     const [{ isDragging }, drag] = useDrag(() => ({
-      type: "ACTIVITY",
-      canDrag: () => movingActivityId !== activity.id, 
-      item: { ...activity },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
+  type: "ACTIVITY",
+  canDrag: () => movingActivityId !== activity.id,
+  item: { ...activity },
+  collect: (monitor) => ({
+    isDragging: !!monitor.isDragging(),
+  }),
+}));
+
     const activityClass =
       activity.stato === 0
         ? "activity not-started"
@@ -848,13 +849,14 @@ const pasteActivityToCell = async (resourceId, day) => {
             ref={drag}
             className={`activity compact ${activityClass}`}
             style={{
-              opacity: isDragging ? 0.5 : 1,
-              cursor: "move",
-              width: "20px",
-              height: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+  opacity: isDragging ? 0 : 1,
+  pointerEvents: isDragging ? "none" : "auto",
+  cursor: "move",
+  width: "20px",
+  height: "20px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
             }}
             onDoubleClick={onDoubleClick}
             data-tooltip-id={`tooltip-${activity.id}`}
@@ -889,7 +891,9 @@ const pasteActivityToCell = async (resourceId, day) => {
     return (
       <div
         ref={drag}
-        className={`activity ${activityClass}`}
+        className={`activity ${activityClass} ${
+    isDragging ? "is-dragging" : ""
+  }`}
         style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
         onDoubleClick={onDoubleClick}
         onContextMenu={(e) => {
@@ -907,7 +911,9 @@ const pasteActivityToCell = async (resourceId, day) => {
 }}
 
       >
-        {activity.stato === 2 && activity.note &&   !isClosedNote(activity.note)  && (
+ <div className="flex-column-center" >
+        <strong> {activity.numero_commessa}</strong>
+                        {activity.stato === 2 && activity.note &&   !isClosedNote(activity.note)  && (
           <span className="warning-icon" title="Nota presente nell'attività completata">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -920,12 +926,13 @@ const pasteActivityToCell = async (resourceId, day) => {
             </svg>
           </span>
         )}
-        <br />
-        <strong>Commessa: {activity.numero_commessa}</strong>
-        <br />
+        </div>
+
         <strong>Attività: {activity.nome_attivita}</strong>
         <br />
-        {ViewStato && (
+
+       <div className="activity-hover-actions">
+                {ViewStato && (
           <strong>
            Stato:{" "}
            {activity.stato === 0
@@ -944,64 +951,66 @@ const pasteActivityToCell = async (resourceId, day) => {
             <br />
           </>
         )}
-        <div className="flex-column-center"
-        style={{marginTop:"5px"}}
+  <div className="flex-column-center" style={{ marginTop: "5px" }}>
+    {ViewButtons && activity.stato === 1 && (
+      <>
+        <button
+          className="btn w-100 btn--complete btn--pill"
+          onClick={() => updateActivityStatus(activity.id, 2)}
+          disabled={loadingActivities[activity.id]}
         >
-          {ViewButtons && activity.stato === 1 && (
-            <>
-              <button
-                className="btn w-100 btn--complete btn--pill "
-                onClick={() => updateActivityStatus(activity.id, 2)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
-              </button>
-              <button className="btn w-100 btn--warning btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina attività
-              </button>
-            </>
-          )}
-          {ViewButtons && activity.stato === 0 && (
-            <>
-              <button
-                className="btn w-100 btn--start btn--pill"
-                onClick={() => updateActivityStatus(activity.id, 1)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
-              </button>
-              <button
-                className="btn w-100 btn--complete btn--pill"
-                onClick={() => updateActivityStatus(activity.id, 2)}
-                disabled={loadingActivities[activity.id]}
-              >
-                {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
-              </button>
-              <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
-                Elimina attività
-              </button>
-            </>
-          )}
-        </div>
-        <div className="flex-column-center">
-  {ViewNote && activity.note &&   !isClosedNote(activity.note) && (
-    <>
-      <div className="note">Note: {activity.note}</div>
-      <button
-        className="btn w-100 btn--danger btn--pill"
-        onClick={() => deleteNote(activity.id)}
-      >
-        Elimina Nota
-      </button>
-                  <button
-                className="btn btn--pill btn--danger w-100"
-                onClick={() => closeNote(activity.id)}
-              >
-                Chiudi nota
-              </button>
-    </>
-  )}
+          {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+        </button>
+        <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
+          Elimina attività
+        </button>
+      </>
+    )}
+
+    {ViewButtons && activity.stato === 0 && (
+      <>
+        <button
+          className="btn w-100 btn--start btn--pill"
+          onClick={() => updateActivityStatus(activity.id, 1)}
+          disabled={loadingActivities[activity.id]}
+        >
+          {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
+        </button>
+
+        <button
+          className="btn w-100 btn--complete btn--pill"
+          onClick={() => updateActivityStatus(activity.id, 2)}
+          disabled={loadingActivities[activity.id]}
+        >
+          {loadingActivities[activity.id] ? "Caricamento..." : "Completa"}
+        </button>
+
+        <button className="btn w-100 btn--danger btn--pill" onClick={() => handleDelete(activity.id)}>
+          Elimina attività
+        </button>
+      </>
+    )}
+  </div>
 </div>
+
+       <div className="activity-hover-notes">
+  <div className="flex-column-center">
+    {ViewNote && activity.note && !isClosedNote(activity.note) && (
+      <>
+        <div className="note">Note: {activity.note}</div>
+
+        <button className="btn btn--pill btn--warning w-100" onClick={() => closeNote(activity.id)}>
+          Chiudi nota
+        </button>
+        <button className="btn w-100 btn--danger btn--pill" onClick={() => deleteNote(activity.id)}>
+          Elimina Nota
+        </button>
+
+      </>
+    )}
+  </div>
+</div>
+
       </div>
     );
   }

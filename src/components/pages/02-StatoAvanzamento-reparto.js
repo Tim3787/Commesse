@@ -817,6 +817,7 @@ const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
 const [showClienteSuggestions, setShowClienteSuggestions] = useState(false);
 const [showTipoMacchinaSuggestions, setShowTipoMacchinaSuggestions] = useState(false);
 
+const [commessaViewMode, setCommessaViewMode] = useState("compact"); // "full" | "compact"
 
 
 const [showPopup, setShowPopup] = useState(false);
@@ -1465,7 +1466,8 @@ if (RepartoName === "software") {
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
   // ----------------------------------------------------------------
-function DraggableCommessa({ commessa, repartoId, activities, resources }) {
+function DraggableCommessa({ commessa, repartoId, activities, resources, viewMode }) {
+
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: "COMMESSA",
@@ -1620,120 +1622,123 @@ const indicatorsToShow = (repartoIndicators[RepartoName] || [])
 
     // Rendering della card della commessa
   return (
-    <div
-      ref={drag}
-      className={`commessa ${isDragging ? "commessa--dragging" : ""}`}
-      onContextMenu={(e) => openCtxMenu(e, commessa.commessa_id)}
-      onClick={() => {
-        if (isDragging) return;
-        handleCommessaClick(commessa);
-      }}
-    >
+  <div
+    ref={drag}
+    className={`commessa ${isDragging ? "commessa--dragging" : ""} ${viewMode === "compact" ? "commessa--compact" : ""}`}
+    onContextMenu={(e) => openCtxMenu(e, commessa.commessa_id)}
+    onClick={() => {
+      if (isDragging) return;
+      handleCommessaClick(commessa);
+    }}
+  >
+    {/* HEADER SEMPRE VISIBILE */}
+    <div className="commessa-header">
+      <strong>{commessa.numero_commessa}</strong>
+      <div>{commessa.cliente}</div>
+              <div className="commessa-badges row center"
+        style={{ paddingTop: "0px"}}
+        >
+ {indicatorsToShow.map((it) => (
+            <div key={it.key} className="reparto-indicator-badge" title={it.title}>
+              {it.showText && it.text && <span className="reparto-indicator-text">{it.text}</span>}
+              {it.icon && <img src={it.icon} className="reparto-indicator-icon" alt={it.title} />}
+            </div>
+          ))}
+</div>
 
-        <strong>{commessa.numero_commessa}</strong>
-        <div>{commessa.cliente}</div>
-        {/* Blocchi per le icone di allarme relative alla consegna */}
-        <div className="delivery-alerts">
-          {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
-            <FontAwesomeIcon
-  icon={faCalendarWeek}
-  title="Consegna questa settimana"
-  className="delivery-icon delivery-icon--week"
-/>
+      {/* badge veloci (solo icone) in compact */}
+      {viewMode === "compact" && (
+        <div className="commessa-badges row center"
+        style={{ paddingTop: "0px"}}
+        >
 
-          )}
-          {!isThisWeek(commessa.data_consegna) &&
-            ConsegnaMensile &&
-            isThisMonth(commessa.data_consegna) && (
-              <FontAwesomeIcon
-  icon={faCalendar}
-  title="Consegna questo mese"
-  className="delivery-icon delivery-icon--month"
-/>
-            )}
+        {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
+          <FontAwesomeIcon icon={faCalendarWeek} title="Consegna questa settimana" className="delivery-icon delivery-icon--week" />
+        )}
+        {!isThisWeek(commessa.data_consegna) && ConsegnaMensile && isThisMonth(commessa.data_consegna) && (
+          <FontAwesomeIcon icon={faCalendar} title="Consegna questo mese" className="delivery-icon delivery-icon--month" />
+        )}
+
+          {allarmiNote && warningActivities.length > 0 && <span title="Note attive"><svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#e60000"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+            </svg></span>}
+          {allarmiAttivitaAperte && unfinishedActivities.length > 0 && <span title="Attività aperte"><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="#ffcc00"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 0C5.371 0 0 5.371 0 12s5.371 12 12 12 12-5.371 12-12S18.629 0 12 0zm1 17h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg></span>}
+          {confrontoConTrello && trelloCard && isListDifferent && <span title="Lista Trello diversa">📌</span>}
+          {confrontoConTrello && trelloCard && isDateDifferent && <span title="Data diversa">📅</span>}
+                {indicatorsToShow.length > 0 && (
+        <div className="reparto-indicators row center"
+         style={{ paddingTop: "0px"}}
+        >
+         
         </div>
-
-
-        {/* Mostra il componente WarningDetails se sono presenti warning (note) */}
-        {allarmiNote && warningActivities.length > 0 && (
-  <WarningDetails
-    warningActivities={warningActivities}
-    resources={resources}
-    closeNote={closeNote}     // 👈 prima passavi deleteNote
-    reopenNote={reopenNote} // opzionale, se vuoi riaprirle dai dettagli
-deleteNote={deleteNote} 
-    />
-)}
-
-        {/* Mostra il componente UnfinishedActivities se sono presenti attività non completate */}
-        {allarmiAttivitaAperte && unfinishedActivities.length > 0 && (
-          <UnfinishedActivities
-  unfinishedActivities={unfinishedActivities}
-  resources={resources}
-  onEdit={handleEditActivity}
-/>
-        )}
-
-        {/* Se la commessa dovrebbe esistere su Trello ma non viene trovata, mostra un messaggio */}
-        {esisteSuTrello && !trelloCard && (
-  <div className="trello-warning trello-warning--missing">
-    Non esiste su Trello
-  </div>
-)}
-
-
-        {/* Se la data tra l'app e Trello differisce, consente di allinearla */}
-        <div>
-          {confrontoConTrello && trelloCard && isDateDifferent && (
-            <div className="trello-warning trello-warning--date">
-  Data App: {appDate}
-  <br />
-  Data Trello: {trelloDate}
-  <br />
-   <div className="flex-column-center">
-<button
-  className="btn btn--pill w-100 btn--warning"
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleAlignDate(commessa.commessa_id, trelloCard.due);
-  }}
->
-  Allinea Data
-</button>
-</div>
-</div>
-          )}
+      )}
         </div>
+      )}
+    </div>
 
-        {/* Se la lista Trello è diversa da quella attesa, mostra il nome della lista */}
-        {confrontoConTrello && trelloCard && isListDifferent && (
-          <div className="trello-warning trello-warning--list">
-  Lista Trello: {trelloListName}
-</div>
+    {/* DETTAGLI: sempre visibili in FULL, solo hover in COMPACT */}
+    <div className={`commessa-details ${viewMode === "compact" ? "commessa-details--hover" : ""}`}>
+      {allarmiNote && warningActivities.length > 0 && (
+        <WarningDetails
+          warningActivities={warningActivities}
+          resources={resources}
+          closeNote={closeNote}
+          reopenNote={reopenNote}
+          deleteNote={deleteNote}
+        />
+      )}
 
-        )}
-{indicatorsToShow.length > 0 && (
-  <div className="reparto-indicators">
-    {indicatorsToShow.map((it) => (
-      <div key={it.key} className="reparto-indicator-badge" title={it.title}>
-        
-        {it.showText && it.text && (
-          <span className="reparto-indicator-text">{it.text}</span>
-        )}
-        {it.icon && (
-          <img
-            src={it.icon}
-            className="reparto-indicator-icon"
-            alt={it.title}
-          />
-        )}
-      </div>
-    ))}
+      {allarmiAttivitaAperte && unfinishedActivities.length > 0 && (
+        <UnfinishedActivities unfinishedActivities={unfinishedActivities} resources={resources} onEdit={handleEditActivity} />
+      )}
+
+      {esisteSuTrello && !trelloCard && (
+        <div className="trello-warning trello-warning--missing">Non esiste su Trello</div>
+      )}
+
+      {confrontoConTrello && trelloCard && isDateDifferent && (
+        <div className="trello-warning trello-warning--date">
+          Data App: {appDate}
+          <br />
+          Data Trello: {trelloDate}
+          <br />
+          <div className="flex-column-center">
+            <button
+              className="btn btn--pill w-100 btn--warning"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAlignDate(commessa.commessa_id, trelloCard.due);
+              }}
+            >
+              Allinea Data
+            </button>
+          </div>
+        </div>
+      )}
+
+      {confrontoConTrello && trelloCard && isListDifferent && (
+        <div className="trello-warning trello-warning--list">Lista Trello: {trelloListName}</div>
+      )}
+
+    </div>
   </div>
-)}
-      </div>
-    );
+);
+
   }
 
   // ----------------------------------------------------------------
@@ -1748,7 +1753,7 @@ deleteNote={deleteNote}
   // Componente Interno: DropZone
   // Rappresenta la cella di drop per il drag & drop delle commesse
   // ----------------------------------------------------------------
-function DropZone({ stato, commesse, repartoId, activities, resources, draggingCommessaId }) {
+function DropZone({ stato, commesse, repartoId, activities, resources, draggingCommessaId, viewMode }) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "COMMESSA",
     drop: (item) => handleActivityDrop(item.commessaId, repartoId, stato.id),
@@ -1769,6 +1774,7 @@ function DropZone({ stato, commesse, repartoId, activities, resources, draggingC
             repartoId={repartoId}
             activities={activities}
             resources={resources}
+             viewMode={viewMode}
           />
         ))
       )}
@@ -1952,6 +1958,15 @@ function DragStateWatcher({ onEnd }) {
             </ul>
           )}
         </div>
+<label>Visualizzazione commesse:</label>
+<select
+  value={commessaViewMode}
+  onChange={(e) => setCommessaViewMode(e.target.value)}
+  className="w-200"
+>
+  <option value="full">Completa</option>
+  <option value="compact">Compatta</option>
+</select>
 
                 <label>
                   <input
@@ -2078,6 +2093,7 @@ function DragStateWatcher({ onEnd }) {
                       <DropZone
                         stato={stato}
                         repartoId={RepartoID}
+                         viewMode={commessaViewMode}
                         commesse={filteredCommesse.filter((commessa) =>
   commessa.stati_avanzamento.some(
     (reparto) =>

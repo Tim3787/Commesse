@@ -14,6 +14,37 @@
 
 
 
+.commessa-details--hover {
+  display: none;
+}
+
+.commessa--compact:hover .commessa-details--hover {
+  display: block;
+}
+
+/* compatta un po' in compact */
+.commessa--compact {
+  padding: 8px 10px;
+}
+
+.commessa-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commessa-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+/* se vuoi: durante drag nascondi dettagli comunque */
+.commessa--dragging .commessa-details {
+  display: none !important;
+}
+
 .Avanzamento-table-container {
  max-height: 80vh; 
 }

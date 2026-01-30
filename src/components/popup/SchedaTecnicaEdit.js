@@ -32,8 +32,8 @@ const [tipiSchede, setTipiSchede] = useState([]);
 const FORMS_BY_TIPO_ID = {
   1: SchedaSviluppoForm,
   2: SchedaCollaudoForm,
-  3: SchedaCollaudoReggiatriciForm,
-  4: SchedaMSQuadroForm,
+  4: SchedaCollaudoReggiatriciForm,
+  3: SchedaMSQuadroForm,
   5: SchedaCollaudoLineaForm,
 8: SchedaElettricoForm,
 
