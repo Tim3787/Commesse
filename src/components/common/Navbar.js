@@ -201,7 +201,8 @@ const navLinks = {
       icon: faScrewdriverWrench,
       links: [
          { to: "/StatoAvanzamento/service", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/service", label: "ATTIVITA'", icon: faTools }
+        { to: "/Dashboard/service", label: "ATTIVITA'", icon: faTools },
+         { to: "/DashboardService", label: "SERVICE ONLINE", icon: faTools }
       ],
     },
     {

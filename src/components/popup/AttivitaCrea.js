@@ -174,45 +174,51 @@ const reopenNoteText = (text) =>
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
+  e.preventDefault();
+  const { commessa_id, reparto_id, risorsa_id, attivita_id, data_inizio, durata } = formData;
 
-    if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata) {
-      toast.error("Tutti i campi sono obbligatori.");
-      return;
-    }
+  if (!commessa_id || !reparto_id || !attivita_id || !risorsa_id || !data_inizio || !durata) {
+    toast.error("Tutti i campi sono obbligatori.");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      const endpoint = isEditing
-        ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
-        : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
-      const method = isEditing ? "PUT" : "POST";
+  try {
+    setLoading(true);
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(formData),
-      });
+    const endpoint = isEditing
+      ? `${process.env.REACT_APP_API_URL}/api/attivita_commessa/${editId}`
+      : `${process.env.REACT_APP_API_URL}/api/attivita_commessa`;
 
-      if (!response.ok) throw new Error("Errore nella richiesta");
+    const method = isEditing ? "PUT" : "POST";
 
-      toast.success(
-        isEditing
-          ? "Attività aggiornata con successo!"
-          : "Attività aggiunta con successo!"
-      );
-      reloadActivities();
-    } catch (error) {
-      console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
-      toast.error("Errore durante l'aggiunta o modifica dell'attività.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const payload = {
+      ...formData,
+      lane: Number(formData.lane || 1),
+      service_lane: Number(formData.lane || 1), // ✅ lane corretta in DB
+    };
+
+    const response = await fetch(endpoint, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error("Errore nella richiesta");
+
+    toast.success(isEditing ? "Attività aggiornata con successo!" : "Attività aggiunta con successo!");
+    await reloadActivities?.();
+    setShowPopup(false); // (facoltativo ma comodo)
+  } catch (error) {
+    console.error("Errore durante l'aggiunta o modifica dell'attività:", error);
+    toast.error("Errore durante l'aggiunta o modifica dell'attività.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
 

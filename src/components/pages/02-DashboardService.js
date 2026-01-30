@@ -14,54 +14,113 @@ import "react-toastify/dist/ReactToastify.css";
 import { Tooltip } from "react-tooltip";
 
 // Import per la navigazione e la configurazione del reparto
-import { useParams } from "react-router-dom";
-import repartoConfig from "../config/repartoConfig";
+
 import { getDaysInMonth } from "../assets/date";
 
 // Import API per le attività e le note
 import { updateActivityNotes } from "../services/API/notifiche-api";
-import { deleteAttivitaCommessa, fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
+import { deleteAttivitaCommessa} from "../services/API/attivitaCommesse-api";
 
 // Import icone FontAwesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash,faChevronLeft, faChevronRight  } from "@fortawesome/free-solid-svg-icons";
 
+// ====== CONFIG ======
+const SERVICE_REPARTO_ID = 18;
+const SERVICE_ONLINE_RISORSA_ID = 52;
+const SERVICE_ONLINE_ATTIVITA_ID = 45;
+const LANES_COUNT = 7;
+// ====== DATE HELPERS (UNA SOLA VOLTA) ======
+function formatDateOnly(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const d = String(dateObj.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+const normalizeDate = (date) => {
+  const localDate = new Date(date);
+  return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+};
+
+const toLocalISOString = (date) => formatDateOnly(normalizeDate(date));
 
 // ============================
 // COMPONENTE: DashboardReparto
 // ============================
-function DashboardReparto() {
-  // Estrae il nome del reparto dai parametri dell'URL e ottiene la configurazione associata
-  const { reparto } = useParams();
-  const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
-const SERVICE_ONLINE_RISORSA_ID = 52;
-
+function DashboardService() {
   // ----------------------------
   // Stati del componente
   // ----------------------------
   const [activities, setActivities] = useState([]); // Tutte le attività caricate
   const [filteredActivities, setFilteredActivities] = useState([]); // Attività filtrate in base ai filtri
-  const [resources, setResources] = useState([]); // Risorse appartenenti al reparto
-  const [serviceResources, setServiceResources] = useState([]); // Risorse del reparto "service"
+  const [resources] = useState([]); // Risorse appartenenti al reparto
   const [loading, setLoading] = useState(false); // Stato di caricamento generale
   const token = sessionStorage.getItem("token");
   const [showPopup, setShowPopup] = useState(false); // Controlla la visualizzazione del popup per la creazione/modifica
   const [commesse, setCommesse] = useState([]); // Elenco delle commesse
   const [reparti, setReparti] = useState([]); // Elenco dei reparti
   const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Attività definite per reparto
-  const [selectedServiceResource, setSelectedServiceResource] = useState(null); // Risorsa del service selezionata
   const [activityViewMode, setActivityViewMode] = useState("full"); // Modalità di visualizzazione: "full" o "compact"
+const [suggestionsRisorsa, setSuggestionsRisorsa] = useState([]);
+const [showRisorsaSuggestions, setShowRisorsaSuggestions] = useState(false);
+
+const [suggestionsAttivita] = useState([]);
+
+const [showAttivitaSuggestions, setShowAttivitaSuggestions] = useState(false);
+
+/**
+ * Restituisce l'array di Date (inclusi o esclusi i weekend
+ * in base a includedWeekends) corrispondenti ai giorni
+ * contati nella durata dell'attività.
+ */
+function getActivityDates(activity) {
+  const dates = [];
+  const durata = Number(activity.durata) || 0;
+  const start  = normalizeDate(activity.data_inizio);
+  let cursor   = new Date(start);
+
+  while (dates.length < durata) {
+    const wd = cursor.getDay(); // 0=dom,6=sab
+
+    if (wd >= 1 && wd <= 5) {
+      // feriale → includi sempre
+      dates.push(new Date(cursor));
+    } else {
+      // weekend → includi solo se l'utente lo ha spuntato in AttivitaCrea
+      const iso = formatDateOnly(cursor);
+
+      if (activity.includedWeekends?.includes(iso)) {
+        dates.push(new Date(cursor));
+      }
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return dates;
+}
+
+const getActivitiesForLaneAndDaySimple = (lane, day) => {
+  const isoDay = normalizeDate(day).toISOString().split("T")[0];
+  return filteredActivities.filter((act) => {
+    if (Number(act.lane || 1) !== Number(lane)) return false;
+    const dates = getActivityDates(act).map(d => d.toISOString().split("T")[0]);
+    return dates.includes(isoDay);
+  });
+};
 
   const [formData, setFormData] = useState({
     commessa_id: "",
-    reparto_id: "",
-    risorsa_id: "",
-    attivita_id: "",
+    reparto_id: SERVICE_REPARTO_ID,
+    risorsa_id: SERVICE_ONLINE_RISORSA_ID,
+    attivita_id: SERVICE_ONLINE_ATTIVITA_ID ,
     data_inizio: "",
-    durata: "",
+    durata: 1,
     stato: "",
     descrizione: "",
     includedWeekends: [],  
+    lane: 1,
   });
   const [isEditing, setIsEditing] = useState(false); // Indica se si sta modificando un'attività esistente
   const [editId, setEditId] = useState(null); // ID dell'attività in modifica
@@ -70,6 +129,7 @@ const SERVICE_ONLINE_RISORSA_ID = 52;
   const containerRef = useRef(null); // Riferimento al contenitore della tabella
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
   const daysInMonth = getDaysInMonth(currentMonth); // Array dei giorni del mese corrente
+  const [clipboardActivity, setClipboardActivity] = useState(null);
 const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
   month: "long",
   year: "numeric",
@@ -83,11 +143,8 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
   });
 
     // Suggerimenti per filtri (autocomplete)
-    const [suggestionsRisorsa, setSuggestionsRisorsa] = useState([]);
-    const [suggestionsAttivita, setSuggestionsAttivita] = useState([]);
+
     const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);
-    const [showRisorsaSuggestions, setShowRisorsaSuggestions] = useState(false);
-    const [showAttivitaSuggestions, setShowAttivitaSuggestions] = useState(false);
     const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
   
 
@@ -140,82 +197,181 @@ const getAxiosErrorMessage = (error) => {
 };
 
 
+  // ============================
+// COPY/PASTE (tasto destro)
+// ============================
+
+
+const [contextMenu, setContextMenu] = useState({
+  visible: false,
+  x: 0,
+  y: 0,
+  type: null, // "activity" | "cell"
+  activity: null,
+  resourceId: null,
+  day: null,
+});
+
+const closeContextMenu = () =>
+  setContextMenu((p) => ({ ...p, visible: false, type: null, activity: null, resourceId: null, day: null }));
+
+// Chiudi menu con click fuori / ESC
+useEffect(() => {
+  const onClick = () => closeContextMenu();
+  const onKey = (e) => e.key === "Escape" && closeContextMenu();
+
+  if (contextMenu.visible) {
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKey);
+  }
+  return () => {
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKey);
+  };
+}, [contextMenu.visible]);
+
+// Calcola includedWeekends duplicando "gli offset" rispetto all'inizio
+function buildIncludedWeekendsForNewStart(originalActivity, newStartDateObj) {
+  const durata = Number(originalActivity.durata) || 0;
+  const origStart = normalizeDate(originalActivity.data_inizio);
+  const origIncluded = originalActivity.includedWeekends || [];
+
+  // offset (0..durata-1) in cui l'originale includeva un weekend
+  const includedOffsets = [];
+  let c1 = new Date(origStart);
+
+  for (let i = 0; i < durata; i++) {
+    const iso = formatDateOnly(c1);
+    const wd = c1.getDay();
+    if ((wd === 0 || wd === 6) && origIncluded.includes(iso)) {
+      includedOffsets.push(i);
+    }
+    c1.setDate(c1.getDate() + 1);
+  }
+
+  // applica gli stessi offset sul nuovo start (solo se il giorno risultante è weekend)
+  const res = [];
+  for (const off of includedOffsets) {
+    const c2 = new Date(newStartDateObj);
+    c2.setDate(c2.getDate() + off);
+    const wd2 = c2.getDay();
+    if (wd2 === 0 || wd2 === 6) {
+      res.push(formatDateOnly(c2));
+    }
+  }
+  return res;
+}
+
+// Incolla: crea una NUOVA attività duplicata in quella cella (se vuota)
+const pasteActivityToCell = async (lane, day) => {
+  if (!clipboardActivity) return;
+
+  const existing = getActivitiesForLaneAndDaySimple(lane, day);
+  if (existing.length > 0) {
+    toast.warn("Cella già occupata.");
+    return;
+  }
+
+  try {
+    const newStart = normalizeDate(day);
+    const isoDate = toLocalISOString(newStart);
+    const laneValue = Number(lane);
+    const includedWeekends = buildIncludedWeekendsForNewStart(
+      clipboardActivity,
+      newStart
+    );
+
+    const payload = {
+      commessa_id: clipboardActivity.commessa_id || "",
+      reparto_id: clipboardActivity.reparto_id || SERVICE_REPARTO_ID,
+      attivita_id: clipboardActivity.attivita_id || "",
+      durata: clipboardActivity.durata || 1,
+      descrizione:
+        clipboardActivity.descrizione_attivita ||
+        clipboardActivity.descrizione ||
+        "",
+      includedWeekends,
+
+      // posizione: risorsa fissa e lane variabile
+      risorsa_id: SERVICE_ONLINE_RISORSA_ID,
+      data_inizio: isoDate,
+        lane: laneValue,          // ok per UI / compat
+  service_lane: laneValue,  // ✅ questo è quello che conta in DB
+
+      stato: 0,
+      note: null,
+    };
+
+    await apiClient.post(
+  "/api/attivita_commessa",
+  payload,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+    toast.success("Attività incollata!");
+    await handleReloadActivities();
+  } catch (err) {
+    console.error("Errore incolla attività:", err);
+    toast.error("Errore durante l'incolla.");
+  }
+};
+
+
 
   // ========================================================
   // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
   // ========================================================
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!RepartoID || !RepartoName) {
-        console.error("Reparto non valido.");
-        return;
-      }
+  const fetchServiceCalendar = async () => {
+    const from = formatDateOnly(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1));
+    const to = formatDateOnly(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0));
 
+    const res = await apiClient.get(
+      `/api/attivita_commessa/service-calendar?from=${from}&to=${to}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+const data = (res.data || []).map((a) => ({
+  ...a,
+  lane: Number(a.lane || a.riga || a.service_lane || 1),
+  note: a.note ?? a.notes ?? a.nota ?? null, // ✅ normalizza
+}));
+setActivities(data);
+
+  };
+
+  // dati generali per popup (commesse, reparti, attivita)
+  const fetchCommonData = async () => {
+    const [commesseRes, repartiRes, attivitaRes] = await Promise.all([
+      apiClient.get("/api/commesse"),
+      apiClient.get("/api/reparti"),
+      apiClient.get("/api/attivita"),
+    ]);
+
+    setCommesse(commesseRes.data || []);
+    setReparti(repartiRes.data || []);
+
+    const mapped = (attivitaRes.data || []).map((a) => ({
+      id: a.id,
+      nome_attivita: a.nome || a.nome_attivita || "Nome non disponibile",
+      reparto_id: a.reparto_id,
+    }));
+    setAttivitaConReparto(mapped);
+  };
+
+  useEffect(() => {
+    const run = async () => {
       try {
         setLoading(true);
-
-        // Esegui le chiamate API in parallelo
-        const [
-activitiesResponse,
-resourcesResponse,
-commesseResponse,
-repartiResponse,
-attivitaDefiniteResponse,
-] = await Promise.all([
- apiClient.get("/api/attivita_commessa"),
-apiClient.get("/api/risorse"),
- apiClient.get("/api/commesse"),
- apiClient.get("/api/reparti"),
-  apiClient.get("/api/attivita"),
- ]);
-
-        // Imposta i dati negli stati
-        setActivities(activitiesResponse.data);
-        setCommesse(commesseResponse.data);
-        setReparti(repartiResponse.data);
-
-        // Mappa le attività definite per reparto in una struttura semplificata
-        const attivitaConReparto = attivitaDefiniteResponse.data.map((attivita) => ({
-          id: attivita.id,
-          nome_attivita: attivita.nome || attivita.nome_attivita || "Nome non disponibile",
-          reparto_id: attivita.reparto_id,
-        }));
-        setAttivitaConReparto(attivitaConReparto);
-
-        // Filtra le risorse appartenenti al reparto corrente
-       const filteredResources = resourcesResponse.data
-  .filter((r) => Number(r.reparto_id) === RepartoID)
-  .filter((r) => !(reparto === "service" && Number(r.id) === SERVICE_ONLINE_RISORSA_ID));
-
-setResources(filteredResources);
-
-
-        // Filtra le risorse del reparto "service"
-        const serviceFilteredResources = resourcesResponse.data.filter(
-          (resource) => Number(resource.reparto_id) === repartoConfig.service.RepartoID
-        );
-        setServiceResources(serviceFilteredResources);
-
-        // Se il reparto non è "service", imposta la risorsa del service (default o la prima disponibile)
-        if (reparto !== "service") {
-          const defaultServiceId = repartoConfig[reparto]?.defaultServiceResourceId || null;
-          setSelectedServiceResource(
-            defaultServiceId && serviceFilteredResources.some((res) => res.id === defaultServiceId)
-              ? defaultServiceId
-              : serviceFilteredResources[0]?.id || null
-          );
-        } else {
-          setSelectedServiceResource(null);
-        }
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
+        await Promise.all([fetchCommonData(), fetchServiceCalendar()]);
+      } catch (e) {
+        console.error(e);
+        toast.error("Errore caricamento calendario assistenze");
       } finally {
         setLoading(false);
       }
     };
+    run();
 
-    fetchData();
-  }, [RepartoID, RepartoName, reparto, token]);
+  }, [currentMonth]);
 
   // ========================================================
   // FILTRAGGIO DELLE ATTIVITÀ IN BASE A COMMESSA, RISORSA E ATTIVITÀ
@@ -225,9 +381,11 @@ setResources(filteredResources);
       const commessaMatch = filters.commessa
         ? activity.numero_commessa.toString().toLowerCase().includes(filters.commessa.toLowerCase())
         : true;
-      const risorsaMatch = filters.risorsa
-        ? (activity.risorsa && activity.risorsa.toLowerCase().includes(filters.risorsa.toLowerCase()))
-        : true;
+const risorsaMatch = filters.risorsa
+   ? String(activity.nome_risorsa || activity.risorsa || activity.risorsa_nome || "")
+      .toLowerCase()
+      .includes(filters.risorsa.toLowerCase())
+  : true;
       const attivitaMatch = filters.attivita
         ? (activity.nome_attivita && activity.nome_attivita.toLowerCase().includes(filters.attivita.toLowerCase()))
         : true;
@@ -245,14 +403,7 @@ useEffect(() => {
 }, [commesse]);
 
 
-// Suggerimenti per "attività": usa attivitaConReparto e filtra in base al reparto corrente
-useEffect(() => {
-  const attivitaSuggs = attivitaConReparto
-    .filter((a) => a.reparto_id === RepartoID) // solo attività del reparto corrente
-    .map((a) => a.nome_attivita)
-    .filter((value, index, self) => self.indexOf(value) === index);
-  setSuggestionsAttivita(attivitaSuggs);
-}, [attivitaConReparto, RepartoID]);
+
 
 // Suggerimenti per "risorsa": usa l'array "resources" già filtrato per il reparto corrente
 useEffect(() => {
@@ -333,71 +484,99 @@ useEffect(() => {
     setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  // Rimuove la componente oraria dalla data (normalizza la data)
-  const normalizeDate = (date) => {
-    const localDate = new Date(date);
-    return new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
-  };
 
-
-  const toLocalISOString = (date) => {
-  const offset = date.getTimezoneOffset();
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
-  return localDate.toISOString().split("T")[0];
-};
-
-// Restituisce YYYY-MM-DD puro, senza alcuno shift di fuso
-function formatDateOnly(dateObj) {
-  const y = dateObj.getFullYear();
-  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const d = String(dateObj.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-/**
- * Restituisce l'array di Date (inclusi o esclusi i weekend
- * in base a includedWeekends) corrispondenti ai giorni
- * contati nella durata dell'attività.
- */
-function getActivityDates(activity) {
-  const dates = [];
-  const durata = Number(activity.durata) || 0;
-  const start  = normalizeDate(activity.data_inizio);
-  let cursor   = new Date(start);
-
-  while (dates.length < durata) {
-    const wd = cursor.getDay(); // 0=dom,6=sab
-
-    if (wd >= 1 && wd <= 5) {
-      // feriale → includi sempre
-      dates.push(new Date(cursor));
-    } else {
-      // weekend → includi solo se l'utente lo ha spuntato in AttivitaCrea
-      const iso = formatDateOnly(cursor);
-
-      if (activity.includedWeekends?.includes(iso)) {
-        dates.push(new Date(cursor));
-      }
-    }
-
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  return dates;
-}
-
-
-  // Restituisce le attività di una risorsa per un dato giorno
-const getActivitiesForResourceAndDay = (resourceId, day) => {
+// === LANES HELPERS ===
+const getActivitiesForLaneAndDay = (lane, day) => {
   const isoDay = normalizeDate(day).toISOString().split("T")[0];
-  return filteredActivities.filter(act => {
-    if (Number(act.risorsa_id) !== Number(resourceId)) return false;
-    // ricava tutte le date valide di questa attività
-    const activityDates = getActivityDates(act)
-      .map(d => d.toISOString().split("T")[0]);
+
+  return filteredActivities.filter((act) => {
+    // lane match
+    if (Number(act.lane || 1) !== Number(lane)) return false;
+
+    // giorno match (usa la stessa logica durata/weekend)
+    const activityDates = getActivityDates(act).map((d) =>
+      d.toISOString().split("T")[0]
+    );
     return activityDates.includes(isoDay);
   });
 };
+
+// === CELL PER LANE (con DnD + doppio click + click) ===
+function LaneCell({ lane, day, activitiesInCell }) {
+  const normalizedDay = normalizeDate(day);
+
+  const [{ isOver, canDrop }, drop] = useDrop(() => ({
+    accept: "ACTIVITY",
+    canDrop: (item) => movingActivityId !== item.id,
+    drop: (item) => {
+      // quando droppi su una lane, aggiorniamo "lane" (NON risorsa)
+      const updated = { ...item, lane };
+      return handleActivityDrop(updated, SERVICE_ONLINE_RISORSA_ID, normalizedDay);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  }));
+
+  const isWeekend = normalizedDay.getDay() === 0 || normalizedDay.getDay() === 6;
+  const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${
+    isOver && canDrop ? "highlight" : ""
+  }`;
+
+  return (
+    <td
+      ref={drop}
+      className={cellClasses}
+      onDoubleClick={() => {
+        // crea nuova activity dentro lane
+        if (activitiesInCell.length === 0) {
+          setFormData((p) => ({
+            ...p,
+            reparto_id: SERVICE_REPARTO_ID,
+            risorsa_id: SERVICE_ONLINE_RISORSA_ID,
+            attivita_id: SERVICE_ONLINE_ATTIVITA_ID,
+            data_inizio: toLocalISOString(normalizedDay),
+            durata: 1,
+            stato: "",
+            descrizione: "",
+            note: "",
+            includedWeekends: [],
+            lane, // 👈 fondamentale
+          }));
+          setIsEditing(false);
+          setShowPopup(true);
+        } else {
+          toast.warn("Cella già occupata.");
+        }
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setContextMenu({
+          visible: true,
+          x: e.clientX,
+          y: e.clientY,
+          type: "cell",
+          activity: null,
+          resourceId: lane, // usiamo resourceId come "slot" (lane)
+          day: normalizedDay,
+        });
+      }}
+    >
+      {activitiesInCell.map((activity) => (
+        <DraggableActivity
+          key={activity.id}
+          activity={activity}
+          onDoubleClick={() => handleActivityClick(activity)}
+          viewMode={activityViewMode}
+        />
+      ))}
+    </td>
+  );
+}
+
+
  // Restituisce il numero di settimana
   const getWeekNumber = (d) => {
     // Crea una copia della data in UTC
@@ -429,35 +608,14 @@ const getActivitiesForResourceAndDay = (resourceId, day) => {
       stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
       descrizione: activity.descrizione_attivita || "",
       note: activity.note || "",
-      includedWeekends: activity.includedWeekends || [] 
+      includedWeekends: activity.includedWeekends || [] ,
+      lane: Number(activity.lane || 1),
     });
     setIsEditing(true);
     setEditId(activity.id);
     setShowPopup(true);
   };
 
-  // Apre il popup per creare una nuova attività (doppio click su una cella vuota)
-  const handleEmptyCellDoubleClick = (resourceId, day) => {
-    const formattedDate = toLocalISOString(day);
-    const existingActivities = getActivitiesForResourceAndDay(resourceId, day);
-    if (existingActivities.length === 0) {
-      setFormData({
-        commessa_id: "",
-        reparto_id: RepartoID,
-        risorsa_id: resourceId,
-        data_inizio: formattedDate,
-        durata: 1,
-        stato: "",
-        descrizione: "",
-        note: "",
-        includedWeekends: [],  
-      });
-      setIsEditing(false);
-      setShowPopup(true);
-    } else {
-      toast.warn("Cella già occupata.");
-    }
-  };
 
   // Elimina un'attività dopo conferma
 const handleDelete = async (id) => {
@@ -484,41 +642,50 @@ const handleDelete = async (id) => {
 
 
   // Apre il popup per aggiungere una nuova attività
-  const handleAddNew = () => {
-    setFormData({
-      commessa_id: "",
-      reparto_id: RepartoID,
-      risorsa_id: "",
-      attivita_id: "",
-      data_inizio: "",
-      durata: 1,
-      stato: "",
-      descrizione: "",
-      note: "",
-      includedWeekends: [],  
-    });
-    setIsEditing(false);
-    setShowPopup(true);
-  };
+const handleAddNew = () => {
+  setFormData({
+    commessa_id: "",
+    reparto_id: SERVICE_REPARTO_ID,
+    risorsa_id: SERVICE_ONLINE_RISORSA_ID,
+    attivita_id: SERVICE_ONLINE_ATTIVITA_ID,
+    data_inizio: "",
+    durata: 1,
+    stato: "",
+    descrizione: "",
+    note: "",
+    includedWeekends: [],
+    lane: 1,
+  });
+  setIsEditing(false);
+  setShowPopup(true);
+};
 
   // Aggiorna lo stato di un'attività (ad esempio da "non iniziata" a "iniziata" o "completata")
   const updateActivityStatus = async (activityId, newStatus) => {
-    setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
-    try {
-      const payload = { stato: newStatus };
-      await apiClient.put(`/api/notifiche/${activityId}/stato`, payload);
-      setActivities((prev) =>
-        prev.map((activity) =>
-          activity.id === activityId ? { ...activity, stato: newStatus } : activity
-        )
-      );
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento dello stato dell'attività:", error);
-      toast.error("Si è verificato un errore durante l'aggiornamento dello stato.");
-    } finally {
-      setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
-    }
-  };
+  setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
+
+  // ottimistico
+  setActivities((prev) =>
+    prev.map((a) => (a.id === activityId ? { ...a, stato: Number(newStatus) } : a))
+  );
+
+  try {
+    await apiClient.put(
+      `/api/attivita_commessa/${activityId}`,
+      { stato: Number(newStatus) },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    await handleReloadActivities();
+  } catch (err) {
+    console.error("Errore update stato:", err);
+    toast.error("Errore durante aggiornamento stato");
+    await handleReloadActivities();
+  } finally {
+    setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
+  }
+};
+
 
   // ========================================================
   // GESTIONE DEL DRAG & DROP
@@ -554,21 +721,36 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
       updatedIncludedWeekends.push(isoDate);
     }
 
-    const updatedActivity = {
-      ...activity,
-      risorsa_id: newResourceId,
-      data_inizio: isoDate,
-      descrizione: activity.descrizione_attivita || activity.descrizione || "",
-      includedWeekends: updatedIncludedWeekends,
-    };
+  const updatedActivity = {
+  ...activity,
+  risorsa_id: newResourceId,
+  data_inizio: isoDate,
+  descrizione: activity.descrizione_attivita || activity.descrizione || "",
+  includedWeekends: updatedIncludedWeekends,
+  lane: Number(activity.lane ?? 1), // ok
+};
+
 
     // ✅ 1) UPDATE OTTIMISTICO (UI immediata)
     setActivities((prev) =>
       prev.map((a) => (a.id === activity.id ? { ...a, ...updatedActivity } : a))
     );
 
-    // ✅ 2) SERVER UPDATE
-    await apiClient.put(`/api/attivita_commessa/${activity.id}`, updatedActivity);
+    // ✅ 2) SERVER UPDATE (dati + service_lane)
+await apiClient.put(
+  `/api/attivita_commessa/${activity.id}`,
+  updatedActivity,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+await apiClient.put(
+  `/api/attivita_commessa/${activity.id}/service-lane`,
+  { service_lane: Number(updatedActivity.lane) },
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+await handleReloadActivities();
+
 
     // ✅ 3) (opzionale) piccolo toast solo se è l'ultima operazione
     if (opId === activityDropOpRef.current) {
@@ -585,13 +767,12 @@ const handleActivityDrop = async (activity, newResourceId, newDate) => {
 
     // ✅ rollback sicuro: refetch
     try {
-      const updatedActivities = await fetchAttivitaCommessa();
-      setActivities(updatedActivities);
-    } catch (e) {
-      toast.error("Errore nel ripristino attività: ricarica la pagina.");
-    } finally {
-      setMovingActivityId(null);
-    }
+  await handleReloadActivities(); // ricarica service-calendar
+} catch (e) {
+  toast.error("Errore nel ripristino attività: ricarica la pagina.");
+} finally {
+  setMovingActivityId(null);
+}
   }
 };
 
@@ -647,167 +828,7 @@ const closeNote = async (activityId) => {
   };
 
 
-  // ============================
-// COPY/PASTE (tasto destro)
-// ============================
-const [clipboardActivity, setClipboardActivity] = useState(null);
 
-const [contextMenu, setContextMenu] = useState({
-  visible: false,
-  x: 0,
-  y: 0,
-  type: null, // "activity" | "cell"
-  activity: null,
-  resourceId: null,
-  day: null,
-});
-
-const closeContextMenu = () =>
-  setContextMenu((p) => ({ ...p, visible: false, type: null, activity: null, resourceId: null, day: null }));
-
-// Chiudi menu con click fuori / ESC
-useEffect(() => {
-  const onClick = () => closeContextMenu();
-  const onKey = (e) => e.key === "Escape" && closeContextMenu();
-
-  if (contextMenu.visible) {
-    document.addEventListener("click", onClick);
-    document.addEventListener("keydown", onKey);
-  }
-  return () => {
-    document.removeEventListener("click", onClick);
-    document.removeEventListener("keydown", onKey);
-  };
-}, [contextMenu.visible]);
-
-// Calcola includedWeekends duplicando "gli offset" rispetto all'inizio
-function buildIncludedWeekendsForNewStart(originalActivity, newStartDateObj) {
-  const durata = Number(originalActivity.durata) || 0;
-  const origStart = normalizeDate(originalActivity.data_inizio);
-  const origIncluded = originalActivity.includedWeekends || [];
-
-  // offset (0..durata-1) in cui l'originale includeva un weekend
-  const includedOffsets = [];
-  let c1 = new Date(origStart);
-
-  for (let i = 0; i < durata; i++) {
-    const iso = formatDateOnly(c1);
-    const wd = c1.getDay();
-    if ((wd === 0 || wd === 6) && origIncluded.includes(iso)) {
-      includedOffsets.push(i);
-    }
-    c1.setDate(c1.getDate() + 1);
-  }
-
-  // applica gli stessi offset sul nuovo start (solo se il giorno risultante è weekend)
-  const res = [];
-  for (const off of includedOffsets) {
-    const c2 = new Date(newStartDateObj);
-    c2.setDate(c2.getDate() + off);
-    const wd2 = c2.getDay();
-    if (wd2 === 0 || wd2 === 6) {
-      res.push(formatDateOnly(c2));
-    }
-  }
-  return res;
-}
-
-// Incolla: crea una NUOVA attività duplicata in quella cella (se vuota)
-const pasteActivityToCell = async (resourceId, day) => {
-  if (!clipboardActivity) return;
-
-  const existing = getActivitiesForResourceAndDay(resourceId, day);
-  if (existing.length > 0) {
-    toast.warn("Cella già occupata.");
-    return;
-  }
-
-  try {
-    const newStart = normalizeDate(day);
-    const isoDate = toLocalISOString(newStart);
-
-    const includedWeekends = buildIncludedWeekendsForNewStart(clipboardActivity, newStart);
-
-    const payload = {
-      // copia campi base
-      commessa_id: clipboardActivity.commessa_id || "",
-      reparto_id: clipboardActivity.reparto_id || RepartoID,
-      attivita_id: clipboardActivity.attivita_id || "",
-      durata: clipboardActivity.durata || 1,
-      descrizione: clipboardActivity.descrizione_attivita || clipboardActivity.descrizione || "",
-      includedWeekends,
-
-      // nuova posizione
-      risorsa_id: resourceId,
-      data_inizio: isoDate,
-
-      // per sicurezza: nuova attività "pulita"
-      stato: 0,
-      note: null,
-    };
-
-    // NB: qui assumo che il tuo backend supporti POST /api/attivita_commessa
-    await apiClient.post("/api/attivita_commessa", payload);
-
-    toast.success("Attività incollata!");
-    await handleReloadActivities();
-  } catch (err) {
-    console.error("Errore incolla attività:", err);
-    toast.error("Errore durante l'incolla.");
-  }
-};
-
-
-
-  // ========================================================
-  // COMPONENTE: ResourceCell
-  // Rappresenta una cella della tabella per una risorsa in un determinato giorno
-  // ========================================================
-  function ResourceCell({ resourceId, day, activities, onActivityDrop, onActivityClick, isWeekend, viewMode }) {
-    const normalizedDay = normalizeDate(day);
-    const [{ isOver, canDrop }, drop] = useDrop(() => ({
-  accept: "ACTIVITY",
-  canDrop: (item) => movingActivityId !== item.id,
-  drop: (item) => onActivityDrop(item, resourceId, normalizedDay),
-  collect: (monitor) => ({
-    isOver: !!monitor.isOver(),
-    canDrop: monitor.canDrop(),
-  }),
-}));
-    const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${isOver && canDrop ? "highlight" : ""}`;
-
-    return (
-      <td
-        ref={drop}
-        className={cellClasses}
-        onDoubleClick={() =>
-          activities.length === 0 && handleEmptyCellDoubleClick(resourceId, normalizedDay)
-        }
-       onContextMenu={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      type: "cell",
-      activity: null,
-      resourceId,
-      day: normalizedDay,
-    });
-  }}
->
-        {activities.map((activity) => (
-          <DraggableActivity
-            key={activity.id}
-            activity={activity}
-            onDoubleClick={() => onActivityClick(activity)}
-            viewMode={viewMode}
-          />
-        ))}
-      </td>
-    );
-  }
 
   // ========================================================
   // COMPONENTE: DraggableActivity
@@ -1009,15 +1030,15 @@ const pasteActivityToCell = async (resourceId, day) => {
   // ========================================================
   // FUNZIONE PER RICARICARE LE ATTIVITÀ (es. dopo un aggiornamento)
   // ========================================================
-  const handleReloadActivities = async () => {
-    try {
-      const updatedActivities = await fetchAttivitaCommessa();
-      setActivities(updatedActivities);
-    } catch (error) {
-      console.error("Errore durante il ricaricamento delle attività:", error);
-      toast.error("Errore durante il ricaricamento delle attività.");
-    }
-  };
+const handleReloadActivities = async () => {
+  try {
+    await fetchServiceCalendar();
+  } catch (error) {
+    console.error("Errore durante il ricaricamento delle attività:", error);
+    toast.error("Errore durante il ricaricamento delle attività.");
+  }
+};
+
 
   // ========================================================
   // RENDER DEL COMPONENTE
@@ -1090,16 +1111,20 @@ const pasteActivityToCell = async (resourceId, day) => {
   </div>
 )}
 
-      <div className=" header">
-        <h1>BACHECA REPARTO {RepartoName.toUpperCase()}</h1>
+      <div className="header">
+        <h1>CALENDARIO ASSISTENZE (SERVICE ONLINE)</h1>
+
         <div className="flex-center header-row">
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
+
           <button onClick={scrollToToday} className="btn w-50 btn--shiny btn--pill">
             OGGI
           </button>
-         <div className="header-row-month"> {meseCorrente}</div>
+
+          <div className="header-row-month">{meseCorrente}</div>
+
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
@@ -1138,27 +1163,7 @@ const pasteActivityToCell = async (resourceId, day) => {
                 <option value="full">Completa</option>
                 <option value="compact">Compatta</option>
               </select>
-              {/* Selezione della risorsa del Service (se applicabile) */}
-            {serviceResources.length > 0 && reparto !== "service" && (
-              <div>
-                <label htmlFor="serviceResourceSelect">Seleziona Risorsa del Service:</label>
-                <select  style={{ marginTop: '10px' }}
-                  id="serviceResourceSelect"
-                  value={selectedServiceResource || ""}
-                  className="w-200"
-                  onChange={(e) =>
-                    setSelectedServiceResource(e.target.value ? Number(e.target.value) : null)
-                  }
-                >
-                  <option value="">Nessuna risorsa selezionata</option>
-                  {serviceResources.map((resource) => (
-                    <option key={resource.id} value={resource.id}>
-                      {resource.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+
                 <label>
                   <input
                     type="checkbox"
@@ -1321,60 +1326,27 @@ const pasteActivityToCell = async (resourceId, day) => {
     })}
   </tr>
 </thead>
-                <tbody>
-                  {/* Renderizza una riga per ogni risorsa */}
-                  {resources.map((resource) => (
-                    <tr key={resource.id}>
-                      <td>{resource.nome}</td>
-                      {daysInMonth.map((day) => {
-                        const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                        return (
-                          <ResourceCell
-                            key={`${resource.id}-${day.toISOString()}`}
-                            resourceId={resource.id}
-                            day={day}
-                            isWeekend={isWeekend}
-                            activities={getActivitiesForResourceAndDay(resource.id, day)}
-                            onActivityDrop={handleActivityDrop}
-                            onActivityClick={handleActivityClick}
-                            viewMode={activityViewMode}
-                          />
-                        );
-                      })}
-                    </tr>
-                  ))}
+<tbody>
+                {Array.from({ length: LANES_COUNT }).map((_, idx) => {
+                  const lane = idx + 1;
+                  return (
+                    <tr key={lane}>
+                      <td style={{ minWidth: 120 }}>
+                        <strong>Riga {lane}</strong>
+                      </td>
 
-                  {/* Seleziona e renderizza la riga per le risorse del Service, se applicabile */}
-                  {selectedServiceResource && (
-                    <>
-                      <tr>
-                        <td colSpan={daysInMonth.length + 1} className="service-header">
-                          <strong>Service:</strong>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          {serviceResources.find((res) => res.id === selectedServiceResource)?.nome || "Risorsa non trovata"}
-                        </td>
-                        {daysInMonth.map((day) => {
-                          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                          return (
-                            <ResourceCell
-                              key={`${selectedServiceResource}-${day.toISOString()}`}
-                              resourceId={selectedServiceResource}
-                              day={day}
-                              isWeekend={isWeekend}
-                              activities={getActivitiesForResourceAndDay(selectedServiceResource, day)}
-                              onActivityDrop={handleActivityDrop}
-                              onActivityClick={handleActivityClick}
-                              viewMode={activityViewMode}
-                            />
-                          );
-                        })}
-                      </tr>
-                    </>
-                  )}
-                </tbody>
+                      {daysInMonth.map((day) => (
+                        <LaneCell
+                          key={`${lane}-${day.toISOString()}`}
+                          lane={lane}
+                          day={day}
+                          activitiesInCell={getActivitiesForLaneAndDay(lane, day)}
+                        />
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
               </table>
         </DndProvider>
 </div>
@@ -1390,7 +1362,9 @@ const pasteActivityToCell = async (resourceId, day) => {
             setShowPopup={setShowPopup}
             commesse={commesse}
             reparti={reparti}
-            risorse={resources}
+             risorse={[
+              { id: SERVICE_ONLINE_RISORSA_ID, nome: "Service Online", reparto_id: SERVICE_REPARTO_ID },
+            ]}
             attivitaConReparto={attivitaConReparto}
             reloadActivities={handleReloadActivities}
           />
@@ -1400,4 +1374,6 @@ const pasteActivityToCell = async (resourceId, day) => {
   );
 }
 
-export default DashboardReparto;
+
+
+export default DashboardService;

@@ -39,6 +39,7 @@ import GestioneUtenti from "./components/pages/01-GestioneUtenti";
 //Indicizzati per reparto
 import DashboardReparto from "./components/pages/02-Dashboard-reparto";
 import StatoAvanzamentoReparti from "./components/pages/02-StatoAvanzamento-reparto";
+import DashboardService from "./components/pages/02-DashboardService.js";
 
 //Calendari
 import CalendarioCommesse from "./components/pages/05-CalendarioCommesse";
@@ -292,6 +293,7 @@ const registerDeviceToken = async () => {
     { path: "/Notifications", component: <Notifications /> },
     { path: "/SchedeTecnicheTable", component: <SchedeTecnicheTable/>, requiredRole: 2 },
     { path: "/Dashboard/:reparto", component: <DashboardReparto />, requiredRole: 2 },
+    { path: "/DashboardService", component: <DashboardService />, requiredRole: 2 },
     { path: "/gestione-commesse", component: <GestioneCommesse />, requiredRole: 2 },
     { path: "/commesse-dettagli", component: <CommesseDettagli />, requiredRole: 2 },
     { path: "/Assegna-Machina-Componenti", component: <AssegnazioneMacchinaComponenti />, requiredRole: 2 },
