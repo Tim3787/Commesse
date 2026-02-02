@@ -224,36 +224,30 @@ cursor: pointer;
     
 }
 
-.tag-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: auto;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  z-index: 1000;
-  max-width: 100%;
-}
-
-
 .tag-suggestion {
-  padding: 6px 10px;
+  position: absolute;
+  z-index: 9999;
+background-color: var(--bg-dark);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+
+}
+
+.tag-suggestion li {
+  padding: 8px 12px;
   cursor: pointer;
+  border-radius: 6px;
 }
 
-.tag-suggestion:hover {
-  background-color:  var(--hover-dark);
-  font-size: 18px;
+.tag-suggestion li:hover {
+  background-color: var(--color-white-hover);
 }
-
-.tag-suggestion strong {
-  font-weight: bold;
-  color: #00b7ff;
-}
-
     /* ==============================
      loading spin
      ============================== */

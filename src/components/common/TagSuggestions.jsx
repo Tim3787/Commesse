@@ -10,8 +10,9 @@ export default function TagSuggestions({
 }) {
   if (!visible || !suggestions?.length) return null;
 
-  return (
-    <ul className="tag-suggestions">
+return (
+  <div className="tag-suggestion">
+    <ul>
       {suggestions.map((t) => (
         <li
           key={t.id}
@@ -37,5 +38,6 @@ export default function TagSuggestions({
         </li>
       ))}
     </ul>
+    </div>
   );
 }

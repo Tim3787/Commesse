@@ -615,7 +615,11 @@ const renderTabellaComponentiSiemens = () => {
 {/* NOTE */}
 <div className="note-page">
   <h1 className="note-title">Note</h1>
-
+{editable && (
+  <div style={{ fontSize: 12, opacity: 0.7 }}>
+    Suggerimenti: {suggestionsVisibili.length}
+  </div>
+)}
 <textarea
   name="note"
   className="w-w note-textarea"
