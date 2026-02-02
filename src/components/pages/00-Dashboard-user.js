@@ -1017,6 +1017,16 @@ Hai {myNotesList.length} note aperte
         </button>
       </div>
     </div>
+
+  </div>
+)}
+           </div>
+                     </div>
+        );
+      });
+    })()}
+    
+    </div>
     {popupScheda && (
   <SchedaTecnica
     editable={true}
@@ -1030,16 +1040,6 @@ Hai {myNotesList.length} note aperte
     }}
   />
 )}
-  </div>
-)}
-           </div>
-                     </div>
-        );
-      });
-    })()}
-    
-    </div>
-
 
 
 
