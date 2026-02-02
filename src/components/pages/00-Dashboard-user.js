@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/00-Dashboard-user.css";
@@ -49,16 +49,54 @@ if (token) {
   const daysRefs = useRef([]);                                       // Ref per ogni giorno della dashboard (per lo scroll)              // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({});                // Stato per gestire aggiornamenti temporanei delle note
   const calendarRef = useRef();
-  const [schedeAperte, setSchedeAperte] = useState({});
+  const [, setSchedeAperte] = useState({});
   const [popupScheda, setPopupScheda] = useState(null);
   const [schedaInModifica, setSchedaInModifica] = useState(null);
   const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
  const navigate = useNavigate();
 const CLOSED_PREFIX = "[CHIUSA] ";
 const CLOSED_RE = /^\[CHIUSA\]\s*/i; // parentesi quadre escapse, spazio opzionale
-const [linkedOpenNotes, setLinkedOpenNotes] = useState([]);
-const [linkedNotesLoading, setLinkedNotesLoading] = useState(false);
-const [linkedNotesError, setLinkedNotesError] = useState(null);
+const [linkedNotesByActivity, setLinkedNotesByActivity] = useState({}); 
+const linkedNotesFetchRef = useRef({});
+const loadLinkedNotesForActivity = async (a) => {
+  if (!a?.id || !a?.commessa_id || !a?.reparto_id) return;
+
+  // ✅ guard super robusto (evita doppio fetch anche con rerender rapidi)
+  if (linkedNotesFetchRef.current[a.id]) return;
+  linkedNotesFetchRef.current[a.id] = true;
+
+  setLinkedNotesByActivity(prev => {
+    if (prev[a.id]?.loaded) return prev;
+    return {
+      ...prev,
+      [a.id]: { loading: true, loaded: false, error: null, notes: prev[a.id]?.notes || [] }
+    };
+  });
+
+  try {
+    const data = await fetchOpenNotesByCommessaReparto(
+      { commessa_id: a.commessa_id, reparto_id: a.reparto_id, exclude_id: a.id },
+      token
+    );
+
+    setLinkedNotesByActivity(prev => ({
+      ...prev,
+      [a.id]: { loading: false, loaded: true, error: null, notes: data }
+    }));
+  } catch (e) {
+    console.error(e);
+    setLinkedNotesByActivity(prev => ({
+      ...prev,
+      [a.id]: { loading: false, loaded: true, error: "Errore caricamento note collegate.", notes: [] }
+    }));
+  } finally {
+    // ✅ se vuoi permettere refetch manuale in futuro, puoi anche rimettere false
+    // linkedNotesFetchRef.current[a.id] = false;
+  }
+};
+
+
+
 
 const isClosedNote = (text) => CLOSED_RE.test(text ?? "");
 
@@ -218,12 +256,7 @@ const getActivitiesForDay = (day) => {
       .includes(isoDay)
   );
 };
-const baseActivity = useMemo(() => {
-  if (selectedActivity) return selectedActivity;
 
-  const todayList = getActivitiesForDay(new Date());
-  return todayList.length ? todayList[0] : null;
-}, [selectedActivity, monthlyActivities]); 
 useEffect(() => {
   if (!repartoIdPerManager) return;
 
@@ -352,24 +385,31 @@ const updateActivityStatus = async (activityId, newStatus) => {
     setNoteUpdates((prev) => ({ ...prev, [activityId]: note }));
   };
 
+const getActivityById = (id) =>
+  monthlyActivities.find(a => a.id === id) ||
+  (selectedActivity && selectedActivity.id === id ? selectedActivity : null);
+
 const saveNote = async (activityId) => {
   try {
-    const current = monthlyActivities.find((a) => a.id === activityId);
-    const text = noteUpdates[activityId] ?? current?.note ?? "";
+    const current = getActivityById(activityId);
+    const existing = current?.note ?? "";
+    const draft = noteUpdates[activityId] ?? existing;
 
-    // Se la nota è chiusa, mantieni il prefisso anche se l’utente l’ha rimosso
-    const finalText = isClosedNote(current?.note) ? closeNoteText(text) : text;
+    // se esistente è chiusa, forza prefisso
+    const finalText = isClosedNote(existing) ? closeNoteText(draft) : draft;
 
     await updateActivityNotes(activityId, finalText, token);
     toast.success("Nota aggiornata con successo!");
-    setMonthlyActivities((prev) =>
-      prev.map((a) => (a.id === activityId ? { ...a, note: finalText } : a))
-    );
-    setSelectedActivity(prev =>
-  prev && prev.id === activityId ? { ...prev, note: finalText } : prev
-);
 
-    setNoteUpdates((prev) => ({ ...prev, [activityId]: finalText }));
+    setMonthlyActivities(prev =>
+      prev.map(a => (a.id === activityId ? { ...a, note: finalText } : a))
+    );
+
+    setSelectedActivity(prev =>
+      prev && prev.id === activityId ? { ...prev, note: finalText } : prev
+    );
+
+    setNoteUpdates(prev => ({ ...prev, [activityId]: finalText }));
   } catch (error) {
     console.error("Errore durante il salvataggio della nota:", error);
     toast.error("Errore durante il salvataggio della nota.");
@@ -461,16 +501,16 @@ const reopenNote = async (activityId) => {
   }
 };
 
+useEffect(() => {
+  const list = selectedActivity ? [selectedActivity] : getActivitiesForDay(new Date());
+  list.forEach(a => loadLinkedNotesForActivity(a));
+
+}, [selectedActivity, monthlyActivities, token]);
 
   // ------------------------------------------------------------------
   // Schede
   // ------------------------------------------------------------------
-  const toggleSchede = (commessaId) => {
-  setSchedeAperte(prev => ({
-    ...prev,
-    [commessaId]: !prev[commessaId]
-  }));
-};
+
 
 const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
   setPopupScheda({ commessaId, numero_commessa });
@@ -567,44 +607,6 @@ useEffect(() => {
 
   return () => clearTimeout(t);
 }, [selectedActivity]);
-
-useEffect(() => {
-  const a = baseActivity;
-
-  if (!a?.commessa_id || !a?.reparto_id) {
-    setLinkedOpenNotes([]);
-    setLinkedNotesError(null);
-    setLinkedNotesLoading(false);
-    return;
-  }
-
-  const run = async () => {
-    try {
-      setLinkedNotesLoading(true);
-      setLinkedNotesError(null);
-
-      const data = await fetchOpenNotesByCommessaReparto(
-        {
-          commessa_id: a.commessa_id,
-          reparto_id: a.reparto_id,
-          exclude_id: a.id,
-        },
-        token
-      );
-
-      setLinkedOpenNotes(data);
-    } catch (e) {
-      console.error(e);
-      setLinkedNotesError("Errore caricamento note collegate.");
-      setLinkedOpenNotes([]);
-    } finally {
-      setLinkedNotesLoading(false);
-    }
-  };
-
-  run();
-}, [baseActivity?.id, baseActivity?.commessa_id, baseActivity?.reparto_id, token]);
-
 
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
@@ -756,9 +758,10 @@ Hai {myNotesList.length} note aperte
 ) : (() => {
   const list = selectedActivity ? [selectedActivity] : getActivitiesForDay(new Date());
   if (!list.length) return <p>✅ Nessuna attività oggi</p>;
+  
 
   return list.map((activity) => {
-const isBase = baseActivity && activity.id === baseActivity.id;
+
         const activityClass =
           activity.stato === 0 ? "activity not-started"
           : activity.stato === 1 ? "activity started"
@@ -788,39 +791,21 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                             )}
 
                             <strong>Commessa:  {activity.numero_commessa} </strong> 
-                            <strong>Attività:  {activity.nome_attivita}</strong> 
-                                                        
-                       
-
-{activity.clientHasSpecs && (
-  <div className="flex-column-center">
-    <span className="client-specs-text">
-         <strong>Cliente con specifiche particolari. 👈</strong> 
-    </span>
-    <button
-      className="btn w-100 btn--warning btn--pill"
-      onClick={() => openClienteSpecs(activity.cliente, activity.reparto_id)}
-    >
-      Vedi specifiche
-    </button>
-  </div>
-)}
+                            <strong>Attività:  {activity.nome_attivita}</strong>                                               
                             {isTrasferta && (
                               <span className="trasferta-icon" title="Trasferta">
                                 🚗
                               </span>
                             )}
-                          </div>
 
-                          {/* Azioni relative all'attività: in base allo stato vengono mostrate le azioni appropriate */}
-                          <div className="flex-column-center">
                             <strong>Stato attività:{" "}
+
                             {activity.stato === 1 && (
                               <>
                                 <span className="dashboasrd-user-activity-status">Iniziata</span>
                                   <div className="flex-column-center"  style={{ marginTop:  "10px" }}>
                                 <button
-                                  className="btn w-100 btn--complete btn--pill"
+                                  className="btn w-200 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                 >
                                     Completa ✅
@@ -837,14 +822,14 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                               <span className="dashboasrd-user-activity-status">Non iniziata</span>
                                <div className="flex-column-center"  style={{ marginTop: "10px" }}>
                                 <button
-                                  className="btn w-100 btn--start btn--pill"
+                                  className="btn w-200 btn--start btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 1)}
                                   disabled={loadingActivities[activity.id]}
                                 >
                                   {loadingActivities[activity.id] ? "Caricamento..." : "Inizia"}
                                 </button>
                                 <button
-                                  className="btn w-100 btn--complete btn--pill"
+                                  className="btn w-200 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                   disabled={loadingActivities[activity.id]}
                                 >
@@ -857,6 +842,19 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                             {activity.descrizione?.trim() && (
   <div>
     <strong>Descrizione:</strong> {activity.descrizione}
+  </div>
+)}
+{activity.clientHasSpecs && (
+  <div className="flex-column-center">
+    <span className="client-specs-text">
+         <strong>Cliente con specifiche particolari. 👈</strong> 
+    </span>
+    <button
+      className="btn w-100 btn--warning btn--pill"
+      onClick={() => openClienteSpecs(activity.cliente, activity.reparto_id)}
+    >
+      Vedi specifiche
+    </button>
   </div>
 )}
                           </div>
@@ -896,12 +894,12 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                             
                             <div className="flex-column-center">
                               { !isClosedNote(activity.note) && (
-                              <button className="btn w-100 btn--blue btn--pill" onClick={() => saveNote(activity.id)}>
+                              <button className="btn w-200 btn--blue btn--pill" onClick={() => saveNote(activity.id)}>
                                 Salva Nota
                               </button>    )}
                               
                               {activity.note && !isClosedNote(activity.note) && (
-<button className="btn w-100 btn--danger btn--pill " onClick={() => closeNote(activity.id)}>
+<button className="btn w-200 btn--warning btn--pill " onClick={() => closeNote(activity.id)}>
   Chiudi nota
 </button>
   )}
@@ -911,74 +909,68 @@ const isBase = baseActivity && activity.id === baseActivity.id;
 )}
 {/* opzionale riapertura */}
 {isClosedNote(activity.note) && (
-  <button className="btn w-100 btn--blue btn--pill " onClick={() => reopenNote(activity.id)}>
+  <button className="btn w-200 btn--blue btn--pill " onClick={() => reopenNote(activity.id)}>
     Riapri nota
   </button>
 )}
                              {activity.note && (
-                                <button className="btn w-100 btn--danger btn--pill " onClick={() => deleteNote(activity.id)}>
+                                <button className="btn w-200 btn--danger btn--pill " onClick={() => deleteNote(activity.id)}>
                                   Elimina Nota
                                 </button>
                               )}
                             </div>
                           </div>
                           
-                          {isBase && (
-  <div className="linked-notes" style={{ marginTop: 10 }}>
-     <div className="flex-column-center">
-    <h3 style={{ marginBottom: 6 }}>
-      Altre note aperte:
-    </h3>
+  {(() => {
+  const pack = linkedNotesByActivity[activity.id];
+  if (!pack) return null;
 
-    {linkedNotesLoading && <p>Caricamento...</p>}
-    {linkedNotesError && <p style={{ opacity: 0.8 }}>{linkedNotesError}</p>}
+  return (
+    <div className="linked-notes" style={{ marginTop: 10 }}>
+      <div className="flex-column-center">
+        <h3 style={{ marginBottom: 6 }}>Altre note aperte:</h3>
 
-    {!linkedNotesLoading && !linkedNotesError && (
-      linkedOpenNotes.length === 0 ? (
-        <p>✅ Nessun’altra nota aperta</p>
-      ) : (
-        <div className="specs-list">
-          {linkedOpenNotes.map(n => (
-            <div
-              key={n.id}
-              className="spec-card"
-              style={{ cursor: "pointer" }}
+        {pack.loading && <p>Caricamento...</p>}
+        {pack.error && <p style={{ opacity: 0.8 }}>{pack.error}</p>}
 
-            >
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                <strong>{n.nome_attivita}</strong>
-                <span>—</span>
-                <span>{new Date(n.data_inizio).toLocaleDateString("it-IT")}</span>
-                <span>—</span>
-                <span>{n.risorsa_nome || "—"}</span>
-              </div>
-              <p style={{ whiteSpace: "pre-wrap" }}>{n.note}</p>
+        {!pack.loading && !pack.error && (
+          pack.notes.length === 0 ? (
+            <p>✅ Nessun’altra nota aperta</p>
+          ) : (
+            <div className="specs-list">
+              {pack.notes.map(n => (
+                <div key={n.id} className="spec-card" style={{ cursor: "pointer" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <strong>{n.nome_attivita}</strong>
+                    <span>—</span>
+                    <span>{new Date(n.data_inizio).toLocaleDateString("it-IT")}</span>
+                    <span>—</span>
+                    <span>{n.risorsa_nome || "—"}</span>
+                  </div>
+                  <p style={{ whiteSpace: "pre-wrap" }}>{n.note}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )
-    )}
-  </div>
+          )
+        )}
       </div>
-)}
+    </div>
+  );
+})()}
+
 
  <div className="flex-column-center">
-  <button
-    className="btn btn-100 btn--blue btn--pill"
-    onClick={() => toggleSchede(activity.commessa_id)}
-  >
-    {schedeAperte[activity.commessa_id] ? "Nascondi schede" : "Mostra schede"}
-  </button>
 
-  {schedeAperte[activity.commessa_id] && (
+
     <SezioneSchede
       commessaId={activity.commessa_id}
       numero_commessa={activity.numero_commessa}
        apriPopupScheda={apriPopupScheda}
+         activityStatus={activity.stato}
                />
-              )}
+
             </div>
-          </div>
+
           
 {clienteSpecsPopup.open && (
   <div className="modal-overlay" onClick={closeClienteSpecs}>
@@ -1025,16 +1017,7 @@ const isBase = baseActivity && activity.id === baseActivity.id;
         </button>
       </div>
     </div>
-  </div>
-)}
-           </div>
-        );
-      });
-    })()}
-    
-    </div>
-
-{popupScheda && (
+    {popupScheda && (
   <SchedaTecnica
     editable={true}
     commessaId={popupScheda.commessaId}
@@ -1047,6 +1030,17 @@ const isBase = baseActivity && activity.id === baseActivity.id;
     }}
   />
 )}
+  </div>
+)}
+           </div>
+                     </div>
+        );
+      });
+    })()}
+    
+    </div>
+
+
 
 
 </div>

@@ -120,15 +120,23 @@ SCHEDE
 ============================== */
 
 .btn--scheda{
-  color: var(--text-dark);
-  background-color:  var(--color-white);
+
+   background-color: transparent;
+    font-size: 14px;
 }
 .btn--scheda:hover{
-  color: var(--text-dark);
-  background-color:  var(--color-white-hover);
+   box-shadow: 2px 2px 5px var( --color-border-hg);
 }
 
+.started .btn--scheda  {
+  color: var(--text-light);
+  
+}
 
+.completed .btn--scheda  {
+  color: var(--text-light);
+  
+}
 /* ==============================
 NAVBAR
 ============================== */

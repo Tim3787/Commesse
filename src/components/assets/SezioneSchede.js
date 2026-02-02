@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchSchedeTecniche } from "../services/API/schedeTecniche-api";
 
-function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
+function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda, activityStatus }) {
   const [schede, setSchede] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,8 +12,16 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
       .finally(() => setLoading(false));
   }, [commessaId]);
 
+
+const statusClass =
+  activityStatus === 0 ? "not-started" :
+  activityStatus === 1 ? "started" : "completed";
+
+
+
   return (
-    <div className="flex-column-center border">
+    <div className={`flex-column-center ${statusClass}`}>
+      <strong>Schede:</strong>  
       {loading ? (
         <p>Caricamento schede...</p>
       ) : (
@@ -26,7 +34,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
               {schede.map((s) => (
                 <li  key={ s.id}>
                   <button
-      className="btn btn--scheda w-200"
+      className="btn btn--scheda "
       onClick={() =>
         apriPopupScheda({
           commessaId,
@@ -35,7 +43,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
         })
       }
     > 
-    📜- {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}-📜
+    📜- {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
     </button>
                 </li>
               ))}
@@ -43,7 +51,7 @@ function SezioneSchede({ commessaId, numero_commessa, apriPopupScheda }) {
           )}
      <div className="flex-column-center">
 <button
-  className="btn btn--blue w-100 btn--pill"
+  className="btn btn--blue w-200 btn--pill"
   onClick={() =>
     apriPopupScheda({ commessaId, numero_commessa })
   }
