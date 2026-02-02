@@ -4,9 +4,13 @@ import {
   uploadImmagineScheda,
   getImmaginiScheda,
   deleteImmagineScheda,
-  getTagSuggeriti,
+  updateTagsByNames,
 } from "../services/API/schedeTecniche-api";
 import html2pdf from "html2pdf.js";
+import { getAuthUser } from "../utils/auth";
+import useTagAutocomplete from "../common/useTagAutocomplete";
+import TagSuggestions from "../common/TagSuggestions";
+import { extractHashtagsLower } from "../common/tagUtils";
 
 // ===== DATI STATICI / CONFIG =====
 const vociChecklist1 = [
@@ -157,6 +161,17 @@ const componentiSiemens = [
     codice: "0051166",
   },
 ];
+const normalizeChecklist = (rawChecklist = {}) => {
+  const normalized = {};
+  for (const voce of Object.keys(rawChecklist)) {
+    const valore = rawChecklist[voce];
+    normalized[voce] =
+      typeof valore === "object" && valore !== null && "fatto" in valore
+        ? valore
+        : { fatto: !!valore, utente: null, timestamp: null };
+  }
+  return normalized;
+};
 
 // ===== COMPONENTE PRINCIPALE =====
 function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, username }) {
@@ -170,11 +185,17 @@ function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, usernam
   const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
   const [immagini, setImmagini] = useState([]);
   const [immagineSelezionata, setImmagineSelezionata] = useState(null);
-  const [tagSuggeriti, setTagSuggeriti] = useState([]);
-  const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
-  const [filtroTag, setFiltroTag] = useState("");
-  const [cursorPos, setCursorPos] = useState(null);
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
+
+const {
+  suggestionsVisibili,
+  filtroTag,
+  cursorPos,
+  handleNoteChange,
+  clearSuggestions,
+} = useTagAutocomplete({ enabled: editable });
+
+
 
   // ===== FUNZIONI DI UTILITÀ =====
   const autoResizeTextarea = () => {
@@ -184,17 +205,7 @@ function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, usernam
       el.style.height = `${el.scrollHeight}px`;
     }
   };
-   const normalizeChecklist = (rawChecklist) => {
-    const normalized = {};
-    for (const voce of Object.keys(rawChecklist)) {
-      const valore = rawChecklist[voce];
-      normalized[voce] =
-        typeof valore === "object" && valore !== null && "fatto" in valore
-          ? valore
-          : { fatto: !!valore, utente: null, timestamp: null };
-    }
-    return normalized;
-  };
+
 
   // ===== HOOK: FORM =====
   const [form, setForm] = useState({
@@ -205,6 +216,24 @@ function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, usernam
     checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
     note: scheda?.note || "",
   });
+useEffect(() => {
+  if (!scheda) return;
+
+  setForm({
+    titolo: scheda?.intestazione?.titolo || "",
+    RevSoftware: scheda?.intestazione?.RevSoftware || "",
+    RevMacchina: scheda?.intestazione?.RevMacchina || "",
+    RevSchema: scheda?.intestazione?.RevSchema || "",
+    checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
+    note: scheda?.note || "",
+  });
+
+  clearSuggestions?.();
+  // opzionale: reset textarea
+  const raf = requestAnimationFrame(autoResizeTextarea);
+  return () => cancelAnimationFrame(raf);
+}, [scheda]);
+
 
   // ===== EVENTI / HANDLERS =====
   const toggleVoce = (voce) => {
@@ -235,77 +264,72 @@ function SchedaSviluppoForm({ scheda,commessa, onSave, userId, editable, usernam
     setIsVisibleInfo((prev) => !prev);
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      await uploadImmagineScheda(file, scheda?.id || scheda?.scheda_id);
-      const nuoveImmagini = await getImmaginiScheda(scheda?.id || scheda?.scheda_id);
-      setImmagini(nuoveImmagini);
-    } catch (error) {
-      console.error("Errore durante l’upload:", error);
-    }
-  };
+const handleFileChange = async (e) => {
+  const file = e.target.files?.[0];
+  const id = scheda?.id || scheda?.scheda_id;
+  if (!file || !id) return;
+
+  try {
+    await uploadImmagineScheda(file, id);
+    const nuoveImmagini = await getImmaginiScheda(id);
+    setImmagini(nuoveImmagini);
+    e.target.value = ""; // reset input
+  } catch (error) {
+    console.error("Errore durante l’upload:", error);
+  }
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    const datiPerBackend = {
-      intestazione: {
-        titolo: form.titolo,
-        RevSoftware: form.RevSoftware,
-        RevMacchina: form.RevMacchina,
-        RevSchema: form.RevSchema,
-      },
-      contenuto: { checklist: form.checklist },
-      note: form.note,
-      allegati_standard: [],
-      risorsa_id: userId,
-      descrizione: "Modifica effettuata da interfaccia sviluppo",
-    };
+  const handleSubmit = async () => {
+  const schedaId = scheda?.id || scheda?.scheda_id;
+  const u = getAuthUser();
+  const token = u?.token || sessionStorage.getItem("token") || localStorage.getItem("token");
+  console.log("TOKEN INVIATO:", token);
+  if (!token) {
+    console.warn("Token mancante: fai login di nuovo o controlla getAuthUser()");
+    return;
+  }
+  if (!schedaId) {
+    console.warn("Scheda id mancante, impossibile salvare tags");
+    return;
+  }
 
-    const tagRegex = /#(\w+)/g;
-    const tagSet = new Set();
-    let match;
-    while ((match = tagRegex.exec(form.note)) !== null) {
-      tagSet.add(match[1]);
-    }
-    const tags = Array.from(tagSet);
-
-    onSave(datiPerBackend);
-
-    if (tags.length > 0) {
-      fetch("https://commesseunserver.eu/api/schedeTecniche/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheda_id: scheda?.id || scheda?.scheda_id, tags }),
-      }).catch((err) => console.error("Errore salvataggio tag:", err));
-    }
+  const datiPerBackend = {
+    intestazione: {
+      titolo: form.titolo,
+      RevSoftware: form.RevSoftware,
+      RevMacchina: form.RevMacchina,
+      RevSchema: form.RevSchema,
+    },
+    contenuto: { checklist: form.checklist },
+    note: form.note,
+    allegati_standard: [],
+    risorsa_id: userId,
+    descrizione: "Modifica effettuata da interfaccia sviluppo",
   };
 
-  const handleNoteChange = (e) => {
-    const testo = e.target.value;
-    setForm((prev) => ({ ...prev, note: testo }));
-
-    const cursorPos = e.target.selectionStart;
-    setCursorPos(cursorPos);
-
-    const testoPrima = testo.substring(0, cursorPos);
-    const match = testoPrima.match(/#(\w*)$/);
-
-    if (match) {
-      const cerca = match[1].toLowerCase();
-      const filtra = tagSuggeriti.filter((tag) => tag.toLowerCase().startsWith(cerca));
-      setSuggestionsVisibili(filtra.slice(0, 5));
-      setFiltroTag(match[1]);
-    } else {
-      setSuggestionsVisibili([]);
-      setFiltroTag("");
+  try {
+    const maybePromise = onSave?.(datiPerBackend);
+    if (maybePromise && typeof maybePromise.then === "function") {
+      await maybePromise;
     }
-  };
+
+
+const names = extractHashtagsLower(form.note);
+// chiama sempre: anche [] deve pulire
+await updateTagsByNames(schedaId, names, token);
+
+  } catch (err) {
+    console.error("Errore salvataggio scheda/tag:", err);
+  }
+};
+
+
  const filename = `Scheda sviluppo commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
@@ -339,22 +363,25 @@ if (!element) return;
 
 
   // ===== EFFECTS =====
-  useEffect(() => {
-    if (scheda?.id || scheda?.scheda_id) {
-      const id = scheda.id || scheda.scheda_id;
-      getImmaginiScheda(id)
-        .then(setImmagini)
-        .catch((err) => console.error("Errore nel caricamento immagini:", err));
-    }
-  }, [scheda]);
+useEffect(() => {
+  const id = scheda?.id || scheda?.scheda_id;
 
-  useEffect(() => {
-    getTagSuggeriti().then(setTagSuggeriti);
-  }, []);
+  if (!id) {
+    setImmagini([]);         
+    return;
+  }
+
+  getImmaginiScheda(id)
+    .then(setImmagini)
+    .catch((err) => console.error("Errore nel caricamento immagini:", err));
+}, [scheda]);
+
+
 
   useEffect(() => {
     autoResizeTextarea();
   }, [form.note]);
+
 
   // ===== FUNZIONI DI RENDER SUPPORTO =====
 const renderTabellaIndirizzamento = () => {
@@ -589,50 +616,54 @@ const renderTabellaComponentiSiemens = () => {
 <div className="note-page">
   <h1 className="note-title">Note</h1>
 
-  <textarea
-    name="note"
-    className="w-w note-textarea"
-    ref={textareaRef}
-    value={form.note}
-    onChange={(e) => {
-      handleNoteChange(e);
-      autoResizeTextarea();
-    }}
+<textarea
+  name="note"
+  className="w-w note-textarea"
+  ref={textareaRef}
+  value={form.note}
     readOnly={!editable}
-  />
+  disabled={!editable}
+onChange={(e) => {
+    const testo = e.target.value;
+    const pos = e.target.selectionStart;
+
+    setForm((prev) => ({ ...prev, note: testo }));
+    handleNoteChange(testo, pos);
+    autoResizeTextarea();
+  }}
+
+  onKeyDown={(e) => {
+    if (e.key === "Escape") clearSuggestions?.();
+  }}
+/>
+
 
   <div className="w-w note-print">
     {form.note}
   </div>
+        {/* Suggerimenti tag visibili sotto il campo note */}
+     {editable && (
+  <TagSuggestions
+    visible={suggestionsVisibili.length > 0}
+    suggestions={suggestionsVisibili}
+    noteText={form.note}
+    cursorPos={cursorPos}
+    filtroTag={filtroTag}
+        onPick={(nuovoTesto) => {
+      setForm((prev) => ({ ...prev, note: nuovoTesto }));
+      clearSuggestions?.();
+      requestAnimationFrame(() => {
+        autoResizeTextarea();
+        textareaRef.current?.focus();
+      });
+    }}
+  />
+)}
 </div>
 
-      {/* Suggerimenti tag visibili sotto il campo note */}
-      {editable && suggestionsVisibili.length > 0 && (
-        <ul className="tag-suggestions">
-          {suggestionsVisibili.map((tag, idx) => (
-            <li
-              key={idx}
-              className="tag-suggestion"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                if (cursorPos === null || filtroTag === "") return;
-                const testo = form.note;
-                const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
-                if (inizio === -1) return;
-                const fine = inizio + filtroTag.length + 1;
-                const nuovoTesto = testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
-                setForm((prev) => ({ ...prev, note: nuovoTesto }));
-                setSuggestionsVisibili([]);
-              }}
-            >
-              <>
-                #<strong>{tag.slice(0, filtroTag.length)}</strong>
-                {tag.slice(filtroTag.length)}
-              </>
-            </li>
-          ))}
-        </ul>
-      )}
+
+
+
     </div>
 
     {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}

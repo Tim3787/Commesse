@@ -321,22 +321,36 @@ const pasteActivityToCell = async (lane, day) => {
   // ========================================================
   // FETCH DEI DATI INIZIALI (attività, risorse, commesse, reparti)
   // ========================================================
-  const fetchServiceCalendar = async () => {
-    const from = formatDateOnly(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1));
-    const to = formatDateOnly(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0));
+const fetchServiceCalendar = async () => {
+  const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const lastOfMonth  = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-    const res = await apiClient.get(
-      `/api/attivita_commessa/service-calendar?from=${from}&to=${to}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-const data = (res.data || []).map((a) => ({
-  ...a,
-  lane: Number(a.lane || a.riga || a.service_lane || 1),
-  note: a.note ?? a.notes ?? a.nota ?? null, // ✅ normalizza
-}));
-setActivities(data);
+  // ✅ buffer per prendere attività che "sforano" dentro il mese
+  const bufferDays = 45;
 
-  };
+  const fromDate = new Date(firstOfMonth);
+  fromDate.setDate(fromDate.getDate() - bufferDays);
+
+  const toDate = new Date(lastOfMonth);
+  toDate.setDate(toDate.getDate() + bufferDays);
+
+  const from = formatDateOnly(fromDate);
+  const to   = formatDateOnly(toDate);
+
+  const res = await apiClient.get(
+    `/api/attivita_commessa/service-calendar?from=${from}&to=${to}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  const data = (res.data || []).map((a) => ({
+    ...a,
+    lane: Number(a.lane || a.riga || a.service_lane || 1),
+    note: a.note ?? a.notes ?? a.nota ?? null,
+  }));
+
+  setActivities(data);
+};
+
 
   // dati generali per popup (commesse, reparti, attivita)
   const fetchCommonData = async () => {

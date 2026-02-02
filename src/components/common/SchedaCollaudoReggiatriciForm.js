@@ -97,6 +97,7 @@ function SchedaCollaudoReggiatriciForm({ scheda,commessa, onSave, userId, editab
   const [cursorPos, setCursorPos] = useState(null);
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
 
+
   // ===== FUNZIONI DI UTILITÀ =====
   const autoResizeTextarea = () => {
     const el = textareaRef.current;
@@ -207,26 +208,42 @@ function SchedaCollaudoReggiatriciForm({ scheda,commessa, onSave, userId, editab
     }
   };
 
-  const handleNoteChange = (e) => {
-    const testo = e.target.value;
-    setForm((prev) => ({ ...prev, note: testo }));
+ const tagNomeLower = (t) => String(t?.nome || "").toLowerCase();
+const tagFullLower = (t) => `${t?.prefisso || ""}_${t?.nome || ""}`.toLowerCase();
 
-    const cursorPos = e.target.selectionStart;
-    setCursorPos(cursorPos);
+const handleNoteChange = (e) => {
+  const testo = e.target.value;
+  const pos = e.target.selectionStart;
 
-    const testoPrima = testo.substring(0, cursorPos);
-    const match = testoPrima.match(/#(\w*)$/);
+  setForm((prev) => ({ ...prev, note: testo }));
+  setCursorPos(pos);
 
-    if (match) {
-      const cerca = match[1].toLowerCase();
-      const filtra = tagSuggeriti.filter((tag) => tag.toLowerCase().startsWith(cerca));
-      setSuggestionsVisibili(filtra.slice(0, 5));
-      setFiltroTag(match[1]);
-    } else {
-      setSuggestionsVisibili([]);
+  const testoPrima = testo.substring(0, pos);
+  const match = testoPrima.match(/#([a-zA-Z0-9_]+)?$/); // prende anche vuoto dopo #
+
+  if (match) {
+    const raw = (match[1] || "").toLowerCase(); // quello che hai scritto dopo #
+
+    // ✅ se non hai ancora scritto nulla dopo #, mostra i primi 5
+    if (!raw) {
+      setSuggestionsVisibili(tagSuggeriti.slice(0, 5));
       setFiltroTag("");
+      return;
     }
-  };
+
+    const isFull = raw.includes("_"); // se l'utente scrive "sw_pi"
+    const filtra = tagSuggeriti.filter((t) =>
+      (isFull ? tagFullLower(t) : tagNomeLower(t)).startsWith(raw)
+    );
+
+    setSuggestionsVisibili(filtra.slice(0, 5));
+    setFiltroTag(match[1] || "");
+  } else {
+    setSuggestionsVisibili([]);
+    setFiltroTag("");
+  }
+};
+
  const filename = `Scheda collaudo commessa:${commessa}.pdf`;
 const handleDownloadPdf = async () => {
   const element = schedaRef.current;
@@ -519,31 +536,34 @@ if (!element) return;
 
       {/* Suggerimenti tag visibili sotto il campo note */}
       {editable && suggestionsVisibili.length > 0 && (
-        <ul className="tag-suggestions">
-          {suggestionsVisibili.map((tag, idx) => (
-            <li
-              key={idx}
-              className="tag-suggestion"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                if (cursorPos === null || filtroTag === "") return;
-                const testo = form.note;
-                const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
-                if (inizio === -1) return;
-                const fine = inizio + filtroTag.length + 1;
-                const nuovoTesto = testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
-                setForm((prev) => ({ ...prev, note: nuovoTesto }));
-                setSuggestionsVisibili([]);
-              }}
-            >
-              <>
-                #<strong>{tag.slice(0, filtroTag.length)}</strong>
-                {tag.slice(filtroTag.length)}
-              </>
-            </li>
-          ))}
-        </ul>
-      )}
+  <ul className="tag-suggestions">
+       {suggestionsVisibili.map((t) => (
+  <li
+    key={t.id}
+    onMouseDown={(e) => {
+      e.preventDefault();
+      if (cursorPos == null) return;
+
+      const testo = form.note;
+      const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
+      if (inizio === -1) return;
+
+      const fine = inizio + filtroTag.length + 1; // include '#'
+      const nuovoTesto =
+        testo.substring(0, inizio) +
+        `#${t.nome} ` +
+        testo.substring(fine);
+
+      setForm((prev) => ({ ...prev, note: nuovoTesto }));
+      setSuggestionsVisibili([]);
+    }}
+  >
+    #{t.nome} <span style={{ opacity: 0.6, marginLeft: 6 }}></span>
+  </li>
+))}
+  </ul>
+)}
+
     </div>
 
     {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}

@@ -1,6 +1,22 @@
+// ===== IMPORT =====
 import { useState, useEffect, useRef } from "react";
-import { getTagSuggeriti } from "../services/API/schedeTecniche-api";
 import html2pdf from "html2pdf.js";
+import { getAuthUser } from "../utils/auth";
+import useTagAutocomplete from "../common/useTagAutocomplete";
+import TagSuggestions from "../common/TagSuggestions";
+import { extractHashtagsLower } from "../common/tagUtils";
+import { updateTagsByNames } from "../services/API/schedeTecniche-api";
+const normalizeChecklist = (rawChecklist = {}) => {
+  const normalized = {};
+  for (const voce of Object.keys(rawChecklist)) {
+    const valore = rawChecklist[voce];
+    normalized[voce] =
+      typeof valore === "object" && valore !== null && "fatto" in valore
+        ? valore
+        : { fatto: !!valore, utente: null, timestamp: null };
+  }
+  return normalized;
+};
 
 const vociChecklist1 = [
   "Taglio e preparazione cavi",
@@ -33,12 +49,27 @@ const vociChecklist3 = [
 function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, username }) {
   const schedaRef = useRef();
   const textareaRef = useRef(null);
-
   const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
-  const [tagSuggeriti, setTagSuggeriti] = useState([]);
-  const [, setSuggestionsVisibili] = useState([]);
-  const [, setCursorPos] = useState(0);
-  const [, setFiltroTag] = useState("");
+
+  
+  // --- PERMESSO: solo il creatore può modificare intestazione + note ---
+const createdBy = (scheda?.creato_da_nome || "").trim();
+const currentUser = (username || "").trim();
+
+const canEditHeaderAndNote =
+  editable &&
+  createdBy &&
+  currentUser &&
+  createdBy.toLowerCase() === currentUser.toLowerCase();
+
+const {
+  suggestionsVisibili,
+  filtroTag,
+  cursorPos,
+  handleNoteChange,
+  clearSuggestions,
+} = useTagAutocomplete({ enabled: canEditHeaderAndNote });
+
 
   const autoResizeTextarea = () => {
     const el = textareaRef.current;
@@ -48,17 +79,6 @@ function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, userna
     }
   };
 
-  const normalizeChecklist = (rawChecklist = {}) => {
-    const normalized = {};
-    for (const voce of Object.keys(rawChecklist)) {
-      const valore = rawChecklist[voce];
-      normalized[voce] =
-        typeof valore === "object" && valore !== null && "fatto" in valore
-          ? valore
-          : { fatto: !!valore, utente: null, timestamp: null };
-    }
-    return normalized;
-  };
 
   const [form, setForm] = useState({
     // intestazione (separa i campi, così non schiacci tutto su RevSchema)
@@ -125,72 +145,84 @@ function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, userna
       };
     });
   };
+useEffect(() => {
+  if (!scheda) return;
 
-  const handleNoteChange = (e) => {
-    const testo = e.target.value;
-    const pos = e.target.selectionStart;
+  setForm({
+    destinazione: scheda?.intestazione?.destinazione || "",
+    tipoMacchina: scheda?.intestazione?.tipoMacchina || "",
+    progettistaElettrico: scheda?.intestazione?.progettistaElettrico || "",
+    targhetteImpianto: scheda?.intestazione?.targhetteImpianto || "",
+    prodotto: scheda?.intestazione?.prodotto || "",
+    gestioneEFornitura: scheda?.intestazione?.gestioneEFornitura || "",
+    soloFornitura: scheda?.intestazione?.soloFornitura || "",
+    sicurezze: scheda?.intestazione?.sicurezze || "",
+    alimentazione: scheda?.intestazione?.alimentazione || "",
+    contattoRotante: scheda?.intestazione?.contattoRotante || "",
+    motori: scheda?.intestazione?.motori || "",
+    altezzaLinea: scheda?.intestazione?.altezzaLinea || "",
+    checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
+    note: scheda?.note || "",
+  });
 
-    setForm((prev) => ({ ...prev, note: testo }));
-    setCursorPos(pos);
+  clearSuggestions();
+  requestAnimationFrame(autoResizeTextarea);
+}, [scheda]); // ✅ più robusto
 
-    const testoPrima = testo.substring(0, pos);
-    const match = testoPrima.match(/#(\w*)$/);
 
-    if (match) {
-      const cerca = match[1].toLowerCase();
-      const filtra = tagSuggeriti.filter((tag) =>
-        tag.toLowerCase().startsWith(cerca)
-      );
-      setSuggestionsVisibili(filtra.slice(0, 5));
-      setFiltroTag(match[1]);
-    } else {
-      setSuggestionsVisibili([]);
-      setFiltroTag("");
-    }
+const handleSubmit = async () => {
+  const schedaId = scheda?.id || scheda?.scheda_id;
+  const u = getAuthUser();
+  const token =
+    u?.token || sessionStorage.getItem("token") || localStorage.getItem("token");
+
+  if (!token) {
+    console.warn("Token mancante: fai login di nuovo o controlla getAuthUser()");
+    return;
+  }
+  if (!schedaId) {
+    console.warn("Scheda id mancante, impossibile salvare tags");
+    return;
+  }
+
+  const datiPerBackend = {
+    intestazione: {
+      destinazione: form.destinazione,
+      tipoMacchina: form.tipoMacchina,
+      progettistaElettrico: form.progettistaElettrico,
+      targhetteImpianto: form.targhetteImpianto,
+      prodotto: form.prodotto,
+      gestioneEFornitura: form.gestioneEFornitura,
+      soloFornitura: form.soloFornitura,
+      sicurezze: form.sicurezze,
+      alimentazione: form.alimentazione,
+      contattoRotante: form.contattoRotante,
+      motori: form.motori,
+      altezzaLinea: form.altezzaLinea,
+    },
+    contenuto: { checklist: form.checklist },
+    note: form.note,
+    allegati_standard: [],
+    risorsa_id: userId,
+    descrizione: "Modifica effettuata da interfaccia sviluppo",
   };
 
-  const handleSubmit = () => {
-    const datiPerBackend = {
-      intestazione: {
-        destinazione: form.destinazione,
-        tipoMacchina: form.tipoMacchina,
-        progettistaElettrico: form.progettistaElettrico,
-        targhetteImpianto: form.targhetteImpianto,
-        prodotto: form.prodotto,
-        gestioneEFornitura: form.gestioneEFornitura,
-        soloFornitura: form.soloFornitura,
-        sicurezze: form.sicurezze,
-        alimentazione: form.alimentazione,
-        contattoRotante: form.contattoRotante,
-        motori: form.motori,
-        altezzaLinea: form.altezzaLinea,
-      },
-      contenuto: { checklist: form.checklist },
-      note: form.note,
-      allegati_standard: [],
-      risorsa_id: userId,
-      descrizione: "Modifica effettuata da interfaccia sviluppo",
-    };
-
-    // estrazione tag da note
-    const tagRegex = /#(\w+)/g;
-    const tagSet = new Set();
-    let match;
-    while ((match = tagRegex.exec(form.note)) !== null) {
-      tagSet.add(match[1]);
+  try {
+    const maybePromise = onSave?.(datiPerBackend);
+    if (maybePromise && typeof maybePromise.then === "function") {
+      await maybePromise;
     }
-    const tags = Array.from(tagSet);
 
-    onSave(datiPerBackend);
+    const names = extractHashtagsLower(form.note);
 
-    if (tags.length > 0) {
-      fetch("https://commesseunserver.eu/api/schedeTecniche/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheda_id: scheda?.id || scheda?.scheda_id, tags }),
-      }).catch((err) => console.error("Errore salvataggio tag:", err));
-    }
-  };
+    // ✅ sempre, anche [] -> pulisce
+    await updateTagsByNames(schedaId, names, token);
+  } catch (err) {
+    console.error("Errore salvataggio scheda/tag:", err);
+  }
+};
+
+
  const filename = `Scheda elettrico commessa:${commessa}.pdf`;
   const handleDownloadPdf = async () => {
     const element = schedaRef.current;
@@ -214,23 +246,11 @@ function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, userna
     }
   };
 
-  useEffect(() => {
-    getTagSuggeriti().then(setTagSuggeriti);
-  }, []);
 
   useEffect(() => {
     autoResizeTextarea();
   }, [form.note]);
 
-  // --- PERMESSO: solo il creatore può modificare intestazione + note ---
-const createdBy = (scheda?.creato_da_nome || "").trim();
-const currentUser = (username || "").trim();
-
-const canEditHeaderAndNote =
-  editable &&
-  createdBy &&
-  currentUser &&
-  createdBy.toLowerCase() === currentUser.toLowerCase();
 
 
   return (
@@ -264,19 +284,47 @@ const canEditHeaderAndNote =
 <div className="note-page">
   <h1 className="note-title">Specifiche montaggio</h1>
 
-  <textarea
-    name="note"
-    className="w-w note-textarea"
-    ref={textareaRef}
-    value={form.note}
-    onChange={(e) => {
-      handleNoteChange(e);
-      autoResizeTextarea();
-    }}
-    readOnly={!canEditHeaderAndNote}
-disabled={!canEditHeaderAndNote}
+<textarea
+  name="note"
+  className="w-w note-textarea"
+  ref={textareaRef}
+  value={form.note}
+  onChange={(e) => {
+    const testo = e.target.value;
+    const pos = e.target.selectionStart;
 
+    setForm((prev) => ({ ...prev, note: testo }));
+    handleNoteChange(testo, pos);
+
+    autoResizeTextarea();
+  }}
+
+  onKeyDown={(e) => {
+    if (e.key === "Escape") clearSuggestions();
+  }}
+  readOnly={!canEditHeaderAndNote}
+  disabled={!canEditHeaderAndNote}
+/>
+{canEditHeaderAndNote && (
+  <TagSuggestions
+    visible={suggestionsVisibili.length > 0}
+    suggestions={suggestionsVisibili}
+    noteText={form.note}
+    cursorPos={cursorPos}
+    filtroTag={filtroTag}
+    onPick={(nuovoTesto) => {
+      setForm((prev) => ({ ...prev, note: nuovoTesto }));
+      clearSuggestions();
+
+      requestAnimationFrame(() => {
+        autoResizeTextarea();
+        textareaRef.current?.focus();
+      });
+    }}
   />
+)}
+
+
 
   <div className="w-w note-print">
     {form.note}
@@ -395,11 +443,12 @@ disabled={!canEditHeaderAndNote}
         Scarica PDF
       </button>
 
-      {editable && (
-        <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-          Salva
-        </button>
-      )}
+{canEditHeaderAndNote && (
+  <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+    Salva
+  </button>
+)}
+
    </div>
     </div>
   );

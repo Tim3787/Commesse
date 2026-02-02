@@ -37,6 +37,15 @@ export const createSchedaTecnica = async ({
 };
 
 
+export const updateTagsByNames = async (schedaId, names, token) => {
+  const res = await apiClient.put(
+    `/api/schedeTecniche/${schedaId}/tags-by-names`,
+    { names },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
+};
+
 
 export const updateSchedaTecnica = async (id, schedaData) => {
   const response = await apiClient.put(`/api/schedeTecniche/${id}`, schedaData);
@@ -48,9 +57,10 @@ export const deleteSchedaTecnica = async (id) => {
 };
 
 export const fetchModificheScheda = async (schedaId) => {
-  const response = await apiClient.get(`/api/${schedaId}/modifiche`);
+  const response = await apiClient.get(`/api/schedeTecniche/${schedaId}/modifiche`);
   return response.data;
 };
+
 
 export const getSchedaById = async (id) => {
   const response = await apiClient.get(`/api/schedeTecniche/${id}`);
@@ -108,21 +118,35 @@ export const getImmaginiScheda = async (scheda_id) => {
 };
 
 export const deleteImmagineScheda = async (immagineId) => {
-  const response = await fetch(`https://commesseunserver.eu/api/schedeTecniche/immagini/${immagineId}`, {
-    method: 'DELETE',
-    credentials: 'include', // se servono cookie/sessioni
-  });
-  if (!response.ok) throw new Error('Errore durante l’eliminazione dell’immagine');
-  return response.json();
+  const res = await apiClient.delete(`/api/schedeTecniche/immagini/${immagineId}`);
+  return res.data;
 };
 
-export async function getTagSuggeriti() {
+
+export async function getTagSuggeriti({ reparto, includeGlobal = 1, search = "" } = {}) {
   try {
-    const response = await apiClient.get("/api/schedeTecniche/tag");
-    return response.data; // ← axios fornisce direttamente i dati qui
+    const response = await apiClient.get("/api/schedeTecniche/tag", {
+      params: {
+        reparto: reparto || undefined,
+        includeGlobal,
+        search: search || undefined,
+      },
+    });
+    return response.data;
   } catch (error) {
     console.error("Errore API getTagSuggeriti:", error);
     return [];
   }
 }
+
+export const fetchTagsScheda = async (schedaId) => {
+  const res = await apiClient.get(`/api/schedeTecniche/${schedaId}/tags`);
+  return res.data; // [{id,prefisso,nome,colore,...}]
+};
+
+export const updateTagsScheda = async (schedaId, tagIds) => {
+  const res = await apiClient.put(`/api/schedeTecniche/${schedaId}/tags`, { tagIds });
+  return res.data; // {success:true}
+};
+
 
