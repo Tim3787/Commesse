@@ -173,7 +173,7 @@ ATTIVITA'
 }
 
 .spec-card {
-  border-radius: 8px;
+
   border: 1px solid #ddd;
   padding: 8px 10px;
   background: #fafafa;
@@ -183,6 +183,89 @@ ATTIVITA'
 .spec-card h3 {
   margin: 0 0 4px;
   font-size: 1rem;
+}
+/* =========================
+   NOTE COLLEGATE (stessa commessa + reparto)
+   ========================= */
+
+.linked-notes {
+  width: 100%;
+  max-width: 520px;          /* puoi alzare a 650 se vuoi più largo */
+  margin-top: 12px;
+  padding: 10px 12px;
+
+}
+
+.linked-notes h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+}
+
+.linked-notes p {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0.9;
+}
+
+/* riuso tua classe "specs-list" ma la rendo adatta anche qui */
+.linked-notes .specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* card singola nota */
+.linked-notes .spec-card {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  cursor: pointer;
+    color: rgb(255, 255, 255);
+}
+
+
+.linked-notes .spec-card:active {
+  transform: translateY(0px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* header riga: attività — data — risorsa */
+.linked-notes .spec-card > div {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.linked-notes .spec-card strong {
+  font-weight: 800;
+}
+
+/* testo nota */
+.linked-notes .spec-card p {
+  margin: 8px 0 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0,0,0,0.15);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+
+}
+
+/* loading / error più “soft” */
+.linked-notes .linked-notes--muted {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+/* opzionale: se vuoi che dentro la activity non allarghi troppo */
+.activity .linked-notes {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .client-specs-warning {

@@ -771,7 +771,7 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                       return (
                         <div className="flex-column-center">
                         <div key={activity.id} className={`activity ${activityClass}`} style={{minWidth: "300px"} } >
-                          <div className="flex-column-center">
+                          <div className="flex-column-center" style={{ marginTop:  "10px" }}>
                             {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
                             {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
                               <span className="warning-icon" title="Nota presente nell'attività completata">
@@ -787,10 +787,10 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                               </span>
                             )}
 
-                            <strong>Commessa:</strong> {activity.numero_commessa} 
-                            <strong>Attività:</strong> {activity.nome_attivita}
+                            <strong>Commessa:  {activity.numero_commessa} </strong> 
+                            <strong>Attività:  {activity.nome_attivita}</strong> 
                                                         
-                            <strong>Descrizione:</strong>  {activity.descrizione}
+                       
 
 {activity.clientHasSpecs && (
   <div className="flex-column-center">
@@ -814,16 +814,18 @@ const isBase = baseActivity && activity.id === baseActivity.id;
 
                           {/* Azioni relative all'attività: in base allo stato vengono mostrate le azioni appropriate */}
                           <div className="flex-column-center">
-                            <strong>Stato attività:</strong> 
+                            <strong>Stato attività:{" "}
                             {activity.stato === 1 && (
                               <>
                                 <span className="dashboasrd-user-activity-status">Iniziata</span>
+                                  <div className="flex-column-center"  style={{ marginTop:  "10px" }}>
                                 <button
                                   className="btn w-100 btn--complete btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 2)}
                                 >
-                                  Completa ✅
+                                    Completa ✅
                                 </button>
+                                </div>
                               </>
                             )}
                             {activity.stato === 2 && (
@@ -833,6 +835,7 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                               
                               <>
                               <span className="dashboasrd-user-activity-status">Non iniziata</span>
+                               <div className="flex-column-center"  style={{ marginTop: "10px" }}>
                                 <button
                                   className="btn w-100 btn--start btn--pill"
                                   onClick={() => updateActivityStatus(activity.id, 1)}
@@ -847,24 +850,35 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                                 >
                                   {loadingActivities[activity.id] ? "Caricamento..." : "Completa "}
                                 </button>
+                                </div>
                               </>
                             )}
+                            </strong> 
+                            {activity.descrizione?.trim() && (
+  <div>
+    <strong>Descrizione:</strong> {activity.descrizione}
+  </div>
+)}
                           </div>
 
                           {/* Sezione note: textarea per aggiungere/modificare una nota e pulsanti per salvare o eliminare */}
-                          <div className="flex-column-center">
-
+                          <div className="flex-column-center"
+                              style={{ marginTop: "15px"}}
+                          >
+ <strong>Nota per questa attività:</strong>
   {(() => {
     const isClosed = isClosedNote(activity.note);
     return (
       <textarea
+        style={{ maxWidth: "90%" }}
+      
   ref={(el) => {
     // autosize subito quando monta / cambia activity
     if (el) autoResize(el);
   }}
   onInput={(e) => autoResize(e.target)} // autosize mentre scrivi/incolli
         placeholder={isClosed ? "Nota chiusa" : "Aggiungi una nota..."}
-        className={`textarea w-200 ${isClosed ? "is-locked" : ""}`}
+        className={`textarea  ${isClosed ? "is-locked" : ""}`}
         value={
           noteUpdates[activity.id] !== undefined
             ? noteUpdates[activity.id]
@@ -908,8 +922,10 @@ const isBase = baseActivity && activity.id === baseActivity.id;
                               )}
                             </div>
                           </div>
+                          
                           {isBase && (
   <div className="linked-notes" style={{ marginTop: 10 }}>
+     <div className="flex-column-center">
     <h3 style={{ marginBottom: 6 }}>
       Altre note aperte:
     </h3>
@@ -927,8 +943,7 @@ const isBase = baseActivity && activity.id === baseActivity.id;
               key={n.id}
               className="spec-card"
               style={{ cursor: "pointer" }}
-              onClick={() => openSelectedActivity(n.id)}
-              title="Apri questa attività"
+
             >
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 <strong>{n.nome_attivita}</strong>
@@ -944,6 +959,7 @@ const isBase = baseActivity && activity.id === baseActivity.id;
       )
     )}
   </div>
+      </div>
 )}
 
  <div className="flex-column-center">
