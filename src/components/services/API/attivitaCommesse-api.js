@@ -71,3 +71,15 @@ export const fetchRepartoDashboard = async (repartoId, token) => {
   );
   return response.data;
 };
+
+export const fetchOpenNotesByCommessaReparto = async (
+  { commessa_id, reparto_id, exclude_id },
+  token
+) => {
+  const res = await apiClient.get("/api/attivita_commessa/open-notes", {
+    params: { commessa_id, reparto_id, exclude_id },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data || [];
+};
+

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../img/Animation - 1738249246846.gif";
 import  "../style/00-Dashboard-user.css";
 import SezioneSchede from '../assets/SezioneSchede.js'; 
 import SchedaTecnica from "../popup/SchedaTecnicaEdit.js";
+import { fetchOpenNotesByCommessaReparto } from "../services/API/attivitaCommesse-api";
 
 
 
@@ -34,7 +35,8 @@ function Dashboard() {
   const [userName, setUserName] = useState("Utente");                // Nome dell'utente
   const token = sessionStorage.getItem("token");
 let userId = null;
-
+const [selectedActivity, setSelectedActivity] = useState(null);
+const [selectedLoading, setSelectedLoading] = useState(false);
 
 if (token) {
   try {
@@ -54,6 +56,9 @@ if (token) {
  const navigate = useNavigate();
 const CLOSED_PREFIX = "[CHIUSA] ";
 const CLOSED_RE = /^\[CHIUSA\]\s*/i; // parentesi quadre escapse, spazio opzionale
+const [linkedOpenNotes, setLinkedOpenNotes] = useState([]);
+const [linkedNotesLoading, setLinkedNotesLoading] = useState(false);
+const [linkedNotesError, setLinkedNotesError] = useState(null);
 
 const isClosedNote = (text) => CLOSED_RE.test(text ?? "");
 
@@ -62,6 +67,8 @@ const closeNoteText = (text) =>
 
 const reopenNoteText = (text) =>
   (text ?? "").replace(CLOSED_RE, "");
+
+
 
 const [deptData, setDeptData] = useState(null);
 const managerRepartoMap = {
@@ -97,8 +104,7 @@ const [clienteSpecsPopup, setClienteSpecsPopup] = useState({
 });
 
 
-const [selectedActivity, setSelectedActivity] = useState(null);
-const [selectedLoading, setSelectedLoading] = useState(false);
+
 const openSelectedActivity = async (activityId) => {
   try {
     setSelectedLoading(true);
@@ -212,7 +218,12 @@ const getActivitiesForDay = (day) => {
       .includes(isoDay)
   );
 };
+const baseActivity = useMemo(() => {
+  if (selectedActivity) return selectedActivity;
 
+  const todayList = getActivitiesForDay(new Date());
+  return todayList.length ? todayList[0] : null;
+}, [selectedActivity, monthlyActivities]); 
 useEffect(() => {
   if (!repartoIdPerManager) return;
 
@@ -557,6 +568,44 @@ useEffect(() => {
   return () => clearTimeout(t);
 }, [selectedActivity]);
 
+useEffect(() => {
+  const a = baseActivity;
+
+  if (!a?.commessa_id || !a?.reparto_id) {
+    setLinkedOpenNotes([]);
+    setLinkedNotesError(null);
+    setLinkedNotesLoading(false);
+    return;
+  }
+
+  const run = async () => {
+    try {
+      setLinkedNotesLoading(true);
+      setLinkedNotesError(null);
+
+      const data = await fetchOpenNotesByCommessaReparto(
+        {
+          commessa_id: a.commessa_id,
+          reparto_id: a.reparto_id,
+          exclude_id: a.id,
+        },
+        token
+      );
+
+      setLinkedOpenNotes(data);
+    } catch (e) {
+      console.error(e);
+      setLinkedNotesError("Errore caricamento note collegate.");
+      setLinkedOpenNotes([]);
+    } finally {
+      setLinkedNotesLoading(false);
+    }
+  };
+
+  run();
+}, [baseActivity?.id, baseActivity?.commessa_id, baseActivity?.reparto_id, token]);
+
+
   // ------------------------------------------------------------------
   // Rendering del componente Dashboard
   // ------------------------------------------------------------------
@@ -709,7 +758,7 @@ Hai {myNotesList.length} note aperte
   if (!list.length) return <p>✅ Nessuna attività oggi</p>;
 
   return list.map((activity) => {
-
+const isBase = baseActivity && activity.id === baseActivity.id;
         const activityClass =
           activity.stato === 0 ? "activity not-started"
           : activity.stato === 1 ? "activity started"
@@ -859,6 +908,44 @@ Hai {myNotesList.length} note aperte
                               )}
                             </div>
                           </div>
+                          {isBase && (
+  <div className="linked-notes" style={{ marginTop: 10 }}>
+    <h3 style={{ marginBottom: 6 }}>
+      Altre note aperte:
+    </h3>
+
+    {linkedNotesLoading && <p>Caricamento...</p>}
+    {linkedNotesError && <p style={{ opacity: 0.8 }}>{linkedNotesError}</p>}
+
+    {!linkedNotesLoading && !linkedNotesError && (
+      linkedOpenNotes.length === 0 ? (
+        <p>✅ Nessun’altra nota aperta</p>
+      ) : (
+        <div className="specs-list">
+          {linkedOpenNotes.map(n => (
+            <div
+              key={n.id}
+              className="spec-card"
+              style={{ cursor: "pointer" }}
+              onClick={() => openSelectedActivity(n.id)}
+              title="Apri questa attività"
+            >
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <strong>{n.nome_attivita}</strong>
+                <span>—</span>
+                <span>{new Date(n.data_inizio).toLocaleDateString("it-IT")}</span>
+                <span>—</span>
+                <span>{n.risorsa_nome || "—"}</span>
+              </div>
+              <p style={{ whiteSpace: "pre-wrap" }}>{n.note}</p>
+            </div>
+          ))}
+        </div>
+      )
+    )}
+  </div>
+)}
+
  <div className="flex-column-center">
   <button
     className="btn btn-100 btn--blue btn--pill"
