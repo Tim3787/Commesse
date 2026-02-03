@@ -278,12 +278,14 @@ function StatoAvanzamentoReparti() {
 
   // Chiudi la nota associata a un'attività
   const CLOSED_PREFIX = '[CHIUSA] ';
-  const isClosedNote = (text) =>
-    typeof text === 'string' && text.trim().toUpperCase().startsWith(CLOSED_PREFIX.trim());
+  const CLOSED_RE = /^\[CHIUSA\]\s*/i; // ✅ regex corretta (escape delle parentesi quadre)
+
+  const isClosedNote = (text) => CLOSED_RE.test(text ?? '');
+
   const closeNoteText = (text) =>
-    isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ''}`.trim();
-  const reopenNoteText = (text) =>
-    isClosedNote(text) ? text.replace(new RegExp(`^${CLOSED_PREFIX}`, 'i'), '') : text;
+    isClosedNote(text) ? String(text ?? '') : `${CLOSED_PREFIX}${String(text ?? '')}`.trim();
+
+  const reopenNoteText = (text) => String(text ?? '').replace(CLOSED_RE, '');
 
   // Suggerimenti per i filtri
   const [suggestionsCommessa, setSuggestionsCommessa] = useState([]);

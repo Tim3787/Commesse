@@ -23,12 +23,14 @@ function AttivitaCrea({
   const [loading, setLoading] = useState(false);
 
   const CLOSED_PREFIX = '[CHIUSA] ';
-  const isClosedNote = (text) =>
-    typeof text === 'string' && text.trim().toUpperCase().startsWith(CLOSED_PREFIX.trim());
+  const CLOSED_RE = /^\[CHIUSA\]\s*/i; // parentesi quadre escapse, spazio opzionale
+
+  const isClosedNote = (text) => CLOSED_RE.test(text ?? '');
+
   const closeNoteText = (text) =>
     isClosedNote(text) ? text : `${CLOSED_PREFIX}${text || ''}`.trim();
-  const reopenNoteText = (text) =>
-    isClosedNote(text) ? text.replace(new RegExp(`^${CLOSED_PREFIX}`, 'i'), '') : text;
+
+  const reopenNoteText = (text) => (text ?? '').replace(CLOSED_RE, '');
 
   // Funzione helper per formattare una Date in YYYY-MM-DD senza shift di fuso
   const formatDateOnly = (dateObj) => {
