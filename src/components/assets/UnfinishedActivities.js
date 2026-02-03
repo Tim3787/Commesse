@@ -1,6 +1,3 @@
-// src/UnfinishedActivities.jsx
-import React from 'react';
-
 function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
   if (unfinishedActivities.length === 0) {
     return null;

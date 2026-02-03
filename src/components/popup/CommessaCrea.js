@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../config/axiosConfig';
 
 // Import per Toastify (per mostrare notifiche)

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 
 const ItemType = 'COLUMN';

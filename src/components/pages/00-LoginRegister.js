@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../config/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import logo from '../img/logoBW.webp';

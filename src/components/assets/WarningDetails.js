@@ -1,4 +1,3 @@
-import React from 'react';
 import '../style/02-StatoAvanzamento-reparto.css';
 
 const WarningDetails = ({ warningActivities, resources, deleteNote, closeNote }) => {

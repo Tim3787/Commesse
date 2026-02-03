@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '../img/Animation - 1738249246846.gif';
 
 // Import per Toastify (notifiche)

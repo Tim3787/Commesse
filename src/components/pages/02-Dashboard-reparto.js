@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import apiClient from '../config/axiosConfig';
 import logo from '../img/Animation - 1738249246846.gif';
 import AttivitaCrea from '../popup/AttivitaCrea';

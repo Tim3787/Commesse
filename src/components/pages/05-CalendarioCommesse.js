@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import '../style/05-CalendarioCommesse.css';
 import logo from '../img/Animation - 1738249246846.gif';
 import CommessaDettagli from '../popup/CommessaDettagli';

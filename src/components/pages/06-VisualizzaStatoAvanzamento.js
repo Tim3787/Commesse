@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import GestioneStatiAvanzamento from '../assets/GestioneStatiAvanzamento';
 import logo from '../img/Animation - 1738249246846.gif';
 

@@ -1,5 +1,5 @@
 // context/AppDataContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { fetchCommesse } from '../services/API/commesse-api';
 import { fetchRisorse } from '../services/API/risorse-api';
 import { fetchReparti } from '../services/API/reparti-api';

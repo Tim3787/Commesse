@@ -1,46 +1,45 @@
-import React, { useState } from "react";
-import apiClient from "../config/axiosConfig";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import logo from "../img/unitech-packaging.png";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useState } from 'react';
+import apiClient from '../config/axiosConfig';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import logo from '../img/unitech-packaging.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ResetPassword() {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const token = searchParams.get("token");
+  const token = searchParams.get('token');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!password || !confirmPassword) {
-      toast.error("Entrambi i campi sono obbligatori.");
+      toast.error('Entrambi i campi sono obbligatori.');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Le password non coincidono.");
+      toast.error('Le password non coincidono.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-  await apiClient.post("/api/users/reset-password", {
-    token,
-    newPassword: password,
-  });
-  toast.success("Password reimpostata con successo! Ora puoi accedere.");
-  navigate("/login");
-} catch (error) {
-  console.error("Errore durante il reset della password:", error);
-  toast.error(error.response?.data?.message || "Errore durante il reset della password.");
-}
- finally {
+      await apiClient.post('/api/users/reset-password', {
+        token,
+        newPassword: password,
+      });
+      toast.success('Password reimpostata con successo! Ora puoi accedere.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Errore durante il reset della password:', error);
+      toast.error(error.response?.data?.message || 'Errore durante il reset della password.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -72,10 +71,10 @@ function ResetPassword() {
             />
           </div>
           <button type="submit" disabled={isLoading}>
-            {isLoading ? "Caricamento..." : "Reimposta Password"}
+            {isLoading ? 'Caricamento...' : 'Reimposta Password'}
           </button>
         </form>
-        <img src={logo} alt="Logo" className={`login-logo ${isLoading ? "pulsing" : ""}`} />
+        <img src={logo} alt="Logo" className={`login-logo ${isLoading ? 'pulsing' : ''}`} />
       </div>
     </>
   );

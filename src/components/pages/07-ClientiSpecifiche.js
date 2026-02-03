@@ -1,5 +1,5 @@
 // src/components/ClientiSpecifiche.js
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import logo from '../img/Animation - 1738249246846.gif';
 import '../style/02-StatoAvanzamento-reparto.css'; // o un tuo CSS generico
 
