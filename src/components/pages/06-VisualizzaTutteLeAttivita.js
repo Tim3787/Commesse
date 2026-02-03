@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import logo from '../img/Animation - 1738249246846.gif';
 
 // Import popup per la gestione/creazione/modifica dell'attività
@@ -213,13 +213,7 @@ function VisualizzaTutteLeAttivita() {
       setFilteredRisorse(risorseFiltrate);
       setFilters((prev) => ({ ...prev, reparto_id: value, risorsa_id: '', attivita_id: [] }));
     } else if (name === 'risorsa_id') {
-      const risorsa = risorse.find((r) => r.id === parseInt(value));
-      const repartoId = risorsa?.reparto_id;
-      if (repartoId) {
-      }
       setFilters((prev) => ({ ...prev, risorsa_id: value }));
-    } else {
-      setFilters((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -496,7 +490,7 @@ function VisualizzaTutteLeAttivita() {
       {/* CONTENITORE PRINCIPALE: la tabella si sposta a destra se il menu a burger è aperto */}
       <div className={`container ${isBurgerMenuOpen ? 'shifted' : ''}`} onClick={closeSuggestions}>
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-        <h1>TUTTE LE ATTIVITA'</h1>
+        <h1>TUTTE LE ATTIVITA&apos;</h1>
         {/* Tabella delle attività filtrate */}
         <div className="Reparto-table-container mh-76  ">
           <table>

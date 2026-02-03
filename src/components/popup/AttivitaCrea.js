@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Import per Toastify (notifiche)
 import { toast } from 'react-toastify';
@@ -321,7 +321,7 @@ function AttivitaCrea({
                 required
                 className="w-400"
               >
-                <option value="">Seleziona un'attività</option>
+                <option value="">Seleziona un&apos;attività</option>
                 {attivitaConReparto
                   .filter((attivita) => attivita.reparto_id === parseInt(formData.reparto_id, 10))
                   .map((attivita) => (

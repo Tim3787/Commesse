@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../img/Animation - 1738249246846.gif';
 import '../style/00-Dashboard-user.css';
@@ -750,12 +750,8 @@ function Dashboard() {
                 const isTrasferta = activity.nome_attivita?.toLowerCase().includes('trasferta');
 
                 return (
-                  <div className="flex-column-center">
-                    <div
-                      key={activity.id}
-                      className={`activity ${activityClass}`}
-                      style={{ minWidth: '300px' }}
-                    >
+                  <div key={activity.id} className="flex-column-center">
+                    <div className={`activity ${activityClass}`} style={{ minWidth: '300px' }}>
                       <div className="flex-column-center" style={{ marginTop: '10px' }}>
                         {/* Se l'attività è completata e contiene una nota, mostra un'icona di warning */}
                         {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (

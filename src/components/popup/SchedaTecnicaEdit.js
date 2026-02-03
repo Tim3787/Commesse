@@ -73,7 +73,9 @@ function SchedaTecnica({
       try {
         const userData = await fetchCurrentUser(token);
         setUser(userData); // ✅ salva oggetto completo
-      } catch (error) {}
+      } catch (error) {
+        console.error('Errore fetchCurrentUser:', error);
+      }
     };
 
     fetchUserData();

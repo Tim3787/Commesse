@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import '../style/05-Gantt-Attivita.css';
 import logo from '../img/Animation - 1738249246846.gif';
 
@@ -363,7 +363,7 @@ function VisualizzaAttivita() {
     <div className="page-wrapper">
       {/* HEADER */}
       <div className=" header">
-        <h1>VISUALIZZA LE ATTIVITA' DI</h1>
+        <h1>VISUALIZZA LE ATTIVITA&apos; DI</h1>
         <div className="flex-center header-row">
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
@@ -414,7 +414,7 @@ function VisualizzaAttivita() {
             </div>
           </div>
           <div className="flex-column-center" style={{ marginLeft: '10px' }}>
-            <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA'</h1>
+            <h1>OPPURE VISUALIZZA TUTTE LE ATTIVITA&apos;</h1>
             {/* Pulsante per resettare il filtro e visualizzare tutte le attività */}
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <button onClick={handleResetSearch} className="btn w-200 btn--shiny btn--pill">

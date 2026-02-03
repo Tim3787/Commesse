@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchAttivitaCommessa } from '../services/API/attivitaCommesse-api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -231,7 +231,7 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
 
         <div className="collapsible-section">
           <h3 onClick={() => setShowAttivita(!showAttivita)}>
-            ATTIVITA' {showAttivita ? '▲' : '▼'}
+            ATTIVITA&apos; {showAttivita ? '▲' : '▼'}
           </h3>
           {showAttivita && (
             <>

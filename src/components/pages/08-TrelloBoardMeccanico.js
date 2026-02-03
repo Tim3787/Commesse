@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { getBoardCards, getBoardLists, moveCardToList } from '../services/API/trello-api';
-import axios from 'axios';
+
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
 import apiClient from '../config/axiosConfig';
-
+import logo from '../img/Animation - 1738249246846.gif';
 const TrelloBoardMeccanico = () => {
   const [lists, setLists] = useState([]);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingCard, setEditingCard] = useState(null);
   const [commessaFilter, setCommessaFilter] = useState(''); // Stato per il filtro della commessa
   const [commesse, setCommesse] = useState([]);
   const [rawCards, setRawCards] = useState([]);
@@ -117,34 +116,6 @@ const TrelloBoardMeccanico = () => {
     }
   };
 
-  const handleEditSave = async (updatedCard) => {
-    try {
-      await axios.put(
-        `https://api.trello.com/1/cards/${updatedCard.id}`,
-        { due: updatedCard.due },
-        {
-          params: {
-            key: process.env.REACT_APP_TRELLO_API_KEY,
-            token: process.env.REACT_APP_TRELLO_TOKEN,
-          },
-        }
-      );
-
-      setCards((prevCards) =>
-        prevCards.map((card) => (card.id === updatedCard.id ? { ...card, ...updatedCard } : card))
-      );
-
-      setEditingCard(null);
-    } catch (error) {
-      console.error("Errore durante l'aggiornamento della scheda:", error);
-      toast.error("Errore durante l'aggiornamento della scheda:", error);
-    }
-  };
-
-  const handleEditCancel = () => {
-    setEditingCard(null);
-  };
-
   if (loading) return <p>Caricamento...</p>;
 
   // Filtra le schede in base al filtro della commessa
@@ -183,24 +154,16 @@ const TrelloBoardMeccanico = () => {
         <div className="Reparto-table-container mh-76">
           <div style={styles.board}>
             {filteredCardsByList.map((list) => (
-              <List
-                key={list.id}
-                list={list}
-                onCardDrop={handleCardDrop}
-                onEditCard={setEditingCard}
-              />
+              <List key={list.id} list={list} onCardDrop={handleCardDrop} />
             ))}
           </div>
-          {editingCard && (
-            <EditCardPopup card={editingCard} onSave={handleEditSave} onCancel={handleEditCancel} />
-          )}
         </div>
       </div>
     </DndProvider>
   );
 };
 
-const List = ({ list, onCardDrop, onEditCard }) => {
+const List = ({ list, onCardDrop }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'CARD',
     drop: (item) => onCardDrop(item, list.id),
@@ -245,7 +208,7 @@ const List = ({ list, onCardDrop, onEditCard }) => {
       {!isCollapsed && (
         <div style={styles.cards}>
           {list.cards.map((card) => (
-            <Card key={card.id} card={card} onEdit={onEditCard} />
+            <Card key={card.id} card={card} />
           ))}
         </div>
       )}

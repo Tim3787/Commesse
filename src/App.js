@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './components/style/buttons.css';
 import './components/style/general.css';
 import './components/style/input.css';
@@ -78,6 +78,7 @@ import { getDeviceToken } from '../src/components/services/firebase';
 import { jwtDecode } from 'jwt-decode';
 
 // Import per le notifiche (Toastify)
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // (Assicurati di aver configurato anche toast se usato, ad esempio, in altri componenti)
 
