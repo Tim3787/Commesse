@@ -24,6 +24,7 @@ function SchedaTecnica({
   commessaId,
   numero_commessa,
   onClose,
+  openSchedaId,
   schedaInModifica,
   setSchedaInModifica,
 }) {
@@ -33,6 +34,21 @@ function SchedaTecnica({
   const token = sessionStorage.getItem('token');
   const [user, setUser] = useState(null);
   const [tipiSchede, setTipiSchede] = useState([]);
+  const safeJson = (v, fallback = {}) => {
+    if (!v) return fallback;
+    if (typeof v === 'object') return v;
+    try {
+      return JSON.parse(v);
+    } catch {
+      return fallback;
+    }
+  };
+
+  const normalizeScheda = (s) => ({
+    ...s,
+    intestazione: safeJson(s.intestazione, {}),
+    contenuto: safeJson(s.contenuto, {}),
+  });
 
   const FORMS_BY_TIPO_ID = {
     1: SchedaSviluppoForm,
@@ -58,15 +74,38 @@ function SchedaTecnica({
   useEffect(() => {
     if (!commessaId) return;
     setLoading(true);
+
     fetchSchedeTecniche(commessaId)
-      .then(setSchede)
+      .then((rows) => {
+        const norm = rows.map(normalizeScheda);
+        setSchede(norm);
+
+        // ✅ se Dashboard ha chiesto di aprire una scheda specifica:
+        if (openSchedaId) {
+          const found = norm.find((s) => Number(s.id) === Number(openSchedaId));
+          if (found) setSchedaInModifica(found); // ✅ oggetto FRESCO dal fetch
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [commessaId]);
+  }, [commessaId, openSchedaId]);
 
   const handleClosePopup = () => {
     onClose();
   };
+
+  useEffect(() => {
+    if (!schedaInModifica?.id) return;
+    if (!schede?.length) return;
+
+    const fresh = schede.find((s) => Number(s.id) === Number(schedaInModifica.id));
+    if (!fresh) return;
+
+    // aggiorna solo se davvero cambiata (es: data_modifica)
+    if (fresh.data_modifica !== schedaInModifica.data_modifica) {
+      setSchedaInModifica(fresh);
+    }
+  }, [schede]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -103,6 +142,9 @@ function SchedaTecnica({
   }, [tipiSchede]);
 
   const handleSaveScheda = async (valoriAggiornati) => {
+    const currentId = schedaInModifica?.id; // ✅ congelato
+    if (!currentId) return;
+
     try {
       const payload = {
         ...valoriAggiornati,
@@ -110,10 +152,13 @@ function SchedaTecnica({
         descrizione: `Modifica effettuata da ${user?.nome || 'utente'}`,
       };
 
-      await updateSchedaTecnica(schedaInModifica.id, payload);
+      await updateSchedaTecnica(currentId, payload);
+
       const aggiornate = await fetchSchedeTecniche(commessaId);
-      setSchede(aggiornate);
-      const aggiornata = aggiornate.find((s) => s.id === schedaInModifica.id);
+      const norm = aggiornate.map(normalizeScheda);
+
+      setSchede(norm);
+      const aggiornata = norm.find((s) => Number(s.id) === Number(currentId));
       setSchedaInModifica(aggiornata);
 
       handleClosePopup();

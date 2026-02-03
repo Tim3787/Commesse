@@ -655,22 +655,23 @@ function DashboardService() {
   const updateActivityStatus = async (activityId, newStatus) => {
     setLoadingActivities((prev) => ({ ...prev, [activityId]: true }));
 
-    // ottimistico
+    // UI ottimistico
     setActivities((prev) =>
       prev.map((a) => (a.id === activityId ? { ...a, stato: Number(newStatus) } : a))
     );
 
     try {
-      await apiClient.put(
-        `/api/attivita_commessa/${activityId}`,
-        { stato: Number(newStatus) },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const payload = { stato: Number(newStatus) };
+
+      // ✅ stesso endpoint che funziona nell'altra dashboard
+      await apiClient.put(`/api/notifiche/${activityId}/stato`, payload, {
+        headers: { Authorization: `Bearer ${token}` }, // mettilo comunque, non fa male
+      });
 
       await handleReloadActivities();
-    } catch (err) {
-      console.error('Errore update stato:', err);
-      toast.error('Errore durante aggiornamento stato');
+    } catch (error) {
+      console.error('Errore update stato:', error?.response?.status, error?.response?.data, error);
+      toast.error("Si è verificato un errore durante l'aggiornamento dello stato.");
       await handleReloadActivities();
     } finally {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));

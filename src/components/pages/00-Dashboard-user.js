@@ -54,7 +54,6 @@ function Dashboard() {
   const daysRefs = useRef([]); // Ref per ogni giorno della dashboard (per lo scroll)              // Data di oggi in formato locale
   const [noteUpdates, setNoteUpdates] = useState({}); // Stato per gestire aggiornamenti temporanei delle note
   const calendarRef = useRef();
-  const [, setSchedeAperte] = useState({});
   const [popupScheda, setPopupScheda] = useState(null);
   const [schedaInModifica, setSchedaInModifica] = useState(null);
   const [hasScrolledToToday, setHasScrolledToToday] = useState(false);
@@ -104,6 +103,7 @@ function Dashboard() {
       // linkedNotesFetchRef.current[a.id] = false;
     }
   };
+  const [schedeRefreshKey, setSchedeRefreshKey] = useState(0);
 
   const isClosedNote = (text) => CLOSED_RE.test(text ?? '');
 
@@ -495,12 +495,13 @@ function Dashboard() {
   // ------------------------------------------------------------------
 
   const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
-    setPopupScheda({ commessaId, numero_commessa });
-    setSchedaInModifica(schedaInModifica || null);
-    setSchedeAperte((prev) => ({
-      ...prev,
-      [commessaId]: false,
-    }));
+    setPopupScheda({
+      commessaId,
+      numero_commessa,
+      openSchedaId: schedaInModifica?.id || null, // ✅ solo ID
+    });
+
+    setSchedaInModifica(null); // ✅ ok: così forziamo selezione da fetch fresco
   };
 
   const [myOpenList, setMyOpenList] = useState([]);
@@ -961,6 +962,7 @@ function Dashboard() {
                           numero_commessa={activity.numero_commessa}
                           apriPopupScheda={apriPopupScheda}
                           activityStatus={activity.stato}
+                          refreshKey={schedeRefreshKey}
                         />
                       </div>
 
@@ -1024,11 +1026,13 @@ function Dashboard() {
             editable={true}
             commessaId={popupScheda.commessaId}
             numero_commessa={popupScheda.numero_commessa}
+            openSchedaId={popupScheda.openSchedaId}
             schedaInModifica={schedaInModifica}
             setSchedaInModifica={setSchedaInModifica}
-            onClose={() => {
+            onClose={(didSave) => {
               setPopupScheda(null);
               setSchedaInModifica(null);
+              if (didSave) setSchedeRefreshKey((k) => k + 1);
             }}
           />
         )}
