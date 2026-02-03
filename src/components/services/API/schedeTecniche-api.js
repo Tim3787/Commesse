@@ -1,19 +1,18 @@
-import axios from "axios";
+import axios from 'axios';
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
   timeout: 15000, // Timeout di 15 secondi
 });
 
-
 export const fetchSchedeTecniche = async (commessaId = null) => {
-    try {
-  const url = commessaId ? `/api/schedeTecniche/${commessaId}/schede` : `/api/schedeTecniche`;
-  const response = await apiClient.get(url);
-  return response.data;
+  try {
+    const url = commessaId ? `/api/schedeTecniche/${commessaId}/schede` : `/api/schedeTecniche`;
+    const response = await apiClient.get(url);
+    return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle schede:", error);
-    throw error; 
+    console.error('Errore durante il recupero delle schede:', error);
+    throw error;
   }
 };
 
@@ -22,10 +21,10 @@ export const createSchedaTecnica = async ({
   tipo_id,
   creata_da,
   categoria = null,
-  titolo = "",
+  titolo = '',
   descrizione = null,
 }) => {
-  const response = await apiClient.post("/api/schedeTecniche", {
+  const response = await apiClient.post('/api/schedeTecniche', {
     commessa_id,
     tipo_id,
     creata_da,
@@ -36,7 +35,6 @@ export const createSchedaTecnica = async ({
   return response.data;
 };
 
-
 export const updateTagsByNames = async (schedaId, names, token) => {
   const res = await apiClient.put(
     `/api/schedeTecniche/${schedaId}/tags-by-names`,
@@ -45,7 +43,6 @@ export const updateTagsByNames = async (schedaId, names, token) => {
   );
   return res.data;
 };
-
 
 export const updateSchedaTecnica = async (id, schedaData) => {
   const response = await apiClient.put(`/api/schedeTecniche/${id}`, schedaData);
@@ -60,7 +57,6 @@ export const fetchModificheScheda = async (schedaId) => {
   const response = await apiClient.get(`/api/schedeTecniche/${schedaId}/modifiche`);
   return response.data;
 };
-
 
 export const getSchedaById = async (id) => {
   const response = await apiClient.get(`/api/schedeTecniche/${id}`);
@@ -93,15 +89,13 @@ export const deleteTipoSchedaTecnica = async (id) => {
 
 export const uploadImmagineScheda = async (file, scheda_id) => {
   const formData = new FormData();
-  formData.append("image", file);
-  formData.append("scheda_id", scheda_id);
-  
+  formData.append('image', file);
+  formData.append('scheda_id', scheda_id);
 
-  const response = await apiClient.post("/api/upload/upload-image", formData, {
+  const response = await apiClient.post('/api/upload/upload-image', formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
-    
   });
 
   return response.data; // contiene ad esempio: { success: true, url: ..., filename: ... }
@@ -112,7 +106,7 @@ export const getImmaginiScheda = async (scheda_id) => {
     const response = await apiClient.get(`/api/upload/immagini/${scheda_id}`);
     return response.data.immagini || [];
   } catch (error) {
-    console.error("Errore nel recupero immagini:", error);
+    console.error('Errore nel recupero immagini:', error);
     return [];
   }
 };
@@ -122,10 +116,9 @@ export const deleteImmagineScheda = async (immagineId) => {
   return res.data;
 };
 
-
-export async function getTagSuggeriti({ reparto, includeGlobal = 1, search = "" } = {}) {
+export async function getTagSuggeriti({ reparto, includeGlobal = 1, search = '' } = {}) {
   try {
-    const response = await apiClient.get("/api/schedeTecniche/tag", {
+    const response = await apiClient.get('/api/schedeTecniche/tag', {
       params: {
         reparto: reparto || undefined,
         includeGlobal,
@@ -134,7 +127,7 @@ export async function getTagSuggeriti({ reparto, includeGlobal = 1, search = "" 
     });
     return response.data;
   } catch (error) {
-    console.error("Errore API getTagSuggeriti:", error);
+    console.error('Errore API getTagSuggeriti:', error);
     return [];
   }
 }
@@ -148,5 +141,3 @@ export const updateTagsScheda = async (schedaId, tagIds) => {
   const res = await apiClient.put(`/api/schedeTecniche/${schedaId}/tags`, { tagIds });
   return res.data; // {success:true}
 };
-
-

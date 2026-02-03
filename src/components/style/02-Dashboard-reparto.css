@@ -1,32 +1,26 @@
+.weekend-cell {
+  background-color: #0d101a; /* Colore di sfondo per il weekend */
+}
+.weekend {
+  color: #b80505;
+  background-color: #1e263a;
+  font-weight: bold;
+}
 
+.weekend td {
+  color: #d9534f; /* Colore del testo per sabato e domenica */
+  font-weight: bold; /* Facoltativo, rende il testo più evidente */
+}
 
- 
-  .weekend-cell {
-     background-color: #0d101a; /* Colore di sfondo per il weekend */
-  }
-  .weekend {
-
-    color: #b80505; 
-     background-color: #1e263a;
-    font-weight: bold; 
-  }
-
-  
-  .weekend td {
-    color: #d9534f; /* Colore del testo per sabato e domenica */
-    font-weight: bold; /* Facoltativo, rende il testo più evidente */
-  }
-
-  
-  .today  {
-    color: #000000; 
-    background-color:#01c3f3;
-    font-weight: bold;
-    text-decoration: underline;
-    text-decoration-thickness: 2px; 
-    text-underline-offset: 3px;
-    text-decoration-color: #01c3f3; 
-  }
+.today {
+  color: #000000;
+  background-color: #01c3f3;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: #01c3f3;
+}
 
 /* Di default nascosti */
 .activity .activity-hover-actions,
@@ -35,7 +29,9 @@
   max-height: 0;
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 560ms ease, max-height 560ms ease;
+  transition:
+    opacity 560ms ease,
+    max-height 560ms ease;
 }
 
 /* Aperto SOLO se hover E NON dragging */
@@ -70,11 +66,11 @@
 }
 
 .drag-preview {
-  min-width: 170px;      /* simile al tuo full */
+  min-width: 170px; /* simile al tuo full */
   max-width: 240px;
   padding: 8px 10px;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   opacity: 0.95;
 }
 
@@ -101,11 +97,10 @@
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-
-.Reparto-table-container td:first-child {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
-  max-width: 80px; /* o ch */
-}
+  .Reparto-table-container td:first-child {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    max-width: 80px; /* o ch */
+  }
 }

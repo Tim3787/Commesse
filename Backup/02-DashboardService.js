@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useRef } from "react";
-import apiClient from "../src/components/config/axiosConfig";
-import logo from "../img/Animation - 1738249246846.gif";
-import AttivitaCrea from "../src/components/popup/AttivitaCrea";
-import "../style/02-Dashboard-reparto.css";
+import React, { useEffect, useState, useRef } from 'react';
+import apiClient from '../src/components/config/axiosConfig';
+import logo from '../img/Animation - 1738249246846.gif';
+import AttivitaCrea from '../src/components/popup/AttivitaCrea';
+import '../style/02-Dashboard-reparto.css';
 
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-import { getDaysInMonth } from "../src/components/assets/date";
-import { deleteAttivitaCommessa } from "../src/components/services/API/attivitaCommesse-api";
+import { getDaysInMonth } from '../src/components/assets/date';
+import { deleteAttivitaCommessa } from '../src/components/services/API/attivitaCommesse-api';
 
 // ====== CONFIG ======
 const SERVICE_REPARTO_ID = 18;
@@ -24,8 +24,8 @@ const LANES_COUNT = 7;
 // YYYY-MM-DD puro
 function formatDateOnly(dateObj) {
   const y = dateObj.getFullYear();
-  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const d = String(dateObj.getDate()).padStart(2, "0");
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
 const normalizeDate = (date) => {
@@ -38,7 +38,7 @@ const toLocalISOString = (date) => formatDateOnly(normalizeDate(date));
 // COMPONENTE: DashboardReparto
 // ============================
 function DashboardService() {
- const token = sessionStorage.getItem("token");
+  const token = sessionStorage.getItem('token');
 
   const [loading, setLoading] = useState(false);
 
@@ -52,14 +52,14 @@ function DashboardService() {
   const [editId, setEditId] = useState(null);
 
   const [formData, setFormData] = useState({
-    commessa_id: "",
+    commessa_id: '',
     reparto_id: SERVICE_REPARTO_ID,
     risorsa_id: SERVICE_ONLINE_RISORSA_ID,
-    attivita_id: "",
-    data_inizio: "",
+    attivita_id: '',
+    data_inizio: '',
     durata: 1,
-    stato: "",
-    descrizione: "",
+    stato: '',
+    descrizione: '',
     includedWeekends: [],
     service_lane: 1,
   });
@@ -68,7 +68,7 @@ function DashboardService() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const daysInMonth = getDaysInMonth(currentMonth);
   const meseCorrente = currentMonth
-    .toLocaleDateString("it-IT", { month: "long", year: "numeric" })
+    .toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
     .replace(/^./, (c) => c.toUpperCase());
 
   const todayRef = useRef(null);
@@ -89,9 +89,9 @@ function DashboardService() {
   // dati generali per popup (commesse, reparti, attivita)
   const fetchCommonData = async () => {
     const [commesseRes, repartiRes, attivitaRes] = await Promise.all([
-      apiClient.get("/api/commesse"),
-      apiClient.get("/api/reparti"),
-      apiClient.get("/api/attivita"),
+      apiClient.get('/api/commesse'),
+      apiClient.get('/api/reparti'),
+      apiClient.get('/api/attivita'),
     ]);
 
     setCommesse(commesseRes.data || []);
@@ -99,7 +99,7 @@ function DashboardService() {
 
     const mapped = (attivitaRes.data || []).map((a) => ({
       id: a.id,
-      nome_attivita: a.nome || a.nome_attivita || "Nome non disponibile",
+      nome_attivita: a.nome || a.nome_attivita || 'Nome non disponibile',
       reparto_id: a.reparto_id,
     }));
     setAttivitaConReparto(mapped);
@@ -112,13 +112,12 @@ function DashboardService() {
         await Promise.all([fetchCommonData(), fetchServiceCalendar()]);
       } catch (e) {
         console.error(e);
-        toast.error("Errore caricamento calendario assistenze");
+        toast.error('Errore caricamento calendario assistenze');
       } finally {
         setLoading(false);
       }
     };
     run();
-
   }, [currentMonth]);
 
   // =============== SCROLL / NAV MESE ===============
@@ -137,7 +136,7 @@ function DashboardService() {
       const todayRect = todayRef.current.getBoundingClientRect();
       const offsetLeft = todayRect.left - containerRect.left;
       const scrollLeft = offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
-      containerRef.current.scrollTo({ left: scrollLeft, behavior: "smooth" });
+      containerRef.current.scrollTo({ left: scrollLeft, behavior: 'smooth' });
     }
   };
 
@@ -157,16 +156,16 @@ function DashboardService() {
 
   // =============== POPUP ===============
   const handleActivityClick = (activity) => {
-    const dataInizio = activity.data_inizio ? formatDateOnly(new Date(activity.data_inizio)) : "";
+    const dataInizio = activity.data_inizio ? formatDateOnly(new Date(activity.data_inizio)) : '';
     setFormData({
-      commessa_id: activity.commessa_id || "",
+      commessa_id: activity.commessa_id || '',
       reparto_id: SERVICE_REPARTO_ID,
       risorsa_id: SERVICE_ONLINE_RISORSA_ID,
-      attivita_id: activity.attivita_id || "",
+      attivita_id: activity.attivita_id || '',
       data_inizio: dataInizio,
       durata: activity.durata || 1,
-      stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : "",
-      descrizione: activity.descrizione_attivita || "",
+      stato: activity.stato !== undefined && activity.stato !== null ? String(activity.stato) : '',
+      descrizione: activity.descrizione_attivita || '',
       includedWeekends: activity.includedWeekends || [],
       service_lane: activity.service_lane || 1,
     });
@@ -179,18 +178,18 @@ function DashboardService() {
     const iso = toLocalISOString(day);
     const existing = getActivitiesForLaneAndDay(lane, day);
     if (existing.length > 0) {
-      toast.warn("Cella già occupata.");
+      toast.warn('Cella già occupata.');
       return;
     }
     setFormData({
-      commessa_id: "",
+      commessa_id: '',
       reparto_id: SERVICE_REPARTO_ID,
       risorsa_id: SERVICE_ONLINE_RISORSA_ID,
-      attivita_id: "",
+      attivita_id: '',
       data_inizio: iso,
       durata: 1,
-      stato: "",
-      descrizione: "",
+      stato: '',
+      descrizione: '',
       includedWeekends: [],
       service_lane: lane,
     });
@@ -201,17 +200,17 @@ function DashboardService() {
 
   // =============== DELETE ===============
   const handleDelete = async (id) => {
-    if (!window.confirm("Sei sicuro di voler eliminare questa assistenza?")) return;
+    if (!window.confirm('Sei sicuro di voler eliminare questa assistenza?')) return;
 
     const snapshot = activities;
     setActivities((prev) => prev.filter((a) => a.id !== id));
 
     try {
       await deleteAttivitaCommessa(id, token, { headers: { Authorization: `Bearer ${token}` } });
-      toast.success("Assistenza eliminata");
+      toast.success('Assistenza eliminata');
     } catch (e) {
       console.error(e);
-      toast.error("Errore eliminazione: ripristino...");
+      toast.error('Errore eliminazione: ripristino...');
       setActivities(snapshot);
     }
   };
@@ -235,7 +234,7 @@ function DashboardService() {
       reparto_id: SERVICE_REPARTO_ID,
       risorsa_id: SERVICE_ONLINE_RISORSA_ID,
       data_inizio: iso,
-      descrizione: activity.descrizione_attivita || activity.descrizione || "",
+      descrizione: activity.descrizione_attivita || activity.descrizione || '',
       service_lane: newLane,
       includedWeekends: activity.includedWeekends || [],
     };
@@ -253,9 +252,7 @@ function DashboardService() {
     // UI ottimistica
     setActivities((prev) =>
       prev.map((a) =>
-        a.id === activity.id
-          ? { ...a, service_lane: newLane, data_inizio: newIsoDay }
-          : a
+        a.id === activity.id ? { ...a, service_lane: newLane, data_inizio: newIsoDay } : a
       )
     );
 
@@ -268,11 +265,11 @@ function DashboardService() {
         await updateDateAndLane(activity, newLane, newDay);
       }
 
-      toast.success("Assistenza spostata");
+      toast.success('Assistenza spostata');
       await fetchServiceCalendar(); // riallineo dati DB (sicuro)
     } catch (e) {
       console.error(e);
-      toast.error("Errore spostamento: ripristino...");
+      toast.error('Errore spostamento: ripristino...');
       await fetchServiceCalendar();
     }
   };
@@ -282,7 +279,7 @@ function DashboardService() {
     const normalizedDay = normalizeDate(day);
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
-      accept: "ACTIVITY",
+      accept: 'ACTIVITY',
       drop: (item) => handleActivityDrop(item, lane, normalizedDay),
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
@@ -291,13 +288,15 @@ function DashboardService() {
     }));
 
     const isWeekend = normalizedDay.getDay() === 0 || normalizedDay.getDay() === 6;
-    const cellClasses = `${isWeekend ? "weekend-cell" : ""} ${isOver && canDrop ? "highlight" : ""}`;
+    const cellClasses = `${isWeekend ? 'weekend-cell' : ''} ${isOver && canDrop ? 'highlight' : ''}`;
 
     return (
       <td
         ref={drop}
         className={cellClasses}
-        onDoubleClick={() => activitiesInCell.length === 0 && handleEmptyCellDoubleClick(lane, normalizedDay)}
+        onDoubleClick={() =>
+          activitiesInCell.length === 0 && handleEmptyCellDoubleClick(lane, normalizedDay)
+        }
       >
         {activitiesInCell.map((activity) => (
           <DraggableAssistenza
@@ -313,19 +312,23 @@ function DashboardService() {
 
   function DraggableAssistenza({ activity, onDoubleClick, onDelete }) {
     const [{ isDragging }, drag] = useDrag(() => ({
-      type: "ACTIVITY",
+      type: 'ACTIVITY',
       item: { ...activity },
       collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
     }));
 
     const cls =
-      activity.stato === 0 ? "activity not-started" : activity.stato === 1 ? "activity started" : "activity completed";
+      activity.stato === 0
+        ? 'activity not-started'
+        : activity.stato === 1
+          ? 'activity started'
+          : 'activity completed';
 
     return (
       <div
         ref={drag}
         className={`activity ${cls}`}
-        style={{ opacity: isDragging ? 0.5 : 1, cursor: "move", minWidth: "150px" }}
+        style={{ opacity: isDragging ? 0.5 : 1, cursor: 'move', minWidth: '150px' }}
         onDoubleClick={onDoubleClick}
       >
         <strong>Commessa: {activity.numero_commessa}</strong>
@@ -334,7 +337,7 @@ function DashboardService() {
         <br />
         <strong>Lane: {activity.service_lane || 1}</strong>
         <br />
-        <strong>Descrizione: {activity.descrizione_attivita || ""}</strong>
+        <strong>Descrizione: {activity.descrizione_attivita || ''}</strong>
         <div style={{ marginTop: 6 }}>
           <button className="btn w-100 btn--danger btn--pill" onClick={onDelete}>
             Elimina
@@ -388,7 +391,7 @@ function DashboardService() {
                     return (
                       <th
                         key={day.toISOString()}
-                        className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
+                        className={`${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}`}
                         ref={isToday ? todayRef : null}
                       >
                         <div>{day.toLocaleDateString()}</div>
@@ -435,7 +438,11 @@ function DashboardService() {
             commesse={commesse}
             reparti={reparti}
             risorse={[
-              { id: SERVICE_ONLINE_RISORSA_ID, nome: "Service Online", reparto_id: SERVICE_REPARTO_ID },
+              {
+                id: SERVICE_ONLINE_RISORSA_ID,
+                nome: 'Service Online',
+                reparto_id: SERVICE_REPARTO_ID,
+              },
             ]}
             attivitaConReparto={attivitaConReparto}
             reloadActivities={fetchServiceCalendar}

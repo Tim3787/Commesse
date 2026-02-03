@@ -1,6 +1,5 @@
 // src/UnfinishedActivities.jsx
-import React from "react";
-
+import React from 'react';
 
 function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
   if (unfinishedActivities.length === 0) {
@@ -9,15 +8,15 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
 
   return (
     <div className="unfinished-section">
-        {unfinishedActivities.map((activity) => {
-          const resourceName = resources.find(
-            (resource) => resource.id === activity.risorsa_id
-          )?.nome || "Nome non disponibile";
+      {unfinishedActivities.map((activity) => {
+        const resourceName =
+          resources.find((resource) => resource.id === activity.risorsa_id)?.nome ||
+          'Nome non disponibile';
 
-          return (
-            <div key={activity.id} className="unfinished-card">
-                    <div className="flex-column-center">
-                <strong>ATTIVITÀ INCOMPLETA</strong>
+        return (
+          <div key={activity.id} className="unfinished-card">
+            <div className="flex-column-center">
+              <strong>ATTIVITÀ INCOMPLETA</strong>
               <span
                 className="unfinished-icon"
                 title={`
@@ -38,26 +37,22 @@ function UnfinishedActivities({ unfinishedActivities, resources, onEdit }) {
                 </svg>
               </span>
               {activity.nome_attivita}
-           <div className="flex-column-center">
-                  <button
-  className="btn btn--pill btn--blue w-100"
-  onClick={(e) => {
-    e.stopPropagation();
-    onEdit(activity);
-  }}
->
-  Modifica
-</button>
-
-                </div>
-</div>
+              <div className="flex-column-center">
+                <button
+                  className="btn btn--pill btn--blue w-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(activity);
+                  }}
+                >
+                  Modifica
+                </button>
+              </div>
             </div>
-          );
-          
-        })}
-        
+          </div>
+        );
+      })}
     </div>
-    
   );
 }
 

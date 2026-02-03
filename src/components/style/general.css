@@ -1,13 +1,12 @@
-
 /* ==============================
 Generale
 ============================== */
 
-
-html, body {
+html,
+body {
   margin: 0;
   padding: 1px;
-  font-family: var( --font-primary);
+  font-family: var(--font-primary);
   background-color: var(--bg-dark);
   color: var(--text-light);
   box-sizing: border-box; /* Include padding e border nelle dimensioni */
@@ -25,37 +24,51 @@ body {
 WIDTH UTILITIES
 ============================== */
 
-.w-50 { width: 50px}
-.w-100 { width: 100px}
-.w-200 { width: 200px}
-.w-300 { width: 300px}
-.w-400 { width: 400px }
-.w-fit { width: fit-content  }
-.w-w { width: 100% }
+.w-50 {
+  width: 50px;
+}
+.w-100 {
+  width: 100px;
+}
+.w-200 {
+  width: 200px;
+}
+.w-300 {
+  width: 300px;
+}
+.w-400 {
+  width: 400px;
+}
+.w-fit {
+  width: fit-content;
+}
+.w-w {
+  width: 100%;
+}
 /* ==============================
 HEIGHT UTILITIES
 ============================== */
-.h-30 {height:30px;}
+.h-30 {
+  height: 30px;
+}
 
 .mh-76 {
- max-height: 73vh; 
+  max-height: 73vh;
 }
 .mh-72 {
- max-height: 69vh; 
+  max-height: 69vh;
 }
 
 .mh-80 {
- max-height: 75vh; 
+  max-height: 75vh;
 }
 
 /* ==============================
 TESTI
 ============================== */
-.txt-light{
-color:var(--text-light);
-
+.txt-light {
+  color: var(--text-light);
 }
-
 
 /* ==============================
 generale
@@ -65,34 +78,33 @@ generale
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   position: relative;
   margin-bottom: 5px;
-   gap: 5px; 
+  gap: 5px;
 }
 
 .flex-column-left {
   display: flex;
   flex-direction: column;
   align-items: left;
-  justify-content: center; 
+  justify-content: center;
   position: relative;
   margin-bottom: 5px;
-   gap: 5px; 
-   width: 100%;
+  gap: 5px;
+  width: 100%;
 }
 
-
-  .flex-center {
-   display: flex;
-  justify-content: center; 
-  align-items: center;    
-  gap: 10px; 
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   max-width: 100%;
   flex-wrap: wrap;
-  }
+}
 
-.row{
+.row {
   display: flex;
   flex-wrap: wrap;
 
@@ -101,17 +113,17 @@ generale
   left: 0;
 }
 
-.center{
-  justify-content: center; 
-  align-items: center; 
+.center {
+  justify-content: center;
+  align-items: center;
 }
 
-.border{
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.border {
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-  h1 {
+h1 {
   font-size: 20px;
   text-align: center;
 }
@@ -121,25 +133,21 @@ h2 {
   margin-bottom: 10px;
 }
 
-ul li{
-
-margin: 0;
+ul li {
+  margin: 0;
 }
 
-ul li{
-
-margin-bottom: 5px;
+ul li {
+  margin-bottom: 5px;
 }
 
-
-.trasferta-icon{
-
-font-size: 20px;
+.trasferta-icon {
+  font-size: 20px;
 }
-  /* ==============================
+/* ==============================
 header
 ============================== */
-.header{
+.header {
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -147,55 +155,50 @@ header
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   padding-top: 10px;
   width: 100%;
   left: 0;
-  height:170px;
+  height: 170px;
 }
 
-
-.header-row{
+.header-row {
   margin-bottom: 10px;
   margin-top: 10px;
   border-bottom: 3px solid #8b8b8b;
   padding-bottom: 5px;
   width: 100%;
-
-
 }
 
+.header-row-month {
+  font-size: 2rem;
+  padding-left: 15px;
+  padding-right: 15px;
+}
 
-.header-row-month{
-font-size: 2rem;
-padding-left: 15px;
-padding-right: 15px;
-  }
-  
 .filter-group {
   height: 30px;
   width: 250px;
-  position: relative; 
+  position: relative;
   display: flex;
   flex-direction: column;
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 10px;
   padding-bottom: 10px;
-  gap:10px;
+  gap: 10px;
 }
 
-  /* ==============================
+/* ==============================
 suggerimenti
 ============================== */
-
 
 .suggestions-list {
   padding: 0;
   margin: 0;
   position: absolute; /* Necessario per posizionare la lista sotto l'input */
   /* Posiziona la lista immediatamente sotto l'input */
- top: 100%;
+  top: 100%;
   z-index: 10000; /* Assicura che la lista appaia sopra altri elementi */
   background-color: var(--bg-dark);
   border: 1px solid #ccc;
@@ -204,39 +207,35 @@ suggerimenti
   border-radius: 4px; /* Opzionale, per arrotondare gli angoli */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Effetto ombra */
   text-align: left;
-  color: var( --text-light);
+  color: var(--text-light);
 }
-
-
 
 /* testi lista suggerimenti */
 .suggestions-list li {
-padding: 10px;
-cursor: pointer;
+  padding: 10px;
+  cursor: pointer;
 }
 
 .suggestions-list li:hover {
   background-color: var(--hover-dark);
 }
 
-.suggestion-wrapper{
-    position: relative;
-    
+.suggestion-wrapper {
+  position: relative;
 }
 
 .tag-suggestion {
   position: absolute;
   z-index: 9999;
-background-color: var(--bg-dark);
+  background-color: var(--bg-dark);
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   margin: 4px 0 0;
   padding: 4px;
   list-style: none;
   max-height: 300px;
   overflow-y: auto;
-
 }
 
 .tag-suggestion li {
@@ -248,77 +247,73 @@ background-color: var(--bg-dark);
 .tag-suggestion li:hover {
   background-color: var(--color-white-hover);
 }
-    /* ==============================
+/* ==============================
      loading spin
      ============================== */
 .loading-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.5);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
 .spinner {
-width: 50px;
-height: 50px;
-border: 5px solid #f3f3f3;
-border-top: 5px solid #3498db;
-border-radius: 50%;
-animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.logo-spinner{
+.logo-spinner {
   width: 100px; /* Regola la dimensione del logo */
   height: 100px;
-   /*animation: spin 2s linear infinite; */
-  animation:pulse 1s ease-in-out infinite;
+  /*animation: spin 2s linear infinite; */
+  animation: pulse 1s ease-in-out infinite;
 }
 
 /* ==============================
 Table
 ============================== */
 
-  table {
- vertical-align: top;
- text-align: left;
- padding: 8px;
- background-color:  var(--bg-dark);
- color:  var(--text-light);
- width: 100%;
- border-collapse: collapse;
+table {
+  vertical-align: top;
+  text-align: left;
+  padding: 8px;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  width: 100%;
+  border-collapse: collapse;
 }
 
-  
-  td,  th {
+td,
+th {
   vertical-align: top;
   padding: 10px;
   border: 1px solid var(--ds-border, #c1c7d0);
-
-      }
-
- thead {
-  left: 0; 
-  top: 0;   
-  z-index: 10; 
- background-color:  var( --hover-dark);
- 
-  
 }
 
- /* PER CALENDARI */
+thead {
+  left: 0;
+  top: 0;
+  z-index: 10;
+  background-color: var(--hover-dark);
+}
+
+/* PER CALENDARI */
 .week-number {
   text-align: center;
   margin-top: 10px;
-
 }
 
- /* PDF */
+/* PDF */
 .pdf-dark-mode {
   background-color: #ffffff !important;
   color: #000000 !important;
@@ -354,40 +349,45 @@ Table
 }
 
 /* UI: voglio resize verticale */
-.note-textarea{
+.note-textarea {
   overflow: hidden;
   resize: vertical;
   min-height: 120px;
 }
 
 /* PDF: durante export disabilito resize (inutile) */
-.pdf-exporting .note-textarea{
+.pdf-exporting .note-textarea {
   resize: none !important;
 }
 
 /* UI: wrapper neutro */
-.note-pdf-wrap { width: 100%; }
+.note-pdf-wrap {
+  width: 100%;
+}
 
 /* PDF: il blocco note parte a pagina nuova e non lascia titolo orfano */
-.pdf-exporting .note-pdf-wrap{
+.pdf-exporting .note-pdf-wrap {
   page-break-before: always;
   break-before: page;
 }
 
-
 /* UI: wrapper neutro */
-.note-page { width: 100%; }
+.note-page {
+  width: 100%;
+}
 
 /* PDF: il blocco note parte a pagina nuova e non lascia titolo orfano */
-.pdf-exporting .note-page{
+.pdf-exporting .note-page {
   page-break-before: always;
   break-before: page;
 }
 /* SCHERMO: non mostrare testo-only-pdf */
-.only-pdf { display: none !important; }
+.only-pdf {
+  display: none !important;
+}
 
 /* PDF (html2pdf): mostra testo-only-pdf e nascondi textarea */
-.pdf-exporting .only-pdf{
+.pdf-exporting .only-pdf {
   display: block !important;
   white-space: pre-wrap;
   word-break: break-word;
@@ -395,16 +395,15 @@ Table
   padding-bottom: 4px; /* anti taglio p/q/g */
 }
 
-.pdf-exporting .no-pdf{
+.pdf-exporting .no-pdf {
   display: none !important;
 }
-
 
 /* div stampabile: di default NON si vede */
 .note-print {
   display: none;
-  white-space: pre-wrap;     /* mantiene a-capo e spazi */
-  word-break: break-word;    /* evita tagli su parole lunghe */
+  white-space: pre-wrap; /* mantiene a-capo e spazi */
+  word-break: break-word; /* evita tagli su parole lunghe */
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
@@ -420,19 +419,18 @@ Table
   display: block !important;
 }
 
-
 /* ---- STAMPA/PDF: testo intestazione (anti clipping p/q/g) ---- */
-.header-print{
-  display: inline-block;      /* importantissimo per evitare clipping */
+.header-print {
+  display: inline-block; /* importantissimo per evitare clipping */
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.4;           /* più alto */
-  padding-bottom: 3px;        /* spazio discendenti */
+  line-height: 1.4; /* più alto */
+  padding-bottom: 3px; /* spazio discendenti */
   overflow: visible !important;
 }
 
 /* quando esporti con html2pdf */
-.pdf-exporting .header-print{
+.pdf-exporting .header-print {
   display: inline-block;
   line-height: 1.4;
   padding-bottom: 3px;
@@ -440,25 +438,35 @@ Table
 }
 
 /* anche il wrapper, nel dubbio */
-.header-field{
+.header-field {
   overflow: visible !important;
 }
 
-
 /* DEFAULT SCHERMO */
-.no-print { display: block !important; }
-.only-print { display: none !important; }
+.no-print {
+  display: block !important;
+}
+.only-print {
+  display: none !important;
+}
 
 /* SOLO PDF EXPORT (html2pdf) */
-.pdf-exporting .no-print { display: none !important; }
-.pdf-exporting .only-print { display: block !important; }
+.pdf-exporting .no-print {
+  display: none !important;
+}
+.pdf-exporting .only-print {
+  display: block !important;
+}
 
 /* SOLO STAMPA BROWSER */
 @media print {
-  .no-print { display: none !important; }
-  .only-print { display: block !important; }
+  .no-print {
+    display: none !important;
+  }
+  .only-print {
+    display: block !important;
+  }
 }
-
 
 /* evita che una singola riga checklist venga spezzata tra pagine */
 .check-row {
@@ -484,9 +492,9 @@ Table
   break-inside: auto;
 }
 .note-block {
-    overflow: hidden;
-    resize: none;
-    min-height: 120px;
+  overflow: hidden;
+  resize: none;
+  min-height: 120px;
 }
 .pdf-exporting .note-block {
   page-break-inside: avoid;
@@ -497,7 +505,6 @@ Table
 .pdf-exporting .note-block {
   page-break-before: auto;
 }
-
 
 .attivita-list {
   display: grid;
@@ -510,7 +517,6 @@ Table
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
-
 }
 
 .reparto-title {
@@ -529,51 +535,51 @@ Table
   transition: transform 0.2s;
   cursor: pointer;
 }
-    /* ==============================
+/* ==============================
      EFFETTI
      ============================== */
- .highlight {
-    background-color: var(--main-color);
-    transition: background-color 0.5s;
-  }
+.highlight {
+  background-color: var(--main-color);
+  transition: background-color 0.5s;
+}
 
-    
 /* ==============================
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-
-  html, body {
-  font-size: 14px;
-
-}
-  h1 {
-  font-size: 16px;
-
-}
-
-h2 {
-  font-size: 15px;
-}
-.w-100 { width: 80px}
-
-.w-200 { width: 150px}
-
-.w-400 { width: 200px}
-  
-
-.flex-column-center {
-  margin-bottom: 3px;
-   gap: 3px; 
-}
-
-.header-row{
-  margin-top: 0px;
-  margin-bottom: 0px;
-
-}
-.header-row-month{
-font-size: 20px;
-
+  html,
+  body {
+    font-size: 14px;
   }
-    }
+  h1 {
+    font-size: 16px;
+  }
+
+  h2 {
+    font-size: 15px;
+  }
+  .w-100 {
+    width: 80px;
+  }
+
+  .w-200 {
+    width: 150px;
+  }
+
+  .w-400 {
+    width: 200px;
+  }
+
+  .flex-column-center {
+    margin-bottom: 3px;
+    gap: 3px;
+  }
+
+  .header-row {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  .header-row-month {
+    font-size: 20px;
+  }
+}

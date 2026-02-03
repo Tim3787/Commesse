@@ -1,34 +1,30 @@
-
-
 /* ==============================
 CALENDARIO
 ============================== */
 .user-calendar {
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
-  width: 100%;         
-  height: calc(100vh - 300px); 
+  align-items: stretch;
+  width: 100%;
+  height: calc(100vh - 300px);
   overflow-y: auto;
-  overflow-x: hidden;   
+  overflow-x: hidden;
   padding: 1rem;
   gap: 1rem;
-  box-sizing: border-box; 
-  
+  box-sizing: border-box;
 }
 
 .user-dash {
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
-  width: 100%;         
-  height: calc(100vh - 80px); 
+  align-items: stretch;
+  width: 100%;
+  height: calc(100vh - 80px);
   overflow-y: auto;
-  overflow-x: hidden;   
+  overflow-x: hidden;
   padding: 1rem;
   gap: 1rem;
-  box-sizing: border-box; 
-  
+  box-sizing: border-box;
 }
 
 .calendar-day {
@@ -38,30 +34,27 @@ CALENDARIO
   border-bottom: 1px solid #ccc;
   width: 100%;
   display: flex;
-  flex-direction: column; 
-  align-items: center; 
+  flex-direction: column;
+  align-items: center;
   height: auto;
-   overflow: visible;
-  }
-  
-  .day-header {
-    font-weight: bold;
-max-width: fit-content;
-max-height: fit-content;
-text-align: center;
-  }
-  
+  overflow: visible;
+}
 
-.dashboasrd-user-activity-status{
-    font-weight: bold;
-max-width: fit-content;
-max-height: fit-content;
-text-align: center;
-  }
+.day-header {
+  font-weight: bold;
+  max-width: fit-content;
+  max-height: fit-content;
+  text-align: center;
+}
 
+.dashboasrd-user-activity-status {
+  font-weight: bold;
+  max-width: fit-content;
+  max-height: fit-content;
+  text-align: center;
+}
 
-
-  .user-calendar-today {
+.user-calendar-today {
   position: relative;
   z-index: 1;
 
@@ -70,60 +63,52 @@ text-align: center;
   overflow: visible;
   display: flex;
 }
-  .user-calendar-today .day-header{
-    padding-top: 30px;
-    padding-bottom: 30px;
-    font-size: 2rem;
-    color: #01c3f3; 
-    font-weight: bold;
-    text-decoration: underline;
-    text-decoration-thickness: 2px; 
-    text-underline-offset: 3px;
-    text-decoration-color: #01c3f3; 
-  }
-  
-  .user-calendar-today::before {
+.user-calendar-today .day-header {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  font-size: 2rem;
+  color: #01c3f3;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: #01c3f3;
+}
+
+.user-calendar-today::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-color: rgba(0,0,0,0.3); 
+  background-color: rgba(0, 0, 0, 0.3);
   z-index: 0;
 }
-  .user-calendar-weekend {
+.user-calendar-weekend {
+  color: #b80505;
+  background-color: #1e263a;
+  font-weight: bold;
+}
 
-    color: #b80505; 
-     background-color: #1e263a;
-    font-weight: bold; 
-  }
-
-
-  
-  
 /* ==============================
 ATTIVITA'
 ============================== */
 
-
-
 .fat {
-  background-image: var( --color-blue-shiny);
+  background-image: var(--color-blue-shiny);
   border: 1px solid #8b8b8b;
   padding: 10px;
   margin-bottom: 15px;
-   margin-left: 10px;
-   margin-top: 15px;
+  margin-left: 10px;
+  margin-top: 15px;
   border-radius: 4px;
   color: rgb(255, 255, 255);
   position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-
-
- .modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
@@ -142,7 +127,7 @@ ATTIVITA'
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-      color: #070707;
+  color: #070707;
 }
 
 .modal h2 {
@@ -173,11 +158,10 @@ ATTIVITA'
 }
 
 .spec-card {
-
   border: 1px solid #ccc;
   padding: 8px 10px;
   background: #fafafa;
-    border-radius: 4px;
+  border-radius: 4px;
 }
 
 .spec-card h3 {
@@ -190,10 +174,9 @@ ATTIVITA'
 
 .linked-notes {
   width: 100%;
-  max-width: 520px;          /* puoi alzare a 650 se vuoi più largo */
+  max-width: 520px; /* puoi alzare a 650 se vuoi più largo */
   margin-top: 12px;
   padding: 10px 12px;
-
 }
 
 .linked-notes h3 {
@@ -224,15 +207,17 @@ ATTIVITA'
   width: 100%;
   padding: 10px 12px;
   background-color: var(--bg-dark);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
   cursor: pointer;
-   color:var(--text-light);
+  color: var(--text-light);
 }
-
 
 .linked-notes .spec-card:active {
   transform: translateY(0px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 /* header riga: attività — data — risorsa */
@@ -249,11 +234,10 @@ ATTIVITA'
 .linked-notes .spec-card p {
   margin: 8px 0 0 0;
   padding-top: 8px;
-  border-top: 1px dashed rgba(0,0,0,0.15);
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 13px;
-
 }
 
 /* loading / error più “soft” */
@@ -297,28 +281,19 @@ ATTIVITA'
   filter: brightness(0.95);
 }
 
-
-
 /* ==============================
 Responsive Design
 ============================== */
 @media (max-width: 480px) {
+  .user-calendar {
+    height: calc(100vh - 180px);
+  }
 
+  .calendar {
+    height: calc(100vh - 280px); /* adatta in base a header+navbar */
+  }
 
-
-.user-calendar {  
-  height: calc(100vh - 180px); 
-}
-
-
-
-.calendar {
-  height: calc(100vh - 280px); /* adatta in base a header+navbar */
-}
-
-  .user-calendar-today .day-header{
-
+  .user-calendar-today .day-header {
     font-size: 1.7rem;
-
   }
 }

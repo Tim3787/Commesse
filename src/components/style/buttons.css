@@ -2,146 +2,138 @@
 
 .btn {
   display: block;
-  margin: 2px; 
+  margin: 2px;
   align-items: center;
   justify-content: center;
   padding: 0.5rem 0.5rem;
   font-size: 0.75rem;
-  font-family: var( --font-pb);
+  font-family: var(--font-pb);
   font-weight: 500;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-    }
-
-   
-.btn:disabled {
-cursor: not-allowed;
 }
 
-.btn--shiny{
-  color:var(--text-light);
-  background-image: var( --color-blue-shiny);
+.btn:disabled {
+  cursor: not-allowed;
+}
+
+.btn--shiny {
+  color: var(--text-light);
+  background-image: var(--color-blue-shiny);
 }
 
 .btn--shiny:hover {
-filter: brightness(1.5);
+  filter: brightness(1.5);
 }
 
-.btn--pill{
-border-radius: var(  --btn-border-radius-pill);
+.btn--pill {
+  border-radius: var(--btn-border-radius-pill);
 }
 
 .btn--ghost {
-color:var(--text-light);
-background: none;
-border: none;
+  color: var(--text-light);
+  background: none;
+  border: none;
 }
-.btn--ghost:hover{
-filter: brightness(1.5);
+.btn--ghost:hover {
+  filter: brightness(1.5);
 }
 
 .btn--border {
-color:var( --text-dark);
-border: 1px solid #bec1c9;
-background: none;
+  color: var(--text-dark);
+  border: 1px solid #bec1c9;
+  background: none;
 }
 
-
-
-.btn-txt-white{
-color:var(--text-light);
-border: none;
-background: none;
-font-size: 1.17em;
-margin-block-start: 1em;
-margin-block-end: 1em;
-margin-inline-start: 0px;
-margin-inline-end: 0px;
-font-weight: bold;
-unicode-bidi: isolate;
-padding: 0;
+.btn-txt-white {
+  color: var(--text-light);
+  border: none;
+  background: none;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+  unicode-bidi: isolate;
+  padding: 0;
 }
 /* ==============================
 Activity
 ============================== */
 
 .btn--start {
-background-color: var(--color-start);
-color: var(--text-light);
-  }
+  background-color: var(--color-start);
+  color: var(--text-light);
+}
 .btn--start:hover {
-background-color: var(--color-start-hover);
-color: var(--text-light);
-  }
+  background-color: var(--color-start-hover);
+  color: var(--text-light);
+}
 
 .btn--complete {
-background-color:var(--color-complete);
-color: var(--text-light);
-  }
+  background-color: var(--color-complete);
+  color: var(--text-light);
+}
 .btn--complete:hover {
-background-color:var(--color-complete-hover);
-color: var(--text-light);
-  }
-
+  background-color: var(--color-complete-hover);
+  color: var(--text-light);
+}
 
 /* ==============================
 EDIT
 ============================== */
-.btn--blue{
+.btn--blue {
   color: var(--text-light);
-  background-color:  var(--color-blue);
+  background-color: var(--color-blue);
 }
 
 .btn--blue:hover {
-  background-color:var(--color-blue-hover);
+  background-color: var(--color-blue-hover);
 }
 
 .btn--danger {
-  background-color:var(--color-danger);
+  background-color: var(--color-danger);
 }
 
 .btn--danger:hover {
   background-color: var(--color-danger-hover);
 }
 
-.btn--warning{
-  color:  var(--text-dark);
+.btn--warning {
+  color: var(--text-dark);
   background-color: var(--color-warning);
 }
 
 .btn--warning:hover {
-   background-color: var(--color-warning-hover);
+  background-color: var(--color-warning-hover);
 }
-
 
 /* ==============================
 SCHEDE
 ============================== */
 
-.btn--scheda{
-
-   background-color: transparent;
-    font-size: 14px;
+.btn--scheda {
+  background-color: transparent;
+  font-size: 14px;
 }
-.btn--scheda:hover{
-   box-shadow: 2px 2px 5px var( --color-border-hg);
+.btn--scheda:hover {
+  box-shadow: 2px 2px 5px var(--color-border-hg);
 }
 
-.started .btn--scheda  {
+.started .btn--scheda {
   color: var(--text-light);
-  
 }
 
-.completed .btn--scheda  {
+.completed .btn--scheda {
   color: var(--text-light);
-  
 }
 /* ==============================
 NAVBAR
 ============================== */
 .btn.navbar {
-  border-radius: var(  --btn-border-radius-pill);
+  border-radius: var(--btn-border-radius-pill);
   background-color: transparent;
   color: var(--text-light);
   padding: 5px 5px;
@@ -150,42 +142,33 @@ NAVBAR
 }
 
 .btn.navbar:hover {
-filter: brightness(1.2);
-background-image: var( --color-blue-shiny);
-
+  filter: brightness(1.2);
+  background-image: var(--color-blue-shiny);
 }
 
-
-.nav-list{
+.nav-list {
   text-decoration: none;
   color: black;
   font-size: 16px;
   text-align: left;
   padding: 0;
   margin-top: 0;
-  
 }
 
 .nav-list:hover {
-  background-color:  #4c516e;
+  background-color: #4c516e;
 }
-
-
-
 
 /* ==============================
 Responsive Design
 ============================== */
-   /* 768px */
+/* 768px */
 @media (max-width: 768px) {
-   .btn.large {
- width: 300px
+  .btn.large {
+    width: 300px;
+  }
 }
-   } 
 
-   /* 480px */
+/* 480px */
 @media (max-width: 480px) {
-
-
-
 }

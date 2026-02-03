@@ -1,36 +1,34 @@
 .activity5 {
-    padding: 5px;
-    margin: 2px;
-    border-radius: 4px;
-    color: #fff;
-    text-align: center;
-     background-color: var( --color-blue);
-  }
+  padding: 5px;
+  margin: 2px;
+  border-radius: 4px;
+  color: #fff;
+  text-align: center;
+  background-color: var(--color-blue);
+}
 
-   .activity5-type-Trasferta {
-     background-color: var(  --color-warning);
-    color: #000000;
-  }
+.activity5-type-Trasferta {
+  background-color: var(--color-warning);
+  color: #000000;
+}
 
 .Gen-schedule {
   width: 100%;
   border-collapse: collapse;
 }
 
-
 /* Rendi la riga del titolo del reparto sticky in alto e orizzontalmente */
 .Gen-schedule th[colspan] {
   position: sticky;
-  left: 0;  /* Fissa la colonna a sinistra */
-  top: 0;   /* Fissa la riga in alto */
+  left: 0; /* Fissa la colonna a sinistra */
+  top: 0; /* Fissa la riga in alto */
   z-index: 4; /* Priorità più alta per non essere coperto da altre celle */
   padding: 10px;
   border-right: 2px solid #ddd; /* Separazione con il resto della tabella */
 }
 
 /* Colonna "Risorsa" sticky */
-.Gen-schedule th:first-child
-{
+.Gen-schedule th:first-child {
   position: sticky;
   left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
   z-index: 3; /* Priorità inferiore rispetto alla riga del titolo */
@@ -44,7 +42,7 @@
   left: 0; /* Blocca la colonna a sinistra durante lo scroll orizzontale */
   z-index: 1; /* Priorità inferiore rispetto alla riga del titolo */
   border-right: 1px solid #ddd;
-  background-color:  var(--bg-dark);
+  background-color: var(--bg-dark);
   color: white;
 }
 

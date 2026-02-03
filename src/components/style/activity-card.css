@@ -1,31 +1,32 @@
-
-  .activity {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 5px;
-    margin: 10px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-max-width: 80%;
-    white-space: normal;        
-    overflow-wrap: break-word;   
-    /* Opzionale: se il testo è particolarmente lungo e vuoi spezzare le parole ovunque:
+.activity {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 5px;
+  margin: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  max-width: 80%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* Opzionale: se il testo è particolarmente lungo e vuoi spezzare le parole ovunque:
     word-break: break-all; */
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    font-size: 13px;
-    color: black;
-    position: relative;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 13px;
+  color: black;
+  position: relative;
 }
 
 .activity.compact {
   /* Dimensioni fisse e centrate per la vista compatta */
   width: 10px;
-  min-width:  10px;
+  min-width: 10px;
   height: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -36,101 +37,101 @@ max-width: 80%;
   justify-content: center;
 }
 
-  .activity:hover {
-    box-shadow: 2px 2px 5px var( --color-border-hg);
-  }
+.activity:hover {
+  box-shadow: 2px 2px 5px var(--color-border-hg);
+}
 
-    .activity-actions {
-    padding: 1px;
-    margin-top: 5px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+.activity-actions {
+  padding: 1px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  }
+}
 
-  /* Stato attività */
+/* Stato attività */
 
-  .activity.not-started{
+.activity.not-started {
   border: 1px solid #3fcaf5;
   border-left: 8px solid #3fcaf5;
-    color: var(--text-dark);
-    background-image: linear-gradient(135deg, #97c6e6,  #4789b4, #146da8);
-  }
+  color: var(--text-dark);
+  background-image: linear-gradient(135deg, #97c6e6, #4789b4, #146da8);
+}
 
-  .activity.started {
+.activity.started {
   border: 1px solid #3fcaf5;
   border-left: 8px solid #10009c;
-    color: var(--text-light);
-  background-image: linear-gradient(135deg, #0a2650, #07436b,  #09578b);
-  }
-  
-  .activity.completed {
+  color: var(--text-light);
+  background-image: linear-gradient(135deg, #0a2650, #07436b, #09578b);
+}
+
+.activity.completed {
   border: 1px solid #3fcaf5;
   border-left: 8px solid #072f52;
   color: var(--text-light);
-  background-image: linear-gradient(135deg, #010a11, #021630,  #010a11);
-  }
-  
-  /* Struttura interna */
-  .activity-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .activity-content {
-    display: flex;
-    flex-direction: column;
-    margin-top: 8px;
-    font-size: 14px;
-  }
-  
-  .activity-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  /* Icone */
-  .activity .icon {
-    font-size: 18px;
-    color: #777;
-    margin-left: 8px;
-  }
-  
-  /* Effetto colore per le icone */
-  .activity .status-icon {
-    color: #28a745; /* Verde per attività completate */
-  }
-  
-  .activity .pending-icon {
-    color: #f5a623; /* Arancione per attività iniziate */
-  }
-  
-  .activity .not-started-icon {
-    color: #999; /* Grigio per non iniziate */
-  }
-  
-.note{
-    border: 1px solid rgb(150, 8, 8);
-    padding: 5px;
-     border-radius: 5px;
-  }
+  background-image: linear-gradient(135deg, #010a11, #021630, #010a11);
+}
+
+/* Struttura interna */
+.activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.activity-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Icone */
+.activity .icon {
+  font-size: 18px;
+  color: #777;
+  margin-left: 8px;
+}
+
+/* Effetto colore per le icone */
+.activity .status-icon {
+  color: #28a745; /* Verde per attività completate */
+}
+
+.activity .pending-icon {
+  color: #f5a623; /* Arancione per attività iniziate */
+}
+
+.activity .not-started-icon {
+  color: #999; /* Grigio per non iniziate */
+}
+
+.note {
+  border: 1px solid rgb(150, 8, 8);
+  padding: 5px;
+  border-radius: 5px;
+}
 
 /* ==============================
 Responsive Design
 ============================== */
 @media (max-width: 480px) {
-.activity {
-  padding: 1px 3px;
-  font-size: 13px;
+  .activity {
+    padding: 1px 3px;
+    font-size: 13px;
 
-  min-width: 100px;
-}
+    min-width: 100px;
   }
+}

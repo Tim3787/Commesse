@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import "../style/Navbar.css";
-import apiClient from "../config/axiosConfig";
-import { CSSTransition } from "react-transition-group";
-import CommessaDettagli from "../popup/CommessaDettagli";
-import { CommesseByTag } from  "../services/API/commesse-api";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import '../style/Navbar.css';
+import apiClient from '../config/axiosConfig';
+import { CSSTransition } from 'react-transition-group';
+import CommessaDettagli from '../popup/CommessaDettagli';
+import { CommesseByTag } from '../services/API/commesse-api';
 
 // import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
 // Import per Toastify (notifiche)
-import "react-toastify/dist/ReactToastify.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Import icone FontAwesome
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
   faTasks,
@@ -32,13 +32,11 @@ import {
   faSearch,
   faChevronLeft,
   faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
-
-
+} from '@fortawesome/free-solid-svg-icons';
 
 // Import API per le varie entità
-import { fetchCommesse } from "../services/API/commesse-api";
-import { useAppData } from "../context/AppDataContext";
+import { fetchCommesse } from '../services/API/commesse-api';
+import { useAppData } from '../context/AppDataContext';
 function Navbar({ isAuthenticated, userRole, handleLogout }) {
   // -------------------------------------------------------------------
   // Stati del componente
@@ -56,11 +54,10 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
   //const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [commesseList, setCommesseList] = useState([]);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
-
 
   // -------------------------------------------------------------------
   // Polling delle notifiche non lette (ogni 60 secondi)
@@ -74,29 +71,25 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-
-
   const fetchUnreadNotifications = async () => {
-  try {
-    const response = await apiClient.get("/api/notifiche/unread");
-    setNotifications(response.data);
-    setUnreadCount(response.data.length);
-  } catch (error) {
-    console.error("Errore durante il recupero delle notifiche:", error);
-  }
-};
+    try {
+      const response = await apiClient.get('/api/notifiche/unread');
+      setNotifications(response.data);
+      setUnreadCount(response.data.length);
+    } catch (error) {
+      console.error('Errore durante il recupero delle notifiche:', error);
+    }
+  };
 
-
-const markAllAsRead = async () => {
-  try {
-    await apiClient.put("/api/notifiche/read/all");
-    setUnreadCount(0);
-    fetchUnreadNotifications();
-  } catch (error) {
-    console.error("Errore durante il contrassegno delle notifiche come lette:", error);
-  }
-};
-
+  const markAllAsRead = async () => {
+    try {
+      await apiClient.put('/api/notifiche/read/all');
+      setUnreadCount(0);
+      fetchUnreadNotifications();
+    } catch (error) {
+      console.error('Errore durante il contrassegno delle notifiche come lette:', error);
+    }
+  };
 
   // -------------------------------------------------------------------
   // Caricamento delle commesse per il dropdown di ricerca
@@ -107,7 +100,7 @@ const markAllAsRead = async () => {
         const data = await fetchCommesse();
         setCommesseList(data);
       } catch (error) {
-        console.error("Errore durante il caricamento delle commesse per ricerca:", error);
+        console.error('Errore durante il caricamento delle commesse per ricerca:', error);
       }
     };
     if (isAuthenticated) {
@@ -125,110 +118,122 @@ const markAllAsRead = async () => {
   // e il menu manager prevede un sottomenu per ogni reparto
   // -------------------------------------------------------------------
   // Definizione dei link di navigazione in base al ruolo
-const navLinks = {
-  user: [
-    {
-      label: "COMMESSE",
-      icon: faClipboardList,
-      submenu: [
-     
-        { to: "/visualizzazione-commesse-Produzione", label: "PRODUZIONE", icon: faClipboardList },
-        { to: "/visualizzazione-commesse-R", label: "R-", icon: faClipboardList },
-        { to: "/visualizzazione-commesse-M", label: "M-", icon: faClipboardList },
-        { to: "/visualizzazione-Tutte-commesse", label: "TUTTE", icon: faClipboardList },
-      ],
-    },
-    {
-      label: "CALENDARI",
-      icon: faCalendarAlt,
-      submenu: [
-        { to: "/calendario-attivita", label: "CALENDARIO ATTIVITA'", icon: faCalendarAlt },
-        { to: "/CalendarioCommesse", label: "CALENDARIO CONSEGNE E FAT", icon: faCalendarAlt },
-      ],
-    },
-    { to: "/visualizzazione-attivita", label: "ATTIVITA'", icon: faTasks },
-    { to: "/Notifications", label: "NOTIFICHE", icon: faBell },
-    { to: "/Dashboard", label: "BACHECA", icon: faUser },
-    { to: "/PrenotazioneSale", label: "PRENOTAZIONE SALE RIUNIONI", icon: faBusinessTime },
-   
-  ],
-  manager: [
-    {
-      label: "REP.SOFTWARE",
-      icon: faScrewdriverWrench,
-      links: [
-        { to: "/StatoAvanzamento/software", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/software", label: "ATTIVITA'", icon: faTasks },
-        { to: "/TrelloBoardSoftware", label: "TRELLO", icon: faClipboardList },
-      ],
-    },
-    {
-      label: "REP.ELETTRICO",
-      icon: faScrewdriverWrench,
-      links: [
-        { to: "/StatoAvanzamento/elettrico", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/elettrico", label: "ATTIVITA'", icon: faTasks },
-        { to: "/TrelloBoardElettrico", label: "TRELLO", icon: faClipboardList },
-      ],
-    },
-        {
-      label: "REP.MECCANICO",
-      icon: faScrewdriverWrench,
-      links: [
-        { to: "/StatoAvanzamento/meccanico", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/meccanico", label: "ATTIVITA'", icon: faTasks },
-        { to: "/TrelloBoardMeccanico", label: "TRELLO", icon: faClipboardList },
-      ],
-    },
-        {
-      label: "REP.TECNICO ELETTRICO",
-      icon: faScrewdriverWrench,
-      links: [
-        { to: "/StatoAvanzamento/tecnicoelettrico", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/tecnicoelettrico", label: "ATTIVITA'", icon: faTasks },
-      ],
-    },
-    {
-      label: "REP.QE",
-      icon: faScrewdriverWrench,
-      links: [
-        { to: "/StatoAvanzamento/quadristi", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/quadristi", label: "ATTIVITA'", icon: faTasks },
-      ],
-    },
-    {
-      label: "REP.SERVICE",
-      icon: faScrewdriverWrench,
-      links: [
-         { to: "/StatoAvanzamento/service", label: "STATO AVANZAMENTO", icon: faChartBar },
-        { to: "/Dashboard/service", label: "ATTIVITA'", icon: faTools },
-         { to: "/DashboardService", label: "SERVICE ONLINE", icon: faTools }
-      ],
-    },
-    {
-      label: "GESTIONE COMMESSE",
-      icon: faCalendarAlt,
-      links: [
-        { to: "/gestione-commesse", label: "CREA O MODIFICA COMMESSE", icon: faProjectDiagram },
-        { to: "/commesse-dettagli", label: "GESTISCI COMPONENTI", icon: faProjectDiagram },
-        { to: "/Assegna-Machina-Componenti", label: "ASSEGNAZIONE MACCHINE E COMPONENTI", icon: faProjectDiagram },
-    
-      ],
-    },
-    { to: "/SchedeTecnicheTable", label: "SCHEDE", icon: faBusinessTime },
-    { to: "/ClientiSpecifiche", label: "SPECIFICHE CLIENTI", icon: faBusinessTime },
-     { to: "/GestioneTag", label: "GESTIONE TAG", icon: faBusinessTime },
-    { to: "/VisualizzaTutteLeAttivita", label: "TUTTE LE ATTIVITA'", icon: faListCheck },
-    { to: "/StatiAvanzamento", label: "TUTTI GLI STATI AVANZAMENTO", icon: faChartBar },
-  ],
-  admin: [
-    { to: "/utenti", label: "GESTIONE UTENTI", icon: faUsers },
-    { to: "/GestioneTabelle", label: "GESTIONE TABELLE", icon: faClipboardList },
-    {  to: "/MatchCommesse",  label: "COMMESSE TRELLO",  icon: faClipboardList,  badge: missingTrelloCount > 0 ? missingTrelloCount : null}
-
-  ],
-};
-
+  const navLinks = {
+    user: [
+      {
+        label: 'COMMESSE',
+        icon: faClipboardList,
+        submenu: [
+          {
+            to: '/visualizzazione-commesse-Produzione',
+            label: 'PRODUZIONE',
+            icon: faClipboardList,
+          },
+          { to: '/visualizzazione-commesse-R', label: 'R-', icon: faClipboardList },
+          { to: '/visualizzazione-commesse-M', label: 'M-', icon: faClipboardList },
+          { to: '/visualizzazione-Tutte-commesse', label: 'TUTTE', icon: faClipboardList },
+        ],
+      },
+      {
+        label: 'CALENDARI',
+        icon: faCalendarAlt,
+        submenu: [
+          { to: '/calendario-attivita', label: "CALENDARIO ATTIVITA'", icon: faCalendarAlt },
+          { to: '/CalendarioCommesse', label: 'CALENDARIO CONSEGNE E FAT', icon: faCalendarAlt },
+        ],
+      },
+      { to: '/visualizzazione-attivita', label: "ATTIVITA'", icon: faTasks },
+      { to: '/Notifications', label: 'NOTIFICHE', icon: faBell },
+      { to: '/Dashboard', label: 'BACHECA', icon: faUser },
+      { to: '/PrenotazioneSale', label: 'PRENOTAZIONE SALE RIUNIONI', icon: faBusinessTime },
+    ],
+    manager: [
+      {
+        label: 'REP.SOFTWARE',
+        icon: faScrewdriverWrench,
+        links: [
+          { to: '/StatoAvanzamento/software', label: 'STATO AVANZAMENTO', icon: faChartBar },
+          { to: '/Dashboard/software', label: "ATTIVITA'", icon: faTasks },
+          { to: '/TrelloBoardSoftware', label: 'TRELLO', icon: faClipboardList },
+        ],
+      },
+      {
+        label: 'REP.ELETTRICO',
+        icon: faScrewdriverWrench,
+        links: [
+          { to: '/StatoAvanzamento/elettrico', label: 'STATO AVANZAMENTO', icon: faChartBar },
+          { to: '/Dashboard/elettrico', label: "ATTIVITA'", icon: faTasks },
+          { to: '/TrelloBoardElettrico', label: 'TRELLO', icon: faClipboardList },
+        ],
+      },
+      {
+        label: 'REP.MECCANICO',
+        icon: faScrewdriverWrench,
+        links: [
+          { to: '/StatoAvanzamento/meccanico', label: 'STATO AVANZAMENTO', icon: faChartBar },
+          { to: '/Dashboard/meccanico', label: "ATTIVITA'", icon: faTasks },
+          { to: '/TrelloBoardMeccanico', label: 'TRELLO', icon: faClipboardList },
+        ],
+      },
+      {
+        label: 'REP.TECNICO ELETTRICO',
+        icon: faScrewdriverWrench,
+        links: [
+          {
+            to: '/StatoAvanzamento/tecnicoelettrico',
+            label: 'STATO AVANZAMENTO',
+            icon: faChartBar,
+          },
+          { to: '/Dashboard/tecnicoelettrico', label: "ATTIVITA'", icon: faTasks },
+        ],
+      },
+      {
+        label: 'REP.QE',
+        icon: faScrewdriverWrench,
+        links: [
+          { to: '/StatoAvanzamento/quadristi', label: 'STATO AVANZAMENTO', icon: faChartBar },
+          { to: '/Dashboard/quadristi', label: "ATTIVITA'", icon: faTasks },
+        ],
+      },
+      {
+        label: 'REP.SERVICE',
+        icon: faScrewdriverWrench,
+        links: [
+          { to: '/StatoAvanzamento/service', label: 'STATO AVANZAMENTO', icon: faChartBar },
+          { to: '/Dashboard/service', label: "ATTIVITA'", icon: faTools },
+          { to: '/DashboardService', label: 'SERVICE ONLINE', icon: faTools },
+        ],
+      },
+      {
+        label: 'GESTIONE COMMESSE',
+        icon: faCalendarAlt,
+        links: [
+          { to: '/gestione-commesse', label: 'CREA O MODIFICA COMMESSE', icon: faProjectDiagram },
+          { to: '/commesse-dettagli', label: 'GESTISCI COMPONENTI', icon: faProjectDiagram },
+          {
+            to: '/Assegna-Machina-Componenti',
+            label: 'ASSEGNAZIONE MACCHINE E COMPONENTI',
+            icon: faProjectDiagram,
+          },
+        ],
+      },
+      { to: '/SchedeTecnicheTable', label: 'SCHEDE', icon: faBusinessTime },
+      { to: '/ClientiSpecifiche', label: 'SPECIFICHE CLIENTI', icon: faBusinessTime },
+      { to: '/GestioneTag', label: 'GESTIONE TAG', icon: faBusinessTime },
+      { to: '/VisualizzaTutteLeAttivita', label: "TUTTE LE ATTIVITA'", icon: faListCheck },
+      { to: '/StatiAvanzamento', label: 'TUTTI GLI STATI AVANZAMENTO', icon: faChartBar },
+    ],
+    admin: [
+      { to: '/utenti', label: 'GESTIONE UTENTI', icon: faUsers },
+      { to: '/GestioneTabelle', label: 'GESTIONE TABELLE', icon: faClipboardList },
+      {
+        to: '/MatchCommesse',
+        label: 'COMMESSE TRELLO',
+        icon: faClipboardList,
+        badge: missingTrelloCount > 0 ? missingTrelloCount : null,
+      },
+    ],
+  };
 
   // -------------------------------------------------------------------
   // Funzioni per gestire il dropdown e i sottomenu
@@ -254,11 +259,7 @@ const navLinks = {
             </li>
             {activeUserSubmenu.map((item, index) => (
               <li key={index} className="dropdown-menu-item">
-                <Link
-                  to={item.to}
-                  className="nav-list"
-                  onClick={() => setActiveMenu(null)}
-                >
+                <Link to={item.to} className="nav-list" onClick={() => setActiveMenu(null)}>
                   <FontAwesomeIcon icon={item.icon} className="menu-icon" /> {item.label}
                 </Link>
               </li>
@@ -278,7 +279,7 @@ const navLinks = {
                         setActiveUserSubmenu(link.submenu);
                       }}
                     >
-                      <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}{" "}
+                      <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}{' '}
                       <FontAwesomeIcon icon={faChevronRight} className="submenu-icon" />
                     </a>
                   </li>
@@ -286,11 +287,7 @@ const navLinks = {
               }
               return (
                 <li key={index} className="dropdown-menu-item">
-                  <Link
-                    to={link.to}
-                    className="nav-list"
-                    onClick={() => setActiveMenu(null)}
-                  >
+                  <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
                     <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
                   </Link>
                 </li>
@@ -335,11 +332,7 @@ const navLinks = {
             </li>
             {activeManagerSubmenu.map((item, index) => (
               <li key={index} className="dropdown-menu-item">
-                <Link
-                  to={item.to}
-                  className="nav-list"
-                  onClick={() => setActiveMenu(null)}
-                >
+                <Link to={item.to} className="nav-list" onClick={() => setActiveMenu(null)}>
                   <FontAwesomeIcon icon={item.icon} className="menu-icon" /> {item.label}
                 </Link>
               </li>
@@ -358,7 +351,7 @@ const navLinks = {
                       setActiveManagerSubmenu(link.links);
                     }}
                   >
-                    <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}{" "}
+                    <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}{' '}
                     <FontAwesomeIcon icon={faChevronRight} className="submenu-icon" />
                   </a>
                 </li>
@@ -366,11 +359,7 @@ const navLinks = {
             }
             return (
               <li key={index} className="dropdown-menu-item">
-                <Link
-                  to={link.to}
-                  className="nav-list"
-                  onClick={() => setActiveMenu(null)}
-                >
+                <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
                   <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
                 </Link>
               </li>
@@ -389,13 +378,12 @@ const navLinks = {
           <li key={index} className="dropdown-menu-item">
             <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
               <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
-
-            {/* 🔔 Badge Trello */}
-            {link.badge && (
-              <span className="notification-badge" style={{ marginLeft: "10px" }}>
-                {link.badge}
-              </span>
-            )}
+              {/* 🔔 Badge Trello */}
+              {link.badge && (
+                <span className="notification-badge" style={{ marginLeft: '10px' }}>
+                  {link.badge}
+                </span>
+              )}
             </Link>
           </li>
         ))}
@@ -408,10 +396,10 @@ const navLinks = {
     setActiveMenu((prevMenu) => (prevMenu === menu ? null : menu));
     setIsSearchOpen(false);
     setIsNotificationOpen(false);
-    if (menu !== "user") {
+    if (menu !== 'user') {
       setActiveUserSubmenu(null);
     }
-    if (menu !== "manager") {
+    if (menu !== 'manager') {
       setActiveManagerSubmenu(null);
     }
   };
@@ -428,39 +416,35 @@ const navLinks = {
     setIsSearchOpen(false);
   };
 
-const handleSearchInputChange = async (e) => {
-  const value = e.target.value.trim();
-  setSearchValue(value);
+  const handleSearchInputChange = async (e) => {
+    const value = e.target.value.trim();
+    setSearchValue(value);
 
-  if (value === "") {
-    setSearchSuggestions([]);
-    return;
-  }
-
-  // Se il valore inizia con #
-  if (value.startsWith("#")) {
-    try {
-      const commesseByTag = await CommesseByTag(value);
-      setSearchSuggestions(commesseByTag);
-    } catch (error) {
-      console.error("Errore nella ricerca per tag:", error);
+    if (value === '') {
+      setSearchSuggestions([]);
+      return;
     }
-  } else {
-    const lowerValue = value.toLowerCase();
-    const suggestionsFiltered = commesseList.filter((c) => {
-      const numero = c.numero_commessa?.toString().toLowerCase() || "";
-      const cliente = c.cliente?.toLowerCase() || "";
-      const numeri = numero.match(/\d+/)?.[0] || "";
-      return numeri.startsWith(lowerValue) || cliente.includes(lowerValue);
-    });
 
-    setSearchSuggestions(suggestionsFiltered);
-  }
-};
+    // Se il valore inizia con #
+    if (value.startsWith('#')) {
+      try {
+        const commesseByTag = await CommesseByTag(value);
+        setSearchSuggestions(commesseByTag);
+      } catch (error) {
+        console.error('Errore nella ricerca per tag:', error);
+      }
+    } else {
+      const lowerValue = value.toLowerCase();
+      const suggestionsFiltered = commesseList.filter((c) => {
+        const numero = c.numero_commessa?.toString().toLowerCase() || '';
+        const cliente = c.cliente?.toLowerCase() || '';
+        const numeri = numero.match(/\d+/)?.[0] || '';
+        return numeri.startsWith(lowerValue) || cliente.includes(lowerValue);
+      });
 
-
-
-  
+      setSearchSuggestions(suggestionsFiltered);
+    }
+  };
 
   const closeSearchPopup = () => {
     setSelectedCommessa(null);
@@ -474,16 +458,16 @@ const handleSearchInputChange = async (e) => {
       {/* Navbar Header */}
       <header className="navbar-header">
         <button
-          className={`btn w-50 btn navbar ${activeMenu === "user" ? "active" : ""}`}
-          onClick={() => toggleMenu("user")}
+          className={`btn w-50 btn navbar ${activeMenu === 'user' ? 'active' : ''}`}
+          onClick={() => toggleMenu('user')}
         >
           <FontAwesomeIcon icon={faBars} className="settings-icon" />
         </button>
 
         {userRole <= 2 && (
           <button
-            className={`btn w-50 btn navbar ${activeMenu === "manager" ? "active" : ""}`}
-            onClick={() => toggleMenu("manager")}
+            className={`btn w-50 btn navbar ${activeMenu === 'manager' ? 'active' : ''}`}
+            onClick={() => toggleMenu('manager')}
           >
             <FontAwesomeIcon icon={faScrewdriverWrench} className="settings-icon" />
           </button>
@@ -497,14 +481,16 @@ const handleSearchInputChange = async (e) => {
         {userRole === 1 && (
           <>
             <button
-              className={`btn w-50 btn navbar ${activeMenu === "admin" ? "active" : ""}`}
-              onClick={() => toggleMenu("admin")}
+              className={`btn w-50 btn navbar ${activeMenu === 'admin' ? 'active' : ''}`}
+              onClick={() => toggleMenu('admin')}
             >
               <FontAwesomeIcon icon={faGear} className="settings-icon" />
-                             {missingTrelloCount > 0 && <span className="notification-badge">{missingTrelloCount}</span>}
+              {missingTrelloCount > 0 && (
+                <span className="notification-badge">{missingTrelloCount}</span>
+              )}
             </button>
-            
-             {/*  <button
+
+            {/*  <button
               className={`btn w-50 btn navbar ${activeMenu === "admin" ? "active" : ""}`}
               onClick={() => setIsChatOpen((prev) => !prev)}
             >
@@ -521,21 +507,31 @@ const handleSearchInputChange = async (e) => {
       {/* Dropdown Menus */}
       <div className="dropdown-container-nav">
         {/* Dropdown per il menu "user" */}
-        <CSSTransition in={activeMenu === "user"} timeout={300} classNames="dropdown" unmountOnExit>
+        <CSSTransition in={activeMenu === 'user'} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
             <ul>{renderUserLinks()}</ul>
           </div>
         </CSSTransition>
 
         {/* Dropdown per il menu "manager" */}
-        <CSSTransition in={activeMenu === "manager"} timeout={300} classNames="dropdown" unmountOnExit>
+        <CSSTransition
+          in={activeMenu === 'manager'}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <ul>{renderManagerSection()}</ul>
           </div>
         </CSSTransition>
 
         {/* Dropdown per il menu "admin" */}
-        <CSSTransition in={activeMenu === "admin"} timeout={300} classNames="dropdown" unmountOnExit>
+        <CSSTransition
+          in={activeMenu === 'admin'}
+          timeout={300}
+          classNames="dropdown"
+          unmountOnExit
+        >
           <div className="dropdown-menu-nav">
             <ul>{renderAdminSection()}</ul>
           </div>
@@ -544,18 +540,22 @@ const handleSearchInputChange = async (e) => {
         {/* Dropdown per le notifiche */}
         <CSSTransition in={isNotificationOpen} timeout={300} classNames="dropdown" unmountOnExit>
           <div className="dropdown-menu-nav">
-  
             <ul>
-             <h4>Notifiche</h4>
-                         {notifications.length > 0 && (
-              <button  className="btn btn--blue w-200 btn--pill"
-              style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={markAllAsRead}>Segna tutte come lette</button>
-            )}
+              <h4>Notifiche</h4>
+              {notifications.length > 0 && (
+                <button
+                  className="btn btn--blue w-200 btn--pill"
+                  style={{ marginBottom: '10px', marginLeft: '10px' }}
+                  onClick={markAllAsRead}
+                >
+                  Segna tutte come lette
+                </button>
+              )}
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <li key={notification.id}>
                     {notification.message}
-                  -- Notifica ricevuta il {new Date(notification.created_at).toLocaleDateString()}
+                    -- Notifica ricevuta il {new Date(notification.created_at).toLocaleDateString()}
                   </li>
                 ))
               ) : (
@@ -585,24 +585,24 @@ const handleSearchInputChange = async (e) => {
           />
           {searchSuggestions.length > 0 && (
             <ul className="search-suggestions">
-             {[...searchSuggestions]
-  .sort((a, b) => {
-    const getNum = (val) => parseInt(val.numero_commessa.replace(/[^0-9]/g, ''), 10);
-    return getNum(b) - getNum(a);
-  })
-  .map((sugg) => (
-                <li
-                  key={sugg.commessa_id}
-                  onClick={() => {
-                    setSelectedCommessa(sugg);
-                    setIsSearchOpen(false);
-                    setSearchValue("");
-                    setSearchSuggestions([]);
-                  }}
-                >
-                  {sugg.numero_commessa} - {sugg.cliente}
-                </li>
-              ))}
+              {[...searchSuggestions]
+                .sort((a, b) => {
+                  const getNum = (val) => parseInt(val.numero_commessa.replace(/[^0-9]/g, ''), 10);
+                  return getNum(b) - getNum(a);
+                })
+                .map((sugg) => (
+                  <li
+                    key={sugg.commessa_id}
+                    onClick={() => {
+                      setSelectedCommessa(sugg);
+                      setIsSearchOpen(false);
+                      setSearchValue('');
+                      setSearchSuggestions([]);
+                    }}
+                  >
+                    {sugg.numero_commessa} - {sugg.cliente}
+                  </li>
+                ))}
             </ul>
           )}
         </div>

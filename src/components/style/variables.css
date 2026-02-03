@@ -7,26 +7,27 @@
   --font-primary: 'Roboto', sans-serif;
   --background: 0 0% 100%;
   --background-image: linear-gradient(to bottom, rgb(15, 23, 42), rgb(17, 24, 39), rgb(31, 41, 55));
-  --tw-gradient-stops: var(--tw-gradient-from), #111827 var(--tw-gradient-via-position), var(--tw-gradient-to);
-  --font-geist-sans: "Geist", "Geist Fallback";
+  --tw-gradient-stops:
+    var(--tw-gradient-from), #111827 var(--tw-gradient-via-position), var(--tw-gradient-to);
+  --font-geist-sans: 'Geist', 'Geist Fallback';
   /* COLORI BASE */
-  --color-blue-shiny: linear-gradient(to right, #094785, #0D5FA4, #1168B4);
+  --color-blue-shiny: linear-gradient(to right, #094785, #0d5fa4, #1168b4);
   --color-blue-text: #ffffff;
   --color-blue-dark: linear-gradient(to bottom, rgb(15, 23, 42), rgb(17, 24, 39), rgb(31, 41, 55));
-  --hover-dark:   #1e263a;
+  --hover-dark: #1e263a;
   --color-danger: #dc3545;
-   --color-danger-hover: #a71d2a;
+  --color-danger-hover: #a71d2a;
   --color-primary: #007bff;
-  --color-start:#04408f;
-  --color-start-hover:#165ebb;
-  --color-complete:#6326c5;
-  --color-complete-hover:#411488;
+  --color-start: #04408f;
+  --color-start-hover: #165ebb;
+  --color-complete: #6326c5;
+  --color-complete-hover: #411488;
   --color-warning: #ffc107;
   --color-warning-hover: #e0a800;
   --bg-dark: #111827;
-  --color-border-hg:#80bdff;
-  --color-blue:#0056b3;
-  --color-blue-hover:#497aaf;
+  --color-border-hg: #80bdff;
+  --color-blue: #0056b3;
+  --color-blue-hover: #497aaf;
   --color-white: #ffffff;
   --color-white-hover: #c5c3c3;
 
@@ -42,12 +43,11 @@
   --btn-border-radius-pill: 9999px;
   --btn-border-thick: 3px solid #fff;
 
-   /* TESTI*/
- --font-geist-sans: "Geist", "Geist Fallback";
- --font-primary: 'Poppins', sans-serif;
- --font-1: 'Roboto', sans-serif;
- --font-pb: 'Poppins', sans-serif;
- --text-light: #f5f5f5;
- --text-dark: #090118;
-
+  /* TESTI*/
+  --font-geist-sans: 'Geist', 'Geist Fallback';
+  --font-primary: 'Poppins', sans-serif;
+  --font-1: 'Roboto', sans-serif;
+  --font-pb: 'Poppins', sans-serif;
+  --text-light: #f5f5f5;
+  --text-dark: #090118;
 }

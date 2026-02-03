@@ -1,25 +1,25 @@
-import axios from "axios";
+import axios from 'axios';
 
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-    timeout: 15000, // Timeout di 15 secondi
+  timeout: 15000, // Timeout di 15 secondi
 });
 
 // --- Macchine ---
 export const getMacchine = async () => {
   try {
-    const response = await apiClient.get("/api/commessa-dettagli/macchine");
+    const response = await apiClient.get('/api/commessa-dettagli/macchine');
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle macchine:", error);
+    console.error('Errore durante il recupero delle macchine:', error);
     throw error;
   }
 };
 
 export const addMacchina = async (data) => {
   try {
-    const response = await apiClient.post("/api/commessa-dettagli/macchine", data);
+    const response = await apiClient.post('/api/commessa-dettagli/macchine', data);
     return response.data;
   } catch (error) {
     console.error("Errore durante l'aggiunta della macchina:", error);
@@ -50,17 +50,17 @@ export const deleteMacchina = async (id) => {
 // --- Componenti ---
 export const getComponenti = async () => {
   try {
-    const response = await apiClient.get("/api/commessa-dettagli/componenti");
+    const response = await apiClient.get('/api/commessa-dettagli/componenti');
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero dei componenti:", error);
+    console.error('Errore durante il recupero dei componenti:', error);
     throw error;
   }
 };
 
 export const addComponente = async (data) => {
   try {
-    const response = await apiClient.post("/api/commessa-dettagli/componenti", data);
+    const response = await apiClient.post('/api/commessa-dettagli/componenti', data);
     return response.data;
   } catch (error) {
     console.error("Errore durante l'aggiunta del componente:", error);
@@ -103,26 +103,21 @@ export const associateMacchineToCommessa = async (commessaId, macchina_ids) => {
   }
 };
 
-
-
 export const getMacchineFromCommessa = async (commessaId) => {
   try {
-    const response = await apiClient.get(
-      `/api/commessa-dettagli/commesse/${commessaId}/macchine`
-    );
+    const response = await apiClient.get(`/api/commessa-dettagli/commesse/${commessaId}/macchine`);
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle macchine dalla commessa:", error);
+    console.error('Errore durante il recupero delle macchine dalla commessa:', error);
     throw error;
   }
 };
 
 export const updateMacchineFromCommessa = async (commessaId, macchineArray) => {
   try {
-    const response = await apiClient.put(
-      `/api/commessa-dettagli/commesse/${commessaId}/macchine`,
-      { macchine: macchineArray }
-    );
+    const response = await apiClient.put(`/api/commessa-dettagli/commesse/${commessaId}/macchine`, {
+      macchine: macchineArray,
+    });
     return response.data;
   } catch (error) {
     console.error("Errore durante l'aggiornamento delle macchine della commessa:", error);
@@ -156,7 +151,7 @@ export const getComponentiFromCommessa = async (commessaId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero dei componenti dalla commessa:", error);
+    console.error('Errore durante il recupero dei componenti dalla commessa:', error);
     throw error;
   }
 };
@@ -172,8 +167,6 @@ export const updateComponentiFromCommessa = async (commessaId, componenti) => {
     console.error("Errore durante l'aggiornamento dei componenti della commessa:", error);
     throw error;
   }
-
-  
 };
 export const getComponentiFromMacchina = async (commessaId, macchinaId) => {
   try {
@@ -182,7 +175,7 @@ export const getComponentiFromMacchina = async (commessaId, macchinaId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero dei componenti dalla macchina:", error);
+    console.error('Errore durante il recupero dei componenti dalla macchina:', error);
     throw error;
   }
 };
@@ -217,7 +210,7 @@ export const removeComponenteFromMacchina = async (commessaId, macchinaId, compo
     );
     return response.data;
   } catch (error) {
-    console.error("Errore durante la rimozione del componente dalla macchina:", error);
+    console.error('Errore durante la rimozione del componente dalla macchina:', error);
     throw error;
   }
 };

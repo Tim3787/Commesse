@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 // Configurazione base di Axios
 const apiClient = axios.create({
@@ -13,10 +13,10 @@ const apiClient = axios.create({
 // Ottieni tutte le schede (filtrabili per tipo o commessa_id)
 export const fetchSchedeMulti = async (params = {}) => {
   try {
-    const response = await apiClient.get("/api/schede-multi", { params });
+    const response = await apiClient.get('/api/schede-multi', { params });
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle schede:", error);
+    console.error('Errore durante il recupero delle schede:', error);
     throw error;
   }
 };
@@ -24,10 +24,10 @@ export const fetchSchedeMulti = async (params = {}) => {
 // Crea una nuova scheda
 export const createSchedaMulti = async (formData) => {
   try {
-    const response = await apiClient.post("/api/schede-multi", formData);
+    const response = await apiClient.post('/api/schede-multi', formData);
     return response.data;
   } catch (error) {
-    console.error("Errore durante la creazione della scheda:", error);
+    console.error('Errore durante la creazione della scheda:', error);
     throw error;
   }
 };
@@ -42,7 +42,7 @@ export const fetchNoteScheda = async (schedaId) => {
     const response = await apiClient.get(`/api/schede-multi/${schedaId}/note`);
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero delle note:", error);
+    console.error('Errore durante il recupero delle note:', error);
     throw error;
   }
 };
@@ -81,10 +81,10 @@ export const deleteNotaScheda = async (notaId) => {
 // Ottieni i tipi di schede multi
 export const fetchTipiSchedaMulti = async () => {
   try {
-    const response = await apiClient.get("/api/schede-multi/tipi");
+    const response = await apiClient.get('/api/schede-multi/tipi');
     return response.data;
   } catch (error) {
-    console.error("Errore nel recupero dei tipi di schede multi:", error);
+    console.error('Errore nel recupero dei tipi di schede multi:', error);
     throw error;
   }
 };

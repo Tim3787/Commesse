@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
-import {  toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import apiClient from "../config/axiosConfig";
-import { jwtDecode } from "jwt-decode";
-import SchedaTecnica from "./SchedaTecnicaEdit.js";
-import { fetchSchedeTecniche } from "../services/API/schedeTecniche-api";
+import React, { useEffect, useState } from 'react';
+import { fetchAttivitaCommessa } from '../services/API/attivitaCommesse-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import apiClient from '../config/axiosConfig';
+import { jwtDecode } from 'jwt-decode';
+import SchedaTecnica from './SchedaTecnicaEdit.js';
+import { fetchSchedeTecniche } from '../services/API/schedeTecniche-api';
 
 function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const [attivita, setAttivita] = useState([]);
@@ -18,14 +18,13 @@ function CommessaDettagli({ commessa, onClose, onStatusUpdated }) {
   const [popupScheda, setPopupScheda] = useState(null);
   const [schede, setSchede] = useState([]);
 
-
   // Gestione locale della commessa per aggiornare il valore visualizzato
   const [localCommessa, setLocalCommessa] = useState(commessa);
 
   // Decodifica del token per ottenere il ruolo, qui usiamo "role_id"
-const decodedToken = jwtDecode(sessionStorage.getItem("token"));
-const finalUserRole = decodedToken?.role_id || 0;
-  
+  const decodedToken = jwtDecode(sessionStorage.getItem('token'));
+  const finalUserRole = decodedToken?.role_id || 0;
+
   // Aggiorna il localCommessa se la prop commessa cambia
   useEffect(() => {
     setLocalCommessa(commessa);
@@ -50,7 +49,7 @@ const finalUserRole = decodedToken?.role_id || 0;
   // Raggruppa le attività per reparto
   const groupActivitiesByReparto = (activities) => {
     return activities.reduce((acc, activity) => {
-      const reparto = activity.reparto || "Sconosciuto";
+      const reparto = activity.reparto || 'Sconosciuto';
       if (!acc[reparto]) {
         acc[reparto] = [];
       }
@@ -70,7 +69,7 @@ const finalUserRole = decodedToken?.role_id || 0;
         );
         setAttivita(filteredActivities);
       } catch (error) {
-        console.error("Errore nel caricamento delle attività:", error);
+        console.error('Errore nel caricamento delle attività:', error);
       } finally {
         setLoading(false);
       }
@@ -85,12 +84,12 @@ const finalUserRole = decodedToken?.role_id || 0;
   useEffect(() => {
     const fetchStati = async () => {
       try {
-        const response = await apiClient.get("/api/stato-commessa");
+        const response = await apiClient.get('/api/stato-commessa');
 
         setStatiCommessa(response.data);
       } catch (error) {
-        console.error("Errore durante il recupero degli stati della commessa:", error);
-        toast.error("Errore durante il recupero degli stati della commessa:", error);
+        console.error('Errore durante il recupero degli stati della commessa:', error);
+        toast.error('Errore durante il recupero degli stati della commessa:', error);
       }
     };
     fetchStati();
@@ -101,14 +100,14 @@ const finalUserRole = decodedToken?.role_id || 0;
   const handleStatoChange = async (commessaId, newStateId) => {
     try {
       await apiClient.put(`/api/commesse/${commessaId}/stato`, {
-  stato_commessa: newStateId,
-});
+        stato_commessa: newStateId,
+      });
 
-      toast.success("Stato aggiornato correttamente.");
+      toast.success('Stato aggiornato correttamente.');
       // Aggiorna il localCommessa con il nuovo stato
       setLocalCommessa((prev) => ({ ...prev, stato: newStateId }));
       // Chiama il callback per aggiornare il componente principale
-      if (typeof onStatusUpdated === "function") {
+      if (typeof onStatusUpdated === 'function') {
         onStatusUpdated();
       }
     } catch (error) {
@@ -121,36 +120,33 @@ const finalUserRole = decodedToken?.role_id || 0;
     onClose();
   };
 
-  
   // ------------------------------------------------------------------
   // Schede
   // ------------------------------------------------------------------
   const toggleSchede = (commessaId) => {
-  setSchedeAperte(prev => ({
-    ...prev,
-    [commessaId]: !prev[commessaId]
-  }));
-};
+    setSchedeAperte((prev) => ({
+      ...prev,
+      [commessaId]: !prev[commessaId],
+    }));
+  };
 
-const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
-  setPopupScheda({
-    commessaId,
-    numero_commessa,
-    schedaInModifica: schedaInModifica || null,
-  });
-};
+  const apriPopupScheda = ({ commessaId, numero_commessa, schedaInModifica }) => {
+    setPopupScheda({
+      commessaId,
+      numero_commessa,
+      schedaInModifica: schedaInModifica || null,
+    });
+  };
 
-useEffect(() => {
-  if (!localCommessa?.commessa_id) return;
+  useEffect(() => {
+    if (!localCommessa?.commessa_id) return;
 
-  setLoading(true);
-  fetchSchedeTecniche(localCommessa.commessa_id)
-    .then(setSchede)
-    .catch(err => console.error("Errore nel caricamento delle schede:", err))
-    .finally(() => setLoading(false));
-}, [localCommessa.commessa_id]);
-
-
+    setLoading(true);
+    fetchSchedeTecniche(localCommessa.commessa_id)
+      .then(setSchede)
+      .catch((err) => console.error('Errore nel caricamento delle schede:', err))
+      .finally(() => setLoading(false));
+  }, [localCommessa.commessa_id]);
 
   return (
     <div className="popup-Big">
@@ -163,18 +159,20 @@ useEffect(() => {
           <strong>Tipo Macchina:</strong> {localCommessa.tipo_macchina}
         </p>
         <p>
-          <strong>Descrizione:</strong> {localCommessa.descrizione || "-"}
+          <strong>Descrizione:</strong> {localCommessa.descrizione || '-'}
         </p>
         <p>
-          <strong>Data FAT:</strong>{" "}
-          {localCommessa.data_FAT ? new Date(localCommessa.data_FAT).toLocaleDateString() : "-"}
+          <strong>Data FAT:</strong>{' '}
+          {localCommessa.data_FAT ? new Date(localCommessa.data_FAT).toLocaleDateString() : '-'}
         </p>
         <p>
-          <strong>Data Consegna:</strong>{" "}
-          {localCommessa.data_consegna ? new Date(localCommessa.data_consegna).toLocaleDateString() : "-"}
+          <strong>Data Consegna:</strong>{' '}
+          {localCommessa.data_consegna
+            ? new Date(localCommessa.data_consegna).toLocaleDateString()
+            : '-'}
         </p>
         <p>
-          <strong>Stato:</strong>{" "}
+          <strong>Stato:</strong>{' '}
           {finalUserRole === 1 ? (
             <select
               name="stato"
@@ -194,14 +192,15 @@ useEffect(() => {
             </select>
           ) : (
             <span>
-              {statiCommessa.find((st) => Number(st.id) === Number(localCommessa.stato))?.nome_stato || "Non assegnato"}
+              {statiCommessa.find((st) => Number(st.id) === Number(localCommessa.stato))
+                ?.nome_stato || 'Non assegnato'}
             </span>
           )}
         </p>
 
         <div className="collapsible-section">
           <h3 onClick={() => setShowStati(!showStati)}>
-            STATI AVANZAMENTO {showStati ? "▲" : "▼"}
+            STATI AVANZAMENTO {showStati ? '▲' : '▼'}
           </h3>
           {showStati && (
             <ul>
@@ -210,10 +209,16 @@ useEffect(() => {
                   <li key={index}>
                     <strong>{repartoInfo.reparto_nome}:</strong> {repartoInfo.stato.nome_stato}
                     {repartoInfo.stato.data_inizio && (
-                      <span> (Inizio: {new Date(repartoInfo.stato.data_inizio).toLocaleDateString()})</span>
+                      <span>
+                        {' '}
+                        (Inizio: {new Date(repartoInfo.stato.data_inizio).toLocaleDateString()})
+                      </span>
                     )}
                     {repartoInfo.stato.data_fine && (
-                      <span> (Fine: {new Date(repartoInfo.stato.data_fine).toLocaleDateString()})</span>
+                      <span>
+                        {' '}
+                        (Fine: {new Date(repartoInfo.stato.data_fine).toLocaleDateString()})
+                      </span>
                     )}
                   </li>
                 ))
@@ -226,7 +231,7 @@ useEffect(() => {
 
         <div className="collapsible-section">
           <h3 onClick={() => setShowAttivita(!showAttivita)}>
-            ATTIVITA' {showAttivita ? "▲" : "▼"}
+            ATTIVITA' {showAttivita ? '▲' : '▼'}
           </h3>
           {showAttivita && (
             <>
@@ -243,7 +248,7 @@ useEffect(() => {
                         }))
                       }
                     >
-                      {reparto} {expandedReparti[reparto] ? "▲" : "▼"}
+                      {reparto} {expandedReparti[reparto] ? '▲' : '▼'}
                     </h3>
                     {expandedReparti[reparto] && (
                       <table>
@@ -261,19 +266,24 @@ useEffect(() => {
                         <tbody>
                           {groupedActivities[reparto].map((activity) => (
                             <tr key={activity.id}>
-                              <td>{activity.nome_attivita || "N/A"}</td>
-                              <td> {activity.data_inizio  ? new Date(activity.data_inizio).toLocaleDateString() : "Non definita"}</td>
-                              <td>{activity.durata || "1"}</td>
-                              <td>{activity.risorsa || "Non assegnata"}</td>
+                              <td>{activity.nome_attivita || 'N/A'}</td>
+                              <td>
+                                {' '}
+                                {activity.data_inizio
+                                  ? new Date(activity.data_inizio).toLocaleDateString()
+                                  : 'Non definita'}
+                              </td>
+                              <td>{activity.durata || '1'}</td>
+                              <td>{activity.risorsa || 'Non assegnata'}</td>
                               <td>
                                 {activity.stato === 0
-                                  ? "Non iniziata"
+                                  ? 'Non iniziata'
                                   : activity.stato === 1
-                                  ? "Iniziata"
-                                  : "Completata"}
+                                    ? 'Iniziata'
+                                    : 'Completata'}
                               </td>
-                              <td>{activity.descrizione_attivita|| "-"}</td>
-                              <td>{activity.note || "-"}</td>
+                              <td>{activity.descrizione_attivita || '-'}</td>
+                              <td>{activity.note || '-'}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -287,110 +297,103 @@ useEffect(() => {
             </>
           )}
         </div>
-                <div className="collapsible-section">
-         <button
-           className="btn btn-txt-white"
-     onClick={() => toggleSchede(localCommessa.commessa_id)}
-   >
-    {schedeAperte[localCommessa.commessa_id] ? "SCHEDE ▲" : "SCHEDE ▼"}
-  </button>
+        <div className="collapsible-section">
+          <button
+            className="btn btn-txt-white"
+            onClick={() => toggleSchede(localCommessa.commessa_id)}
+          >
+            {schedeAperte[localCommessa.commessa_id] ? 'SCHEDE ▲' : 'SCHEDE ▼'}
+          </button>
 
-  {schedeAperte[localCommessa.commessa_id] && (
- <div className="flex-column-left">
-      {loading ? (
-        <p>Caricamento schede...</p>
-      ) : (
-        <>
-          {schede.length === 0 ? (
-            <p>Nessuna scheda</p>
-          ) : (
-           
-            <div className="table-wrap">
-  <table className="table-schede">
-    <thead>
-      <tr>
-        <th style={{ width: "45%" }}>Titolo</th>
-        <th style={{ width: "15%", textAlign: "right" }}>Azioni</th>
-      </tr>
-    </thead>
+          {schedeAperte[localCommessa.commessa_id] && (
+            <div className="flex-column-left">
+              {loading ? (
+                <p>Caricamento schede...</p>
+              ) : (
+                <>
+                  {schede.length === 0 ? (
+                    <p>Nessuna scheda</p>
+                  ) : (
+                    <div className="table-wrap">
+                      <table className="table-schede">
+                        <thead>
+                          <tr>
+                            <th style={{ width: '45%' }}>Titolo</th>
+                            <th style={{ width: '15%', textAlign: 'right' }}>Azioni</th>
+                          </tr>
+                        </thead>
 
-    <tbody>
-      {schede.map((s) => (
-        <tr key={s.id}>
-          <td className="td-strong">
-             {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
-          </td>
+                        <tbody>
+                          {schede.map((s) => (
+                            <tr key={s.id}>
+                              <td className="td-strong">
+                                {s.titolo?.trim() || s.tipo || `Scheda #${s.id}`}
+                              </td>
 
-          <td style={{ textAlign: "right" }}>
-            <button
-              className="btn btn--blue btn--pill"
-              onClick={() =>
-                apriPopupScheda({
-                  commessaId: localCommessa.commessa_id,
-                  numero_commessa: localCommessa.numero_commessa,
-                  schedaInModifica: s,
-                })
-              }
-            >
-              Apri
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+                              <td style={{ textAlign: 'right' }}>
+                                <button
+                                  className="btn btn--blue btn--pill"
+                                  onClick={() =>
+                                    apriPopupScheda({
+                                      commessaId: localCommessa.commessa_id,
+                                      numero_commessa: localCommessa.numero_commessa,
+                                      schedaInModifica: s,
+                                    })
+                                  }
+                                >
+                                  Apri
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  <div className="flex-column-center"></div>
+                </>
+              )}
+              <div className="flex-column-center">
+                <button
+                  className="btn btn--blue w-100 btn--pill"
+                  onClick={() =>
+                    apriPopupScheda({
+                      commessaId: localCommessa.commessa_id,
+                      numero_commessa: localCommessa.numero_commessa,
+                      onClose: () => {
+                        setPopupScheda(null);
+                      },
+                    })
+                  }
+                >
+                  Crea Scheda
+                </button>
+              </div>
+            </div>
           )}
-     <div className="flex-column-center">
-</div>
-        </>
-      )}
-           <div className="flex-column-center">
-<button
-  className="btn btn--blue w-100 btn--pill"
-  onClick={() =>
-    apriPopupScheda({
-      commessaId: localCommessa.commessa_id,
-      numero_commessa: localCommessa.numero_commessa,
-      onClose: () => {
-        setPopupScheda(null);
-      }
-    })
-  }
->
-  Crea Scheda
-</button>
-
-
-</div>
-    </div>
-    
-  )}
-</div>
+        </div>
         <button className="btn w-200 btn--danger btn--pill" onClick={handleClosePopup}>
           Chiudi
         </button>
       </div>
-            {popupScheda && (
-  <SchedaTecnica
-    editable={true}
-    commessaId={popupScheda.commessaId}
-    numero_commessa={popupScheda.numero_commessa}
-    schedaInModifica={popupScheda.schedaInModifica}
-    setSchedaInModifica={(val) =>
-      setPopupScheda((prev) => ({ ...prev, schedaInModifica: val }))
-    }
-    onClose={() => {
-      setPopupScheda(null);
-      // Ricarico le schede dopo la chiusura del popup
-      fetchSchedeTecniche(localCommessa.commessa_id)
-        .then(setSchede)
-        .catch(err => console.error("Errore nel ricaricare le schede:", err));
-    }}
-  />
-)}
-
+      {popupScheda && (
+        <SchedaTecnica
+          editable={true}
+          commessaId={popupScheda.commessaId}
+          numero_commessa={popupScheda.numero_commessa}
+          schedaInModifica={popupScheda.schedaInModifica}
+          setSchedaInModifica={(val) =>
+            setPopupScheda((prev) => ({ ...prev, schedaInModifica: val }))
+          }
+          onClose={() => {
+            setPopupScheda(null);
+            // Ricarico le schede dopo la chiusura del popup
+            fetchSchedeTecniche(localCommessa.commessa_id)
+              .then(setSchede)
+              .catch((err) => console.error('Errore nel ricaricare le schede:', err));
+          }}
+        />
+      )}
     </div>
   );
 }

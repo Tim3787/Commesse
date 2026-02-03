@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   getNotificationPreferencesAPI,
   saveNotificationPreferenceAPI,
   deleteNotificationPreferenceAPI,
-  fetchCategorie
-} from"../services/API/notifiche-api";
-import { toast } from "react-toastify";
+  fetchCategorie,
+} from '../services/API/notifiche-api';
+import { toast } from 'react-toastify';
 
 const PreferenzeNotificheSection = ({ token }) => {
   const [preferenze, setPreferenze] = useState([]);
   const [formData, setFormData] = useState({
-    categoria: "",
+    categoria: '',
     viaPush: true,
     viaEmail: false,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [, setEditingCategoria] = useState(null);
   const [loading, setLoading] = useState(false);
-const [, setCategorie] = useState([]);
+  const [, setCategorie] = useState([]);
 
   const fetchPreferenze = async () => {
     try {
@@ -25,23 +25,23 @@ const [, setCategorie] = useState([]);
       const data = await getNotificationPreferencesAPI(token);
       setPreferenze(data);
     } catch (error) {
-      console.error("Errore durante il caricamento delle preferenze", error);
-      toast.error("Errore durante il caricamento delle preferenze");
+      console.error('Errore durante il caricamento delle preferenze', error);
+      toast.error('Errore durante il caricamento delle preferenze');
     } finally {
       setLoading(false);
     }
   };
 
-useEffect(() => {
-   fetchPreferenze();
-  fetchCategorieDisponibili();
-}, []);
+  useEffect(() => {
+    fetchPreferenze();
+    fetchCategorieDisponibili();
+  }, []);
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -64,98 +64,92 @@ useEffect(() => {
         formData.viaEmail,
         token
       );
-      toast.success("Preferenza salvata!");
-      setFormData({ categoria: "", viaPush: true, viaEmail: false });
+      toast.success('Preferenza salvata!');
+      setFormData({ categoria: '', viaPush: true, viaEmail: false });
       setIsEditing(false);
       setEditingCategoria(null);
       fetchPreferenze();
     } catch (error) {
-      console.error("Errore nel salvataggio della preferenza", error);
-      toast.error("Errore nel salvataggio della preferenza");
+      console.error('Errore nel salvataggio della preferenza', error);
+      toast.error('Errore nel salvataggio della preferenza');
     }
   };
 
   const handleDelete = async (categoria) => {
-         const first = window.confirm(
-    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`
-  );
-  if (!first) return;
+    const first = window.confirm(`ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE?`);
+    if (!first) return;
 
-  const second = window.confirm(
-    "Conferma finale: l'operazione è irreversibile. Continuare?"
-  );
-  if (!second) return;
+    const second = window.confirm("Conferma finale: l'operazione è irreversibile. Continuare?");
+    if (!second) return;
     try {
       await deleteNotificationPreferenceAPI(categoria, token);
-      toast.success("Preferenza eliminata!");
+      toast.success('Preferenza eliminata!');
       fetchPreferenze();
     } catch (error) {
       console.error("Errore durante l'eliminazione della preferenza", error);
       toast.error("Errore durante l'eliminazione");
     }
   };
-const fetchCategorieDisponibili = async () => {
-  try {
-    const data = await fetchCategorie();
-    setCategorie(data);
-  } catch (error) {
-    console.error("Errore durante il caricamento delle categorie", error);
-  }
-};
-
+  const fetchCategorieDisponibili = async () => {
+    try {
+      const data = await fetchCategorie();
+      setCategorie(data);
+    } catch (error) {
+      console.error('Errore durante il caricamento delle categorie', error);
+    }
+  };
 
   return (
     <div className="section-wrapper">
       <h2 className="section-title">Gestisci come ricevere le notifiche</h2>
       <form onSubmit={handleSubmit} className="form-section">
-  {isEditing && (
-    <>
-      <h2>Seleziona come ricevere le notifiche: </h2>
-      <div className="row">
-        <label>
-          <input
-            type="checkbox"
-            name="viaPush"
-            checked={formData.viaPush}
-            onChange={handleChange}
-          />
-          Notifica Push
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="viaEmail"
-            checked={formData.viaEmail}
-            onChange={handleChange}
-          />
-          Notifica Email
-        </label>
-      </div>
-    </>
-  )}
+        {isEditing && (
+          <>
+            <h2>Seleziona come ricevere le notifiche: </h2>
+            <div className="row">
+              <label>
+                <input
+                  type="checkbox"
+                  name="viaPush"
+                  checked={formData.viaPush}
+                  onChange={handleChange}
+                />
+                Notifica Push
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="viaEmail"
+                  checked={formData.viaEmail}
+                  onChange={handleChange}
+                />
+                Notifica Email
+              </label>
+            </div>
+          </>
+        )}
 
-  <div className="row" style={{ marginBottom: "10px" }}>
-    {isEditing && (
-      <>
-        <button type="submit" className="btn w-200 btn--shiny btn--pill">
-          Salva modifiche
-        </button>
-        <button
-          type="button"
-          className="btn w-200 btn--danger btn--pill"
-          onClick={() => {
-            setIsEditing(false);
-            setEditingCategoria(null);
-            setFormData({ categoria: "", viaPush: true, viaEmail: false });
-          }}
-        >
-          Annulla modifica
-        </button>
-      </>
-    )}
-  </div>
-</form>
-
+        <div className="row" style={{ marginBottom: '10px' }}>
+          {isEditing && (
+            <>
+              <button type="submit" className="btn w-200 btn--shiny btn--pill">
+                Salva modifiche
+              </button>
+              <button
+                type="button"
+                className="btn w-200 btn--danger btn--pill"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditingCategoria(null);
+                  setFormData({ categoria: '', viaPush: true, viaEmail: false });
+                }}
+              >
+                Annulla modifica
+              </button>
+            </>
+          )}
+        </div>
+      </form>
 
       {loading ? (
         <p>Caricamento in corso...</p>
@@ -175,13 +169,23 @@ const fetchCategorieDisponibili = async () => {
             {preferenze.map((pref) => (
               <tr key={pref.categoria}>
                 <td>{pref.categoria}</td>
-                <td>{pref.via_push ? "✅" : "❌"}</td>
-                <td>{pref.via_email ? "✅" : "❌"}</td>
+                <td>{pref.via_push ? '✅' : '❌'}</td>
+                <td>{pref.via_email ? '✅' : '❌'}</td>
                 <td>
                   <div className="row">
-                  <button onClick={() => handleEdit(pref)} className="btn w-100 btn--warning  btn--pill">Modifica</button>
-                  <button onClick={() => handleDelete(pref.categoria)}className="btn w-100 btn--danger btn--pill">Elimina</button>
-               </div>
+                    <button
+                      onClick={() => handleEdit(pref)}
+                      className="btn w-100 btn--warning  btn--pill"
+                    >
+                      Modifica
+                    </button>
+                    <button
+                      onClick={() => handleDelete(pref.categoria)}
+                      className="btn w-100 btn--danger btn--pill"
+                    >
+                      Elimina
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

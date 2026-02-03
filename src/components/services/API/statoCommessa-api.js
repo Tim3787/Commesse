@@ -1,20 +1,17 @@
-
-import axios from "axios";
+import axios from 'axios';
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-    timeout: 15000, // Timeout di 15 secondi
+  timeout: 15000, // Timeout di 15 secondi
 });
-
-
 
 // Funzione per ottenere gli stati della commessa
 export const fetchStatiCommessa = async () => {
   try {
-    const response = await apiClient.get("/api/stato-commessa");
+    const response = await apiClient.get('/api/stato-commessa');
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero degli stati della commessa:", error);
+    console.error('Errore durante il recupero degli stati della commessa:', error);
     throw error;
   }
 };
@@ -22,10 +19,10 @@ export const fetchStatiCommessa = async () => {
 // Funzione per creare uno stato della commessa
 export const createStatoCommessa = async (formData) => {
   try {
-    const response = await apiClient.post("/api/stato-commessa", formData);
+    const response = await apiClient.post('/api/stato-commessa', formData);
     return response.data;
   } catch (error) {
-    console.error("Errore durante la creazione dello stato della commessa:", error);
+    console.error('Errore durante la creazione dello stato della commessa:', error);
     throw error;
   }
 };
@@ -50,5 +47,3 @@ export const deleteStatoCommessa = async (id) => {
     throw error;
   }
 };
-
-

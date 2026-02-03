@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import logo from "../img/Animation - 1738249246846.gif";
+import logo from '../img/Animation - 1738249246846.gif';
 
 // Import per Toastify (notifiche)
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// API 
+// API
 import {
   getMacchine,
   addMacchina,
@@ -33,7 +33,11 @@ function CommesseDettagli() {
   // Ora usiamo "macchina" per salvare il nome della macchina, non l'ID numerico
   const [componenti, setComponenti] = useState([]);
   const [componentiLoading, setComponentiLoading] = useState(false);
-  const [componenteFormData, setComponenteFormData] = useState({ nome_componente: '', macchina: '', tipo: '' });
+  const [componenteFormData, setComponenteFormData] = useState({
+    nome_componente: '',
+    macchina: '',
+    tipo: '',
+  });
   const [isEditingComponente, setIsEditingComponente] = useState(false);
   const [editComponenteId, setEditComponenteId] = useState(null);
 
@@ -52,8 +56,8 @@ function CommesseDettagli() {
       const data = await getMacchine();
       setMacchine(data);
     } catch (error) {
-      console.error("Errore nel caricamento delle macchine:", error);
-      toast.error("Errore nel caricamento delle macchine.");
+      console.error('Errore nel caricamento delle macchine:', error);
+      toast.error('Errore nel caricamento delle macchine.');
     } finally {
       setMacchineLoading(false);
     }
@@ -66,25 +70,25 @@ function CommesseDettagli() {
   const handleMacchinaSubmit = async (e) => {
     e.preventDefault();
     if (!macchinaFormData.macchina || !macchinaFormData.modello) {
-      toast.error("I campi macchina e modello sono obbligatori.");
+      toast.error('I campi macchina e modello sono obbligatori.');
       return;
     }
     setMacchineLoading(true);
     try {
       if (isEditingMacchina) {
         await updateMacchina(editMacchinaId, macchinaFormData);
-        toast.success("Macchina aggiornata con successo!");
+        toast.success('Macchina aggiornata con successo!');
       } else {
         await addMacchina(macchinaFormData);
-        toast.success("Macchina aggiunta con successo!");
+        toast.success('Macchina aggiunta con successo!');
       }
       setMacchinaFormData({ macchina: '', modello: '' });
       setIsEditingMacchina(false);
       setEditMacchinaId(null);
       loadMacchine();
     } catch (error) {
-      console.error("Errore nella gestione della macchina:", error);
-      toast.error("Errore nella gestione della macchina.");
+      console.error('Errore nella gestione della macchina:', error);
+      toast.error('Errore nella gestione della macchina.');
     } finally {
       setMacchineLoading(false);
     }
@@ -97,11 +101,11 @@ function CommesseDettagli() {
   };
 
   const handleMacchinaDelete = async (id) => {
-    if (window.confirm("Eliminare questa macchina?")) {
+    if (window.confirm('Eliminare questa macchina?')) {
       setMacchineLoading(true);
       try {
         await deleteMacchina(id);
-        toast.success("Macchina eliminata!");
+        toast.success('Macchina eliminata!');
         loadMacchine();
       } catch (error) {
         console.error("Errore nell'eliminazione della macchina:", error);
@@ -112,10 +116,8 @@ function CommesseDettagli() {
     }
   };
 
- 
-
   // Estrae i nomi univoci delle macchine per il menu a tendina nei componenti
-  const uniqueMacchine = [...new Set(macchine.map(m => m.macchina))];
+  const uniqueMacchine = [...new Set(macchine.map((m) => m.macchina))];
 
   // --------------------------
   // Funzioni per Componenti
@@ -126,8 +128,8 @@ function CommesseDettagli() {
       const data = await getComponenti();
       setComponenti(data);
     } catch (error) {
-      console.error("Errore nel caricamento dei componenti:", error);
-      toast.error("Errore nel caricamento dei componenti.");
+      console.error('Errore nel caricamento dei componenti:', error);
+      toast.error('Errore nel caricamento dei componenti.');
     } finally {
       setComponentiLoading(false);
     }
@@ -141,25 +143,25 @@ function CommesseDettagli() {
     e.preventDefault();
     const { nome_componente, macchina, tipo } = componenteFormData;
     if (!nome_componente || !macchina || !tipo) {
-      toast.error("I campi nome componente, macchina e tipo sono obbligatori.");
+      toast.error('I campi nome componente, macchina e tipo sono obbligatori.');
       return;
     }
     setComponentiLoading(true);
     try {
       if (isEditingComponente) {
         await updateComponente(editComponenteId, componenteFormData);
-        toast.success("Componente aggiornato con successo!");
+        toast.success('Componente aggiornato con successo!');
       } else {
         await addComponente(componenteFormData);
-        toast.success("Componente aggiunto con successo!");
+        toast.success('Componente aggiunto con successo!');
       }
       setComponenteFormData({ nome_componente: '', macchina: '', tipo: '' });
       setIsEditingComponente(false);
       setEditComponenteId(null);
       loadComponenti();
     } catch (error) {
-      console.error("Errore nella gestione del componente:", error);
-      toast.error("Errore nella gestione del componente.");
+      console.error('Errore nella gestione del componente:', error);
+      toast.error('Errore nella gestione del componente.');
     } finally {
       setComponentiLoading(false);
     }
@@ -168,7 +170,7 @@ function CommesseDettagli() {
   const handleComponenteEdit = (comp) => {
     setComponenteFormData({
       nome_componente: comp.componente,
-      macchina: comp.macchina,  // In questo campo viene già salvato il nome della macchina
+      macchina: comp.macchina, // In questo campo viene già salvato il nome della macchina
       tipo: comp.tipo,
     });
     setIsEditingComponente(true);
@@ -176,11 +178,11 @@ function CommesseDettagli() {
   };
 
   const handleComponenteDelete = async (id) => {
-    if (window.confirm("Eliminare questo componente?")) {
+    if (window.confirm('Eliminare questo componente?')) {
       setComponentiLoading(true);
       try {
         await deleteComponente(id);
-        toast.success("Componente eliminato!");
+        toast.success('Componente eliminato!');
         loadComponenti();
       } catch (error) {
         console.error("Errore nell'eliminazione del componente:", error);
@@ -207,7 +209,7 @@ function CommesseDettagli() {
           </div>
         )}
         <form onSubmit={handleMacchinaSubmit}>
-          <h3>{isEditingMacchina ? "Modifica Macchina" : "Aggiungi Macchina"}</h3>
+          <h3>{isEditingMacchina ? 'Modifica Macchina' : 'Aggiungi Macchina'}</h3>
           <div className="flex-column-centerterter">
             <label>Macchina:</label>
             <input
@@ -228,7 +230,9 @@ function CommesseDettagli() {
               required
             />
           </div>
-          <button type="submit" className="btn btn--blue">{isEditingMacchina ? "Aggiorna" : "Aggiungi"}</button>
+          <button type="submit" className="btn btn--blue">
+            {isEditingMacchina ? 'Aggiorna' : 'Aggiungi'}
+          </button>
           {isEditingMacchina && (
             <button
               type="button"
@@ -266,10 +270,16 @@ function CommesseDettagli() {
                       <td>{m.macchina}</td>
                       <td>{m.modello}</td>
                       <td>
-                        <button onClick={() => handleMacchinaEdit(m)} className="btn w-200 btn--warning btn--pill">
+                        <button
+                          onClick={() => handleMacchinaEdit(m)}
+                          className="btn w-200 btn--warning btn--pill"
+                        >
                           Modifica
                         </button>
-                        <button onClick={() => handleMacchinaDelete(m.id)} className="btn w-200 btn--danger btn--pill">
+                        <button
+                          onClick={() => handleMacchinaDelete(m.id)}
+                          className="btn w-200 btn--danger btn--pill"
+                        >
                           Elimina
                         </button>
                       </td>
@@ -286,7 +296,7 @@ function CommesseDettagli() {
       <section className="section-global">
         <h2>Gestione Componenti</h2>
         <form onSubmit={handleComponenteSubmit}>
-          <h3>{isEditingComponente ? "Modifica Componente" : "Aggiungi Componente"}</h3>
+          <h3>{isEditingComponente ? 'Modifica Componente' : 'Aggiungi Componente'}</h3>
           <div className="flex-column-center">
             <label>Nome Componente:</label>
             <input
@@ -304,7 +314,8 @@ function CommesseDettagli() {
               value={componenteFormData.macchina}
               onChange={handleComponenteChange}
               required
-            className="w-200">
+              className="w-200"
+            >
               <option value="">-- Seleziona una macchina --</option>
               {uniqueMacchine.map((nome, index) => (
                 <option key={index} value={nome}>
@@ -323,7 +334,7 @@ function CommesseDettagli() {
               required
             />
           </div>
-          <button type="submit">{isEditingComponente ? "Aggiorna" : "Aggiungi"}</button>
+          <button type="submit">{isEditingComponente ? 'Aggiorna' : 'Aggiungi'}</button>
           {isEditingComponente && (
             <button
               type="button"
@@ -363,10 +374,16 @@ function CommesseDettagli() {
                       <td>{c.macchina}</td>
                       <td>{c.tipo}</td>
                       <td>
-                        <button onClick={() => handleComponenteEdit(c)} className="btn w-200 btn--warning btn--pill">
+                        <button
+                          onClick={() => handleComponenteEdit(c)}
+                          className="btn w-200 btn--warning btn--pill"
+                        >
                           Modifica
                         </button>
-                        <button onClick={() => handleComponenteDelete(c.id)} className="btn w-200 btn--danger btn--pill">
+                        <button
+                          onClick={() => handleComponenteDelete(c.id)}
+                          className="btn w-200 btn--danger btn--pill"
+                        >
                           Elimina
                         </button>
                       </td>

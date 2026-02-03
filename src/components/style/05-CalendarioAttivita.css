@@ -1,47 +1,45 @@
-.Calendario-table{
-  max-height: 65vh; 
+.Calendario-table {
+  max-height: 65vh;
 }
 
 /* calendario compattato*/
-.Calendario-table th[colspan]{
+.Calendario-table th[colspan] {
   border: none;
-  background-color:  var(--bg-dark);
+  background-color: var(--bg-dark);
   display: flex;
   align-items: center;
-  justify-content: center; 
-      }
+  justify-content: center;
+}
 
 /* prima colonna*/
 .Calendario-table td:first-child {
-  left: 0; 
-  z-index: 9; 
+  left: 0;
+  z-index: 9;
   position: sticky;
-background-color:  var( --hover-dark);
+  background-color: var(--hover-dark);
 }
 
- /* prima riga*/
-.Calendario-table  thead {
-  left: 0; 
-  top: 0;   
-  z-index: 10; 
+/* prima riga*/
+.Calendario-table thead {
+  left: 0;
+  top: 0;
+  z-index: 10;
   position: sticky;
-background-color:  var( --hover-dark);
+  background-color: var(--hover-dark);
 }
 
- /* niente data sopra alle risore*/
+/* niente data sopra alle risore*/
 .Calendario-table th:first-child {
- color: transparent;
+  color: transparent;
 }
 /* ==============================
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-
-.Calendario-table  td:first-child {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
-  max-width: 80px; /* o ch */
+  .Calendario-table td:first-child {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    max-width: 80px; /* o ch */
+  }
 }
-}
-

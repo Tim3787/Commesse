@@ -1,7 +1,7 @@
-import React from "react";
-import { useDrag, useDrop } from "react-dnd";
+import React from 'react';
+import { useDrag, useDrop } from 'react-dnd';
 
-const ItemType = "COLUMN";
+const ItemType = 'COLUMN';
 
 function DraggableColumn({ id, index, moveColumn, children }) {
   const [, dragRef] = useDrag({
@@ -19,7 +19,7 @@ function DraggableColumn({ id, index, moveColumn, children }) {
   });
 
   return (
-    <th ref={(node) => dragRef(dropRef(node))} style={{ cursor: "move" }}>
+    <th ref={(node) => dragRef(dropRef(node))} style={{ cursor: 'move' }}>
       {children}
     </th>
   );

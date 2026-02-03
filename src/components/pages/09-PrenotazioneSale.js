@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import logo from "../img/Animation - 1738249246846.gif";
+import logo from '../img/Animation - 1738249246846.gif';
 
 // Import API per le varie entità
-import { fetchRisorse } from "../services/API/risorse-api";
+import { fetchRisorse } from '../services/API/risorse-api';
 import {
   fetchPrenotazioniSale,
   PrenotaSale,
   deletePrenotazioneSale,
   updatePrenotazioneSale,
-} from "../services/API/sale-api";
+} from '../services/API/sale-api';
 
 // Import per Toastify (notifiche)
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
  * Componente PrenotazioneSale
@@ -25,20 +25,20 @@ function PrenotazioneSale() {
   // Stati del componente
   // ------------------------------------------------------------------
   const [prenotazioni, setPrenotazioni] = useState([]); // Elenco delle prenotazioni
-  const [utenti, setUtenti] = useState([]);             // Elenco degli utenti (risorse)
-  const [isEditing, setIsEditing] = useState(false);      // Stato per abilitare la modalità di editing
-  const [editingId, setEditingId] = useState(null);       // ID della prenotazione in modifica
-  const [loading, setLoading] = useState(false);          // Stato di caricamento generale
+  const [utenti, setUtenti] = useState([]); // Elenco degli utenti (risorse)
+  const [isEditing, setIsEditing] = useState(false); // Stato per abilitare la modalità di editing
+  const [editingId, setEditingId] = useState(null); // ID della prenotazione in modifica
+  const [loading, setLoading] = useState(false); // Stato di caricamento generale
   const [highlightedId, setHighlightedId] = useState(null); // ID della prenotazione evidenziata (ad es. dopo creazione/aggiornamento)
   const [deleteLoadingId, setDeleteLoadingId] = useState(null); // Stato di caricamento specifico per l'eliminazione
   const [showUtenteSuggestions, setShowUtenteSuggestions] = useState(false); // Controlla la visualizzazione dei suggerimenti per l'utente
-  const [filteredUtenti, setFilteredUtenti] = useState([]);  // Utenti filtrati in base all'input
+  const [filteredUtenti, setFilteredUtenti] = useState([]); // Utenti filtrati in base all'input
   const [newPrenotazione, setNewPrenotazione] = useState({
-    salaId: "1",
-    dataOra: "",
-    durata: "60",
-    descrizione: "Riunione interna",
-    utente: "",
+    salaId: '1',
+    dataOra: '',
+    durata: '60',
+    descrizione: 'Riunione interna',
+    utente: '',
   });
   // Stato per gestire aggiornamenti temporanei delle note (se richiesto in futuro)
   // const [noteUpdates, setNoteUpdates] = useState({}); // Non presente in questo componente
@@ -64,7 +64,7 @@ function PrenotazioneSale() {
       setPrenotazioni(prenotazioniResponse);
       setUtenti(utentiResponse);
     } catch (error) {
-      toast.error("Errore durante il caricamento dei dati.");
+      toast.error('Errore durante il caricamento dei dati.');
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ function PrenotazioneSale() {
       }
       resetForm();
     } catch {
-      toast.error("Errore durante la gestione della prenotazione.");
+      toast.error('Errore durante la gestione della prenotazione.');
     } finally {
       setLoading(false);
     }
@@ -141,9 +141,9 @@ function PrenotazioneSale() {
       const nuovaPrenotazione = await PrenotaSale(formData);
       setPrenotazioni((prev) => [...prev, nuovaPrenotazione]);
       setHighlightedId(nuovaPrenotazione.id);
-      toast.success("Prenotazione creata con successo.");
+      toast.success('Prenotazione creata con successo.');
     } catch {
-      toast.error("Errore durante la creazione della prenotazione.");
+      toast.error('Errore durante la creazione della prenotazione.');
     }
   };
 
@@ -154,12 +154,10 @@ function PrenotazioneSale() {
     try {
       const prenotazioneAggiornata = await updatePrenotazioneSale(id, formData);
       setPrenotazioni((prev) =>
-        prev.map((prenotazione) =>
-          prenotazione.id === id ? prenotazioneAggiornata : prenotazione
-        )
+        prev.map((prenotazione) => (prenotazione.id === id ? prenotazioneAggiornata : prenotazione))
       );
       setHighlightedId(id);
-      toast.success("Prenotazione aggiornata con successo.");
+      toast.success('Prenotazione aggiornata con successo.');
     } catch {
       toast.error("Errore durante l'aggiornamento della prenotazione.");
     }
@@ -169,14 +167,12 @@ function PrenotazioneSale() {
    * Elimina una prenotazione dopo aver confermato con l'utente.
    */
   const handleDeletePrenotazione = async (id) => {
-    if (window.confirm("Sei sicuro di voler eliminare questa prenotazione?")) {
+    if (window.confirm('Sei sicuro di voler eliminare questa prenotazione?')) {
       setDeleteLoadingId(id);
       try {
         await deletePrenotazioneSale(id);
-        setPrenotazioni((prev) =>
-          prev.filter((prenotazione) => prenotazione.id !== id)
-        );
-        toast.success("Prenotazione eliminata con successo.");
+        setPrenotazioni((prev) => prev.filter((prenotazione) => prenotazione.id !== id));
+        toast.success('Prenotazione eliminata con successo.');
       } catch {
         toast.error("Errore durante l'eliminazione della prenotazione.");
       } finally {
@@ -199,11 +195,11 @@ function PrenotazioneSale() {
    */
   const resetForm = () => {
     setNewPrenotazione({
-      salaId: "1",
-      dataOra: "",
-      durata: "",
-      descrizione: "",
-      utente: "",
+      salaId: '1',
+      dataOra: '',
+      durata: '',
+      descrizione: '',
+      utente: '',
     });
     setIsEditing(false);
     setEditingId(null);
@@ -214,180 +210,175 @@ function PrenotazioneSale() {
   // ------------------------------------------------------------------
   return (
     <div className="page-wrapper">
-    <div className="header">
-      <div className="flex-center header-row">
-      <h1>PRENOTAZIONE SALE RIUNIONI</h1>
-      </div>
+      <div className="header">
+        <div className="flex-center header-row">
+          <h1>PRENOTAZIONE SALE RIUNIONI</h1>
+        </div>
       </div>
       <div className="container">
-          <div className= "mh-80 ">
-      <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
-      {loading && (
-        <div className="loading-overlay">
-          <img src={logo} alt="Caricamento" className="logo-spinner" />
-        </div>
-      )}
-      {/* Form per la prenotazione */}
-      <form onSubmit={handleSubmit}>
-        {/* Campo per selezionare l'ID della sala */}
-        <div className="flex-column-center">
-          <label>ID Sala:</label>
-          <select
-            name="salaId"
-            value={newPrenotazione.salaId}
-            onChange={handleChange}
-            required
-            className="w-400"
-          >
-            <option value="1">1 - Grande</option>
-            <option value="2">2 - Piccola</option>
-          </select>
-        </div>
-
-        {/* Campo per la data e ora */}
-        <div className="flex-column-center">
-          <label>Data e Ora:</label>
-          <input
-            type="datetime-local"
-            name="dataOra"
-            value={newPrenotazione.dataOra}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-        </div>
-
-        {/* Campo per la durata */}
-        <div className="flex-column-center">
-          <label>Durata (in minuti):</label>
-          <input
-            type="number"
-            name="durata"
-            value={newPrenotazione.durata}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-        </div>
-
-        {/* Campo per la descrizione */}
-        <div className="flex-column-center">
-          <label>Descrizione:</label>
-          <input
-            type="text"
-            name="descrizione"
-            value={newPrenotazione.descrizione}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-        </div>
-
-        {/* Campo per l'utente con funzionalità di suggerimento */}
-         
-        <div className="flex-column-center">
-         <div className="suggestion-wrapper w-400  flex-column-center"
-         >   
-          <label>Utente:</label>
-          <input
-            type="text"
-            name="utente"
-            value={newPrenotazione.utente}
-            onChange={(e) => {
-              handleChange(e);
-              handleUtenteInput(e.target.value);
-            }}
-            placeholder="Cerca utente..."
-            className="w-400"
-          />
-          {showUtenteSuggestions && (
-            <ul className="suggestions-list w-400"
-            style={{position:"relative"}}
-            >
-              {filteredUtenti.map((utente) => (
-                <li
-                  key={utente.id}
-                  onClick={() => handleSelectUtente(utente.nome)}
-                  className="suggestion-item"
-                >
-                  {utente.nome}
-                </li>
-              ))}
-            </ul>
+        <div className="mh-80 ">
+          <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
+          {loading && (
+            <div className="loading-overlay">
+              <img src={logo} alt="Caricamento" className="logo-spinner" />
+            </div>
           )}
-        </div>
-</div>
-        {/* Pulsante per il submit */}
-        <div className="flex-column-center">
-        <button type="submit" className="btn w-400 btn--blue  btn--pill" disabled={loading}>
-          {loading
-            ? "Salvataggio..."
-            : isEditing
-            ? "Aggiorna Prenotazione"
-            : "Aggiungi Prenotazione"}
-        </button>
+          {/* Form per la prenotazione */}
+          <form onSubmit={handleSubmit}>
+            {/* Campo per selezionare l'ID della sala */}
+            <div className="flex-column-center">
+              <label>ID Sala:</label>
+              <select
+                name="salaId"
+                value={newPrenotazione.salaId}
+                onChange={handleChange}
+                required
+                className="w-400"
+              >
+                <option value="1">1 - Grande</option>
+                <option value="2">2 - Piccola</option>
+              </select>
+            </div>
 
-        {/* Pulsante per annullare l'editing */}
-        {isEditing && (
-          <button type="button" className="btn w-400 btn--danger btn--pill" onClick={resetForm}>
-            Annulla
-          </button>
-        )}
-        </div>
-      </form>
+            {/* Campo per la data e ora */}
+            <div className="flex-column-center">
+              <label>Data e Ora:</label>
+              <input
+                type="datetime-local"
+                name="dataOra"
+                value={newPrenotazione.dataOra}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+            </div>
 
-      {/* Tabella delle prenotazioni */}
-      <table>
-        <thead>
-          <tr>
-            <th>ID Sala</th>
-            <th>Data e Ora</th>
-            <th>Durata</th>
-            <th>Descrizione</th>
-            <th>Utente</th>
-            <th>Azioni</th>
-          </tr>
-        </thead>
-        <tbody>
-          {prenotazioni.map((prenotazione) => (
-            <tr
-              key={prenotazione.id}
-              className={
-                highlightedId === prenotazione.id ? "highlighted-row" : ""
-              }
-              onAnimationEnd={() => setHighlightedId(null)}
-            >
-              <td>
-                {prenotazione.salaId === "1" ? "Grande" : "Piccola"}
-              </td>
-              <td>{prenotazione.dataOra}</td>
-              <td>{prenotazione.durata} min</td>
-              <td>{prenotazione.descrizione}</td>
-              <td>{prenotazione.utente}</td>
-              <td>
+            {/* Campo per la durata */}
+            <div className="flex-column-center">
+              <label>Durata (in minuti):</label>
+              <input
+                type="number"
+                name="durata"
+                value={newPrenotazione.durata}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+            </div>
+
+            {/* Campo per la descrizione */}
+            <div className="flex-column-center">
+              <label>Descrizione:</label>
+              <input
+                type="text"
+                name="descrizione"
+                value={newPrenotazione.descrizione}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+            </div>
+
+            {/* Campo per l'utente con funzionalità di suggerimento */}
+
+            <div className="flex-column-center">
+              <div className="suggestion-wrapper w-400  flex-column-center">
+                <label>Utente:</label>
+                <input
+                  type="text"
+                  name="utente"
+                  value={newPrenotazione.utente}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handleUtenteInput(e.target.value);
+                  }}
+                  placeholder="Cerca utente..."
+                  className="w-400"
+                />
+                {showUtenteSuggestions && (
+                  <ul className="suggestions-list w-400" style={{ position: 'relative' }}>
+                    {filteredUtenti.map((utente) => (
+                      <li
+                        key={utente.id}
+                        onClick={() => handleSelectUtente(utente.nome)}
+                        className="suggestion-item"
+                      >
+                        {utente.nome}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+            {/* Pulsante per il submit */}
+            <div className="flex-column-center">
+              <button type="submit" className="btn w-400 btn--blue  btn--pill" disabled={loading}>
+                {loading
+                  ? 'Salvataggio...'
+                  : isEditing
+                    ? 'Aggiorna Prenotazione'
+                    : 'Aggiungi Prenotazione'}
+              </button>
+
+              {/* Pulsante per annullare l'editing */}
+              {isEditing && (
                 <button
-                  className="btn w-100 btn--warning btn--pill"
-                  onClick={() => handleEdit(prenotazione)}
+                  type="button"
+                  className="btn w-400 btn--danger btn--pill"
+                  onClick={resetForm}
                 >
-                  Modifica
+                  Annulla
                 </button>
-                <button
-                  className="btn w-100 btn--danger btn--pill"
-                  onClick={() => handleDeletePrenotazione(prenotazione.id)}
-                  disabled={deleteLoadingId === prenotazione.id}
+              )}
+            </div>
+          </form>
+
+          {/* Tabella delle prenotazioni */}
+          <table>
+            <thead>
+              <tr>
+                <th>ID Sala</th>
+                <th>Data e Ora</th>
+                <th>Durata</th>
+                <th>Descrizione</th>
+                <th>Utente</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prenotazioni.map((prenotazione) => (
+                <tr
+                  key={prenotazione.id}
+                  className={highlightedId === prenotazione.id ? 'highlighted-row' : ''}
+                  onAnimationEnd={() => setHighlightedId(null)}
                 >
-                  {deleteLoadingId === prenotazione.id
-                    ? "Eliminazione..."
-                    : "Elimina"}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <td>{prenotazione.salaId === '1' ? 'Grande' : 'Piccola'}</td>
+                  <td>{prenotazione.dataOra}</td>
+                  <td>{prenotazione.durata} min</td>
+                  <td>{prenotazione.descrizione}</td>
+                  <td>{prenotazione.utente}</td>
+                  <td>
+                    <button
+                      className="btn w-100 btn--warning btn--pill"
+                      onClick={() => handleEdit(prenotazione)}
+                    >
+                      Modifica
+                    </button>
+                    <button
+                      className="btn w-100 btn--danger btn--pill"
+                      onClick={() => handleDeletePrenotazione(prenotazione.id)}
+                      disabled={deleteLoadingId === prenotazione.id}
+                    >
+                      {deleteLoadingId === prenotazione.id ? 'Eliminazione...' : 'Elimina'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-   </div>
-   </div>
   );
 }
 

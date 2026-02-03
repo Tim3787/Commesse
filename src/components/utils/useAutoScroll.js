@@ -47,10 +47,7 @@ export default function useAutoScroll(containerRef, isDragging, maxSpeed = 20, t
         speedXRef.current = 0;
       }
 
-      console.log("mousemove con drag attivo:", {
-        speedX: speedXRef.current,
-        speedY: speedYRef.current,
-      });
+
     };
 
     const scroll = () => {

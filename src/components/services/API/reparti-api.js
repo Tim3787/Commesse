@@ -1,18 +1,17 @@
-
-import axios from "axios";
+import axios from 'axios';
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-    timeout: 15000, // Timeout di 15 secondi
+  timeout: 15000, // Timeout di 15 secondi
 });
 
 // Funzione per ottenere i reparti
 export const fetchReparti = async () => {
   try {
-    const response = await apiClient.get("/api/reparti");
+    const response = await apiClient.get('/api/reparti');
     return response.data;
   } catch (error) {
-    console.error("Errore durante il recupero dei reparti:", error);
+    console.error('Errore durante il recupero dei reparti:', error);
     throw error;
   }
 };
@@ -20,10 +19,10 @@ export const fetchReparti = async () => {
 // Funzione per creare un reparto
 export const createReparto = async (formData) => {
   try {
-    const response = await apiClient.post("/api/reparti", formData);
+    const response = await apiClient.post('/api/reparti', formData);
     return response.data;
   } catch (error) {
-    console.error("Errore durante la creazione del reparto:", error);
+    console.error('Errore durante la creazione del reparto:', error);
     throw error;
   }
 };
@@ -48,4 +47,3 @@ export const deleteReparto = async (id) => {
     throw error;
   }
 };
-

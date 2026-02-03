@@ -1,8 +1,8 @@
-import apiClient from "../../config/axiosConfig";
+import apiClient from '../../config/axiosConfig';
 
 // GET /api/schedeTecniche/tag?reparto=software&includeGlobal=1&search=...
 export async function fetchTags(params = {}) {
-  const { data } = await apiClient.get("/api/schedeTecniche/tag", { params });
+  const { data } = await apiClient.get('/api/schedeTecniche/tag', { params });
   return data;
 }
 
@@ -22,7 +22,7 @@ export async function updateTagsScheda(schedaId, tagIds) {
 // Se invece vuoi farli passare da /schedeTecniche, dimmelo e cambio i path.
 
 export async function createTag(payload) {
-  const { data } = await apiClient.post("/api/tags", payload);
+  const { data } = await apiClient.post('/api/tags', payload);
   return data;
 }
 

@@ -89,7 +89,7 @@ setStatiCommessa(statoCommessaResponse.data);
   }, []);
 
   useEffect(() => {
-  console.log("Commesse caricate:", commesse.length);
+
 }, [commesse]);
   const loadData = async () => {
     setLoading(true);

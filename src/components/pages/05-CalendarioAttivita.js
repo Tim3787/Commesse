@@ -1,19 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import "../style/05-CalendarioAttivita.css";
-import logo from "../img/Animation - 1738249246846.gif";
-import { getDaysInMonth } from "../assets/date";
+import React, { useEffect, useRef, useState } from 'react';
+import '../style/05-CalendarioAttivita.css';
+import logo from '../img/Animation - 1738249246846.gif';
+import { getDaysInMonth } from '../assets/date';
 
 // FontAwesome
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEyeSlash,faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEyeSlash, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 // API
-import { fetchRisorse } from "../services/API/risorse-api";
-import { fetchAttivitaCommessa } from "../services/API/attivitaCommesse-api";
+import { fetchRisorse } from '../services/API/risorse-api';
+import { fetchAttivitaCommessa } from '../services/API/attivitaCommesse-api';
 
 // Toastify
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function CalendarioAttivita() {
   // ------------------------------------------------------------------
@@ -26,16 +26,15 @@ function CalendarioAttivita() {
   const [loading, setLoading] = useState(false);
 
   const containerRef = useRef(null);
- 
 
   // ✅ NEW: repartoSelezionato 0 = TUTTI
   const [repartoSelezionato, setRepartoSelezionato] = useState(0);
 
   // ✅ NEW: filtri come DashboardReparto
   const [filters, setFilters] = useState({
-    commessa: "",
-    risorsa: "",
-    attivita: "",
+    commessa: '',
+    risorsa: '',
+    attivita: '',
   });
 
   // ✅ NEW: autocomplete
@@ -60,49 +59,48 @@ function CalendarioAttivita() {
   });
 
   const repartiDisponibili = [
-    { id: 0, nome: "TUTTI I REPARTI" }, // ✅ NEW
-    { id: 1, nome: "Reparto Software" },
-    { id: 2, nome: "Reparto Elettrico" },
-    { id: 3, nome: "Reparto Meccanico" },
-    { id: 13, nome: "Reparto Commerciale" },
-    { id: 14, nome: "Reparto Tecnico elettrico" },
-    { id: 15, nome: "Reparto Quadri" },
-    { id: 16, nome: "Reparto Tecnico meccanico" },
-    { id: 18, nome: "Reparto Service" },
+    { id: 0, nome: 'TUTTI I REPARTI' }, // ✅ NEW
+    { id: 1, nome: 'Reparto Software' },
+    { id: 2, nome: 'Reparto Elettrico' },
+    { id: 3, nome: 'Reparto Meccanico' },
+    { id: 13, nome: 'Reparto Commerciale' },
+    { id: 14, nome: 'Reparto Tecnico elettrico' },
+    { id: 15, nome: 'Reparto Quadri' },
+    { id: 16, nome: 'Reparto Tecnico meccanico' },
+    { id: 18, nome: 'Reparto Service' },
   ];
 
   const repartiMap = {
-  1: "Reparto Software",
-  2: "Reparto Elettrico",
-  3: "Reparto Meccanico",
-  13: "Reparto Commerciale",
-  14: "Reparto Tecnico elettrico",
-  15: "Reparto Quadri",
-  16: "Reparto Tecnico meccanico",
-  18: "Reparto Service",
-};
+    1: 'Reparto Software',
+    2: 'Reparto Elettrico',
+    3: 'Reparto Meccanico',
+    13: 'Reparto Commerciale',
+    14: 'Reparto Tecnico elettrico',
+    15: 'Reparto Quadri',
+    16: 'Reparto Tecnico meccanico',
+    18: 'Reparto Service',
+  };
 
-// Risorse filtrate per reparto selezionato (0 = tutti)
-const resourcesForTable = resources.filter((r) =>
-  repartoSelezionato === 0 ? true : Number(r.reparto_id) === Number(repartoSelezionato)
-);
+  // Risorse filtrate per reparto selezionato (0 = tutti)
+  const resourcesForTable = resources.filter((r) =>
+    repartoSelezionato === 0 ? true : Number(r.reparto_id) === Number(repartoSelezionato)
+  );
 
-// Raggruppa per reparto_id
-const groupedByReparto = resourcesForTable.reduce((acc, r) => {
-  const rid = Number(r.reparto_id);
-  if (!acc[rid]) acc[rid] = [];
-  acc[rid].push(r);
-  return acc;
-}, {});
+  // Raggruppa per reparto_id
+  const groupedByReparto = resourcesForTable.reduce((acc, r) => {
+    const rid = Number(r.reparto_id);
+    if (!acc[rid]) acc[rid] = [];
+    acc[rid].push(r);
+    return acc;
+  }, {});
 
-// Ordine reparti (come il tuo)
-const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
-
+  // Ordine reparti (come il tuo)
+  const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
 
   const daysInMonth = getDaysInMonth(currentMonth);
 
   const meseCorrente = currentMonth
-    .toLocaleDateString("it-IT", { month: "long", year: "numeric" })
+    .toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
     .replace(/^./, (c) => c.toUpperCase());
 
   // ------------------------------------------------------------------
@@ -112,13 +110,13 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   };
 
   const formatDateOnly = (dateObj) => {
     const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const d = String(dateObj.getDate()).padStart(2, "0");
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   };
 
@@ -151,18 +149,16 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
     return dates;
   };
 
+  // Stato per il menu a burger (filtri e opzioni)
+  const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
 
-  
-    // Stato per il menu a burger (filtri e opzioni)
-    const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
-  
-    // ----------------------------
-    // Funzione per aprire/chiudere il menu a burger
-    // ----------------------------
-    const toggleBurgerMenu = () => {
-      setIsBurgerMenuOpen((prev) => !prev);
-    };
-  
+  // ----------------------------
+  // Funzione per aprire/chiudere il menu a burger
+  // ----------------------------
+  const toggleBurgerMenu = () => {
+    setIsBurgerMenuOpen((prev) => !prev);
+  };
+
   // ------------------------------------------------------------------
   // Fetch iniziale
   // ------------------------------------------------------------------
@@ -177,8 +173,8 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
         setActivities(activitiesData);
         setResources(resourcesData);
       } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
-        toast.error("Errore durante il recupero dei dati");
+        console.error('Errore durante il recupero dei dati:', error);
+        toast.error('Errore durante il recupero dei dati');
       } finally {
         setLoading(false);
       }
@@ -192,19 +188,19 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
   useEffect(() => {
     const f = activities.filter((a) => {
       const commessaMatch = filters.commessa
-        ? String(a.numero_commessa || "")
+        ? String(a.numero_commessa || '')
             .toLowerCase()
             .includes(filters.commessa.toLowerCase())
         : true;
 
       const risorsaMatch = filters.risorsa
-        ? String(a.risorsa || a.nome_risorsa || "")
+        ? String(a.risorsa || a.nome_risorsa || '')
             .toLowerCase()
             .includes(filters.risorsa.toLowerCase())
         : true;
 
       const attivitaMatch = filters.attivita
-        ? String(a.nome_attivita || "")
+        ? String(a.nome_attivita || '')
             .toLowerCase()
             .includes(filters.attivita.toLowerCase())
         : true;
@@ -245,14 +241,14 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
   // Chiudi suggestions cliccando fuori
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest(".suggestion-wrapper") && !event.target.closest(".w-200")) {
+      if (!event.target.closest('.suggestion-wrapper') && !event.target.closest('.w-200')) {
         setShowCommessaSuggestions(false);
         setShowRisorsaSuggestions(false);
         setShowAttivitaSuggestions(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   // ------------------------------------------------------------------
@@ -267,57 +263,56 @@ const repartoOrder = [1, 2, 3, 13, 14, 15, 16, 18];
   };
 
   // Scroll a oggi
-const scrollToToday = () => {
-  const today = new Date();
+  const scrollToToday = () => {
+    const today = new Date();
 
-  const doScrollForMonth = (monthDate) => {
-    if (!containerRef.current) return;
+    const doScrollForMonth = (monthDate) => {
+      if (!containerRef.current) return;
 
-    const monthDays = getDaysInMonth(monthDate);
+      const monthDays = getDaysInMonth(monthDate);
 
-    const dayIndex = monthDays.findIndex(
-      (d) =>
-        d.getDate() === today.getDate() &&
-        d.getMonth() === today.getMonth() &&
-        d.getFullYear() === today.getFullYear()
-    );
+      const dayIndex = monthDays.findIndex(
+        (d) =>
+          d.getDate() === today.getDate() &&
+          d.getMonth() === today.getMonth() &&
+          d.getFullYear() === today.getFullYear()
+      );
 
-    if (dayIndex === -1) return;
+      if (dayIndex === -1) return;
 
-    const table = containerRef.current.querySelector("table");
-    const ths = table?.querySelectorAll("thead th");
-    const th = ths?.[dayIndex + 1]; // +1 perché prima colonna è "Reparto/Risorsa"
-    if (!th) return;
+      const table = containerRef.current.querySelector('table');
+      const ths = table?.querySelectorAll('thead th');
+      const th = ths?.[dayIndex + 1]; // +1 perché prima colonna è "Reparto/Risorsa"
+      if (!th) return;
 
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const thRect = th.getBoundingClientRect();
-    const offsetLeft = thRect.left - containerRect.left;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const thRect = th.getBoundingClientRect();
+      const offsetLeft = thRect.left - containerRect.left;
 
-    containerRef.current.scrollTo({
-      left: offsetLeft - containerRef.current.clientWidth / 2 + thRect.width / 2,
-      behavior: "smooth",
-    });
-  };
-
-  const sameMonth =
-    currentMonth.getMonth() === today.getMonth() &&
-    currentMonth.getFullYear() === today.getFullYear();
-
-  if (!sameMonth) {
-    const nextMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    setCurrentMonth(nextMonth);
-
-    // aspetta che React renderizzi la nuova tabella
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        doScrollForMonth(nextMonth);
+      containerRef.current.scrollTo({
+        left: offsetLeft - containerRef.current.clientWidth / 2 + thRect.width / 2,
+        behavior: 'smooth',
       });
-    });
-  } else {
-    requestAnimationFrame(() => doScrollForMonth(currentMonth));
-  }
-};
+    };
 
+    const sameMonth =
+      currentMonth.getMonth() === today.getMonth() &&
+      currentMonth.getFullYear() === today.getFullYear();
+
+    if (!sameMonth) {
+      const nextMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      setCurrentMonth(nextMonth);
+
+      // aspetta che React renderizzi la nuova tabella
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          doScrollForMonth(nextMonth);
+        });
+      });
+    } else {
+      requestAnimationFrame(() => doScrollForMonth(currentMonth));
+    }
+  };
 
   // ------------------------------------------------------------------
   // ✅ Cambio reparto con "TUTTI"
@@ -356,18 +351,16 @@ const scrollToToday = () => {
   };
 
   const resourceHasActivitiesInMonth = (resourceId) => {
-  return filteredActivities.some((activity) => {
-    if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
+    return filteredActivities.some((activity) => {
+      if (Number(activity.risorsa_id) !== Number(resourceId)) return false;
 
-    const dates = getActivityDates(activity);
-    return dates.some(
-      (d) =>
-        d.getMonth() === currentMonth.getMonth() &&
-        d.getFullYear() === currentMonth.getFullYear()
-    );
-  });
-};
-
+      const dates = getActivityDates(activity);
+      return dates.some(
+        (d) =>
+          d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear()
+      );
+    });
+  };
 
   // ------------------------------------------------------------------
   // Cell
@@ -377,15 +370,19 @@ const scrollToToday = () => {
       <td>
         {activities.map((activity) => {
           const activityClass =
-            activity.stato === 0 ? "activity not-started" : activity.stato === 1 ? "activity started" : "activity completed";
+            activity.stato === 0
+              ? 'activity not-started'
+              : activity.stato === 1
+                ? 'activity started'
+                : 'activity completed';
 
-          const isTrasferta = activity.nome_attivita?.toLowerCase().includes("trasferta");
+          const isTrasferta = activity.nome_attivita?.toLowerCase().includes('trasferta');
 
           return (
             <div
               key={activity.id}
               className={`activity ${activityClass}`}
-              style={{ minWidth: "150px", minHeight: "70px", fontSize: "14px" }}
+              style={{ minWidth: '150px', minHeight: '70px', fontSize: '14px' }}
             >
               <strong>Commessa:</strong> {activity.numero_commessa}
               <br />
@@ -396,8 +393,12 @@ const scrollToToday = () => {
                 </span>
               )}
               <br />
-              <strong>Stato:</strong>{" "}
-              {activity.stato === 0 ? "Non iniziata" : activity.stato === 1 ? "Iniziata" : "Completata"}
+              <strong>Stato:</strong>{' '}
+              {activity.stato === 0
+                ? 'Non iniziata'
+                : activity.stato === 1
+                  ? 'Iniziata'
+                  : 'Completata'}
             </div>
           );
         })}
@@ -437,16 +438,13 @@ const scrollToToday = () => {
           </div>
         )}
 
-
-
-                           {/* Bottone per aprire/chiudere il menu */}
-            <div className="burger-header" >
-        <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
-          Filtri ed Opzioni
-        </button>
+        {/* Bottone per aprire/chiudere il menu */}
+        <div className="burger-header">
+          <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
+            Filtri ed Opzioni
+          </button>
         </div>
-              </div>
-
+      </div>
 
       {/* BURGER MENU (Filtri e Opzioni) */}
       {isBurgerMenuOpen && (
@@ -458,191 +456,199 @@ const scrollToToday = () => {
           </div>
           <div className="burger-menu-content">
             {/* Opzioni di visualizzazione */}
-              <h3>Filtri </h3>
-     
+            <h3>Filtri </h3>
 
-<div style={{ marginLeft: "10px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "flex-start" }}>
-          {/* Reparto */}
-          <select
-            id="reparto-select"
-            value={repartoSelezionato}
-            onChange={(e) => handleRepartoChange(Number(e.target.value))}
-            className="w-200"
-          >
-            {repartiDisponibili.map((rep) => (
-              <option key={rep.id} value={rep.id}>
-                {rep.nome}
-              </option>
-            ))}
-          </select>
+            <div
+              style={{
+                marginLeft: '10px',
+                display: 'flex',
+                gap: '10px',
+                flexWrap: 'wrap',
+                alignItems: 'flex-start',
+              }}
+            >
+              {/* Reparto */}
+              <select
+                id="reparto-select"
+                value={repartoSelezionato}
+                onChange={(e) => handleRepartoChange(Number(e.target.value))}
+                className="w-200"
+              >
+                {repartiDisponibili.map((rep) => (
+                  <option key={rep.id} value={rep.id}>
+                    {rep.nome}
+                  </option>
+                ))}
+              </select>
 
-          {/* ✅ Filtri autocomplete */}
-          <div className="suggestion-wrapper w-200">
-            <input
-              type="text"
-              placeholder="Filtra per commessa"
-              value={filters.commessa}
-              onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
-              onFocus={() => setShowCommessaSuggestions(true)}
-              className="w-200"
-            />
-            {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
-              <ul className="suggestions-list w-200">
-                {suggestionsCommessa
-                  .filter((value) => value.toString().toLowerCase().includes(filters.commessa.toLowerCase()))
-                  .map((value, index) => (
-                    <li
-                      key={index}
-                      onClick={() => {
-                        setFilters({ ...filters, commessa: value });
-                        setShowCommessaSuggestions(false);
-                      }}
-                    >
-                      {value}
-                    </li>
-                  ))}
-              </ul>
-            )}
-          </div>
+              {/* ✅ Filtri autocomplete */}
+              <div className="suggestion-wrapper w-200">
+                <input
+                  type="text"
+                  placeholder="Filtra per commessa"
+                  value={filters.commessa}
+                  onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
+                  onFocus={() => setShowCommessaSuggestions(true)}
+                  className="w-200"
+                />
+                {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
+                  <ul className="suggestions-list w-200">
+                    {suggestionsCommessa
+                      .filter((value) =>
+                        value.toString().toLowerCase().includes(filters.commessa.toLowerCase())
+                      )
+                      .map((value, index) => (
+                        <li
+                          key={index}
+                          onClick={() => {
+                            setFilters({ ...filters, commessa: value });
+                            setShowCommessaSuggestions(false);
+                          }}
+                        >
+                          {value}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
 
-          <div className="suggestion-wrapper w-200">
-            <input
-              type="text"
-              placeholder="Filtra per risorsa"
-              value={filters.risorsa}
-              onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
-              onFocus={() => setShowRisorsaSuggestions(true)}
-              className="w-200"
-            />
-            {showRisorsaSuggestions && suggestionsRisorsa.length > 0 && (
-              <ul className="suggestions-list w-200">
-                {suggestionsRisorsa
-                  .filter((value) => value.toLowerCase().includes(filters.risorsa.toLowerCase()))
-                  .map((value, index) => (
-                    <li
-                      key={index}
-                      onClick={() => {
-                        setFilters({ ...filters, risorsa: value });
-                        setShowRisorsaSuggestions(false);
-                      }}
-                    >
-                      {value}
-                    </li>
-                  ))}
-              </ul>
-            )}
-          </div>
+              <div className="suggestion-wrapper w-200">
+                <input
+                  type="text"
+                  placeholder="Filtra per risorsa"
+                  value={filters.risorsa}
+                  onChange={(e) => setFilters({ ...filters, risorsa: e.target.value })}
+                  onFocus={() => setShowRisorsaSuggestions(true)}
+                  className="w-200"
+                />
+                {showRisorsaSuggestions && suggestionsRisorsa.length > 0 && (
+                  <ul className="suggestions-list w-200">
+                    {suggestionsRisorsa
+                      .filter((value) =>
+                        value.toLowerCase().includes(filters.risorsa.toLowerCase())
+                      )
+                      .map((value, index) => (
+                        <li
+                          key={index}
+                          onClick={() => {
+                            setFilters({ ...filters, risorsa: value });
+                            setShowRisorsaSuggestions(false);
+                          }}
+                        >
+                          {value}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
 
-          <div className="suggestion-wrapper w-200">
-            <input
-              type="text"
-              placeholder="Filtra per attività"
-              value={filters.attivita}
-              onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
-              onFocus={() => setShowAttivitaSuggestions(true)}
-              className="w-200"
-            />
-            {showAttivitaSuggestions && suggestionsAttivita.length > 0 && (
-              <ul className="suggestions-list w-200">
-                {suggestionsAttivita
-                  .filter((value) => value.toLowerCase().includes(filters.attivita.toLowerCase()))
-                  .map((value, index) => (
-                    <li
-                      key={index}
-                      onClick={() => {
-                        setFilters({ ...filters, attivita: value });
-                        setShowAttivitaSuggestions(false);
-                      }}
-                    >
-                      {value}
-                    </li>
-                  ))}
-              </ul>
-            )}
-          </div>
+              <div className="suggestion-wrapper w-200">
+                <input
+                  type="text"
+                  placeholder="Filtra per attività"
+                  value={filters.attivita}
+                  onChange={(e) => setFilters({ ...filters, attivita: e.target.value })}
+                  onFocus={() => setShowAttivitaSuggestions(true)}
+                  className="w-200"
+                />
+                {showAttivitaSuggestions && suggestionsAttivita.length > 0 && (
+                  <ul className="suggestions-list w-200">
+                    {suggestionsAttivita
+                      .filter((value) =>
+                        value.toLowerCase().includes(filters.attivita.toLowerCase())
+                      )
+                      .map((value, index) => (
+                        <li
+                          key={index}
+                          onClick={() => {
+                            setFilters({ ...filters, attivita: value });
+                            setShowAttivitaSuggestions(false);
+                          }}
+                        >
+                          {value}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
 
-          {/* ✅ Reset filtri (comodo) */}
-          <button
-            className="btn btn--pill w-200 btn--blue"
-            onClick={() => setFilters({ commessa: "", risorsa: "", attivita: "" })}
-          >
-            Reset filtri
-          </button>
-        </div>
-
-
-</div>
-  
+              {/* ✅ Reset filtri (comodo) */}
+              <button
+                className="btn btn--pill w-200 btn--blue"
+                onClick={() => setFilters({ commessa: '', risorsa: '', attivita: '' })}
+              >
+                Reset filtri
+              </button>
             </div>
+          </div>
+        </div>
       )}
 
       {/* CONTENITORE PRINCIPALE */}
-   <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`}>
-  <div
-    className="Reparto-table-container mh-72"
-    ref={containerRef}
-    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
-  >
-    <table>
-      <thead>
-        <tr>
-          <th>Reparto / Risorsa</th>
-          {daysInMonth.map((day, index) => {
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            const isToday = day.toDateString() === new Date().toDateString();
-            const weekNumber = getWeekNumber(day);
-            const showWeekNumber =
-              index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
+      <div className={`container ${isBurgerMenuOpen ? 'shifted' : ''}`}>
+        <div
+          className="Reparto-table-container mh-72"
+          ref={containerRef}
+          style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>Reparto / Risorsa</th>
+                {daysInMonth.map((day, index) => {
+                  const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                  const isToday = day.toDateString() === new Date().toDateString();
+                  const weekNumber = getWeekNumber(day);
+                  const showWeekNumber =
+                    index === 0 || getWeekNumber(daysInMonth[index - 1]) !== weekNumber;
 
-            return (
-              <th
-                key={day.toISOString()}
-                className={`${isToday ? "today" : ""} ${isWeekend ? "weekend" : ""}`}
-              >
-                <div>{day.toLocaleDateString()}</div>
-                {showWeekNumber && (
-                  <div className="week-number">Settimana {weekNumber}</div>
-                )}
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-
-      <tbody>
-        {repartoOrder
-          .filter((rid) =>
-            groupedByReparto[rid]?.some((r) => resourceHasActivitiesInMonth(r.id))
-          )
-          .map((rid) => (
-            <React.Fragment key={rid}>
-              <tr className="reparto-row">
-                <td colSpan={daysInMonth.length + 1} className="reparto-cell">
-                  <strong>{repartiMap[rid] || `Reparto ${rid}`}</strong>
-                </td>
+                  return (
+                    <th
+                      key={day.toISOString()}
+                      className={`${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}`}
+                    >
+                      <div>{day.toLocaleDateString()}</div>
+                      {showWeekNumber && <div className="week-number">Settimana {weekNumber}</div>}
+                    </th>
+                  );
+                })}
               </tr>
+            </thead>
 
-              {groupedByReparto[rid]
-                .filter((resource) => resourceHasActivitiesInMonth(resource.id))
-                .map((resource) => (
-                  <tr key={resource.id}>
-                    <td className="resource-name">{resource.nome}</td>
+            <tbody>
+              {repartoOrder
+                .filter((rid) =>
+                  groupedByReparto[rid]?.some((r) => resourceHasActivitiesInMonth(r.id))
+                )
+                .map((rid) => (
+                  <React.Fragment key={rid}>
+                    <tr className="reparto-row">
+                      <td colSpan={daysInMonth.length + 1} className="reparto-cell">
+                        <strong>{repartiMap[rid] || `Reparto ${rid}`}</strong>
+                      </td>
+                    </tr>
 
-                    {daysInMonth.map((day, index) => (
-                      <ResourceCell
-                        key={`${resource.id}-${index}`}
-                        activities={getActivitiesForResourceAndDay(resource.id, day)}
-                      />
-                    ))}
-                  </tr>
+                    {groupedByReparto[rid]
+                      .filter((resource) => resourceHasActivitiesInMonth(resource.id))
+                      .map((resource) => (
+                        <tr key={resource.id}>
+                          <td className="resource-name">{resource.nome}</td>
+
+                          {daysInMonth.map((day, index) => (
+                            <ResourceCell
+                              key={`${resource.id}-${index}`}
+                              activities={getActivitiesForResourceAndDay(resource.id, day)}
+                            />
+                          ))}
+                        </tr>
+                      ))}
+                  </React.Fragment>
                 ))}
-            </React.Fragment>
-          ))}
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 }
 

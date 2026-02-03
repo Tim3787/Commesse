@@ -1,18 +1,18 @@
-
-    /* ==============================
+/* ==============================
      Animations
      ============================== */
 @keyframes spin {
-0% {
-  transform: rotate(0deg);
-}
-100% {
-  transform: rotate(360deg);
-}
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1); /* Dimensione normale */
     opacity: 1; /* Completamente visibile */
   }
@@ -35,7 +35,6 @@
     transform: scale(1);
     opacity: 1;
   }
-  
 }
 @keyframes highlight {
   0% {

@@ -1,46 +1,45 @@
-import React, { useState, useEffect } from "react";
-import apiClient from "../config/axiosConfig";
+import React, { useState, useEffect } from 'react';
+import apiClient from '../config/axiosConfig';
 
 // Import per Toastify (per mostrare notifiche)
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Componente per la creazione/modifica di una commessa
 function CommessaCrea({
-  commessa,             // Oggetto commessa (usato in modalità modifica)
-  onClose,              // Funzione per chiudere il popup
-  isEditing,            // Booleano: true se si sta modificando, false se si sta creando
+  commessa, // Oggetto commessa (usato in modalità modifica)
+  onClose, // Funzione per chiudere il popup
+  isEditing, // Booleano: true se si sta modificando, false se si sta creando
   matchTrello,
-  reparti,              // Array dei reparti
-  attivita,             // Array delle attività disponibili
-  selezioniAttivita,    // Stato per le attività predefinite selezionate
+  reparti, // Array dei reparti
+  attivita, // Array delle attività disponibili
+  selezioniAttivita, // Stato per le attività predefinite selezionate
   setSelezioniAttivita, // Funzione per aggiornare le attività predefinite selezionate
-  editId,               // ID della commessa in modifica
-  stato_commessa,       // Array degli stati disponibili
+  editId, // ID della commessa in modifica
+  stato_commessa, // Array degli stati disponibili
   stati_avanzamento,
   setCommesse,
 }) {
   // Stato del form: inizialmente impostato a valori vuoti (modalità creazione)
   const [formData, setFormData] = useState({
-    numero_commessa: "",
-    tipo_macchina: "",
-    descrizione: "",
-    data_consegna: "",
-    data_FAT: "",
-    altri_particolari: "",
-    cliente: "",
-    stato_commessa: 2, // Stato default 
+    numero_commessa: '',
+    tipo_macchina: '',
+    descrizione: '',
+    data_consegna: '',
+    data_FAT: '',
+    altri_particolari: '',
+    cliente: '',
+    stato_commessa: 2, // Stato default
   });
 
+  // State per le attività predefinite e per la durata (già presente)
+  const [defaultActivitiesVisible, setDefaultActivitiesVisible] = useState(false);
+  const [defaultDurations, setDefaultDurations] = useState({});
+  const [loading, setLoading] = useState(false);
 
-// State per le attività predefinite e per la durata (già presente)
-const [defaultActivitiesVisible, setDefaultActivitiesVisible] = useState(false);
-const [defaultDurations, setDefaultDurations] = useState({});
-const [loading, setLoading] = useState(false);
-
-// Nuovo state per le selezioni degli stati iniziali per ciascun reparto
-const [defaultStateSelections, setDefaultStateSelections] = useState({});
-const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
+  // Nuovo state per le selezioni degli stati iniziali per ciascun reparto
+  const [defaultStateSelections, setDefaultStateSelections] = useState({});
+  const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
 
   // Funzione per formattare una data in formato "YYYY-MM-DD"
   const formatDate = (dateString) => {
@@ -48,46 +47,38 @@ const [defaultStatesVisible, setDefaultStatesVisible] = useState(false);
       return null;
     }
     const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split('T')[0];
   };
-
-
 
   // FStato per raparti se completata"
   const statiFissiPerReparto = {
-  software: "Avviamento terminato",
-  elettrico: "Completate",
-  quadristi: "Consegnato",
- tecnicoelettrico: "Completate",
-};
+    software: 'Avviamento terminato',
+    elettrico: 'Completate',
+    quadristi: 'Consegnato',
+    tecnicoelettrico: 'Completate',
+  };
 
-const aggiornaStatiInizialiSeConsegnata = (statoId) => {
-  const statoSelezionato = stato_commessa.find(
-    (st) => st.id === Number(statoId)
-  );
+  const aggiornaStatiInizialiSeConsegnata = (statoId) => {
+    const statoSelezionato = stato_commessa.find((st) => st.id === Number(statoId));
 
-  if (
-    statoSelezionato &&
-    statoSelezionato.nome_stato.toLowerCase().includes("consegnat")
-  ) {
-    const nuoviStati = {};
-    reparti.forEach((rep) => {
-      const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
-      if (statoFisico) {
-        nuoviStati[rep.id] = statoFisico;
-      }
-    });
-    setDefaultStateSelections(nuoviStati);
-    setDefaultStatesVisible(true);
-  }
-};
-
+    if (statoSelezionato && statoSelezionato.nome_stato.toLowerCase().includes('consegnat')) {
+      const nuoviStati = {};
+      reparti.forEach((rep) => {
+        const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
+        if (statoFisico) {
+          nuoviStati[rep.id] = statoFisico;
+        }
+      });
+      setDefaultStateSelections(nuoviStati);
+      setDefaultStatesVisible(true);
+    }
+  };
 
   // useEffect per inizializzare il form:
   // - Se in modalità modifica, precompila i campi con i dati della commessa esistente.
   // - Altrimenti, imposta i valori di default.
   useEffect(() => {
-      if ((isEditing || matchTrello) && commessa) {
+    if ((isEditing || matchTrello) && commessa) {
       setFormData({
         numero_commessa: commessa.numero_commessa,
         tipo_macchina: commessa.tipo_macchina,
@@ -98,7 +89,7 @@ const aggiornaStatiInizialiSeConsegnata = (statoId) => {
         cliente: commessa.cliente,
         stato_commessa: commessa.stato_commessa ? Number(commessa.stato_commessa) : 2,
       });
-aggiornaStatiInizialiSeConsegnata(commessa.stato_commessa);
+      aggiornaStatiInizialiSeConsegnata(commessa.stato_commessa);
 
       // Inizializza le attività già assegnate alla commessa, se presenti
       if (commessa.attivita && Array.isArray(commessa.attivita)) {
@@ -114,144 +105,126 @@ aggiornaStatiInizialiSeConsegnata(commessa.stato_commessa);
     } else {
       // Modalità creazione: imposta campi a valori di default
       setFormData({
-        numero_commessa: "",
-        tipo_macchina: "",
-        descrizione: "",
-        data_consegna: "",
-        data_FAT: "",
-        altri_particolari: "",
-        cliente: "",
+        numero_commessa: '',
+        tipo_macchina: '',
+        descrizione: '',
+        data_consegna: '',
+        data_FAT: '',
+        altri_particolari: '',
+        cliente: '',
         stato_commessa: 2,
       });
       setSelezioniAttivita({});
     }
-  }, [isEditing, matchTrello,commessa, setSelezioniAttivita]);
+  }, [isEditing, matchTrello, commessa, setSelezioniAttivita]);
 
-// Inizializza il dropdown per gli stati per ogni reparto (modalità creazione)
-useEffect(() => {
-  if (!isEditing && Array.isArray(reparti) && reparti.length > 0) {
-    const initialSelections = {};
-    reparti.forEach((rep) => {
-      const statiPerRep = stati_avanzamento.filter(
-        (st) => String(st.reparto_id) === String(rep.id)
-      );
-      const inEntrata = statiPerRep.find((st) => st.nome_stato === "In Entrata");
-      initialSelections[rep.id] = (inEntrata || statiPerRep[0])?.nome_stato || "";
-    });
-    setDefaultStateSelections(initialSelections);
-  }
-}, [isEditing, reparti, stati_avanzamento]);
-
- // useEffect per commessa completata:
-useEffect(() => {
-  if (
-    stato_commessa.length > 0 &&
-    formData.stato_commessa
-  ) {
-    const statoSelezionato = stato_commessa.find(
-      (st) => st.id === Number(formData.stato_commessa)
-    );
-
-    if (
-      statoSelezionato &&
-      statoSelezionato.nome_stato.toLowerCase().includes("consegnat")
-    ) {
-      const nuoviStati = {};
+  // Inizializza il dropdown per gli stati per ogni reparto (modalità creazione)
+  useEffect(() => {
+    if (!isEditing && Array.isArray(reparti) && reparti.length > 0) {
+      const initialSelections = {};
       reparti.forEach((rep) => {
-        const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
-        if (statoFisico) {
-          nuoviStati[rep.id] = statoFisico;
-        }
+        const statiPerRep = stati_avanzamento.filter(
+          (st) => String(st.reparto_id) === String(rep.id)
+        );
+        const inEntrata = statiPerRep.find((st) => st.nome_stato === 'In Entrata');
+        initialSelections[rep.id] = (inEntrata || statiPerRep[0])?.nome_stato || '';
       });
-      setDefaultStateSelections(nuoviStati);
-      setDefaultStatesVisible(true);
+      setDefaultStateSelections(initialSelections);
     }
-  }
-}, [
-  formData.stato_commessa,
-  stato_commessa,
-  reparti,
-]);
+  }, [isEditing, reparti, stati_avanzamento]);
 
-useEffect(() => {
-  if (stato_commessa.length > 0 && formData.stato_commessa) {
-    aggiornaStatiInizialiSeConsegnata(formData.stato_commessa);
-  }
-}, [formData.stato_commessa, stato_commessa, reparti]);
+  // useEffect per commessa completata:
+  useEffect(() => {
+    if (stato_commessa.length > 0 && formData.stato_commessa) {
+      const statoSelezionato = stato_commessa.find(
+        (st) => st.id === Number(formData.stato_commessa)
+      );
 
+      if (statoSelezionato && statoSelezionato.nome_stato.toLowerCase().includes('consegnat')) {
+        const nuoviStati = {};
+        reparti.forEach((rep) => {
+          const statoFisico = statiFissiPerReparto[rep.nome.toLowerCase()];
+          if (statoFisico) {
+            nuoviStati[rep.id] = statoFisico;
+          }
+        });
+        setDefaultStateSelections(nuoviStati);
+        setDefaultStatesVisible(true);
+      }
+    }
+  }, [formData.stato_commessa, stato_commessa, reparti]);
 
+  useEffect(() => {
+    if (stato_commessa.length > 0 && formData.stato_commessa) {
+      aggiornaStatiInizialiSeConsegnata(formData.stato_commessa);
+    }
+  }, [formData.stato_commessa, stato_commessa, reparti]);
 
   // Gestione dell'invio del form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validazione: la data FAT deve essere antecedente alla data di consegna
-    if (
-      formData.data_FAT &&
-      new Date(formData.data_FAT) > new Date(formData.data_consegna)
-    ) {
-      toast.error("La data FAT deve essere antecedente alla data di consegna.");
+    if (formData.data_FAT && new Date(formData.data_FAT) > new Date(formData.data_consegna)) {
+      toast.error('La data FAT deve essere antecedente alla data di consegna.');
       return;
     }
     // Validazione: il campo stato deve avere un valore valido
     if (!formData.stato_commessa) {
-      toast.error("Seleziona uno stato valido.");
+      toast.error('Seleziona uno stato valido.');
       return;
     }
 
-    
     setLoading(true);
-  try {
-    let commessaId;
-    let commessaFinale;
+    try {
+      let commessaId;
+      let commessaFinale;
 
-    const payload = isEditing
-      ? {
-          numero_commessa: formData.numero_commessa,
-          tipo_macchina: formData.tipo_macchina,
-          descrizione: formData.descrizione,
-          data_consegna: formatDate(formData.data_consegna),
-          data_FAT: formatDate(formData.data_FAT),
-          altri_particolari: formData.altri_particolari,
-          cliente: formData.cliente,
-          stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
-          stato_iniziale: defaultStateSelections,
-        }
-      : {
-          numero_commessa: formData.numero_commessa,
-          tipo_macchina: formData.tipo_macchina,
-          descrizione: formData.descrizione,
-          data_consegna: formatDate(formData.data_consegna),
-          data_FAT: formatDate(formData.data_FAT),
-          altri_particolari: formData.altri_particolari,
-          cliente: formData.cliente,
-          stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
-          stato_iniziale: defaultStateSelections,
-        };
+      const payload = isEditing
+        ? {
+            numero_commessa: formData.numero_commessa,
+            tipo_macchina: formData.tipo_macchina,
+            descrizione: formData.descrizione,
+            data_consegna: formatDate(formData.data_consegna),
+            data_FAT: formatDate(formData.data_FAT),
+            altri_particolari: formData.altri_particolari,
+            cliente: formData.cliente,
+            stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
+            stato_iniziale: defaultStateSelections,
+          }
+        : {
+            numero_commessa: formData.numero_commessa,
+            tipo_macchina: formData.tipo_macchina,
+            descrizione: formData.descrizione,
+            data_consegna: formatDate(formData.data_consegna),
+            data_FAT: formatDate(formData.data_FAT),
+            altri_particolari: formData.altri_particolari,
+            cliente: formData.cliente,
+            stato_commessa: parseInt(formData.stato_commessa, 10) || 2,
+            stato_iniziale: defaultStateSelections,
+          };
 
-  if (isEditing) {
-  await apiClient.put(`/api/commesse/${editId}`, payload);
-  commessaId = editId;
+      if (isEditing) {
+        await apiClient.put(`/api/commesse/${editId}`, payload);
+        commessaId = editId;
 
-  const { data } = await apiClient.get(`/api/commesse/${editId}`);
-  commessaFinale = data;
+        const { data } = await apiClient.get(`/api/commesse/${editId}`);
+        commessaFinale = data;
 
-  // 🔥 Aggiorna il form con lo stato corretto subito
-  setFormData(prev => ({
-    ...prev,
-    stato_commessa: Number(commessaFinale.stato_commessa)
-  }));
-}
-    else {
-      const { data } = await apiClient.post(`/api/commesse`, payload);
-      commessaId = data.commessaId;
-      const { data: nuovaCommessa } = await apiClient.get(`/api/commesse/${commessaId}`);
-      commessaFinale = nuovaCommessa;
-    }
-
+        // 🔥 Aggiorna il form con lo stato corretto subito
+        setFormData((prev) => ({
+          ...prev,
+          stato_commessa: Number(commessaFinale.stato_commessa),
+        }));
+      } else {
+        const { data } = await apiClient.post(`/api/commesse`, payload);
+        commessaId = data.commessaId;
+        const { data: nuovaCommessa } = await apiClient.get(`/api/commesse/${commessaId}`);
+        commessaFinale = nuovaCommessa;
+      }
 
       // Costruisci gli stati avanzamento in base alla selezione per ogni reparto
-         reparti.map((rep) => {
+      reparti.map((rep) => {
         // Filtra gli stati disponibili per il reparto corrente
         const statiPerRep = stati_avanzamento.filter(
           (st) => Number(st.reparto_id) === Number(rep.id)
@@ -259,8 +232,7 @@ useEffect(() => {
         // Trova lo stato selezionato per questo reparto; se non trovato, usa il primo disponibile
         const selectedStateName = defaultStateSelections[rep.id];
         const selectedState =
-          statiPerRep.find((st) => st.nome_stato === selectedStateName) ||
-          statiPerRep[0];
+          statiPerRep.find((st) => st.nome_stato === selectedStateName) || statiPerRep[0];
         return {
           reparto_id: rep.id,
           stato_id: selectedState ? selectedState.id : null,
@@ -289,38 +261,34 @@ useEffect(() => {
       });
 
       if (attivitaDaAggiungere.length > 0) {
-        await apiClient.post(
-  `/api/commesse/assegna-attivita-predefinite`,
-  attivitaDaAggiungere
-);
-
+        await apiClient.post(`/api/commesse/assegna-attivita-predefinite`, attivitaDaAggiungere);
       }
 
-    // 🔁 AGGIORNA SOLO LA COMMESSA INTERESSATA
-    if (typeof setCommesse === "function") {
-      setCommesse((prev) => {
-        const presente = prev.some((c) => c.id === commessaFinale.id);
-        if (presente) {
-          return prev.map((c) => (c.id === commessaFinale.id ? commessaFinale : c));
-        } else {
-          return [...prev, commessaFinale];
-        }
-      });
-    }
+      // 🔁 AGGIORNA SOLO LA COMMESSA INTERESSATA
+      if (typeof setCommesse === 'function') {
+        setCommesse((prev) => {
+          const presente = prev.some((c) => c.id === commessaFinale.id);
+          if (presente) {
+            return prev.map((c) => (c.id === commessaFinale.id ? commessaFinale : c));
+          } else {
+            return [...prev, commessaFinale];
+          }
+        });
+      }
 
       // Resetta il form e chiude il popup
       setFormData({
-        numero_commessa: "",
-        tipo_macchina: "",
-        descrizione: "",
-        data_consegna: "",
-        data_FAT: "",
-        altri_particolari: "",
-        cliente: "",
+        numero_commessa: '',
+        tipo_macchina: '',
+        descrizione: '',
+        data_consegna: '',
+        data_FAT: '',
+        altri_particolari: '',
+        cliente: '',
         stato_commessa: 2,
       });
       setSelezioniAttivita({});
-      toast.success("Commessa creata con successo!");
+      toast.success('Commessa creata con successo!');
     } catch (error) {
       console.error("Errore durante l'operazione:", error);
       toast.error("Errore durante l'operazione.");
@@ -335,11 +303,8 @@ useEffect(() => {
     setFormData({
       ...formData,
       // Se il campo è "stato_commessa", converte il valore in numero
-     [name]: name === "stato_commessa"
-    ? (value === "" ? null : Number(value))
-    : value
+      [name]: name === 'stato_commessa' ? (value === '' ? null : Number(value)) : value,
     });
-
   };
 
   // Gestione della selezione/deselezione delle attività (checkbox)
@@ -361,227 +326,222 @@ useEffect(() => {
       }
     });
   };
-// Gestione del cambiamento della durata per un'attività predefinita
-const handleDurationChange = (attivitaId, value) => {
-  setDefaultDurations((prev) => ({
-    ...prev,
-    [attivitaId]: value,
-  }));
-};
+  // Gestione del cambiamento della durata per un'attività predefinita
+  const handleDurationChange = (attivitaId, value) => {
+    setDefaultDurations((prev) => ({
+      ...prev,
+      [attivitaId]: value,
+    }));
+  };
 
-// Nuova funzione: Gestione della selezione dello stato iniziale per ciascun reparto
-const handleStateSelectionChange = (repartoId, value) => {
-  setDefaultStateSelections((prev) => ({
-    ...prev,
-    [repartoId]: value,
-  }));
-};
-return (
-  <div className="popup">
-    <div className="popup-background">
-    <div className="popup-content">
-      <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
-      <h2>{isEditing ? "Modifica Commessa" : "Crea Commessa"}</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="flex-column-center">
-          <label>Numero Commessa:</label>
-          <input
-            type="text"
-            name="numero_commessa"
-            value={formData.numero_commessa}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-          <label>Tipo Macchina:</label>
-          <input
-            type="text"
-            name="tipo_macchina"
-            value={formData.tipo_macchina}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-          <label>Cliente:</label>
-          <input
-            type="text"
-            name="cliente"
-            value={formData.cliente}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-          <label>Descrizione:</label>
-          <textarea
-            name="descrizione"
-            value={formData.descrizione}
-            onChange={handleChange}
-            className="textarea w-400"
-          />
-          <label>Data Consegna:</label>
-          <input
-            type="date"
-            name="data_consegna"
-            value={formData.data_consegna}
-            onChange={handleChange}
-            required
-            className="w-400"
-          />
-          <label>Data FAT:</label>
-          <input
-            type="date"
-            name="data_FAT"
-            value={formData.data_FAT}
-            onChange={handleChange}
-            className="w-400"
-          />
-          <label>Altri Particolari:</label>
-          <textarea
-            name="altri_particolari"
-            value={formData.altri_particolari}
-            onChange={handleChange}
-            className="textarea w-400"
-          />
-          <label>Stato:</label>
-          <select
-            name="stato_commessa"
-            value={formData.stato_commessa}
-            onChange={handleChange}
-            required
-            className="w-400"
-          >
-            <option value="">Seleziona uno stato</option>
-            {stato_commessa.map((st) => (
-              <option key={st.id} value={st.id}>
-                {st.nome_stato}
-              </option>
-            ))}
-          </select>
-        </div>
+  // Nuova funzione: Gestione della selezione dello stato iniziale per ciascun reparto
+  const handleStateSelectionChange = (repartoId, value) => {
+    setDefaultStateSelections((prev) => ({
+      ...prev,
+      [repartoId]: value,
+    }));
+  };
+  return (
+    <div className="popup">
+      <div className="popup-background">
+        <div className="popup-content">
+          <ToastContainer position="top-left" autoClose={1000} hideProgressBar />
+          <h2>{isEditing ? 'Modifica Commessa' : 'Crea Commessa'}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="flex-column-center">
+              <label>Numero Commessa:</label>
+              <input
+                type="text"
+                name="numero_commessa"
+                value={formData.numero_commessa}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+              <label>Tipo Macchina:</label>
+              <input
+                type="text"
+                name="tipo_macchina"
+                value={formData.tipo_macchina}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+              <label>Cliente:</label>
+              <input
+                type="text"
+                name="cliente"
+                value={formData.cliente}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+              <label>Descrizione:</label>
+              <textarea
+                name="descrizione"
+                value={formData.descrizione}
+                onChange={handleChange}
+                className="textarea w-400"
+              />
+              <label>Data Consegna:</label>
+              <input
+                type="date"
+                name="data_consegna"
+                value={formData.data_consegna}
+                onChange={handleChange}
+                required
+                className="w-400"
+              />
+              <label>Data FAT:</label>
+              <input
+                type="date"
+                name="data_FAT"
+                value={formData.data_FAT}
+                onChange={handleChange}
+                className="w-400"
+              />
+              <label>Altri Particolari:</label>
+              <textarea
+                name="altri_particolari"
+                value={formData.altri_particolari}
+                onChange={handleChange}
+                className="textarea w-400"
+              />
+              <label>Stato:</label>
+              <select
+                name="stato_commessa"
+                value={formData.stato_commessa}
+                onChange={handleChange}
+                required
+                className="w-400"
+              >
+                <option value="">Seleziona uno stato</option>
+                {stato_commessa.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.nome_stato}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* Nuova sezione: Stati Iniziali per Reparti (collapsible) */}
-        {!isEditing && (
-            <>
-        
-          <div className="flex-column-center">
-            <h2>Stato Iniziale per Reparti</h2>
-            <button
-             type="button" 
-              className="btn w-400 btn--blue btn--pill"
-              onClick={() => setDefaultStatesVisible((prev) => !prev)}
-            >
-              {defaultStatesVisible ? "▼" : "▶"} Seleziona stato iniziale per ogni reparto
-            </button>
-            {defaultStatesVisible && (
-              <div>
-                {Array.isArray(reparti) && reparti.length > 0 ? (
-                  reparti.map((rep) => {
-                    // Usa il prop stati_avanzamento per filtrare gli stati del reparto
-                    const statiPerRep = stati_avanzamento.filter(
-                      (st) => String(st.reparto_id) === String(rep.id)
-                    );
-                    return (
-                      <div key={rep.id} className="flex-column-left" >
-                        <label>{rep.nome}:</label>
-                        <select
-                          value={defaultStateSelections[rep.id] || "In Entrata"}
-                          onChange={(e) =>
-                            handleStateSelectionChange(rep.id, e.target.value)
-                          }
-                          className="select w-200"
-                        >
-                          {statiPerRep.map((st) => (
-                            <option key={st.id} value={st.nome_stato}>
-                              {st.nome_stato}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p>Nessun reparto disponibile.</p>
-                )}
-              </div>
-            )}
-          </div>
-        
-        {/* Sezione per aggiungere attività predefinite (collapsible) */}
-        
-        <div className="flex-column-center">
-          <h2>Aggiungi attività default</h2>
-          <button
-           type="button" 
-            className="btn w-400 btn--blue btn--pill"
-            onClick={() => setDefaultActivitiesVisible((prev) => !prev)}
-          >
-            {defaultActivitiesVisible ? "▼" : "▶"} Aggiungi attività default
-          </button>
-          {defaultActivitiesVisible && (
-            <>
-              {!isEditing &&
-              Array.isArray(reparti) &&
-              reparti.length > 0 &&
-              Array.isArray(attivita) &&
-              attivita.length > 0 ? (
-                reparti.map((rep) => (
-                  <div key={rep.id} className="reparto-container">
-                    <div className="reparto-title">{rep.nome}</div>
-                    <div className="attivita-list">
-                      {attivita
-                        .filter((att) => att.reparto_id === rep.id)
-                        .map((att) => (
-                          <label key={att.id} className="attivita-item">
-                            <input
-                              type="checkbox"
-                              checked={
-                                selezioniAttivita[rep.id]?.includes(att.id) || false
-                              }
-                              onChange={() => handleCheckboxChange(rep.id, att.id)}
-                            />
-                            {att.nome_attivita}
-                            {selezioniAttivita[rep.id]?.includes(att.id) && (
-                              <input
-                                type="number"
-                                min="1"
-                                placeholder="Durata (giorni)"
-                                value={defaultDurations[att.id] || ""}
-                                onChange={(e) =>
-                                  handleDurationChange(att.id, e.target.value)
-                                }
-                                className="duration-input"
-                              />
-                            )}
-                          </label>
-                        ))}
+            {/* Nuova sezione: Stati Iniziali per Reparti (collapsible) */}
+            {!isEditing && (
+              <>
+                <div className="flex-column-center">
+                  <h2>Stato Iniziale per Reparti</h2>
+                  <button
+                    type="button"
+                    className="btn w-400 btn--blue btn--pill"
+                    onClick={() => setDefaultStatesVisible((prev) => !prev)}
+                  >
+                    {defaultStatesVisible ? '▼' : '▶'} Seleziona stato iniziale per ogni reparto
+                  </button>
+                  {defaultStatesVisible && (
+                    <div>
+                      {Array.isArray(reparti) && reparti.length > 0 ? (
+                        reparti.map((rep) => {
+                          // Usa il prop stati_avanzamento per filtrare gli stati del reparto
+                          const statiPerRep = stati_avanzamento.filter(
+                            (st) => String(st.reparto_id) === String(rep.id)
+                          );
+                          return (
+                            <div key={rep.id} className="flex-column-left">
+                              <label>{rep.nome}:</label>
+                              <select
+                                value={defaultStateSelections[rep.id] || 'In Entrata'}
+                                onChange={(e) => handleStateSelectionChange(rep.id, e.target.value)}
+                                className="select w-200"
+                              >
+                                {statiPerRep.map((st) => (
+                                  <option key={st.id} value={st.nome_stato}>
+                                    {st.nome_stato}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p>Nessun reparto disponibile.</p>
+                      )}
                     </div>
-                  </div>
-                ))
-              ) : (
-                <span>
-                  Nessuna attività disponibile o attività non associate ai reparti
-                </span>
-              )}
-            </>
-          )}
+                  )}
+                </div>
+
+                {/* Sezione per aggiungere attività predefinite (collapsible) */}
+
+                <div className="flex-column-center">
+                  <h2>Aggiungi attività default</h2>
+                  <button
+                    type="button"
+                    className="btn w-400 btn--blue btn--pill"
+                    onClick={() => setDefaultActivitiesVisible((prev) => !prev)}
+                  >
+                    {defaultActivitiesVisible ? '▼' : '▶'} Aggiungi attività default
+                  </button>
+                  {defaultActivitiesVisible && (
+                    <>
+                      {!isEditing &&
+                      Array.isArray(reparti) &&
+                      reparti.length > 0 &&
+                      Array.isArray(attivita) &&
+                      attivita.length > 0 ? (
+                        reparti.map((rep) => (
+                          <div key={rep.id} className="reparto-container">
+                            <div className="reparto-title">{rep.nome}</div>
+                            <div className="attivita-list">
+                              {attivita
+                                .filter((att) => att.reparto_id === rep.id)
+                                .map((att) => (
+                                  <label key={att.id} className="attivita-item">
+                                    <input
+                                      type="checkbox"
+                                      checked={selezioniAttivita[rep.id]?.includes(att.id) || false}
+                                      onChange={() => handleCheckboxChange(rep.id, att.id)}
+                                    />
+                                    {att.nome_attivita}
+                                    {selezioniAttivita[rep.id]?.includes(att.id) && (
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        placeholder="Durata (giorni)"
+                                        value={defaultDurations[att.id] || ''}
+                                        onChange={(e) =>
+                                          handleDurationChange(att.id, e.target.value)
+                                        }
+                                        className="duration-input"
+                                      />
+                                    )}
+                                  </label>
+                                ))}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <span>
+                          Nessuna attività disponibile o attività non associate ai reparti
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+            <div className="flex-column-center">
+              <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
+                {loading ? 'Salvataggio...' : isEditing ? 'Aggiorna' : 'Crea'}
+              </button>
+            </div>
+          </form>
+          <div className="flex-column-center">
+            <button onClick={onClose} className="btn w-400 btn--danger btn--pill">
+              Chiudi
+            </button>
+          </div>
         </div>
-        </>
-          )}
-<div className="flex-column-center">
-        <button type="submit" className="btn w-400 btn--blue btn--pill" disabled={loading}>
-          {loading ? "Salvataggio..." : isEditing ? "Aggiorna" : "Crea"}
-        </button>
-</div>
-      </form>
-<div className="flex-column-center">
-      <button onClick={onClose} className="btn w-400 btn--danger btn--pill">
-        Chiudi
-      </button>
       </div>
     </div>
-    </div>
-  </div>
-);
+  );
 }
 
 export default CommessaCrea;

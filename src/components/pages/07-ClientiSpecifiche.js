@@ -1,19 +1,19 @@
 // src/components/ClientiSpecifiche.js
-import React, { useEffect, useState } from "react";
-import logo from "../img/Animation - 1738249246846.gif";
-import "../style/02-StatoAvanzamento-reparto.css"; // o un tuo CSS generico
+import React, { useEffect, useState } from 'react';
+import logo from '../img/Animation - 1738249246846.gif';
+import '../style/02-StatoAvanzamento-reparto.css'; // o un tuo CSS generico
 
 import {
   fetchClientiSpecifiche,
   createClienteSpecifica,
   updateClienteSpecifica,
   deleteClienteSpecifica,
-} from "../services/API/clientiSpecifiche-api";
+} from '../services/API/clientiSpecifiche-api';
 
-import { useAppData } from "../context/AppDataContext";
+import { useAppData } from '../context/AppDataContext';
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ClientiSpecifiche() {
   const { reparti } = useAppData();
@@ -22,15 +22,15 @@ function ClientiSpecifiche() {
   const [specifiche, setSpecifiche] = useState([]);
 
   // filtri
-  const [filtroCliente, setFiltroCliente] = useState("");
-  const [filtroRepartoId, setFiltroRepartoId] = useState("");
+  const [filtroCliente, setFiltroCliente] = useState('');
+  const [filtroRepartoId, setFiltroRepartoId] = useState('');
 
   // form
   const [formData, setFormData] = useState({
-    cliente: "",
-    reparto_id: "",
-    titolo: "",
-    descrizione: "",
+    cliente: '',
+    reparto_id: '',
+    titolo: '',
+    descrizione: '',
     attivo: true,
   });
 
@@ -38,19 +38,18 @@ function ClientiSpecifiche() {
   const [editId, setEditId] = useState(null);
 
   // caricamento iniziale
-const loadData = async () => {
-  try {
-    setLoading(true);
-    const data = await fetchClientiSpecifiche({ tutte: 1 }); // 👈 CHIAVE
-    setSpecifiche(data);
-  } catch (err) {
-    console.error("Errore nel caricamento specifiche cliente:", err);
-    toast.error("Errore nel caricamento delle specifiche cliente.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchClientiSpecifiche({ tutte: 1 }); // 👈 CHIAVE
+      setSpecifiche(data);
+    } catch (err) {
+      console.error('Errore nel caricamento specifiche cliente:', err);
+      toast.error('Errore nel caricamento delle specifiche cliente.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -60,12 +59,12 @@ const loadData = async () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (type === "checkbox") {
+    if (type === 'checkbox') {
       setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (name === "reparto_id") {
+    } else if (name === 'reparto_id') {
       setFormData((prev) => ({
         ...prev,
-        reparto_id: value === "" ? "" : parseInt(value, 10),
+        reparto_id: value === '' ? '' : parseInt(value, 10),
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -74,10 +73,10 @@ const loadData = async () => {
 
   const resetForm = () => {
     setFormData({
-      cliente: "",
-      reparto_id: "",
-      titolo: "",
-      descrizione: "",
+      cliente: '',
+      reparto_id: '',
+      titolo: '',
+      descrizione: '',
       attivo: true,
     });
     setIsEditing(false);
@@ -88,7 +87,7 @@ const loadData = async () => {
     e.preventDefault();
 
     if (!formData.cliente || !formData.titolo || !formData.descrizione) {
-      toast.error("Compila almeno Cliente, Titolo e Descrizione.");
+      toast.error('Compila almeno Cliente, Titolo e Descrizione.');
       return;
     }
 
@@ -99,24 +98,22 @@ const loadData = async () => {
         ...formData,
         // se reparto_id è "", mandiamo null
         reparto_id:
-          formData.reparto_id === "" || formData.reparto_id === null
-            ? null
-            : formData.reparto_id,
+          formData.reparto_id === '' || formData.reparto_id === null ? null : formData.reparto_id,
       };
 
       if (isEditing && editId) {
         await updateClienteSpecifica(editId, payload);
-        toast.success("Scheda cliente aggiornata con successo.");
+        toast.success('Scheda cliente aggiornata con successo.');
       } else {
         await createClienteSpecifica(payload);
-        toast.success("Scheda cliente creata con successo.");
+        toast.success('Scheda cliente creata con successo.');
       }
 
       await loadData();
       resetForm();
     } catch (err) {
-      console.error("Errore salvataggio scheda cliente:", err);
-      toast.error("Errore durante il salvataggio della scheda cliente.");
+      console.error('Errore salvataggio scheda cliente:', err);
+      toast.error('Errore durante il salvataggio della scheda cliente.');
     } finally {
       setLoading(false);
     }
@@ -124,78 +121,70 @@ const loadData = async () => {
 
   const handleEdit = (item) => {
     setFormData({
-      cliente: item.cliente || "",
-      reparto_id: item.reparto_id || "",
-      titolo: item.titolo || "",
-      descrizione: item.descrizione || "",
+      cliente: item.cliente || '',
+      reparto_id: item.reparto_id || '',
+      titolo: item.titolo || '',
+      descrizione: item.descrizione || '',
       attivo: item.attivo === 1 || item.attivo === true,
     });
     setIsEditing(true);
     setEditId(item.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-
   const handleHardDelete = async (item) => {
-  const first = window.confirm(
-    `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE la scheda "${item.titolo}" (${item.cliente})?`
-  );
-  if (!first) return;
+    const first = window.confirm(
+      `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE la scheda "${item.titolo}" (${item.cliente})?`
+    );
+    if (!first) return;
 
-  const second = window.confirm(
-    "Conferma finale: l'operazione è irreversibile. Continuare?"
-  );
-  if (!second) return;
+    const second = window.confirm("Conferma finale: l'operazione è irreversibile. Continuare?");
+    if (!second) return;
 
-  try {
-    setLoading(true);
-    await deleteClienteSpecifica(item.id);
-    toast.success("Scheda eliminata definitivamente.");
-    await loadData();
-  } catch (err) {
-    console.error("Errore hard delete scheda cliente:", err);
-    toast.error("Errore durante l'eliminazione definitiva della scheda cliente.");
-  } finally {
-    setLoading(false);
-  }
-};
-const handleToggleAttivo = async (item) => {
-  try {
-    setLoading(true);
-    await updateClienteSpecifica(item.id, {
-      cliente: item.cliente,
-      reparto_id: item.reparto_id,
-      titolo: item.titolo,
-      descrizione: item.descrizione,
-      attivo: Number(item.attivo) !== 1, // toggle
-    });
-    toast.success(Number(item.attivo) === 1 ? "Scheda disattivata." : "Scheda riattivata.");
-    await loadData();
-  } catch (err) {
-    console.error("Errore toggle attivo:", err);
-    toast.error("Errore durante l'aggiornamento dello stato.");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      await deleteClienteSpecifica(item.id);
+      toast.success('Scheda eliminata definitivamente.');
+      await loadData();
+    } catch (err) {
+      console.error('Errore hard delete scheda cliente:', err);
+      toast.error("Errore durante l'eliminazione definitiva della scheda cliente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleToggleAttivo = async (item) => {
+    try {
+      setLoading(true);
+      await updateClienteSpecifica(item.id, {
+        cliente: item.cliente,
+        reparto_id: item.reparto_id,
+        titolo: item.titolo,
+        descrizione: item.descrizione,
+        attivo: Number(item.attivo) !== 1, // toggle
+      });
+      toast.success(Number(item.attivo) === 1 ? 'Scheda disattivata.' : 'Scheda riattivata.');
+      await loadData();
+    } catch (err) {
+      console.error('Errore toggle attivo:', err);
+      toast.error("Errore durante l'aggiornamento dello stato.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  
   // filtraggio lato frontend
   const filteredSpecifiche = specifiche.filter((s) => {
-    const matchCliente = s.cliente
-      .toLowerCase()
-      .includes(filtroCliente.toLowerCase());
+    const matchCliente = s.cliente.toLowerCase().includes(filtroCliente.toLowerCase());
 
     const matchReparto =
-      !filtroRepartoId ||
-      s.reparto_id === parseInt(filtroRepartoId, 10) ||
-      s.reparto_id === null; // le globali le mostriamo sempre
+      !filtroRepartoId || s.reparto_id === parseInt(filtroRepartoId, 10) || s.reparto_id === null; // le globali le mostriamo sempre
 
     return matchCliente && matchReparto;
   });
 
   const getRepartoName = (id) => {
-    if (!id) return "Tutti";
+    if (!id) return 'Tutti';
     const r = reparti.find((rep) => rep.id === id);
     return r ? r.nome : id;
   };
@@ -219,67 +208,56 @@ const handleToggleAttivo = async (item) => {
 
       {/* CONTENUTO */}
       <div className="container mh-80 ">
-  <div className="flex-column-center">
-        {/* FORM CREAZIONE / MODIFICA */}
+        <div className="flex-column-center">
+          {/* FORM CREAZIONE / MODIFICA */}
 
-          <h2>{isEditing ? "Modifica scheda cliente" : "Nuova scheda cliente"}</h2>
+          <h2>{isEditing ? 'Modifica scheda cliente' : 'Nuova scheda cliente'}</h2>
           <form
             onSubmit={handleSubmit}
             className="flex-column-center"
-            style={{ gap: 8, alignItems: "stretch" }}
+            style={{ gap: 8, alignItems: 'stretch' }}
           >
-
-              Cliente:
-              <input
-                type="text"
-                name="cliente"
-                value={formData.cliente}
-                onChange={handleChange}
-                className="w-400"
-                placeholder="Nome cliente (es. Barilla)"
-              />
-
-
-              Reparto (vuoto = tutti):
-              <select
-                name="reparto_id"
-                value={formData.reparto_id}
-                onChange={handleChange}
-                className="w-400"
-              >
-                <option value="">Tutti i reparti</option>
-                {reparti.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.nome}
-                  </option>
-                ))}
-              </select>
-
-
-
-              Titolo:
-              <input
-                type="text"
-                name="titolo"
-                value={formData.titolo}
-                onChange={handleChange}
-                className="w-400"
-                placeholder="Titolo scheda (es. Standard SW Palletizzatore)"
-              />
- 
-
-
-              Descrizione:
-              <textarea
-                name="descrizione"
-                value={formData.descrizione}
-                onChange={handleChange}
-                rows="4"
-                className="w-400"
-                placeholder="Note, richieste particolari, standard da seguire..."
-              />
- 
-
+            Cliente:
+            <input
+              type="text"
+              name="cliente"
+              value={formData.cliente}
+              onChange={handleChange}
+              className="w-400"
+              placeholder="Nome cliente (es. Barilla)"
+            />
+            Reparto (vuoto = tutti):
+            <select
+              name="reparto_id"
+              value={formData.reparto_id}
+              onChange={handleChange}
+              className="w-400"
+            >
+              <option value="">Tutti i reparti</option>
+              {reparti.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.nome}
+                </option>
+              ))}
+            </select>
+            Titolo:
+            <input
+              type="text"
+              name="titolo"
+              value={formData.titolo}
+              onChange={handleChange}
+              className="w-400"
+              placeholder="Titolo scheda (es. Standard SW Palletizzatore)"
+            />
+            Descrizione:
+            <textarea
+              name="descrizione"
+              value={formData.descrizione}
+              onChange={handleChange}
+              rows="4"
+              className="w-400"
+              placeholder="Note, richieste particolari, standard da seguire..."
+            />
             <label className="flex-row-center" style={{ gap: 8 }}>
               <input
                 type="checkbox"
@@ -289,14 +267,9 @@ const handleToggleAttivo = async (item) => {
               />
               Scheda attiva
             </label>
-
             <div className="flex-center" style={{ gap: 8, marginTop: 8 }}>
-              <button
-                type="submit"
-                className="btn w-200 btn--blue btn--pill"
-                disabled={loading}
-              >
-                {isEditing ? "Aggiorna scheda" : "Crea scheda"}
+              <button type="submit" className="btn w-200 btn--blue btn--pill" disabled={loading}>
+                {isEditing ? 'Aggiorna scheda' : 'Crea scheda'}
               </button>
               {isEditing && (
                 <button
@@ -307,21 +280,16 @@ const handleToggleAttivo = async (item) => {
                   Annulla modifica
                 </button>
               )}
-
-
             </div>
           </form>
-</div>
+        </div>
 
         {/* FILTRI E TABELLA */}
         <div className="Reparto-table-container mh-60">
           <h2>Elenco schede cliente</h2>
 
           {/* Filtri */}
-          <div
-            className="flex-center"
-            style={{ gap: 12, marginBottom: 10, flexWrap: "wrap" }}
-          >
+          <div className="flex-center" style={{ gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
             <input
               type="text"
               value={filtroCliente}
@@ -367,10 +335,8 @@ const handleToggleAttivo = async (item) => {
                     <td>{item.cliente}</td>
                     <td>{getRepartoName(item.reparto_id)}</td>
                     <td>{item.titolo}</td>
-                    <td style={{ maxWidth: 400, whiteSpace: "pre-wrap" }}>
-                      {item.descrizione}
-                    </td>
-                    <td>{Number(item.attivo) === 1 ? "Sì" : "No"}</td>
+                    <td style={{ maxWidth: 400, whiteSpace: 'pre-wrap' }}>{item.descrizione}</td>
+                    <td>{Number(item.attivo) === 1 ? 'Sì' : 'No'}</td>
 
                     <td>
                       <button
@@ -379,21 +345,20 @@ const handleToggleAttivo = async (item) => {
                       >
                         Modifica
                       </button>
-<button
-  className={`btn w-100 btn--pill ${Number(item.attivo) === 1 ? "btn--danger" : "btn--blue"}`}
-  onClick={() => handleToggleAttivo(item)}
->
-  {Number(item.attivo) === 1 ? "Disattiva" : "Riattiva"}
-</button>
+                      <button
+                        className={`btn w-100 btn--pill ${Number(item.attivo) === 1 ? 'btn--danger' : 'btn--blue'}`}
+                        onClick={() => handleToggleAttivo(item)}
+                      >
+                        {Number(item.attivo) === 1 ? 'Disattiva' : 'Riattiva'}
+                      </button>
                       {Number(item.attivo) !== 1 && (
-  <button
-    className="btn w-100 btn--danger btn--pill"
-    onClick={() => handleHardDelete(item)}
-  >
-    Elimina
-  </button>
-)}
-
+                        <button
+                          className="btn w-100 btn--danger btn--pill"
+                          onClick={() => handleHardDelete(item)}
+                        >
+                          Elimina
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

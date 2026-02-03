@@ -1,42 +1,46 @@
-import React, { useState, useEffect } from "react";
-import logo from "../img/Animation - 1738249246846.gif";
-import  "../style/06-VisualizzaCommesse.css";
+import React, { useState, useEffect } from 'react';
+import logo from '../img/Animation - 1738249246846.gif';
+import '../style/06-VisualizzaCommesse.css';
 // Import popup
-import CommessaDettagli from "../popup/CommessaDettagli";
+import CommessaDettagli from '../popup/CommessaDettagli';
 
 // Import API
-import { fetchStatiCommessa } from "../services/API/statoCommessa-api";
-import { fetchCommesse } from "../services/API/commesse-api";
+import { fetchStatiCommessa } from '../services/API/statoCommessa-api';
+import { fetchCommesse } from '../services/API/commesse-api';
 
 // Import Toastify per notifiche
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 // Import icone FontAwesome
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEyeSlash, faExclamationTriangle, faCalendar, faCalendarWeek } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faEyeSlash,
+  faExclamationTriangle,
+  faCalendar,
+  faCalendarWeek,
+} from '@fortawesome/free-solid-svg-icons';
 
 // Import Tooltip (assicurati di avere la libreria corretta installata, ad es. react-tooltip)
-import { Tooltip } from "react-tooltip";
+import { Tooltip } from 'react-tooltip';
 
 function VisualizzazioneCommesseM() {
   /* ===============================
      STATO DEL COMPONENTE
   =============================== */
-  const [commesse, setCommesse] = useState([]);              // Tutte le commesse
-  const [filteredCommesse, setFilteredCommesse] = useState([]);  // Commesse filtrate/ordinate
-  const [statiCommessa, setStatiCommessa] = useState([]);       // Stati disponibili per le commesse
-  const [isVisible, setIsVisible] = useState(false); 
-
+  const [commesse, setCommesse] = useState([]); // Tutte le commesse
+  const [filteredCommesse, setFilteredCommesse] = useState([]); // Commesse filtrate/ordinate
+  const [statiCommessa, setStatiCommessa] = useState([]); // Stati disponibili per le commesse
+  const [isVisible, setIsVisible] = useState(false);
 
   // Filtri di ricerca
-  const [clienteFilter, setClienteFilter] = useState("");
-  const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState("");
-  const [commessaFilter, setCommessaFilter] = useState("");
-  const [statoFilter, setStatoFilter] = useState("2"); // Stato predefinito (puoi modificare in base alle tue esigenze)
+  const [clienteFilter, setClienteFilter] = useState('');
+  const [tipoMacchinaFilter, setTipoMacchinaFilter] = useState('');
+  const [commessaFilter, setCommessaFilter] = useState('');
+  const [statoFilter, setStatoFilter] = useState('2'); // Stato predefinito (puoi modificare in base alle tue esigenze)
   // Nuovi filtri: checkbox per M- e R-
   const [filterM] = useState(true); // escludi le M-
-  const [filterR] = useState(false);  // includi solo le R-
+  const [filterR] = useState(false); // includi solo le R-
 
   // Suggerimenti per filtri (autocomplete)
   const [suggestionsCliente, setSuggestionsCliente] = useState([]);
@@ -47,9 +51,9 @@ function VisualizzazioneCommesseM() {
   const [showCommessaSuggestions, setShowCommessaSuggestions] = useState(false);
 
   // Ordinamento
-  const [sortOrder] = useState("data");       // Ordinamento per campo ("numero_commessa" oppure "data")
-  const [sortDirection] = useState("asc");      // Ordinamento ascendente/descendente (non usato attualmente per "numero_commessa")
-  const [dateSortDirection, setDateSortDirection] = useState("crescente"); // Ordinamento per data di consegna
+  const [sortOrder] = useState('data'); // Ordinamento per campo ("numero_commessa" oppure "data")
+  const [sortDirection] = useState('asc'); // Ordinamento ascendente/descendente (non usato attualmente per "numero_commessa")
+  const [dateSortDirection, setDateSortDirection] = useState('crescente'); // Ordinamento per data di consegna
 
   // Stato di caricamento
   const [loading, setLoading] = useState(false);
@@ -64,8 +68,8 @@ function VisualizzazioneCommesseM() {
   const [ConsegnaMensile] = useState(true);
   const [ConsegnaSettimanale] = useState(true);
 
- // Stato avanzamento selezionato contenitore principale
-  const [repartoSelezionato, setRepartoSelezionato] = useState("software"); // o "elettrico", ecc.
+  // Stato avanzamento selezionato contenitore principale
+  const [repartoSelezionato, setRepartoSelezionato] = useState('software'); // o "elettrico", ecc.
   const [repartiDisponibili, setRepartiDisponibili] = useState([]);
 
   /* ===============================
@@ -83,8 +87,8 @@ function VisualizzazioneCommesseM() {
       setFilteredCommesse(commesseData);
       setStatiCommessa(statiCommessaData);
     } catch (error) {
-      console.error("Errore durante il caricamento dei dati:", error);
-      toast.error("Errore durante il caricamento dei dati.");
+      console.error('Errore durante il caricamento dei dati:', error);
+      toast.error('Errore durante il caricamento dei dati.');
     } finally {
       setLoading(false);
     }
@@ -98,7 +102,7 @@ function VisualizzazioneCommesseM() {
   // Carica i reparti
   useEffect(() => {
     const repartiUnici = new Set();
-  
+
     commesse.forEach((commessa) => {
       commessa.stati_avanzamento?.forEach((reparto) => {
         if (reparto.reparto_nome) {
@@ -106,7 +110,7 @@ function VisualizzazioneCommesseM() {
         }
       });
     });
-  
+
     setRepartiDisponibili([...repartiUnici]);
   }, [commesse]);
 
@@ -118,28 +122,29 @@ function VisualizzazioneCommesseM() {
     return commesse.filter((commessa) => {
       const matchesCommessa = commessa.numero_commessa.toString().includes(commessaFilter);
       const matchesCliente = commessa.cliente.toLowerCase().includes(clienteFilter.toLowerCase());
-      const matchesTipoMacchina = commessa.tipo_macchina.toLowerCase().includes(tipoMacchinaFilter.toLowerCase());
+      const matchesTipoMacchina = commessa.tipo_macchina
+        .toLowerCase()
+        .includes(tipoMacchinaFilter.toLowerCase());
       const matchesStato = !statoFilter || commessa.stato === parseInt(statoFilter, 10);
-  
+
       // Filtra solo le commesse che iniziano per M-
-      if (!commessa.numero_commessa.startsWith("M-")) {
+      if (!commessa.numero_commessa.startsWith('M-')) {
         return false;
       }
-  
+
       return matchesCommessa && matchesCliente && matchesTipoMacchina && matchesStato;
     });
   };
 
-
   // Ordina le commesse in base all'ordinamento selezionato
   const sortCommesse = (commesseArray) => {
     return commesseArray.sort((a, b) => {
-      if (sortOrder === "numero_commessa") {
-        return sortDirection === "asc"
+      if (sortOrder === 'numero_commessa') {
+        return sortDirection === 'asc'
           ? a.numero_commessa - b.numero_commessa
           : b.numero_commessa - a.numero_commessa;
-      } else if (sortOrder === "data") {
-        if (dateSortDirection === "crescente") {
+      } else if (sortOrder === 'data') {
+        if (dateSortDirection === 'crescente') {
           return new Date(a.data_consegna) - new Date(b.data_consegna);
         } else {
           return new Date(b.data_consegna) - new Date(a.data_consegna);
@@ -159,7 +164,18 @@ function VisualizzazioneCommesseM() {
   // Effettua l'update ogni volta che cambia un filtro o i dati
   useEffect(() => {
     updateFilteredCommesse();
-  }, [commessaFilter, clienteFilter, tipoMacchinaFilter, statoFilter, commesse, sortOrder, sortDirection, dateSortDirection, filterM, filterR]);
+  }, [
+    commessaFilter,
+    clienteFilter,
+    tipoMacchinaFilter,
+    statoFilter,
+    commesse,
+    sortOrder,
+    sortDirection,
+    dateSortDirection,
+    filterM,
+    filterR,
+  ]);
 
   // Aggiorna i suggerimenti (autocomplete) per i filtri in base alle commesse
   useEffect(() => {
@@ -185,21 +201,19 @@ function VisualizzazioneCommesseM() {
     const handleClickOutside = (event) => {
       // Se il click NON avviene su un elemento con la classe "suggestions-list"
       // oppure sull'input (o eventuali elementi di filtro)
-      if (
-!event.target.closest(".input") && !event.target.closest(".w-200")
-      ) {
+      if (!event.target.closest('.input') && !event.target.closest('.w-200')) {
         setShowClienteSuggestions(false);
         setShowTipoMacchinaSuggestions(false);
         setShowCommessaSuggestions(false);
       }
     };
-  
-    document.addEventListener("click", handleClickOutside);
+
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
-  
+
   /* ===============================
      FUNZIONI HELPER PER LE DATE
   =============================== */
@@ -267,7 +281,7 @@ function VisualizzazioneCommesseM() {
 
   // Chiusura dei suggerimenti se si clicca all'esterno
   const closeSuggestions = (e) => {
-    if (!e.target.closest(".suggestions-list") && !e.target.closest("select")) {
+    if (!e.target.closest('.suggestions-list') && !e.target.closest('select')) {
       setShowClienteSuggestions(false);
       setShowTipoMacchinaSuggestions(false);
       setShowCommessaSuggestions(false);
@@ -278,7 +292,6 @@ function VisualizzazioneCommesseM() {
   const handleDateSortChange = (e) => {
     setDateSortDirection(e.target.value);
   };
-  
 
   // Gestione del click su una riga della commessa per aprire il popup dei dettagli
   const handleCommessaClick = (commessa) => {
@@ -298,14 +311,12 @@ function VisualizzazioneCommesseM() {
   // Funzione helper per ottenere il nome dello stato in base al suo ID
   const getStatoNome = (id) => {
     const stato = statiCommessa.find((stato) => stato.id === id);
-    return stato ? stato.nome_stato : "Non assegnato";
+    return stato ? stato.nome_stato : 'Non assegnato';
   };
 
   const toggleSectionVisibility = () => {
     setIsVisible((prev) => !prev);
   };
-
- 
 
   /* ===============================
      RENDER DEL COMPONENTE
@@ -321,13 +332,13 @@ function VisualizzazioneCommesseM() {
           </div>
         )}
       </div>
-      
+
       <h1>Commesse M-</h1>
       <div className="burger-header">
-      {/* Bottone per espandere/nascondere la tabella */}
-      <button className="btn w-200 btn--shiny btn--pill" onClick={toggleSectionVisibility}>
-        {isVisible ? "▼" : "▶"} {" Commesse completate in attesa di consegna"}
-      </button>
+        {/* Bottone per espandere/nascondere la tabella */}
+        <button className="btn w-200 btn--shiny btn--pill" onClick={toggleSectionVisibility}>
+          {isVisible ? '▼' : '▶'} {' Commesse completate in attesa di consegna'}
+        </button>
       </div>
       {/* Mostra/Nasconde la tabella in base allo stato `isVisible` */}
       {isVisible && (
@@ -342,13 +353,14 @@ function VisualizzazioneCommesseM() {
               </tr>
             </thead>
             <tbody>
-            {commesse
-  .filter((commessa) =>
-    getStatoNome(commessa.stato) === "Completata" &&
-    (!commessa.numero_commessa.startsWith("M-") || filterM) &&
-    (!commessa.numero_commessa.startsWith("R-") || filterR) &&
-    (filterM ? commessa.numero_commessa.startsWith("M-") : true)
-  )
+              {commesse
+                .filter(
+                  (commessa) =>
+                    getStatoNome(commessa.stato) === 'Completata' &&
+                    (!commessa.numero_commessa.startsWith('M-') || filterM) &&
+                    (!commessa.numero_commessa.startsWith('R-') || filterR) &&
+                    (filterM ? commessa.numero_commessa.startsWith('M-') : true)
+                )
                 .sort((a, b) => new Date(a.data_consegna) - new Date(b.data_consegna))
                 .map((commessa) => (
                   <tr key={commessa.commessa_id} onClick={() => handleCommessaClick(commessa)}>
@@ -359,15 +371,15 @@ function VisualizzazioneCommesseM() {
                       <div className="delivery-alerts">
                         {commessa.data_consegna
                           ? new Date(commessa.data_consegna).toLocaleDateString()
-                          : "N/A"}
+                          : 'N/A'}
 
                         {commessa.data_consegna &&
                           new Date(commessa.data_consegna) < new Date() &&
-                          getStatoNome(commessa.stato) !== "Consegnata" && (
+                          getStatoNome(commessa.stato) !== 'Consegnata' && (
                             <>
                               <FontAwesomeIcon
                                 icon={faExclamationTriangle}
-                                style={{ color: "red", marginLeft: "10px" }}
+                                style={{ color: 'red', marginLeft: '10px' }}
                                 data-tooltip-id={`tooltip-expired-${commessa.commessa_id}`}
                               />
                               <Tooltip
@@ -376,56 +388,57 @@ function VisualizzazioneCommesseM() {
                                 effect="solid"
                                 style={{ zIndex: 9999 }}
                               >
-                                <span style={{ whiteSpace: "pre-wrap" }}>Commessa scaduta</span>
+                                <span style={{ whiteSpace: 'pre-wrap' }}>Commessa scaduta</span>
                               </Tooltip>
                             </>
                           )}
 
-                        {commessa.data_consegna && new Date(commessa.data_consegna) >= new Date() && (
-                          <>
-                            {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
-                              <>
-                                <FontAwesomeIcon
-                                  icon={faCalendarWeek}
-                                  style={{ marginLeft: "10px", color: "orange" }}
-                                  data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
-                                />
-                                <Tooltip
-                                  id={`tooltip-week-${commessa.commessa_id}`}
-                                  place="top"
-                                  effect="solid"
-                                  style={{ zIndex: 9999 }}
-                                >
-                                  <span style={{ whiteSpace: "pre-wrap" }}>
-                                    Commessa in scadenza questa settimana
-                                  </span>
-                                </Tooltip>
-                              </>
-                            )}
-
-                            {!isThisWeek(commessa.data_consegna) &&
-                              ConsegnaMensile &&
-                              isThisMonth(commessa.data_consegna) && (
+                        {commessa.data_consegna &&
+                          new Date(commessa.data_consegna) >= new Date() && (
+                            <>
+                              {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
                                 <>
                                   <FontAwesomeIcon
-                                    icon={faCalendar}
-                                    style={{ marginLeft: "10px", color: "blue" }}
-                                    data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
+                                    icon={faCalendarWeek}
+                                    style={{ marginLeft: '10px', color: 'orange' }}
+                                    data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
                                   />
                                   <Tooltip
-                                    id={`tooltip-month-${commessa.commessa_id}`}
+                                    id={`tooltip-week-${commessa.commessa_id}`}
                                     place="top"
                                     effect="solid"
                                     style={{ zIndex: 9999 }}
                                   >
-                                    <span style={{ whiteSpace: "pre-wrap" }}>
-                                      Commessa in scadenza questo mese
+                                    <span style={{ whiteSpace: 'pre-wrap' }}>
+                                      Commessa in scadenza questa settimana
                                     </span>
                                   </Tooltip>
                                 </>
                               )}
-                          </>
-                        )}
+
+                              {!isThisWeek(commessa.data_consegna) &&
+                                ConsegnaMensile &&
+                                isThisMonth(commessa.data_consegna) && (
+                                  <>
+                                    <FontAwesomeIcon
+                                      icon={faCalendar}
+                                      style={{ marginLeft: '10px', color: 'blue' }}
+                                      data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
+                                    />
+                                    <Tooltip
+                                      id={`tooltip-month-${commessa.commessa_id}`}
+                                      place="top"
+                                      effect="solid"
+                                      style={{ zIndex: 9999 }}
+                                    >
+                                      <span style={{ whiteSpace: 'pre-wrap' }}>
+                                        Commessa in scadenza questo mese
+                                      </span>
+                                    </Tooltip>
+                                  </>
+                                )}
+                            </>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -434,12 +447,12 @@ function VisualizzazioneCommesseM() {
           </table>
         </div>
       )}
-                   {/* Bottone per aprire/chiudere il menu */}
-            <div className="burger-header" >
+      {/* Bottone per aprire/chiudere il menu */}
+      <div className="burger-header">
         <button onClick={toggleBurgerMenu} className="btn w-200 btn--shiny btn--pill">
           Filtri ed Opzioni
         </button>
-        </div>
+      </div>
       {/* MENU A BURGER PER FILTRI E OPZIONI */}
       {isBurgerMenuOpen && (
         <div className="burger-menu">
@@ -449,228 +462,233 @@ function VisualizzazioneCommesseM() {
             </button>
           </div>
           <div className="burger-menu-content">
-
-              <div className="suggestion-wrapper w-200 ">
-                <input
-                  type="text"
-                  placeholder="Cerca per Numero Commessa"
-                  value={commessaFilter}
-                  onChange={handleCommessaChange}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-200"
-                />
-                {showCommessaSuggestions && (
-                  <ul className="suggestions-list w-200">
-                    {suggestionsCommessa
-                      .filter((commessa) =>
-                        commessa.toString().includes(commessaFilter)
-                      )
-                      .map((commessa, index) => (
-                        <li key={index} onClick={() => handleSelectCommessa(commessa)}>
-                          {commessa}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="suggestion-wrapper w-200 ">
-                <input
-                  type="text"
-                  placeholder="Filtra per Cliente"
-                  value={clienteFilter}
-                  onChange={handleClienteChange}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-200"
-                />
-                {showClienteSuggestions && (
-                  <ul className="suggestions-list w-200">
-                    {suggestionsCliente
-                      .filter((cliente) =>
-                        cliente.toLowerCase().includes(clienteFilter.toLowerCase())
-                      )
-                      .map((cliente, index) => (
-                        <li key={index} onClick={() => handleSelectCliente(cliente)}>
-                          {cliente}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="suggestion-wrapper w-200 ">
-                <input
-                  type="text"
-                  placeholder="Filtra per Tipo Macchina"
-                  value={tipoMacchinaFilter}
-                  onChange={handleTipoMacchinaChange}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-200"
-                />
-                {showTipoMacchinaSuggestions && (
-                  <ul className="suggestions-list w-200">
-                    {suggestionsTipoMacchina
-                      .filter((tipo) =>
-                        tipo.toLowerCase().includes(tipoMacchinaFilter.toLowerCase())
-                      )
-                      .map((tipo, index) => (
-                        <li key={index} onClick={() => handleSelectTipoMacchina(tipo)}>
-                          {tipo}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-
-                <select onChange={handleStatoChange} value={statoFilter} className="w-200">
-
-                  <option value="">Filtra per Stato</option>
-                  {statiCommessa.map((stato) => (
-                    <option key={stato.id} value={stato.id}>
-                      {stato.nome_stato}
-                    </option>
-                  ))}
-                </select>
-                
-                <select onChange={handleDateSortChange} value={dateSortDirection} className="w-200">
-                  <option value="crescente">Data di consegna crescente</option>
-                  <option value="decrescente">Data di consegna decrescente</option>
-                </select>
-              </div>
+            <div className="suggestion-wrapper w-200 ">
+              <input
+                type="text"
+                placeholder="Cerca per Numero Commessa"
+                value={commessaFilter}
+                onChange={handleCommessaChange}
+                onClick={(e) => e.stopPropagation()}
+                className="w-200"
+              />
+              {showCommessaSuggestions && (
+                <ul className="suggestions-list w-200">
+                  {suggestionsCommessa
+                    .filter((commessa) => commessa.toString().includes(commessaFilter))
+                    .map((commessa, index) => (
+                      <li key={index} onClick={() => handleSelectCommessa(commessa)}>
+                        {commessa}
+                      </li>
+                    ))}
+                </ul>
+              )}
             </div>
+
+            <div className="suggestion-wrapper w-200 ">
+              <input
+                type="text"
+                placeholder="Filtra per Cliente"
+                value={clienteFilter}
+                onChange={handleClienteChange}
+                onClick={(e) => e.stopPropagation()}
+                className="w-200"
+              />
+              {showClienteSuggestions && (
+                <ul className="suggestions-list w-200">
+                  {suggestionsCliente
+                    .filter((cliente) =>
+                      cliente.toLowerCase().includes(clienteFilter.toLowerCase())
+                    )
+                    .map((cliente, index) => (
+                      <li key={index} onClick={() => handleSelectCliente(cliente)}>
+                        {cliente}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="suggestion-wrapper w-200 ">
+              <input
+                type="text"
+                placeholder="Filtra per Tipo Macchina"
+                value={tipoMacchinaFilter}
+                onChange={handleTipoMacchinaChange}
+                onClick={(e) => e.stopPropagation()}
+                className="w-200"
+              />
+              {showTipoMacchinaSuggestions && (
+                <ul className="suggestions-list w-200">
+                  {suggestionsTipoMacchina
+                    .filter((tipo) => tipo.toLowerCase().includes(tipoMacchinaFilter.toLowerCase()))
+                    .map((tipo, index) => (
+                      <li key={index} onClick={() => handleSelectTipoMacchina(tipo)}>
+                        {tipo}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+
+            <select onChange={handleStatoChange} value={statoFilter} className="w-200">
+              <option value="">Filtra per Stato</option>
+              {statiCommessa.map((stato) => (
+                <option key={stato.id} value={stato.id}>
+                  {stato.nome_stato}
+                </option>
+              ))}
+            </select>
+
+            <select onChange={handleDateSortChange} value={dateSortDirection} className="w-200">
+              <option value="crescente">Data di consegna crescente</option>
+              <option value="decrescente">Data di consegna decrescente</option>
+            </select>
+          </div>
+        </div>
       )}
 
       {/* CONTENITORE PRINCIPALE (si sposta a destra se il menu è aperto) */}
-      <div className={`container ${isBurgerMenuOpen ? "shifted" : ""}`} onClick={closeSuggestions}>
+      <div className={`container ${isBurgerMenuOpen ? 'shifted' : ''}`} onClick={closeSuggestions}>
+        <div className="Commesse-table-container">
+          {/* TABELLA DELLE COMMESSE */}
+          <table className="Commesse-table">
+            <thead>
+              <tr>
+                <th>Commessa</th>
+                <th>Cliente</th>
+                <th>Tipo Macchina</th>
+                <th>Data FAT</th>
+                <th>Data Consegna</th>
+                <th>Stato</th>
+                <th>
+                  Reparto{' '}
+                  <select
+                    value={repartoSelezionato}
+                    onChange={(e) => setRepartoSelezionato(e.target.value)}
+                    className="w-200"
+                  >
+                    {repartiDisponibili.map((reparto) => (
+                      <option key={reparto} value={reparto}>
+                        {reparto.charAt(0).toUpperCase() + reparto.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCommesse.map((commessa) => (
+                <tr key={commessa.commessa_id} onClick={() => handleCommessaClick(commessa)}>
+                  <td>{commessa.numero_commessa}</td>
+                  <td>{commessa.cliente}</td>
+                  <td>{commessa.tipo_macchina}</td>
+                  <td>
+                    {commessa.data_FAT ? new Date(commessa.data_FAT).toLocaleDateString() : '-'}
+                  </td>
+                  <td>
+                    <div className="delivery-alerts">
+                      {/* Visualizza la data di consegna oppure "N/A" */}
+                      {commessa.data_consegna
+                        ? new Date(commessa.data_consegna).toLocaleDateString()
+                        : 'N/A'}
 
-         <div className="Commesse-table-container" >
-        {/* TABELLA DELLE COMMESSE */}
-        <table className="Commesse-table">
-          <thead>
-            <tr>
-              <th>Commessa</th>
-              <th>Cliente</th>
-              <th>Tipo Macchina</th>
-              <th>Data FAT</th>
-              <th>Data Consegna</th>
-              <th>Stato</th>
-              <th>
-  Reparto{" "}
-  <select
-    value={repartoSelezionato}
-    onChange={(e) => setRepartoSelezionato(e.target.value)}
- className="w-200">
-
-    {repartiDisponibili.map((reparto) => (
-  <option key={reparto} value={reparto}>
-    {reparto.charAt(0).toUpperCase() + reparto.slice(1)}
-  </option>
-))}
-
-  </select>
-</th>
-
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCommesse.map((commessa) => (
-              <tr key={commessa.commessa_id} onClick={() => handleCommessaClick(commessa)}>
-                <td>{commessa.numero_commessa}</td>
-                <td>{commessa.cliente}</td>
-                <td>{commessa.tipo_macchina}</td>
-                <td>
-                  {commessa.data_FAT
-                    ? new Date(commessa.data_FAT).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td>
-                  <div className="delivery-alerts">
-                    {/* Visualizza la data di consegna oppure "N/A" */}
-                    {commessa.data_consegna
-                      ? new Date(commessa.data_consegna).toLocaleDateString()
-                      : "N/A"}
-
-                    {/* 
+                      {/* 
                       Se esiste una data di consegna e questa è passata,
                       e lo stato della commessa NON è "Completata", mostra l'icona del triangolo (scaduta)
                     */}
-                    {commessa.data_consegna &&
-                      new Date(commessa.data_consegna) < new Date() &&
-                      getStatoNome(commessa.stato) !== "Consegnata" && (
-                        <>
-                          <FontAwesomeIcon
-                            icon={faExclamationTriangle}
-                            style={{ color: "red", marginLeft: "10px" }}
-                            data-tooltip-id={`tooltip-expired-${commessa.commessa_id}`}
-                          />
-                          <Tooltip id={`tooltip-expired-${commessa.commessa_id}`} place="top" effect="solid" style={{ zIndex: 9999 }}>
-                            <span style={{ whiteSpace: "pre-wrap" }}>Commessa scaduta</span>
-                          </Tooltip>
-                        </>
-                      )}
-
-                    {/* Se la data di consegna è futura, mostra le icone per consegna settimanale/mensile */}
-                    {commessa.data_consegna && new Date(commessa.data_consegna) >= new Date() && (
-                      <>
-                        {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
+                      {commessa.data_consegna &&
+                        new Date(commessa.data_consegna) < new Date() &&
+                        getStatoNome(commessa.stato) !== 'Consegnata' && (
                           <>
                             <FontAwesomeIcon
-                              icon={faCalendarWeek}
-                              style={{ marginLeft: "10px", color: "orange" }}
-                              data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
+                              icon={faExclamationTriangle}
+                              style={{ color: 'red', marginLeft: '10px' }}
+                              data-tooltip-id={`tooltip-expired-${commessa.commessa_id}`}
                             />
-                            <Tooltip id={`tooltip-week-${commessa.commessa_id}`} place="top" effect="solid"  style={{ zIndex: 9999 }} >
-                              <span style={{ whiteSpace: "pre-wrap" }}>
-                                Commessa in scadenza questa settimana
-                              </span>
+                            <Tooltip
+                              id={`tooltip-expired-${commessa.commessa_id}`}
+                              place="top"
+                              effect="solid"
+                              style={{ zIndex: 9999 }}
+                            >
+                              <span style={{ whiteSpace: 'pre-wrap' }}>Commessa scaduta</span>
                             </Tooltip>
                           </>
                         )}
 
-                        {!isThisWeek(commessa.data_consegna) &&
-                          ConsegnaMensile &&
-                          isThisMonth(commessa.data_consegna) && (
+                      {/* Se la data di consegna è futura, mostra le icone per consegna settimanale/mensile */}
+                      {commessa.data_consegna && new Date(commessa.data_consegna) >= new Date() && (
+                        <>
+                          {ConsegnaSettimanale && isThisWeek(commessa.data_consegna) && (
                             <>
                               <FontAwesomeIcon
-                                icon={faCalendar}
-                                style={{ marginLeft: "10px", color: "blue" }}
-                                data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
+                                icon={faCalendarWeek}
+                                style={{ marginLeft: '10px', color: 'orange' }}
+                                data-tooltip-id={`tooltip-week-${commessa.commessa_id}`}
                               />
-                              <Tooltip id={`tooltip-month-${commessa.commessa_id}`} place="top" effect="solid"  style={{ zIndex: 9999 }}>
-                                <span style={{ whiteSpace: "pre-wrap" }}>
-                                  Commessa in scadenza questo mese
+                              <Tooltip
+                                id={`tooltip-week-${commessa.commessa_id}`}
+                                place="top"
+                                effect="solid"
+                                style={{ zIndex: 9999 }}
+                              >
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  Commessa in scadenza questa settimana
                                 </span>
                               </Tooltip>
                             </>
                           )}
-                      </>
-                    )}
-                  </div>
-                </td>
-                <td>{getStatoNome(commessa.stato)}</td>
-                <td>
-  {commessa.stati_avanzamento
-    ?.find((reparto) => reparto.reparto_nome.toLowerCase() === repartoSelezionato.toLowerCase())
-    ?.stati_disponibili?.find((s) => s.isActive)?.nome_stato || "-"}
-</td>
 
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                          {!isThisWeek(commessa.data_consegna) &&
+                            ConsegnaMensile &&
+                            isThisMonth(commessa.data_consegna) && (
+                              <>
+                                <FontAwesomeIcon
+                                  icon={faCalendar}
+                                  style={{ marginLeft: '10px', color: 'blue' }}
+                                  data-tooltip-id={`tooltip-month-${commessa.commessa_id}`}
+                                />
+                                <Tooltip
+                                  id={`tooltip-month-${commessa.commessa_id}`}
+                                  place="top"
+                                  effect="solid"
+                                  style={{ zIndex: 9999 }}
+                                >
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    Commessa in scadenza questo mese
+                                  </span>
+                                </Tooltip>
+                              </>
+                            )}
+                        </>
+                      )}
+                    </div>
+                  </td>
+                  <td>{getStatoNome(commessa.stato)}</td>
+                  <td>
+                    {commessa.stati_avanzamento
+                      ?.find(
+                        (reparto) =>
+                          reparto.reparto_nome.toLowerCase() === repartoSelezionato.toLowerCase()
+                      )
+                      ?.stati_disponibili?.find((s) => s.isActive)?.nome_stato || '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {/* Popup per i dettagli della commessa */}
-        {selectedCommessa && (
-          <CommessaDettagli
-            commessa={selectedCommessa}
-            onClose={handleClosePopup}
-            onStatusUpdated={fetchData}
-          />
-        )}
+          {/* Popup per i dettagli della commessa */}
+          {selectedCommessa && (
+            <CommessaDettagli
+              commessa={selectedCommessa}
+              onClose={handleClosePopup}
+              onStatusUpdated={fetchData}
+            />
+          )}
+        </div>
       </div>
     </div>
-  </div>
-
   );
 }
 

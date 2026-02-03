@@ -10,34 +10,32 @@ import {
   removeComponenteFromMacchina,
   //updateComponentiFromMacchina,
   associateComponentiToMacchina,
-  getComponentiFromMacchina
+  getComponentiFromMacchina,
 } from '../services/API/commesse-dettagli-api';
 import { fetchCommesse } from '../services/API/commesse-api';
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Componente per visualizzare la tabella dei componenti assegnati
 function AssignedComponentsTable({ assignedComponents, availableComponents, onUpdate, onRemove }) {
   const [editRow, setEditRow] = useState(null);
-  const [editedType, setEditedType] = useState("");
+  const [editedType, setEditedType] = useState('');
 
   const handleEdit = (comp) => {
     setEditRow(comp.componente_id);
-    setEditedType(comp.tipo_associato || ""); // Usa il campo tipo_associato
+    setEditedType(comp.tipo_associato || ''); // Usa il campo tipo_associato
   };
 
   const handleSave = (comp) => {
     if (!editedType) {
-      alert("Seleziona un tipo valido!");
+      alert('Seleziona un tipo valido!');
       return;
     }
     onUpdate(comp.componente_id, editedType);
     setEditRow(null);
   };
 
-  useEffect(() => {
-
-  }, [assignedComponents]);
+  useEffect(() => {}, [assignedComponents]);
 
   return (
     <table border="1" cellPadding="5" cellSpacing="0" style={{ marginTop: '1rem', width: '100%' }}>
@@ -49,18 +47,26 @@ function AssignedComponentsTable({ assignedComponents, availableComponents, onUp
         </tr>
       </thead>
       <tbody>
-        {assignedComponents.map(comp => {
-          const componentInfo = availableComponents.find(c => c.id === comp.componente_id);
-          const tipiDisponibili = componentInfo ? componentInfo.tipo.split(',').map(t => t.trim()) : [];
+        {assignedComponents.map((comp) => {
+          const componentInfo = availableComponents.find((c) => c.id === comp.componente_id);
+          const tipiDisponibili = componentInfo
+            ? componentInfo.tipo.split(',').map((t) => t.trim())
+            : [];
           return (
             <tr key={comp.componente_id}>
-              <td>{comp.componente || "Sconosciuto"}</td>
+              <td>{comp.componente || 'Sconosciuto'}</td>
               <td>
                 {editRow === comp.componente_id ? (
-                  <select value={editedType} onChange={(e) => setEditedType(e.target.value)}className="w-200">
+                  <select
+                    value={editedType}
+                    onChange={(e) => setEditedType(e.target.value)}
+                    className="w-200"
+                  >
                     <option value="">Seleziona tipo</option>
-                    {tipiDisponibili.map(option => (
-                      <option key={option} value={option}>{option}</option>
+                    {tipiDisponibili.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
                     ))}
                   </select>
                 ) : (
@@ -109,7 +115,7 @@ function AssignMachinePage() {
         const commData = await fetchCommesse();
         setCommesse(commData);
       } catch (error) {
-        toast.error("Errore nel caricamento delle commesse.");
+        toast.error('Errore nel caricamento delle commesse.');
       }
     };
     loadCommesseData();
@@ -122,7 +128,7 @@ function AssignMachinePage() {
         const macData = await getMacchine();
         setMacchine(macData);
       } catch (error) {
-        toast.error("Errore nel caricamento delle macchine.");
+        toast.error('Errore nel caricamento delle macchine.');
       }
     };
     loadMacchineData();
@@ -135,7 +141,7 @@ function AssignMachinePage() {
         const compData = await getComponenti();
         setAvailableComponents(compData);
       } catch (error) {
-        toast.error("Errore nel caricamento dei componenti.");
+        toast.error('Errore nel caricamento dei componenti.');
       }
     };
     loadComponentiData();
@@ -151,12 +157,12 @@ function AssignMachinePage() {
             value: `${m.id}-${index}`, // ID unico per ogni istanza
             label: `Macchina ${index + 1} - ${m.macchina}`,
             macchina: m.macchina,
-            macchina_id: m.id
+            macchina_id: m.id,
           }));
 
           setSelectedMachineInstances(formatted);
         } catch (error) {
-          toast.error("Errore nel caricamento delle macchine assegnate.");
+          toast.error('Errore nel caricamento delle macchine assegnate.');
         }
       } else {
         setSelectedMachineInstances([]);
@@ -173,14 +179,16 @@ function AssignMachinePage() {
           let allComponents = [];
           // Per ogni macchina assegnata, carica i componenti specifici
           for (const machine of selectedMachineInstances) {
-            const components = await getComponentiFromMacchina(selectedCommessa.commessa_id, machine.macchina_id);
+            const components = await getComponentiFromMacchina(
+              selectedCommessa.commessa_id,
+              machine.macchina_id
+            );
 
             allComponents = [...allComponents, ...components];
           }
           setAssignedComponents(allComponents);
-
         } catch (error) {
-          toast.error("Errore nel caricamento dei componenti assegnati.");
+          toast.error('Errore nel caricamento dei componenti assegnati.');
         }
       } else {
         setAssignedComponents([]);
@@ -205,7 +213,7 @@ function AssignMachinePage() {
     const value = e.target.value;
     setInputValue(value);
     if (value.length > 0) {
-      const filtered = commesse.filter(c =>
+      const filtered = commesse.filter((c) =>
         c.numero_commessa.toLowerCase().includes(value.toLowerCase())
       );
       setSuggestions(filtered);
@@ -221,9 +229,9 @@ function AssignMachinePage() {
   };
 
   // Per il dropdown delle macchine
-  const machineOptions = macchine.map(m => ({
+  const machineOptions = macchine.map((m) => ({
     value: m.id,
-    label: `${m.macchina} - ${m.modello}`
+    label: `${m.macchina} - ${m.modello}`,
   }));
 
   // Gestione della selezione delle macchine (react-select)
@@ -235,13 +243,13 @@ function AssignMachinePage() {
   const handleAssignMachineType = async (e) => {
     e.preventDefault();
     if (selectedMachineInstances.length === 0 || !selectedCommessa) {
-      toast.error("Seleziona almeno una macchina e una commessa.");
+      toast.error('Seleziona almeno una macchina e una commessa.');
       return;
     }
-    const machineIds = selectedMachineInstances.map(m => m.value);
+    const machineIds = selectedMachineInstances.map((m) => m.value);
     try {
       await associateMacchineToCommessa(selectedCommessa.commessa_id, machineIds);
-      toast.success("Macchine assegnate con successo!");
+      toast.success('Macchine assegnate con successo!');
     } catch (error) {
       toast.error("Errore nell'assegnazione delle macchine.");
     }
@@ -250,30 +258,30 @@ function AssignMachinePage() {
   // Gestione per aggiungere componenti a una macchina specifica
   const handleAddComponentToMachine = async (macchinaId, componenteId, tipo) => {
     if (!selectedCommessa) {
-      toast.error("Seleziona una commessa prima di assegnare un componente.");
+      toast.error('Seleziona una commessa prima di assegnare un componente.');
       return;
     }
     if (!macchinaId || !componenteId || !tipo) {
-      toast.error("Devi selezionare una macchina, un componente e un tipo.");
+      toast.error('Devi selezionare una macchina, un componente e un tipo.');
       return;
     }
     try {
-      await associateComponentiToMacchina(
-        selectedCommessa.commessa_id,
-        macchinaId,
-        [{ componente_id: componenteId, tipo_associato: tipo }]
-      );
-      toast.success("Componente assegnato con successo!");
+      await associateComponentiToMacchina(selectedCommessa.commessa_id, macchinaId, [
+        { componente_id: componenteId, tipo_associato: tipo },
+      ]);
+      toast.success('Componente assegnato con successo!');
       // Ricarica i componenti per quella macchina
       const updated = await getComponentiFromMacchina(selectedCommessa.commessa_id, macchinaId);
       // Aggiorna lo stato: sostituisci i componenti della macchina (o ricomponili)
-      setAssignedComponents(prev => {
+      setAssignedComponents((prev) => {
         // Filtra i componenti della macchina corrente
-        const withoutCurrent = prev.filter(comp => comp.macchina_id.toString() !== macchinaId.toString());
+        const withoutCurrent = prev.filter(
+          (comp) => comp.macchina_id.toString() !== macchinaId.toString()
+        );
         return [...withoutCurrent, ...updated];
       });
       // Resetta la selezione per quella macchina
-      setComponentSelections(prev => {
+      setComponentSelections((prev) => {
         const newSelections = { ...prev };
         delete newSelections[macchinaId];
         return newSelections;
@@ -287,7 +295,7 @@ function AssignMachinePage() {
   const handleUpdateComponent = async (componentId, newType) => {
     try {
       await updateComponente(selectedCommessa.commessa_id, componentId, { tipo: newType });
-      toast.success("Componente aggiornato!");
+      toast.success('Componente aggiornato!');
       const updated = await getComponentiFromCommessa(selectedCommessa.commessa_id);
       setAssignedComponents(updated);
     } catch (error) {
@@ -298,15 +306,14 @@ function AssignMachinePage() {
   const handleRemoveComponent = async (machineId, componentId) => {
     try {
       await removeComponenteFromMacchina(selectedCommessa.commessa_id, machineId, componentId);
-      toast.success("Componente rimosso!");
+      toast.success('Componente rimosso!');
       // Ricarica i componenti per quella macchina oppure per l'intera commessa
       const updated = await getComponentiFromCommessa(selectedCommessa.commessa_id);
       setAssignedComponents(updated);
     } catch (error) {
-      toast.error("Errore nella rimozione del componente.");
+      toast.error('Errore nella rimozione del componente.');
     }
   };
-  
 
   return (
     <div className="container">
@@ -324,7 +331,7 @@ function AssignMachinePage() {
           />
           {suggestions.length > 0 && (
             <ul>
-              {suggestions.map(commessa => (
+              {suggestions.map((commessa) => (
                 <li key={commessa.commessa_id} onClick={() => handleSuggestionClick(commessa)}>
                   {commessa.numero_commessa} - {commessa.cliente}
                 </li>
@@ -365,26 +372,40 @@ function AssignMachinePage() {
               {selectedMachineInstances.length === 0 ? (
                 <p>Seleziona una macchina prima di assegnare componenti.</p>
               ) : (
-                selectedMachineInstances.map(machine => (
-                  <div key={machine.macchina_id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ddd', paddingBottom: '1rem' }}>
+                selectedMachineInstances.map((machine) => (
+                  <div
+                    key={machine.macchina_id}
+                    style={{
+                      marginBottom: '1rem',
+                      borderBottom: '1px solid #ddd',
+                      paddingBottom: '1rem',
+                    }}
+                  >
                     <h5>{machine.label}</h5>
                     <Select
-                      options={availableComponents.map(c => ({ value: c.id, label: c.componente }))}
+                      options={availableComponents.map((c) => ({
+                        value: c.id,
+                        label: c.componente,
+                      }))}
                       value={
                         componentSelections[machine.macchina_id]?.componenteId
-                          ? { 
-                              value: componentSelections[machine.macchina_id].componenteId, 
-                              label: availableComponents.find(c => c.id === componentSelections[machine.macchina_id].componenteId)?.componente || '' 
+                          ? {
+                              value: componentSelections[machine.macchina_id].componenteId,
+                              label:
+                                availableComponents.find(
+                                  (c) =>
+                                    c.id === componentSelections[machine.macchina_id].componenteId
+                                )?.componente || '',
                             }
                           : null
                       }
-                      onChange={selected =>
-                        setComponentSelections(prev => ({
+                      onChange={(selected) =>
+                        setComponentSelections((prev) => ({
                           ...prev,
                           [machine.macchina_id]: {
                             componenteId: selected.value,
-                            tipo: ''
-                          }
+                            tipo: '',
+                          },
                         }))
                       }
                       placeholder="Seleziona un componente"
@@ -392,21 +413,26 @@ function AssignMachinePage() {
                     <select
                       value={componentSelections[machine.macchina_id]?.tipo || ''}
                       onChange={(e) =>
-                        setComponentSelections(prev => ({
+                        setComponentSelections((prev) => ({
                           ...prev,
                           [machine.macchina_id]: {
                             ...prev[machine.macchina_id],
-                            tipo: e.target.value
-                          }
+                            tipo: e.target.value,
+                          },
                         }))
                       }
                     >
                       <option value="">Seleziona tipo</option>
                       {availableComponents
-                        .find(c => c.id === componentSelections[machine.macchina_id]?.componenteId)
+                        .find(
+                          (c) => c.id === componentSelections[machine.macchina_id]?.componenteId
+                        )
                         ?.tipo.split(',')
-                        .map(t => <option key={t} value={t}>{t}</option>)
-                      }
+                        .map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
                     </select>
                     <button
                       onClick={() =>
@@ -431,9 +457,14 @@ function AssignMachinePage() {
                 <p>Nessun componente assegnato.</p>
               ) : (
                 Object.entries(groupedComponents).map(([macchina_id, components]) => {
-                  const macchinaInfo = selectedMachineInstances.find(m => m.macchina_id.toString() === macchina_id);
+                  const macchinaInfo = selectedMachineInstances.find(
+                    (m) => m.macchina_id.toString() === macchina_id
+                  );
                   return (
-                    <div key={macchina_id} style={{ marginBottom: '2rem', border: '1px solid #ccc', padding: '1rem' }}>
+                    <div
+                      key={macchina_id}
+                      style={{ marginBottom: '2rem', border: '1px solid #ccc', padding: '1rem' }}
+                    >
                       <h5>{macchinaInfo ? macchinaInfo.label : `Macchina ${macchina_id}`}</h5>
                       <AssignedComponentsTable
                         assignedComponents={components}

@@ -2,8 +2,6 @@
   flex-direction: column;
   background-color: #f8f9fa;
   padding: 5px;
- 
-
 }
 .navbar-header {
   margin-top: 10px;
@@ -13,17 +11,15 @@
   top: 0;
   display: flex;
   align-items: center;
-  padding: 5px ;
+  padding: 5px;
   border-width: 2px;
-  border-radius: var(  --btn-border-radius-pill);
-  background-image: var( --color-blue-shiny);
+  border-radius: var(--btn-border-radius-pill);
+  background-image: var(--color-blue-shiny);
   color: #ffffff;
   z-index: 99;
 }
 
-
 /* Dropdown Container */
-
 
 /* Dropdown Menu */
 /* OLD
@@ -40,40 +36,37 @@ margin-top: 15px;
 
 /* Dropdown Menu NEW*/
 .dropdown-menu-nav {
-margin-top: 0px;
+  margin-top: 0px;
   width: 100%;
   height: 100vh;
-  background-color:  #111827;
+  background-color: #111827;
   color: #ffffff;
   padding: 10px 0;
   position: fixed;
   display: flex;
   z-index: 2000; /* Imposta un valore più alto dell'header */
-  color: var( --text-dark);
+  color: var(--text-dark);
   overflow-y: auto;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.dropdown-menu-nav  ul {
+.dropdown-menu-nav ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  
 }
 
-.dropdown-menu-nav  li {
+.dropdown-menu-nav li {
   padding: 10px 15px;
-  
 }
 
-.dropdown-menu-nav  li a {
+.dropdown-menu-nav li a {
   text-decoration: none;
   color: rgb(255, 255, 255);
   font-size: 16px;
-  
-
 }
-
 
 /* Titolo delle notifiche */
 .dropdown-menu-nav h4 {
@@ -103,7 +96,6 @@ margin-top: 0px;
   padding-left: 10px;
 }
 
-
 .notifications-container {
   padding: 20px;
   border-radius: 5px;
@@ -121,20 +113,15 @@ margin-top: 0px;
 }
 
 .notification-item.unread {
-
   font-weight: bold;
 }
 
 .notification-item.read {
-
-  color: var( --text-light)
+  color: var(--text-light);
 }
 
-
-
-
 .notification-badge {
- position: absolute;
+  position: absolute;
 
   background: red;
   color: white;
@@ -142,8 +129,6 @@ margin-top: 0px;
   border-radius: 50%;
   padding: 2px 6px;
 }
-
-
 
 .dropdown-subgroup {
   margin-bottom: 10px;
@@ -170,23 +155,23 @@ margin-top: 0px;
   text-decoration: none;
 }
 
-
-
-.search-suggestions{
+.search-suggestions {
   font-size: 16px;
   height: 100vh;
   width: 100%;
-    display: flex;
+  display: flex;
   flex-direction: column;
-   overflow-y: auto;
-       transition: transform 0.3s ease, box-shadow 0.3s ease;
-         z-index: 2000; /* Imposta un valore più alto dell'header */
-           position: fixed;
-           background-color:  #111827;
-           left: 0;
+  overflow-y: auto;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  z-index: 2000; /* Imposta un valore più alto dell'header */
+  position: fixed;
+  background-color: #111827;
+  left: 0;
 }
 
-.search-suggestions li{
+.search-suggestions li {
   padding: 10px;
 }
 
@@ -196,14 +181,15 @@ margin-top: 0px;
   z-index: 2000;
   height: 100vh;
   min-width: 100%;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   max-width: fit-content;
   overflow-y: auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   z-index: 2000; /* Imposta un valore più alto dell'header */
   position: fixed;
-  background-color:  #111827;
-  
+  background-color: #111827;
 }
 
 /* Stili per il dropdown con transizione */
@@ -215,7 +201,9 @@ margin-top: 0px;
 .dropdown-enter-active {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 300ms ease, transform 500ms ease;
+  transition:
+    opacity 300ms ease,
+    transform 500ms ease;
 }
 
 .dropdown-exit {
@@ -226,35 +214,29 @@ margin-top: 0px;
 .dropdown-exit-active {
   opacity: 0;
   transform: translateY(-10px);
-  transition: opacity 300ms ease, transform 500ms ease;
+  transition:
+    opacity 300ms ease,
+    transform 500ms ease;
 }
-
-
 
 @media (max-width: 768px) {
+  .menu-list li a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    font-size: 14px;
+  }
 
-.menu-list li a {
-  text-decoration: none;
-  color: #333;
-  display: block;
-  font-size: 14px;
-}
+  .dropdown-menu-nav li a {
+    text-decoration: none;
+    font-size: 13px;
+  }
 
+  .search-suggestions {
+    font-size: 14px;
+  }
 
-
-
-.dropdown-menu-nav  li a {
-  text-decoration: none;
-  font-size: 13px;
-}
-
-.search-suggestions{
-  font-size: 14px;
-}
-
-.search-suggestions li{
-  padding: 8px;
-}
-
-
+  .search-suggestions li {
+    padding: 8px;
+  }
 }

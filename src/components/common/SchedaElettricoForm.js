@@ -1,17 +1,17 @@
 // ===== IMPORT =====
-import { useState, useEffect, useRef } from "react";
-import html2pdf from "html2pdf.js";
-import { getAuthUser } from "../utils/auth";
-import useTagAutocomplete from "../common/useTagAutocomplete";
-import TagSuggestions from "../common/TagSuggestions";
-import { extractHashtagsLower } from "../common/tagUtils";
-import { updateTagsByNames } from "../services/API/schedeTecniche-api";
+import { useState, useEffect, useRef } from 'react';
+import html2pdf from 'html2pdf.js';
+import { getAuthUser } from '../utils/auth';
+import useTagAutocomplete from '../common/useTagAutocomplete';
+import TagSuggestions from '../common/TagSuggestions';
+import { extractHashtagsLower } from '../common/tagUtils';
+import { updateTagsByNames } from '../services/API/schedeTecniche-api';
 const normalizeChecklist = (rawChecklist = {}) => {
   const normalized = {};
   for (const voce of Object.keys(rawChecklist)) {
     const valore = rawChecklist[voce];
     normalized[voce] =
-      typeof valore === "object" && valore !== null && "fatto" in valore
+      typeof valore === 'object' && valore !== null && 'fatto' in valore
         ? valore
         : { fatto: !!valore, utente: null, timestamp: null };
   }
@@ -19,99 +19,88 @@ const normalizeChecklist = (rawChecklist = {}) => {
 };
 
 const vociChecklist1 = [
-  "Taglio e preparazione cavi",
-  "Montaggio e cablaggio cassette, pulsantiere, ciabatte e pulpiti",
-  "Montaggio e cablaggio barriere e elettroserrature ",
-  "Cablaggio contatto rotante, prove cortocircuito piste e continuità cavi verifica serraggio fili viola delle piste",
-  "Controllo cablaggio di tutti i dispositivi in campo",
-  "Stesura cavi a layout con scorta 4/5 mt nel Q.E",
-  "Cablaggio impianto PE",
+  'Taglio e preparazione cavi',
+  'Montaggio e cablaggio cassette, pulsantiere, ciabatte e pulpiti',
+  'Montaggio e cablaggio barriere e elettroserrature ',
+  'Cablaggio contatto rotante, prove cortocircuito piste e continuità cavi verifica serraggio fili viola delle piste',
+  'Controllo cablaggio di tutti i dispositivi in campo',
+  'Stesura cavi a layout con scorta 4/5 mt nel Q.E',
+  'Cablaggio impianto PE',
 ];
 
 const vociChecklist2 = [
-  "Ponticellare circuiti sicurezze esterne",
-  "Regolazione sensori e fotocellule",
-  "Allineamento e controllo funzionamento barriere e elettroserrature ",
-  "Foto impianto",
-  "Test ingressi",
+  'Ponticellare circuiti sicurezze esterne',
+  'Regolazione sensori e fotocellule',
+  'Allineamento e controllo funzionamento barriere e elettroserrature ',
+  'Foto impianto',
+  'Test ingressi',
 ];
 
 const vociChecklist3 = [
-  "Controllo componenti interno Q.E  (mancanti o provvisori)",
-  "Rimuovere tutti i ponticelli sicurezze esterne ",
-  "Fornitura barriere, elettroserrature, pulsantiere e pulpiti",
-  "Fornitura di cavi scambio,  cavetti, sensoristica e connettori",
-  "Fornitura canalina",
-  "Fornitura corredo elettrico",
-  "Foto materiale da spedire ",
+  'Controllo componenti interno Q.E  (mancanti o provvisori)',
+  'Rimuovere tutti i ponticelli sicurezze esterne ',
+  'Fornitura barriere, elettroserrature, pulsantiere e pulpiti',
+  'Fornitura di cavi scambio,  cavetti, sensoristica e connettori',
+  'Fornitura canalina',
+  'Fornitura corredo elettrico',
+  'Foto materiale da spedire ',
 ];
 
-function SchedaElettricoForm({ scheda,commessa, onSave, userId, editable, username }) {
+function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, username }) {
   const schedaRef = useRef();
   const textareaRef = useRef(null);
   const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
 
-  
   // --- PERMESSO: solo il creatore può modificare intestazione + note ---
-const createdBy = (scheda?.creato_da_nome || "").trim();
-const currentUser = (username || "").trim();
+  const createdBy = (scheda?.creato_da_nome || '').trim();
+  const currentUser = (username || '').trim();
 
-const canEditHeaderAndNote =
-  editable &&
-  createdBy &&
-  currentUser &&
-  createdBy.toLowerCase() === currentUser.toLowerCase();
+  const canEditHeaderAndNote =
+    editable && createdBy && currentUser && createdBy.toLowerCase() === currentUser.toLowerCase();
 
-const {
-  suggestionsVisibili,
-  filtroTag,
-  cursorPos,
-  handleNoteChange,
-  clearSuggestions,
-} = useTagAutocomplete({ enabled: canEditHeaderAndNote });
-
+  const { suggestionsVisibili, filtroTag, cursorPos, handleNoteChange, clearSuggestions } =
+    useTagAutocomplete({ enabled: canEditHeaderAndNote });
 
   const autoResizeTextarea = () => {
     const el = textareaRef.current;
     if (el) {
-      el.style.height = "auto";
+      el.style.height = 'auto';
       el.style.height = `${el.scrollHeight}px`;
     }
   };
 
-
   const [form, setForm] = useState({
     // intestazione (separa i campi, così non schiacci tutto su RevSchema)
-    destinazione: scheda?.intestazione?.destinazione || "",
-    tipoMacchina: scheda?.intestazione?.tipoMacchina || "",
-    progettistaElettrico: scheda?.intestazione?.progettistaElettrico || "",
-    targhetteImpianto: scheda?.intestazione?.targhetteImpianto || "",
-    prodotto: scheda?.intestazione?.prodotto || "",
-    gestioneEFornitura: scheda?.intestazione?.gestioneEFornitura || "",
-    soloFornitura: scheda?.intestazione?.soloFornitura || "",
-    sicurezze: scheda?.intestazione?.sicurezze || "",
-    alimentazione: scheda?.intestazione?.alimentazione || "",
-    contattoRotante: scheda?.intestazione?.contattoRotante || "",
-    motori: scheda?.intestazione?.motori || "",
-    altezzaLinea: scheda?.intestazione?.altezzaLinea || "",
+    destinazione: scheda?.intestazione?.destinazione || '',
+    tipoMacchina: scheda?.intestazione?.tipoMacchina || '',
+    progettistaElettrico: scheda?.intestazione?.progettistaElettrico || '',
+    targhetteImpianto: scheda?.intestazione?.targhetteImpianto || '',
+    prodotto: scheda?.intestazione?.prodotto || '',
+    gestioneEFornitura: scheda?.intestazione?.gestioneEFornitura || '',
+    soloFornitura: scheda?.intestazione?.soloFornitura || '',
+    sicurezze: scheda?.intestazione?.sicurezze || '',
+    alimentazione: scheda?.intestazione?.alimentazione || '',
+    contattoRotante: scheda?.intestazione?.contattoRotante || '',
+    motori: scheda?.intestazione?.motori || '',
+    altezzaLinea: scheda?.intestazione?.altezzaLinea || '',
 
     checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
-    note: scheda?.note || "",
+    note: scheda?.note || '',
   });
 
   const headerFields = [
-    { label: "Destinazione:", name: "destinazione" },
-    { label: "Tipo di macchina:", name: "tipoMacchina" },
-    { label: "Progettista Elettrico:", name: "progettistaElettrico" },
-    { label: "Targhette Impianto:", name: "targhetteImpianto" },
-    { label: "Prodotto:", name: "prodotto" },
-    { label: "Gestione e fornitura:", name: "gestioneEFornitura" },
-    { label: "Solo fornitura:", name: "soloFornitura" },
-    { label: "Sicurezze:", name: "sicurezze" },
-    { label: "Alimentazione:", name: "alimentazione" },
-    { label: "Contatto rotante:", name: "contattoRotante" },
-    { label: "Motori:", name: "motori" },
-    { label: "Altezza linea:", name: "altezzaLinea" },
+    { label: 'Destinazione:', name: 'destinazione' },
+    { label: 'Tipo di macchina:', name: 'tipoMacchina' },
+    { label: 'Progettista Elettrico:', name: 'progettistaElettrico' },
+    { label: 'Targhette Impianto:', name: 'targhetteImpianto' },
+    { label: 'Prodotto:', name: 'prodotto' },
+    { label: 'Gestione e fornitura:', name: 'gestioneEFornitura' },
+    { label: 'Solo fornitura:', name: 'soloFornitura' },
+    { label: 'Sicurezze:', name: 'sicurezze' },
+    { label: 'Alimentazione:', name: 'alimentazione' },
+    { label: 'Contatto rotante:', name: 'contattoRotante' },
+    { label: 'Motori:', name: 'motori' },
+    { label: 'Altezza linea:', name: 'altezzaLinea' },
   ];
 
   const handleChange = (e) => {
@@ -145,311 +134,305 @@ const {
       };
     });
   };
-useEffect(() => {
-  if (!scheda) return;
+  useEffect(() => {
+    if (!scheda) return;
 
-  setForm({
-    destinazione: scheda?.intestazione?.destinazione || "",
-    tipoMacchina: scheda?.intestazione?.tipoMacchina || "",
-    progettistaElettrico: scheda?.intestazione?.progettistaElettrico || "",
-    targhetteImpianto: scheda?.intestazione?.targhetteImpianto || "",
-    prodotto: scheda?.intestazione?.prodotto || "",
-    gestioneEFornitura: scheda?.intestazione?.gestioneEFornitura || "",
-    soloFornitura: scheda?.intestazione?.soloFornitura || "",
-    sicurezze: scheda?.intestazione?.sicurezze || "",
-    alimentazione: scheda?.intestazione?.alimentazione || "",
-    contattoRotante: scheda?.intestazione?.contattoRotante || "",
-    motori: scheda?.intestazione?.motori || "",
-    altezzaLinea: scheda?.intestazione?.altezzaLinea || "",
-    checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
-    note: scheda?.note || "",
-  });
+    setForm({
+      destinazione: scheda?.intestazione?.destinazione || '',
+      tipoMacchina: scheda?.intestazione?.tipoMacchina || '',
+      progettistaElettrico: scheda?.intestazione?.progettistaElettrico || '',
+      targhetteImpianto: scheda?.intestazione?.targhetteImpianto || '',
+      prodotto: scheda?.intestazione?.prodotto || '',
+      gestioneEFornitura: scheda?.intestazione?.gestioneEFornitura || '',
+      soloFornitura: scheda?.intestazione?.soloFornitura || '',
+      sicurezze: scheda?.intestazione?.sicurezze || '',
+      alimentazione: scheda?.intestazione?.alimentazione || '',
+      contattoRotante: scheda?.intestazione?.contattoRotante || '',
+      motori: scheda?.intestazione?.motori || '',
+      altezzaLinea: scheda?.intestazione?.altezzaLinea || '',
+      checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
+      note: scheda?.note || '',
+    });
 
-  clearSuggestions();
-  requestAnimationFrame(autoResizeTextarea);
-}, [scheda]); // ✅ più robusto
+    clearSuggestions();
+    requestAnimationFrame(autoResizeTextarea);
+  }, [scheda]); // ✅ più robusto
 
+  const handleSubmit = async () => {
+    const schedaId = scheda?.id || scheda?.scheda_id;
+    const u = getAuthUser();
+    const token = u?.token || sessionStorage.getItem('token') || localStorage.getItem('token');
 
-const handleSubmit = async () => {
-  const schedaId = scheda?.id || scheda?.scheda_id;
-  const u = getAuthUser();
-  const token =
-    u?.token || sessionStorage.getItem("token") || localStorage.getItem("token");
-
-  if (!token) {
-    console.warn("Token mancante: fai login di nuovo o controlla getAuthUser()");
-    return;
-  }
-  if (!schedaId) {
-    console.warn("Scheda id mancante, impossibile salvare tags");
-    return;
-  }
-
-  const datiPerBackend = {
-    intestazione: {
-      destinazione: form.destinazione,
-      tipoMacchina: form.tipoMacchina,
-      progettistaElettrico: form.progettistaElettrico,
-      targhetteImpianto: form.targhetteImpianto,
-      prodotto: form.prodotto,
-      gestioneEFornitura: form.gestioneEFornitura,
-      soloFornitura: form.soloFornitura,
-      sicurezze: form.sicurezze,
-      alimentazione: form.alimentazione,
-      contattoRotante: form.contattoRotante,
-      motori: form.motori,
-      altezzaLinea: form.altezzaLinea,
-    },
-    contenuto: { checklist: form.checklist },
-    note: form.note,
-    allegati_standard: [],
-    risorsa_id: userId,
-    descrizione: "Modifica effettuata da interfaccia sviluppo",
-  };
-
-  try {
-    const maybePromise = onSave?.(datiPerBackend);
-    if (maybePromise && typeof maybePromise.then === "function") {
-      await maybePromise;
+    if (!token) {
+      console.warn('Token mancante: fai login di nuovo o controlla getAuthUser()');
+      return;
+    }
+    if (!schedaId) {
+      console.warn('Scheda id mancante, impossibile salvare tags');
+      return;
     }
 
-    const names = extractHashtagsLower(form.note);
+    const datiPerBackend = {
+      intestazione: {
+        destinazione: form.destinazione,
+        tipoMacchina: form.tipoMacchina,
+        progettistaElettrico: form.progettistaElettrico,
+        targhetteImpianto: form.targhetteImpianto,
+        prodotto: form.prodotto,
+        gestioneEFornitura: form.gestioneEFornitura,
+        soloFornitura: form.soloFornitura,
+        sicurezze: form.sicurezze,
+        alimentazione: form.alimentazione,
+        contattoRotante: form.contattoRotante,
+        motori: form.motori,
+        altezzaLinea: form.altezzaLinea,
+      },
+      contenuto: { checklist: form.checklist },
+      note: form.note,
+      allegati_standard: [],
+      risorsa_id: userId,
+      descrizione: 'Modifica effettuata da interfaccia sviluppo',
+    };
 
-    // ✅ sempre, anche [] -> pulisce
-    await updateTagsByNames(schedaId, names, token);
-  } catch (err) {
-    console.error("Errore salvataggio scheda/tag:", err);
-  }
-};
+    try {
+      const maybePromise = onSave?.(datiPerBackend);
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        await maybePromise;
+      }
 
+      const names = extractHashtagsLower(form.note);
 
- const filename = `Scheda elettrico commessa:${commessa}.pdf`;
+      // ✅ sempre, anche [] -> pulisce
+      await updateTagsByNames(schedaId, names, token);
+    } catch (err) {
+      console.error('Errore salvataggio scheda/tag:', err);
+    }
+  };
+
+  const filename = `Scheda elettrico commessa:${commessa}.pdf`;
   const handleDownloadPdf = async () => {
     const element = schedaRef.current;
-  if (!element) return;
-    element.classList.add("pdf-dark-mode");
-    element.classList.add("pdf-exporting");
-  
+    if (!element) return;
+    element.classList.add('pdf-dark-mode');
+    element.classList.add('pdf-exporting');
+
     try {
       await html2pdf()
         .set({
           margin: 10,
           filename,
           html2canvas: { scale: 2, backgroundColor: null },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         })
         .from(element)
         .save();
     } finally {
-      element.classList.remove("pdf-dark-mode");
-      element.classList.remove("pdf-exporting");
+      element.classList.remove('pdf-dark-mode');
+      element.classList.remove('pdf-exporting');
     }
   };
-
 
   useEffect(() => {
     autoResizeTextarea();
   }, [form.note]);
 
-
-
   return (
     <div>
       <div ref={schedaRef} className="flex-column-center">
-                  <h1>Scheda elettrica commessa: {commessa}</h1>
+        <h1>Scheda elettrica commessa: {commessa}</h1>
         <div className="flex-column-left">
           {headerFields.map((f) => (
-  <div key={f.name} className="flex-column-left header-field">
-    <label className="header-label">{f.label}</label>
+            <div key={f.name} className="flex-column-left header-field">
+              <label className="header-label">{f.label}</label>
 
-    {/* SCHERMO */}
-    <input
-      name={f.name}
-      className="w-400 header-input no-print"
-      value={form[f.name] || ""}
-      onChange={handleChange}
-      readOnly={!canEditHeaderAndNote}
-      disabled={!canEditHeaderAndNote}
-    />
+              {/* SCHERMO */}
+              <input
+                name={f.name}
+                className="w-400 header-input no-print"
+                value={form[f.name] || ''}
+                onChange={handleChange}
+                readOnly={!canEditHeaderAndNote}
+                disabled={!canEditHeaderAndNote}
+              />
 
-    {/* STAMPA / PDF */}
-    <div className="w-400 header-print only-print">
-      {form[f.name] || ""}
-    </div>
-  </div>
-))}
-
+              {/* STAMPA / PDF */}
+              <div className="w-400 header-print only-print">{form[f.name] || ''}</div>
+            </div>
+          ))}
         </div>
         {/* NOTE */}
-<div className="note-page">
-  <h1 className="note-title">Specifiche montaggio</h1>
+        <div className="note-page">
+          <h1 className="note-title">Specifiche montaggio</h1>
 
-<textarea
-  name="note"
-  className="w-w note-textarea"
-  ref={textareaRef}
-  value={form.note}
-  onChange={(e) => {
-    const testo = e.target.value;
-    const pos = e.target.selectionStart;
+          <textarea
+            name="note"
+            className="w-w note-textarea"
+            ref={textareaRef}
+            value={form.note}
+            onChange={(e) => {
+              const testo = e.target.value;
+              const pos = e.target.selectionStart;
 
-    setForm((prev) => ({ ...prev, note: testo }));
-    handleNoteChange(testo, pos);
+              setForm((prev) => ({ ...prev, note: testo }));
+              handleNoteChange(testo, pos);
 
-    autoResizeTextarea();
-  }}
+              autoResizeTextarea();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') clearSuggestions();
+            }}
+            readOnly={!canEditHeaderAndNote}
+            disabled={!canEditHeaderAndNote}
+          />
+          {canEditHeaderAndNote && (
+            <TagSuggestions
+              visible={suggestionsVisibili.length > 0}
+              suggestions={suggestionsVisibili}
+              noteText={form.note}
+              cursorPos={cursorPos}
+              filtroTag={filtroTag}
+              onPick={(nuovoTesto) => {
+                setForm((prev) => ({ ...prev, note: nuovoTesto }));
+                clearSuggestions();
 
-  onKeyDown={(e) => {
-    if (e.key === "Escape") clearSuggestions();
-  }}
-  readOnly={!canEditHeaderAndNote}
-  disabled={!canEditHeaderAndNote}
-/>
-{canEditHeaderAndNote && (
-  <TagSuggestions
-    visible={suggestionsVisibili.length > 0}
-    suggestions={suggestionsVisibili}
-    noteText={form.note}
-    cursorPos={cursorPos}
-    filtroTag={filtroTag}
-    onPick={(nuovoTesto) => {
-      setForm((prev) => ({ ...prev, note: nuovoTesto }));
-      clearSuggestions();
+                requestAnimationFrame(() => {
+                  autoResizeTextarea();
+                  textareaRef.current?.focus();
+                });
+              }}
+            />
+          )}
 
-      requestAnimationFrame(() => {
-        autoResizeTextarea();
-        textareaRef.current?.focus();
-      });
-    }}
-  />
-)}
-
-
-
-  <div className="w-w note-print">
-    {form.note}
-  </div>
-</div>
+          <div className="w-w note-print">{form.note}</div>
+        </div>
         <button
           className="btn w-200 btn--shiny btn--pill"
           onClick={() => setMostraDettagliSpunte((p) => !p)}
         >
-          {mostraDettagliSpunte ? "Nascondi dettagli" : "Mostra dettagli"}
+          {mostraDettagliSpunte ? 'Nascondi dettagli' : 'Mostra dettagli'}
         </button>
 
         {mostraDettagliSpunte && (
           <div className="header-row">
-            <label style={{ fontFamily: "serif", color: "darkgray" }}>
-              Creata il{" "}
+            <label style={{ fontFamily: 'serif', color: 'darkgray' }}>
+              Creata il{' '}
               {scheda?.data_creazione
-                ? new Date(scheda.data_creazione).toLocaleString("it-IT")
-                : "Data non disponibile"}
+                ? new Date(scheda.data_creazione).toLocaleString('it-IT')
+                : 'Data non disponibile'}
             </label>
-            <label style={{ fontFamily: "serif", color: "darkgray" }}>
-              da {scheda?.creato_da_nome || "utente sconosciuto"}
+            <label style={{ fontFamily: 'serif', color: 'darkgray' }}>
+              da {scheda?.creato_da_nome || 'utente sconosciuto'}
             </label>
           </div>
         )}
 
-<div className="note-pdf-wrap">
-        <div className="flex-column-left">
-          <h1>FASE PREPARAZIONE E MONTAGGIO BM</h1>
-          {vociChecklist1.map((voce) => (
-            <label key={voce} className="flex items-center check-row">
-              <input
-                type="checkbox"
-                checked={form.checklist?.[voce]?.fatto || false}
-                onChange={() => toggleVoce(voce)}
-                disabled={!editable}
-              />
-              {voce}
-              <div
-                style={{
-                  marginTop: "5px",
-                  marginBottom: "15px",
-                  fontFamily: "serif",
-                  color: "darkgray",
-                }}
-              >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                      form.checklist[voce].timestamp
-                    ).toLocaleString("it-IT")}`
-                  : ""}
-              </div>
-            </label>
-          ))}
+        <div className="note-pdf-wrap">
+          <div className="flex-column-left">
+            <h1>FASE PREPARAZIONE E MONTAGGIO BM</h1>
+            {vociChecklist1.map((voce) => (
+              <label key={voce} className="flex items-center check-row">
+                <input
+                  type="checkbox"
+                  checked={form.checklist?.[voce]?.fatto || false}
+                  onChange={() => toggleVoce(voce)}
+                  disabled={!editable}
+                />
+                {voce}
+                <div
+                  style={{
+                    marginTop: '5px',
+                    marginBottom: '15px',
+                    fontFamily: 'serif',
+                    color: 'darkgray',
+                  }}
+                >
+                  {mostraDettagliSpunte &&
+                  form.checklist?.[voce]?.fatto &&
+                  form.checklist[voce].utente
+                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : ''}
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex-column-left">
+            <h1>FASE PRECOLLAUDO</h1>
+            {vociChecklist2.map((voce) => (
+              <label key={voce} className="flex items-center check-row">
+                <input
+                  type="checkbox"
+                  checked={form.checklist?.[voce]?.fatto || false}
+                  onChange={() => toggleVoce(voce)}
+                  disabled={!editable}
+                />
+                {voce}
+                <div
+                  style={{
+                    marginTop: '5px',
+                    marginBottom: '15px',
+                    fontFamily: 'serif',
+                    color: 'darkgray',
+                  }}
+                >
+                  {mostraDettagliSpunte &&
+                  form.checklist?.[voce]?.fatto &&
+                  form.checklist[voce].utente
+                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : ''}
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex-column-left">
+            <h1>FASE SMONTAGGIO</h1>
+            {vociChecklist3.map((voce) => (
+              <label key={voce} className="flex items-center check-row">
+                <input
+                  type="checkbox"
+                  checked={form.checklist?.[voce]?.fatto || false}
+                  onChange={() => toggleVoce(voce)}
+                  disabled={!editable}
+                />
+                {voce}
+                <div
+                  style={{
+                    marginTop: '5px',
+                    marginBottom: '15px',
+                    fontFamily: 'serif',
+                    color: 'darkgray',
+                  }}
+                >
+                  {mostraDettagliSpunte &&
+                  form.checklist?.[voce]?.fatto &&
+                  form.checklist[voce].utente
+                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : ''}
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="flex-column-left">
-          <h1>FASE PRECOLLAUDO</h1>
-          {vociChecklist2.map((voce) => (
-            <label key={voce} className="flex items-center check-row">
-              <input
-                type="checkbox"
-                checked={form.checklist?.[voce]?.fatto || false}
-                onChange={() => toggleVoce(voce)}
-                disabled={!editable}
-              />
-              {voce}
-              <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                      form.checklist[voce].timestamp
-                    ).toLocaleString("it-IT")}`
-                  : ""}
-              </div>
-            </label>
-          ))}
-        </div>
+      {/* qui eventualmente renderizzi suggestionsVisibili se ti serve */}
 
-        <div className="flex-column-left">
-          <h1>FASE SMONTAGGIO</h1>
-          {vociChecklist3.map((voce) => (
-            <label key={voce} className="flex items-center check-row">
-              <input
-                type="checkbox"
-                checked={form.checklist?.[voce]?.fatto || false}
-                onChange={() => toggleVoce(voce)}
-                disabled={!editable}
-              />
-              {voce}
-              <div style={{ marginTop: "5px", marginBottom: "15px", fontFamily: "serif", color: "darkgray" }}>
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                      form.checklist[voce].timestamp
-                    ).toLocaleString("it-IT")}`
-                  : ""}
-              </div>
-            </label>
-          ))}
-        </div>
-        </div>
-   </div>
+      <div className="flex-column-center">
+        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
+          Scarica PDF
+        </button>
 
-
-
-
-        {/* qui eventualmente renderizzi suggestionsVisibili se ti serve */}
-      
- <div className="flex-column-center">
-      <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
-        Scarica PDF
-      </button>
-
-{canEditHeaderAndNote && (
-  <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-    Salva
-  </button>
-)}
-
-   </div>
+        <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+          Salva
+        </button>
+      </div>
     </div>
   );
 }

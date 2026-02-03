@@ -1,15 +1,12 @@
-
-import axios from "axios";
+import axios from 'axios';
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
-    timeout: 15000, // Timeout di 15 secondi
+  timeout: 15000, // Timeout di 15 secondi
 });
-
 
 export const updateActivityStatusAPI = async (activityId, newStatus, token) => {
   try {
-    
     const response = await apiClient.put(
       `/api/notifiche/${activityId}/stato`,
       { stato: newStatus },
@@ -25,7 +22,6 @@ export const updateActivityStatusAPI = async (activityId, newStatus, token) => {
 };
 
 export const updateActivityNotes = async (activityId, note, token) => {
-
   try {
     const response = await apiClient.put(
       `/api/notifiche/${activityId}/note`,
@@ -41,30 +37,22 @@ export const updateActivityNotes = async (activityId, note, token) => {
   }
 };
 
-
 export const getNotificationPreferencesAPI = async (token) => {
   try {
-    const response = await apiClient.get("/api/notifichePreferenze", {
+    const response = await apiClient.get('/api/notifichePreferenze', {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data; // Array di { categoria, via_push, via_email }
   } catch (error) {
-    console.error("Errore nel recupero delle preferenze notifiche:", error);
+    console.error('Errore nel recupero delle preferenze notifiche:', error);
     throw error;
   }
 };
 
-
-
-export const saveNotificationPreferenceAPI = async (
-  categoria,
-  viaPush,
-  viaEmail,
-  token
-) => {
+export const saveNotificationPreferenceAPI = async (categoria, viaPush, viaEmail, token) => {
   try {
     const response = await apiClient.post(
-      "/api/notifichePreferenze",
+      '/api/notifichePreferenze',
       {
         categoria,
         via_push: viaPush,
@@ -76,12 +64,10 @@ export const saveNotificationPreferenceAPI = async (
     );
     return response.data;
   } catch (error) {
-    console.error("Errore nel salvataggio delle preferenze:", error);
+    console.error('Errore nel salvataggio delle preferenze:', error);
     throw error;
   }
 };
-
-
 
 export const deleteNotificationPreferenceAPI = async (categoria, token) => {
   try {
@@ -102,10 +88,10 @@ export const deleteNotificationPreferenceAPI = async (categoria, token) => {
 // 📥 Ottieni tutti i destinatari notifiche (admin)
 export const getNotificationDestinatariAPI = async () => {
   try {
-    const response = await apiClient.get("/api/notificheDestinatari");
+    const response = await apiClient.get('/api/notificheDestinatari');
     return response.data; // Array con id, categoria, id_utente, nome
   } catch (error) {
-    console.error("Errore nel recupero dei destinatari notifiche:", error);
+    console.error('Errore nel recupero dei destinatari notifiche:', error);
     throw error;
   }
 };
@@ -113,13 +99,13 @@ export const getNotificationDestinatariAPI = async () => {
 // ➕ Salva nuove assegnazioni destinatari (admin)
 export const saveNotificationDestinatariAPI = async (categoria, idUtenti) => {
   try {
-    const response = await apiClient.post("/api/notificheDestinatari", {
+    const response = await apiClient.post('/api/notificheDestinatari', {
       categoria,
       idUtenti,
     });
     return response.data; // newAssignments
   } catch (error) {
-    console.error("Errore nel salvataggio destinatari notifiche:", error);
+    console.error('Errore nel salvataggio destinatari notifiche:', error);
     throw error;
   }
 };
@@ -135,14 +121,12 @@ export const deleteNotificationDestinatarioAPI = async (id) => {
   }
 };
 
-
-
 export const fetchCategorie = async () => {
   try {
-    const response = await apiClient.get("/api/notifiche/categorie");
+    const response = await apiClient.get('/api/notifiche/categorie');
     return response.data;
   } catch (error) {
-    console.error("Errore nel caricamento delle categorie:", error);
+    console.error('Errore nel caricamento delle categorie:', error);
     throw error;
   }
 };

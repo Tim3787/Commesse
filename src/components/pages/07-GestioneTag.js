@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import logo from "../img/Animation - 1738249246846.gif";
-import "../style/02-StatoAvanzamento-reparto.css";
+import React, { useEffect, useState } from 'react';
+import logo from '../img/Animation - 1738249246846.gif';
+import '../style/02-StatoAvanzamento-reparto.css';
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { useAppData } from "../context/AppDataContext";
-import { fetchTags, createTag, updateTag, deleteTag } from "../services/API/tag-api";
+import { useAppData } from '../context/AppDataContext';
+import { fetchTags, createTag, updateTag, deleteTag } from '../services/API/tag-api';
 
 function GestioneTag() {
   const { reparti } = useAppData();
@@ -15,17 +15,17 @@ function GestioneTag() {
   const [tags, setTags] = useState([]);
 
   // filtri
-  const [filtroSearch, setFiltroSearch] = useState("");
-  const [filtroReparto, setFiltroReparto] = useState("");
+  const [filtroSearch, setFiltroSearch] = useState('');
+  const [filtroReparto, setFiltroReparto] = useState('');
   const [soloAttivi, setSoloAttivi] = useState(true);
 
   // form
   const [formData, setFormData] = useState({
-    nome: "",
-    prefisso: "",
-    reparto: "", // stringa o "" (globale)
-    colore: "#cccccc",
-    descrizione: "",
+    nome: '',
+    prefisso: '',
+    reparto: '', // stringa o "" (globale)
+    colore: '#cccccc',
+    descrizione: '',
     attivo: true,
   });
 
@@ -49,8 +49,8 @@ function GestioneTag() {
       // se vuoi gestire anche inattivi, serve endpoint admin che non filtra attivo=1
       setTags(data);
     } catch (err) {
-      console.error("Errore nel caricamento tag:", err);
-      toast.error("Errore nel caricamento tag.");
+      console.error('Errore nel caricamento tag:', err);
+      toast.error('Errore nel caricamento tag.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ function GestioneTag() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
+    if (type === 'checkbox') {
       setFormData((prev) => ({ ...prev, [name]: checked }));
       return;
     }
@@ -72,11 +72,11 @@ function GestioneTag() {
 
   const resetForm = () => {
     setFormData({
-      nome: "",
-      prefisso: "",
-      reparto: "",
-      colore: "#cccccc",
-      descrizione: "",
+      nome: '',
+      prefisso: '',
+      reparto: '',
+      colore: '#cccccc',
+      descrizione: '',
       attivo: true,
     });
     setIsEditing(false);
@@ -87,7 +87,7 @@ function GestioneTag() {
     e.preventDefault();
 
     if (!formData.nome || !formData.prefisso) {
-      toast.error("Compila almeno Nome e Prefisso.");
+      toast.error('Compila almeno Nome e Prefisso.');
       return;
     }
 
@@ -97,25 +97,25 @@ function GestioneTag() {
       const payload = {
         nome: formData.nome.trim(),
         prefisso: formData.prefisso.trim().toUpperCase(),
-        reparto: formData.reparto === "" ? null : formData.reparto,
-        colore: formData.colore || "#cccccc",
+        reparto: formData.reparto === '' ? null : formData.reparto,
+        colore: formData.colore || '#cccccc',
         descrizione: formData.descrizione || null,
         attivo: formData.attivo,
       };
 
       if (isEditing && editId) {
         await updateTag(editId, payload);
-        toast.success("Tag aggiornato con successo.");
+        toast.success('Tag aggiornato con successo.');
       } else {
         await createTag(payload);
-        toast.success("Tag creato con successo.");
+        toast.success('Tag creato con successo.');
       }
 
       await loadData();
       resetForm();
     } catch (err) {
-      console.error("Errore salvataggio tag:", err);
-      toast.error("Errore durante il salvataggio del tag.");
+      console.error('Errore salvataggio tag:', err);
+      toast.error('Errore durante il salvataggio del tag.');
     } finally {
       setLoading(false);
     }
@@ -123,16 +123,16 @@ function GestioneTag() {
 
   const handleEdit = (item) => {
     setFormData({
-      nome: item.nome || "",
-      prefisso: item.prefisso || "",
-      reparto: item.reparto || "",
-      colore: item.colore || "#cccccc",
-      descrizione: item.descrizione || "",
+      nome: item.nome || '',
+      prefisso: item.prefisso || '',
+      reparto: item.reparto || '',
+      colore: item.colore || '#cccccc',
+      descrizione: item.descrizione || '',
       attivo: item.attivo === 1 || item.attivo === true,
     });
     setIsEditing(true);
     setEditId(item.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleToggleAttivo = async (item) => {
@@ -146,10 +146,10 @@ function GestioneTag() {
         descrizione: item.descrizione,
         attivo: !(Number(item.attivo) === 1),
       });
-      toast.success(Number(item.attivo) === 1 ? "Tag disattivato." : "Tag riattivato.");
+      toast.success(Number(item.attivo) === 1 ? 'Tag disattivato.' : 'Tag riattivato.');
       await loadData();
     } catch (err) {
-      console.error("Errore toggle attivo:", err);
+      console.error('Errore toggle attivo:', err);
       toast.error("Errore durante l'aggiornamento dello stato.");
     } finally {
       setLoading(false);
@@ -168,10 +168,10 @@ function GestioneTag() {
     try {
       setLoading(true);
       await deleteTag(item.id);
-      toast.success("Tag eliminato definitivamente.");
+      toast.success('Tag eliminato definitivamente.');
       await loadData();
     } catch (err) {
-      console.error("Errore hard delete tag:", err);
+      console.error('Errore hard delete tag:', err);
       toast.error("Errore durante l'eliminazione definitiva del tag.");
     } finally {
       setLoading(false);
@@ -181,18 +181,16 @@ function GestioneTag() {
   // filtro lato frontend (utile se endpoint lookup ti torna già filtrato)
   const filtered = tags.filter((t) => {
     const matchSearch =
-      !filtroSearch ||
-      `${t.prefisso} ${t.nome}`.toLowerCase().includes(filtroSearch.toLowerCase());
+      !filtroSearch || `${t.prefisso} ${t.nome}`.toLowerCase().includes(filtroSearch.toLowerCase());
 
-    const matchReparto =
-      !filtroReparto || t.reparto === filtroReparto || t.reparto === null;
+    const matchReparto = !filtroReparto || t.reparto === filtroReparto || t.reparto === null;
 
     const matchAttivo = !soloAttivi || Number(t.attivo ?? 1) === 1; // se endpoint non manda attivo, assume 1
     return matchSearch && matchReparto && matchAttivo;
   });
 
   const repartiOptions = [
-    { value: "", label: "Globale (tutti)" },
+    { value: '', label: 'Globale (tutti)' },
     ...reparti.map((r) => ({ value: r.nome, label: r.nome })),
   ];
 
@@ -214,9 +212,13 @@ function GestioneTag() {
 
       <div className="container mh-80">
         <div className="flex-column-center">
-          <h2>{isEditing ? "Modifica tag" : "Nuovo tag"}</h2>
+          <h2>{isEditing ? 'Modifica tag' : 'Nuovo tag'}</h2>
 
-          <form onSubmit={handleSubmit} className="flex-column-center" style={{ gap: 8, alignItems: "stretch" }}>
+          <form
+            onSubmit={handleSubmit}
+            className="flex-column-center"
+            style={{ gap: 8, alignItems: 'stretch' }}
+          >
             Nome:
             <input
               type="text"
@@ -226,7 +228,6 @@ function GestioneTag() {
               className="w-400"
               placeholder="es. UCA Vassoi"
             />
-
             Prefisso:
             <input
               type="text"
@@ -236,19 +237,27 @@ function GestioneTag() {
               className="w-400"
               placeholder="es. SW"
             />
-
             Reparto (vuoto = globale):
-            <select name="reparto" value={formData.reparto} onChange={handleChange} className="w-400">
+            <select
+              name="reparto"
+              value={formData.reparto}
+              onChange={handleChange}
+              className="w-400"
+            >
               {repartiOptions.map((o) => (
-                <option key={o.value || "global"} value={o.value}>
+                <option key={o.value || 'global'} value={o.value}>
                   {o.label}
                 </option>
               ))}
             </select>
-
             Colore:
-            <input type="color" name="colore" value={formData.colore} onChange={handleChange} className="w-200" />
-
+            <input
+              type="color"
+              name="colore"
+              value={formData.colore}
+              onChange={handleChange}
+              className="w-200"
+            />
             Descrizione:
             <textarea
               name="descrizione"
@@ -258,19 +267,26 @@ function GestioneTag() {
               className="w-400"
               placeholder="Opzionale..."
             />
-
             <label className="flex-row-center" style={{ gap: 8 }}>
-              <input type="checkbox" name="attivo" checked={formData.attivo} onChange={handleChange} />
+              <input
+                type="checkbox"
+                name="attivo"
+                checked={formData.attivo}
+                onChange={handleChange}
+              />
               Tag attivo
             </label>
-
             <div className="flex-center" style={{ gap: 8, marginTop: 8 }}>
               <button type="submit" className="btn w-200 btn--blue btn--pill" disabled={loading}>
-                {isEditing ? "Aggiorna tag" : "Crea tag"}
+                {isEditing ? 'Aggiorna tag' : 'Crea tag'}
               </button>
 
               {isEditing && (
-                <button type="button" className="btn w-200 btn--warning btn--pill" onClick={resetForm}>
+                <button
+                  type="button"
+                  className="btn w-200 btn--warning btn--pill"
+                  onClick={resetForm}
+                >
                   Annulla modifica
                 </button>
               )}
@@ -281,7 +297,7 @@ function GestioneTag() {
         <div className="Reparto-table-container mh-60">
           <h2>Elenco tag</h2>
 
-          <div className="flex-center" style={{ gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
+          <div className="flex-center" style={{ gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
             <input
               type="text"
               value={filtroSearch}
@@ -290,7 +306,11 @@ function GestioneTag() {
               className="w-200"
             />
 
-            <select value={filtroReparto} onChange={(e) => setFiltroReparto(e.target.value)} className="w-200">
+            <select
+              value={filtroReparto}
+              onChange={(e) => setFiltroReparto(e.target.value)}
+              className="w-200"
+            >
               <option value="">Tutti (incluse globali)</option>
               {reparti.map((r) => (
                 <option key={r.id} value={r.nome}>
@@ -300,7 +320,11 @@ function GestioneTag() {
             </select>
 
             <label className="flex-row-center" style={{ gap: 8 }}>
-              <input type="checkbox" checked={soloAttivi} onChange={(e) => setSoloAttivi(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={soloAttivi}
+                onChange={(e) => setSoloAttivi(e.target.checked)}
+              />
               Solo attivi
             </label>
 
@@ -330,35 +354,41 @@ function GestioneTag() {
                   <tr key={item.id}>
                     <td>{item.prefisso}</td>
                     <td>{item.nome}</td>
-                    <td>{item.reparto ?? "Globale"}</td>
+                    <td>{item.reparto ?? 'Globale'}</td>
                     <td>
                       <span
                         style={{
-                          display: "inline-block",
+                          display: 'inline-block',
                           width: 18,
                           height: 18,
                           borderRadius: 4,
-                          background: item.colore || "#cccccc",
-                          border: "1px solid rgba(0,0,0,0.2)",
+                          background: item.colore || '#cccccc',
+                          border: '1px solid rgba(0,0,0,0.2)',
                         }}
                       />
                     </td>
-                    <td>{Number(item.attivo ?? 1) === 1 ? "Sì" : "No"}</td>
+                    <td>{Number(item.attivo ?? 1) === 1 ? 'Sì' : 'No'}</td>
 
-                    <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button className="btn w-100 btn--warning btn--pill" onClick={() => handleEdit(item)}>
+                    <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        className="btn w-100 btn--warning btn--pill"
+                        onClick={() => handleEdit(item)}
+                      >
                         Modifica
                       </button>
 
                       <button
-                        className={`btn w-100 btn--pill ${Number(item.attivo ?? 1) === 1 ? "btn--danger" : "btn--blue"}`}
+                        className={`btn w-100 btn--pill ${Number(item.attivo ?? 1) === 1 ? 'btn--danger' : 'btn--blue'}`}
                         onClick={() => handleToggleAttivo(item)}
                       >
-                        {Number(item.attivo ?? 1) === 1 ? "Disattiva" : "Riattiva"}
+                        {Number(item.attivo ?? 1) === 1 ? 'Disattiva' : 'Riattiva'}
                       </button>
 
                       {Number(item.attivo ?? 1) !== 1 && (
-                        <button className="btn w-100 btn--danger btn--pill" onClick={() => handleHardDelete(item)}>
+                        <button
+                          className="btn w-100 btn--danger btn--pill"
+                          onClick={() => handleHardDelete(item)}
+                        >
                           Elimina
                         </button>
                       )}
@@ -370,8 +400,9 @@ function GestioneTag() {
           </table>
 
           <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-            Nota: se vedi solo tag attivi è perché la tua route <code>/schedeTecniche/tag</code> filtra <code>attivo=1</code>.
-            Per una gestione completa (anche inattivi), conviene aggiungere un router admin <code>/api/tags</code>.
+            Nota: se vedi solo tag attivi è perché la tua route <code>/schedeTecniche/tag</code>{' '}
+            filtra <code>attivo=1</code>. Per una gestione completa (anche inattivi), conviene
+            aggiungere un router admin <code>/api/tags</code>.
           </div>
         </div>
       </div>

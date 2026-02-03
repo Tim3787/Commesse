@@ -1,44 +1,43 @@
-.Commesse-table  select  {
-    margin-top: 5px;
-  }
+.Commesse-table select {
+  margin-top: 5px;
+}
 
-    /* ==============================
+/* ==============================
      visualizza commese
      ============================== */
-  .Commesse-table-container {
-  max-height: 48vh; 
-}
-  
-  .Commesse-table-container-2 {
-  max-height: 72vh; 
+.Commesse-table-container {
+  max-height: 48vh;
 }
 
-.Commesse-table  td:last-child, 
-.Commesse-table  th :last-child {
- border-right: 1px solid var(--ds-border, #c1c7d0);
-   }
+.Commesse-table-container-2 {
+  max-height: 72vh;
+}
+
+.Commesse-table td:last-child,
+.Commesse-table th :last-child {
+  border-right: 1px solid var(--ds-border, #c1c7d0);
+}
 
 .Commesse-table thead {
   position: sticky;
 }
 
 .Commesse-table td:first-child {
-  left: 0; 
-  z-index: 9; 
+  left: 0;
+  z-index: 9;
   position: sticky;
- background-color:  var(--bg-dark);
+  background-color: var(--bg-dark);
 }
 
 .Commesse-table th:first-child {
-top: 0; 
-left: 0; 
-z-index: 11; 
-position: sticky;
- background-color:  var( --hover-dark);
- 
+  top: 0;
+  left: 0;
+  z-index: 11;
+  position: sticky;
+  background-color: var(--hover-dark);
 }
 
 .Commesse-table tr:hover {
-  background-color:  var( --hover-dark);
+  background-color: var(--hover-dark);
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }

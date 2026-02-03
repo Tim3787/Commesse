@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useRef } from "react";
-import "../style/05-CalendarioCommesse.css";
-import logo from "../img/Animation - 1738249246846.gif";
-import CommessaDettagli from "../popup/CommessaDettagli";
+import React, { useEffect, useState, useRef } from 'react';
+import '../style/05-CalendarioCommesse.css';
+import logo from '../img/Animation - 1738249246846.gif';
+import CommessaDettagli from '../popup/CommessaDettagli';
 
 // Import API per le varie entità
-import { fetchCommesse } from "../services/API/commesse-api";
+import { fetchCommesse } from '../services/API/commesse-api';
 // Import icone FontAwesome
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 // Import per Toastify (notifiche)
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
  * Componente CalendarioCommesse
- * Visualizza un calendario mensile in cui sono indicate le commesse, 
+ * Visualizza un calendario mensile in cui sono indicate le commesse,
  * evidenziando le commesse con FAT e quelle con data di consegna.
  */
 function CalendarioCommesse() {
@@ -22,14 +22,14 @@ function CalendarioCommesse() {
   // Stati e Ref
   // ------------------------------------------------------------------
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Mese attualmente visualizzato
-  const [commesse, setCommesse] = useState([]);                   // Elenco delle commesse recuperate dal backend
-  const [loading, setLoading] = useState(false);                    // Stato di caricamento generale
-  const [selectedCommessa, setSelectedCommessa] = useState(null);   // Commessa selezionata per visualizzare i dettagli
-  
+  const [commesse, setCommesse] = useState([]); // Elenco delle commesse recuperate dal backend
+  const [loading, setLoading] = useState(false); // Stato di caricamento generale
+  const [selectedCommessa, setSelectedCommessa] = useState(null); // Commessa selezionata per visualizzare i dettagli
+
   // Ref per lo scroll automatico
-  const todayRef = useRef(null);         // Ref assegnato alla cella che rappresenta il giorno corrente
+  const todayRef = useRef(null); // Ref assegnato alla cella che rappresenta il giorno corrente
   const hasScrolledToToday = useRef(false); // Flag per evitare scroll ripetuti
-  const containerRef = useRef(null);       // Ref per il container scrollabile
+  const containerRef = useRef(null); // Ref per il container scrollabile
 
   // ------------------------------------------------------------------
   // Funzioni Helper: gestione delle date e organizzazione del calendario
@@ -60,7 +60,7 @@ function CalendarioCommesse() {
     let currentWeek = [];
 
     days.forEach((day) => {
-      // Se è l'inizio di una nuova settimana (giorno della settimana 0, ovvero Domenica) e il currentWeek non è vuoto, 
+      // Se è l'inizio di una nuova settimana (giorno della settimana 0, ovvero Domenica) e il currentWeek non è vuoto,
       // termina la settimana precedente
       if (currentWeek.length > 0 && day.getDay() === 0) {
         weeks.push(currentWeek);
@@ -82,10 +82,12 @@ function CalendarioCommesse() {
   };
 
   const weeksInMonth = getWeeksInMonth();
-const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
-  month: "long",
-  year: "numeric",
-}).replace(/^./, c => c.toUpperCase());
+  const meseCorrente = currentMonth
+    .toLocaleDateString('it-IT', {
+      month: 'long',
+      year: 'numeric',
+    })
+    .replace(/^./, (c) => c.toUpperCase());
 
   /**
    * Normalizza una data impostando le ore a zero.
@@ -110,10 +112,10 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     return commesse.filter((commessa) => {
       const consegna = commessa.data_consegna ? normalizeDate(commessa.data_consegna) : null;
       const fat = commessa.data_FAT ? normalizeDate(commessa.data_FAT) : null;
-      if (type === "FAT") {
+      if (type === 'FAT') {
         return fat && isSameDay(fat, day);
       }
-      if (type === "Consegna") {
+      if (type === 'Consegna') {
         return consegna && isSameDay(consegna, day);
       }
       return false;
@@ -137,8 +139,8 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
         const data = await fetchCommesse();
         setCommesse(data);
       } catch (error) {
-        console.error("Errore durante il recupero delle commesse:", error);
-        toast.error("Errore durante il recupero delle commesse:", error);
+        console.error('Errore durante il recupero delle commesse:', error);
+        toast.error('Errore durante il recupero delle commesse:', error);
       } finally {
         setLoading(false);
       }
@@ -161,22 +163,18 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
   // Navigazione tra i mesi: aggiornamento di currentMonth e reset del flag di scroll
   // ------------------------------------------------------------------
   const goToPreviousMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-    );
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
     hasScrolledToToday.current = false;
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth((prev) =>
-      new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-    );
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
     hasScrolledToToday.current = false;
   };
 
   // ------------------------------------------------------------------
   // Componente: CalendarDay
-  // Visualizza una cella del calendario per un giorno specifico. Se il giorno è null (cella vuota), 
+  // Visualizza una cella del calendario per un giorno specifico. Se il giorno è null (cella vuota),
   // viene renderizzata una cella vuota.
   // ------------------------------------------------------------------
   function CalendarDay({ day }) {
@@ -185,12 +183,15 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
     }
 
     // Recupera le commesse per il giorno, separate per tipo "FAT" e "Consegna"
-    const fatCommesse = getCommesseForDay(day, "FAT");
-    const consegnaCommesse = getCommesseForDay(day, "Consegna");
-    const todayClass = isToday(day) ? "Calendario-commesse-today-cell" : "";
+    const fatCommesse = getCommesseForDay(day, 'FAT');
+    const consegnaCommesse = getCommesseForDay(day, 'Consegna');
+    const todayClass = isToday(day) ? 'Calendario-commesse-today-cell' : '';
     return (
       // Se il giorno è oggi, assegna il ref per permettere lo scroll
-      <td ref={isToday(day) ? todayRef : null} className={`Calendario-commesse-table-day ${todayClass}`}>
+      <td
+        ref={isToday(day) ? todayRef : null}
+        className={`Calendario-commesse-table-day ${todayClass}`}
+      >
         <div className="Calendario-commesse-day-header">{day.getDate()}</div>
 
         {/* Renderizza le commesse FAT */}
@@ -235,7 +236,7 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
       const scrollLeft = offsetLeft - containerRef.current.clientWidth / 2 + todayRect.width / 2;
       containerRef.current.scrollTo({
         left: scrollLeft,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
       hasScrolledToToday.current = true;
     }
@@ -245,16 +246,16 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
   // Rendering Principale
   // ------------------------------------------------------------------
   return (
-   <div className="page-wrapper">
-        <div className=" header">
+    <div className="page-wrapper">
+      <div className=" header">
         <h1>CALENDARIO COMMESSE E FAT </h1>
         <div className="flex-center header-row">
           <button onClick={goToPreviousMonth} className="btn w-50 btn--shiny btn--pill">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-         <div className="header-row-month"> {meseCorrente}</div>
+          <div className="header-row-month"> {meseCorrente}</div>
           <button onClick={goToNextMonth} className="btn w-50 btn--shiny btn--pill">
-           <FontAwesomeIcon icon={faChevronRight} />
+            <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
         <ToastContainer position="top-left" autoClose={2000} hideProgressBar />
@@ -264,37 +265,34 @@ const meseCorrente = currentMonth.toLocaleDateString("it-IT", {
           </div>
         )}
       </div>
-        <div ref={containerRef} className="container">
-          <table className="Calendario-commesse-table  mh-76 ">
-            <thead>
-              <tr>
-                <th>Domenica</th>
-                <th>Lunedì</th>
-                <th>Martedì</th>
-                <th>Mercoledì</th>
-                <th>Giovedì</th>
-                <th>Venerdì</th>
-                <th>Sabato</th>
+      <div ref={containerRef} className="container">
+        <table className="Calendario-commesse-table  mh-76 ">
+          <thead>
+            <tr>
+              <th>Domenica</th>
+              <th>Lunedì</th>
+              <th>Martedì</th>
+              <th>Mercoledì</th>
+              <th>Giovedì</th>
+              <th>Venerdì</th>
+              <th>Sabato</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weeksInMonth.map((week, weekIndex) => (
+              <tr key={weekIndex}>
+                {week.map((day, dayIndex) => (
+                  <CalendarDay key={dayIndex} day={day} />
+                ))}
               </tr>
-            </thead>
-            <tbody>
-              {weeksInMonth.map((week, weekIndex) => (
-                <tr key={weekIndex}>
-                  {week.map((day, dayIndex) => (
-                    <CalendarDay key={dayIndex} day={day} />
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {selectedCommessa && (
-            <CommessaDettagli
-              commessa={selectedCommessa}
-              onClose={handleClosePopup}
-            />
-          )}
-        </div>
+            ))}
+          </tbody>
+        </table>
+        {selectedCommessa && (
+          <CommessaDettagli commessa={selectedCommessa} onClose={handleClosePopup} />
+        )}
       </div>
+    </div>
   );
 }
 

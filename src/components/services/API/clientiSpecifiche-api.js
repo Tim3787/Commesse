@@ -1,14 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
 // Configurazione base di Axios
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // URL base dalla variabile di ambiente
   timeout: 15000, // Timeout di 15 secondi
 });
 
-
 // GET con filtri opzionali (cliente, reparto_id)
 export const fetchClientiSpecifiche = async (filters = {}) => {
-  const response = await apiClient.get("/api/clienti-specifiche", {
+  const response = await apiClient.get('/api/clienti-specifiche', {
     params: filters,
   });
   return response.data;
@@ -16,7 +15,7 @@ export const fetchClientiSpecifiche = async (filters = {}) => {
 
 // POST - crea nuova scheda
 export const createClienteSpecifica = async (payload) => {
-  const response = await apiClient.post("/api/clienti-specifiche", payload);
+  const response = await apiClient.post('/api/clienti-specifiche', payload);
   return response.data;
 };
 
@@ -34,8 +33,6 @@ export const disableClienteSpecifica = async (id) => {
 
 // DELETE HARD (cancellazione definitiva)
 export const deleteClienteSpecifica = async (id) => {
-  const response = await apiClient.delete(
-    `/api/clienti-specifiche/${id}/hard`
-  );
+  const response = await apiClient.delete(`/api/clienti-specifiche/${id}/hard`);
   return response.data;
 };

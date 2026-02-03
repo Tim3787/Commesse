@@ -3,14 +3,16 @@
 /* ==============================
 FORM ELEMENT BASE
 ============================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 input,
 select,
 textarea,
-option{
+option {
   background-color: var(--bg-dark);
   color: var(--text-light);
   padding: 8px;
@@ -19,9 +21,6 @@ option{
   border-radius: 4px;
   max-width: 100%;
 }
-
-
-
 
 input:focus,
 select:focus,
@@ -32,7 +31,7 @@ option:focus {
   box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
   margin-right: 8px;
   margin-bottom: 10px;
 }
@@ -61,27 +60,26 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
-    width: 100%;
+  width: 100%;
 }
 
-.checkboxEnDis{
-pointer-events: none
+.checkboxEnDis {
+  pointer-events: none;
 }
 /* ==============================
 DATE PICKER OVERRIDES
 ============================== */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
-input[type="checkbox"]:disabled {
+input[type='checkbox']:disabled {
   opacity: 1 !important;
   filter: none !important;
   background-color: transparent !important;
   color: inherit !important;
   pointer-events: none;
 }
-
 
 /* ==============================
 TEXTAREA SPECIFICS
@@ -94,11 +92,10 @@ textarea {
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
-
-input,
-select,
-textarea,
-option{
-  font-size: 10px;
-}
+  input,
+  select,
+  textarea,
+  option {
+    font-size: 10px;
+  }
 }
