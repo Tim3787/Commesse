@@ -5,6 +5,9 @@ import {
   getImmaginiScheda,
   deleteImmagineScheda,
   updateTagsByNames,
+  uploadAllegatoScheda,
+  getAllegatiScheda,
+  deleteAllegatoScheda,
 } from '../services/API/schedeTecniche-api';
 import html2pdf from 'html2pdf.js';
 import { getAuthUser } from '../utils/auth';
@@ -98,6 +101,8 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
   const [immagineSelezionata, setImmagineSelezionata] = useState(null);
 
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
+  const [allegati, setAllegati] = useState([]);
+  const FILE_BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
 
   // ===== FUNZIONI DI UTILITÀ =====
   const { suggestionsVisibili, filtroTag, cursorPos, handleNoteChange, clearSuggestions } =
@@ -173,9 +178,23 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
       await uploadImmagineScheda(file, id);
       const nuoveImmagini = await getImmaginiScheda(id);
       setImmagini(nuoveImmagini);
-      e.target.value = '';
+      e.target.value = ''; // reset input
     } catch (error) {
       console.error('Errore durante l’upload:', error);
+    }
+  };
+  const handleAllegatoChange = async (e) => {
+    const file = e.target.files?.[0];
+    const id = scheda?.id || scheda?.scheda_id;
+    if (!file || !id) return;
+
+    try {
+      await uploadAllegatoScheda(file, id);
+      const nuoviAllegati = await getAllegatiScheda(id);
+      setAllegati(nuoviAllegati);
+      e.target.value = '';
+    } catch (error) {
+      console.error('Errore durante upload allegato:', error);
     }
   };
 
@@ -185,11 +204,6 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
   };
 
   const handleSubmit = async () => {
-    console.log('🚀 handleSubmit CLICK', {
-      schedaId: scheda?.id || scheda?.scheda_id,
-      userId,
-      editable,
-    });
     const schedaId = scheda?.id || scheda?.scheda_id;
     const u = getAuthUser();
     const token = u?.token || sessionStorage.getItem('token') || localStorage.getItem('token');
@@ -277,13 +291,18 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
 
     if (!id) {
       setImmagini([]);
+      setAllegati([]);
       return;
     }
 
     getImmaginiScheda(id)
       .then(setImmagini)
       .catch((err) => console.error('Errore nel caricamento immagini:', err));
-  }, [scheda?.id, scheda?.scheda_id]);
+
+    getAllegatiScheda(id)
+      .then(setAllegati)
+      .catch((err) => console.error('Errore nel caricamento allegati:', err));
+  }, [scheda]);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => autoResizeTextarea());
@@ -590,47 +609,46 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
         {/* NOTE */}
         <div className="note-page">
           <h1 className="note-title">Note</h1>
-
           <textarea
             name="note"
             className="w-w note-textarea"
             ref={textareaRef}
             value={form.note}
+            readOnly={!editable}
+            disabled={!editable}
             onChange={(e) => {
               const testo = e.target.value;
               const pos = e.target.selectionStart;
 
               setForm((prev) => ({ ...prev, note: testo }));
               handleNoteChange(testo, pos);
+              autoResizeTextarea();
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') clearSuggestions();
+              if (e.key === 'Escape') clearSuggestions?.();
             }}
-            readOnly={!editable}
-            disabled={!editable}
           />
 
           <div className="w-w note-print">{form.note}</div>
+          {/* Suggerimenti tag visibili sotto il campo note */}
+          {editable && (
+            <TagSuggestions
+              visible={suggestionsVisibili.length > 0}
+              suggestions={suggestionsVisibili}
+              noteText={form.note}
+              cursorPos={cursorPos}
+              filtroTag={filtroTag}
+              onPick={(nuovoTesto) => {
+                setForm((prev) => ({ ...prev, note: nuovoTesto }));
+                clearSuggestions?.();
+                requestAnimationFrame(() => {
+                  autoResizeTextarea();
+                  textareaRef.current?.focus();
+                });
+              }}
+            />
+          )}
         </div>
-
-        {/* Suggerimenti tag visibili sotto il campo note */}
-        {editable && (
-          <TagSuggestions
-            visible={suggestionsVisibili.length > 0}
-            suggestions={suggestionsVisibili}
-            noteText={form.note}
-            cursorPos={cursorPos}
-            filtroTag={filtroTag}
-            onPick={(nuovoTesto) => {
-              setForm((prev) => ({ ...prev, note: nuovoTesto }));
-              clearSuggestions();
-
-              requestAnimationFrame(() => {
-                textareaRef.current?.focus();
-              });
-            }}
-          />
-        )}
       </div>
 
       {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}
@@ -651,21 +669,22 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
         </div>
       )}
 
-      {/* Sezione immagini + pulsanti */}
       <div className="flex-column-center">
+        {/* ✅ IMMAGINI */}
         <h1>IMMAGINI</h1>
         {editable && <input type="file" className="container w-fit" onChange={handleFileChange} />}
+        <h1 style={{ marginTop: 10 }}>immagini caricate</h1>
         <div
           className="container w-fit"
           style={{ border: 'solid 1px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}
         >
           {immagini.map((img, index) => (
-            <div key={index} style={{ position: 'relative' }}>
+            <div key={img.id || index} style={{ position: 'relative' }}>
               <img
-                src={`https://commesseunserver.eu${img.url}`}
+                src={`${FILE_BASE_URL}${img.url}`}
                 alt={`Immagine ${index + 1}`}
                 style={{ width: '150px', height: 'auto', borderRadius: '8px', cursor: 'pointer' }}
-                onClick={() => setImmagineSelezionata(`https://commesseunserver.eu${img.url}`)}
+                onClick={() => setImmagineSelezionata(`${FILE_BASE_URL}${img.url}`)}
               />
               {editable && (
                 <button
@@ -678,6 +697,7 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                     }
                   }}
                   style={{
+                    position: 'absolute',
                     top: 0,
                     right: 0,
                     background: 'red',
@@ -695,19 +715,74 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
               )}
             </div>
           ))}
+          {immagini.length === 0 && (
+            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessuna immagine.</div>
+          )}
         </div>
-
-        {/* Pulsanti PDF e Salva */}
-        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
-          Scarica PDF
-        </button>
-
+        {/* ✅ ALLEGATI */}
+        <h1 style={{ marginTop: 20 }}>ALLEGATI</h1>
         {editable && (
-          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-            Salva
-          </button>
+          <input type="file" className="container w-fit" onChange={handleAllegatoChange} />
         )}
+        <h1 style={{ marginTop: 10 }}>file caricati</h1>
+        <div
+          className="container w-fit"
+          style={{ border: 'solid 1px', display: 'flex', flexDirection: 'column', gap: '8px' }}
+        >
+          {allegati.map((a) => {
+            const url = `${FILE_BASE_URL}${a.url}`;
+            const label = a.original_name || a.nome_file || 'allegato';
 
+            return (
+              <div
+                key={a.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  padding: '6px 10px',
+                  color: 'white',
+                }}
+              >
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    color: 'white',
+                  }}
+                >
+                  {label}
+                </a>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <a className="btn btn--blue btn--pill" href={url} download>
+                    Download
+                  </a>
+
+                  {editable && (
+                    <button
+                      className="btn btn--danger btn--pill"
+                      onClick={async () => {
+                        try {
+                          await deleteAllegatoScheda(a.id);
+                          setAllegati((prev) => prev.filter((x) => x.id !== a.id));
+                        } catch (error) {
+                          console.error('Errore eliminazione allegato:', error);
+                        }
+                      }}
+                    >
+                      Elimina
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {allegati.length === 0 && (
+            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessun allegato.</div>
+          )}
+        </div>
         {/* Immagine ingrandita (modal) */}
         {immagineSelezionata && (
           <div
@@ -717,7 +792,7 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(0,0,0)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -728,9 +803,18 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
             <img
               src={immagineSelezionata}
               alt="Ingrandita"
-              style={{ maxHeight: '90%', maxWidth: '90%', borderRadius: '12px' }}
+              style={{ maxHeight: '70%', maxWidth: '70%', borderRadius: '12px' }}
             />
           </div>
+        )}
+        {/* Pulsanti PDF e Salva */}
+        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
+          Scarica PDF
+        </button>
+        {editable && (
+          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+            Salva
+          </button>
         )}
       </div>
     </div>

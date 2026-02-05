@@ -1,5 +1,5 @@
 // ===== IMPORT =====
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import {
   addNotaToScheda,
   fetchNoteScheda,
@@ -7,10 +7,13 @@ import {
   deleteNotaScheda,
 } from '../services/API/schede-multi-api';
 import html2pdf from 'html2pdf.js';
-import { getTagSuggeriti } from '../services/API/schedeTecniche-api';
+import { updateTagsByNames, getTagSuggeriti } from '../services/API/schedeTecniche-api';
+import { getAuthUser } from '../utils/auth';
+import TagSuggestions from '../common/TagSuggestions';
+import { extractHashtagsLower } from '../common/tagUtils';
 
 // ===== COMPONENTE PRINCIPALE =====
-function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
+function SchedaSpecificheForm({ scheda, commessa, userId, editable }) {
   // ===== HOOK: REFS =====
   const schedaRef = useRef();
   const pdfRef = useRef();
@@ -20,7 +23,6 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
 
   // ===== HOOK: STATE =====
   const [noteList, setNoteList] = useState([]);
-  const [nuovaNota, setNuovaNota] = useState('');
   const [tagSuggeriti, setTagSuggeriti] = useState([]);
   const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
   const [filtroTag, setFiltroTag] = useState('');
@@ -28,16 +30,14 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
   const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
   const [notaDaModificare, setNotaDaModificare] = useState(null);
   const [testoModificato, setTestoModificato] = useState('');
+  const clearSuggestions = () => {
+    setSuggestionsVisibili([]);
+    setFiltroTag('');
+  };
 
   // ===== FUNZIONI DI UTILITÀ =====
-  const autoResizeTextarea = () => {
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = 'auto';
-      el.style.height = `${el.scrollHeight}px`;
-    }
-  };
-  const normalizeChecklist = (rawChecklist) => {
+
+  const normalizeChecklist = (rawChecklist = {}) => {
     const normalized = {};
     for (const voce of Object.keys(rawChecklist)) {
       const valore = rawChecklist[voce];
@@ -52,21 +52,57 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
   // ===== HOOK: FORM =====
   const [form, setForm] = useState({
     titolo: scheda?.intestazione?.titolo || '',
-    RevSoftware: scheda?.intestazione?.RevSoftware || '',
-    RevMacchina: scheda?.intestazione?.RevMacchina || '',
-    RevSchema: scheda?.intestazione?.RevSchema || '',
     checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
     note: scheda?.note || '',
   });
 
   // ===== EVENTI / HANDLERS =====
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  // IMPORTANTISSIMO: se cambia scheda, aggiorna form
+  useEffect(() => {
+    setForm({
+      checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
+      note: scheda?.note || '',
+    });
+
+    clearSuggestions();
+    requestAnimationFrame(autoResizeTextarea);
+  }, [scheda?.id, scheda?.scheda_id]);
+
+  const autoResizeTextarea = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
   };
 
+  useLayoutEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => autoResizeTextarea());
+    });
+  }, [form.note]);
+
+  const syncTagsFromText = async (text) => {
+    const schedaId = scheda?.id || scheda?.scheda_id;
+    if (!schedaId) return;
+
+    const u = getAuthUser();
+    const token = u?.token || sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!token) {
+      console.warn('Token mancante: impossibile aggiornare tags');
+      return;
+    }
+
+    const names = extractHashtagsLower(text || '');
+    try {
+      await updateTagsByNames(schedaId, names, token);
+    } catch (err) {
+      console.error('Errore updateTagsByNames:', err);
+    }
+  };
   const handleSalvaNota = async () => {
+    if (!notaDaModificare?.id) return;
+
     try {
       await updateNotaScheda(notaDaModificare.id, {
         contenuto: testoModificato,
@@ -74,9 +110,13 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
         utente_id: userId,
         scheda_id: scheda.id,
       });
+
+      const updatedNotes = await caricaNote();
+      const nuovoTestoTags = updatedNotes.map((n) => n.contenuto || '').join('\n');
+      await syncTagsFromText(nuovoTestoTags);
+
       setNotaDaModificare(null);
       setTestoModificato('');
-      await caricaNote(); // Ricarica tutte le note aggiornate
     } catch (err) {
       console.error('Errore salvataggio nota:', err);
     }
@@ -91,14 +131,13 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
     try {
       const note = await fetchNoteScheda(scheda.id);
       setNoteList(note);
+      return note; // ✅ così puoi riusarle
     } catch (err) {
       console.error('Errore caricamento note:', err);
+      return [];
     }
   };
-  const handleNoteChange = (e) => {
-    const testo = e.target.value;
-    setNuovaNota(testo);
-    const cursor = e.target.selectionStart;
+  const handleNoteChange = (testo, cursor) => {
     setCursorPos(cursor);
 
     const testoPrima = testo.substring(0, cursor);
@@ -106,25 +145,38 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
 
     if (match) {
       const cerca = match[1].toLowerCase();
-      const filtra = tagSuggeriti.filter((tag) => tag.toLowerCase().startsWith(cerca));
+      const filtra = (tagSuggeriti || []).filter((tag) =>
+        String(tag).toLowerCase().startsWith(cerca)
+      );
       setSuggestionsVisibili(filtra.slice(0, 5));
       setFiltroTag(match[1]);
     } else {
-      setSuggestionsVisibili([]);
-      setFiltroTag('');
+      clearSuggestions();
     }
   };
-
   const handleAggiungiNota = async () => {
-    if (!nuovaNota.trim()) return;
+    const testo = (form.note || '').trim();
+    if (!testo) return;
+
     try {
       await addNotaToScheda(scheda.id, {
-        contenuto: nuovaNota,
+        contenuto: testo,
         autore_id: userId,
       });
-      setNuovaNota('');
-      await caricaNote();
-      if (onClose) onClose();
+
+      // ricarico note e le uso subito
+      const updatedNotes = await caricaNote();
+
+      // aggiorno tags usando TUTTE le note (coerente)
+      const nuovoTestoTags = updatedNotes.map((n) => n.contenuto || '').join('\n');
+      await syncTagsFromText(nuovoTestoTags);
+
+      // svuoto textarea
+      setForm((prev) => ({ ...prev, note: '' }));
+      clearSuggestions();
+      requestAnimationFrame(autoResizeTextarea);
+
+      // ❌ niente onClose qui
     } catch (err) {
       console.error('Errore durante aggiunta nota:', err);
     }
@@ -135,6 +187,11 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
     try {
       await deleteNotaScheda(nota.id);
       await caricaNote();
+      const nuovoTestoTags = (await fetchNoteScheda(scheda.id))
+        .map((n) => n.contenuto || '')
+        .join('\n');
+
+      await syncTagsFromText(nuovoTestoTags);
     } catch (err) {
       console.error("Errore durante l'eliminazione della nota:", err);
     }
@@ -285,10 +342,6 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
   }, []);
 
   useEffect(() => {
-    autoResizeTextarea();
-  }, [form.note]);
-
-  useEffect(() => {
     if (scheda?.id) {
       caricaNote();
     }
@@ -315,46 +368,39 @@ function SchedaSpecificheForm({ scheda, commessa, userId, editable, onClose }) {
           </div>
         )}
         <textarea
-          style={{ minHeight: '200px' }}
           name="note"
-          className="w-w note-textarea no-pdf"
+          className="w-w note-textarea"
           ref={textareaRef}
           value={form.note}
           onChange={(e) => {
-            handleChange(e);
-            handleNoteChange(e);
+            const testo = e.target.value;
+            const pos = e.target.selectionStart;
+
+            setForm((prev) => ({ ...prev, note: testo }));
+            handleNoteChange(testo, pos);
             autoResizeTextarea();
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') clearSuggestions();
+          }}
           readOnly={!editable}
+          disabled={!editable}
         />
 
         {/* Suggerimenti tag visibili sotto il campo note */}
-        {editable && suggestionsVisibili.length > 0 && (
-          <ul className="tag-suggestions">
-            {suggestionsVisibili.map((tag, idx) => (
-              <li
-                key={idx}
-                className="tag-suggestion"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  if (cursorPos === null || filtroTag === '') return;
-                  const testo = form.note;
-                  const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
-                  if (inizio === -1) return;
-                  const fine = inizio + filtroTag.length + 1;
-                  const nuovoTesto =
-                    testo.substring(0, inizio) + `#${tag} ` + testo.substring(fine);
-                  setForm((prev) => ({ ...prev, note: nuovoTesto }));
-                  setSuggestionsVisibili([]);
-                }}
-              >
-                <>
-                  #<strong>{tag.slice(0, filtroTag.length)}</strong>
-                  {tag.slice(filtroTag.length)}
-                </>
-              </li>
-            ))}
-          </ul>
+        {editable && (
+          <TagSuggestions
+            visible={suggestionsVisibili.length > 0}
+            suggestions={suggestionsVisibili}
+            noteText={form.note}
+            cursorPos={cursorPos}
+            filtroTag={filtroTag}
+            onPick={(nuovoTesto) => {
+              setForm((prev) => ({ ...prev, note: nuovoTesto }));
+              clearSuggestions();
+              requestAnimationFrame(() => textareaRef.current?.focus());
+            }}
+          />
         )}
       </div>
 

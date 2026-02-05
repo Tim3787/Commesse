@@ -5,6 +5,9 @@ import {
   getImmaginiScheda,
   deleteImmagineScheda,
   updateTagsByNames,
+  uploadAllegatoScheda,
+  getAllegatiScheda,
+  deleteAllegatoScheda,
 } from '../services/API/schedeTecniche-api';
 import html2pdf from 'html2pdf.js';
 import { getAuthUser } from '../utils/auth';
@@ -183,6 +186,8 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
   const [immagini, setImmagini] = useState([]);
   const [immagineSelezionata, setImmagineSelezionata] = useState(null);
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
+  const [allegati, setAllegati] = useState([]);
+  const FILE_BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
 
   const { suggestionsVisibili, filtroTag, cursorPos, handleNoteChange, clearSuggestions } =
     useTagAutocomplete({ enabled: editable });
@@ -266,6 +271,20 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
       console.error('Errore durante l’upload:', error);
     }
   };
+  const handleAllegatoChange = async (e) => {
+    const file = e.target.files?.[0];
+    const id = scheda?.id || scheda?.scheda_id;
+    if (!file || !id) return;
+
+    try {
+      await uploadAllegatoScheda(file, id);
+      const nuoviAllegati = await getAllegatiScheda(id);
+      setAllegati(nuoviAllegati);
+      e.target.value = '';
+    } catch (error) {
+      console.error('Errore durante upload allegato:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -305,12 +324,21 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
       if (maybePromise && typeof maybePromise.then === 'function') {
         await maybePromise;
       }
-
       const names = extractHashtagsLower(form.note);
-      // chiama sempre: anche [] deve pulire
+
+      // ✅ SEMPRE, anche se [] -> così pulisce
       await updateTagsByNames(schedaId, names, token);
     } catch (err) {
-      console.error('Errore salvataggio scheda/tag:', err);
+      console.error('Errore salvataggio scheda/tag:', {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        message: err?.message,
+      });
+      alert(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          `Errore salvataggio (status ${err?.response?.status || '?'})`
+      );
     }
   };
 
@@ -350,12 +378,17 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
 
     if (!id) {
       setImmagini([]);
+      setAllegati([]);
       return;
     }
 
     getImmaginiScheda(id)
       .then(setImmagini)
       .catch((err) => console.error('Errore nel caricamento immagini:', err));
+
+    getAllegatiScheda(id)
+      .then(setAllegati)
+      .catch((err) => console.error('Errore nel caricamento allegati:', err));
   }, [scheda]);
 
   useEffect(() => {
@@ -447,6 +480,7 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
 
   return (
     // Contenitore che sarà usato per generare il PDF
+
     <div ref={pdfRef}>
       {/* Contenitore principale della scheda */}
       <div ref={schedaRef} className="flex-column-center">
@@ -625,11 +659,6 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
         {/* NOTE */}
         <div className="note-page">
           <h1 className="note-title">Note</h1>
-          {editable && (
-            <div style={{ fontSize: 12, opacity: 0.7 }}>
-              Suggerimenti: {suggestionsVisibili.length}
-            </div>
-          )}
           <textarea
             name="note"
             className="w-w note-textarea"
@@ -693,21 +722,22 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
         </div>
       )}
 
-      {/* Sezione immagini + pulsanti */}
       <div className="flex-column-center">
+        {/* ✅ IMMAGINI */}
         <h1>IMMAGINI</h1>
         {editable && <input type="file" className="container w-fit" onChange={handleFileChange} />}
+        <h1 style={{ marginTop: 10 }}>immagini caricate</h1>
         <div
           className="container w-fit"
           style={{ border: 'solid 1px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}
         >
           {immagini.map((img, index) => (
-            <div key={index} style={{ position: 'relative' }}>
+            <div key={img.id || index} style={{ position: 'relative' }}>
               <img
-                src={`https://commesseunserver.eu${img.url}`}
+                src={`${FILE_BASE_URL}${img.url}`}
                 alt={`Immagine ${index + 1}`}
                 style={{ width: '150px', height: 'auto', borderRadius: '8px', cursor: 'pointer' }}
-                onClick={() => setImmagineSelezionata(`https://commesseunserver.eu${img.url}`)}
+                onClick={() => setImmagineSelezionata(`${FILE_BASE_URL}${img.url}`)}
               />
               {editable && (
                 <button
@@ -720,6 +750,7 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
                     }
                   }}
                   style={{
+                    position: 'absolute',
                     top: 0,
                     right: 0,
                     background: 'red',
@@ -737,18 +768,74 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
               )}
             </div>
           ))}
+          {immagini.length === 0 && (
+            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessuna immagine.</div>
+          )}
         </div>
-
-        {/* Pulsanti PDF e Salva */}
-        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
-          Scarica PDF
-        </button>
+        {/* ✅ ALLEGATI */}
+        <h1 style={{ marginTop: 20 }}>ALLEGATI</h1>
         {editable && (
-          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-            Salva
-          </button>
+          <input type="file" className="container w-fit" onChange={handleAllegatoChange} />
         )}
+        <h1 style={{ marginTop: 10 }}>file caricati</h1>
+        <div
+          className="container w-fit"
+          style={{ border: 'solid 1px', display: 'flex', flexDirection: 'column', gap: '8px' }}
+        >
+          {allegati.map((a) => {
+            const url = `${FILE_BASE_URL}${a.url}`;
+            const label = a.original_name || a.nome_file || 'allegato';
 
+            return (
+              <div
+                key={a.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  padding: '6px 10px',
+                  color: 'white',
+                }}
+              >
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    color: 'white',
+                  }}
+                >
+                  {label}
+                </a>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <a className="btn btn--blue btn--pill" href={url} download>
+                    Download
+                  </a>
+
+                  {editable && (
+                    <button
+                      className="btn btn--danger btn--pill"
+                      onClick={async () => {
+                        try {
+                          await deleteAllegatoScheda(a.id);
+                          setAllegati((prev) => prev.filter((x) => x.id !== a.id));
+                        } catch (error) {
+                          console.error('Errore eliminazione allegato:', error);
+                        }
+                      }}
+                    >
+                      Elimina
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {allegati.length === 0 && (
+            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessun allegato.</div>
+          )}
+        </div>
         {/* Immagine ingrandita (modal) */}
         {immagineSelezionata && (
           <div
@@ -758,7 +845,7 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(0,0,0)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -769,9 +856,18 @@ function SchedaSviluppoForm({ scheda, commessa, onSave, userId, editable, userna
             <img
               src={immagineSelezionata}
               alt="Ingrandita"
-              style={{ maxHeight: '90%', maxWidth: '90%', borderRadius: '12px' }}
+              style={{ maxHeight: '70%', maxWidth: '70%', borderRadius: '12px' }}
             />
           </div>
+        )}
+        {/* Pulsanti PDF e Salva */}
+        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
+          Scarica PDF
+        </button>
+        {editable && (
+          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+            Salva
+          </button>
         )}
       </div>
     </div>

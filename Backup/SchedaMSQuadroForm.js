@@ -4,16 +4,9 @@ import {
   uploadImmagineScheda,
   getImmaginiScheda,
   deleteImmagineScheda,
-  updateTagsByNames,
-  uploadAllegatoScheda,
-  getAllegatiScheda,
-  deleteAllegatoScheda,
+  getTagSuggeriti,
 } from '../services/API/schedeTecniche-api';
 import html2pdf from 'html2pdf.js';
-import { getAuthUser } from '../utils/auth';
-import useTagAutocomplete from '../common/useTagAutocomplete';
-import TagSuggestions from '../common/TagSuggestions';
-import { extractHashtagsLower } from '../common/tagUtils';
 
 // ===== DATI STATICI / CONFIG =====
 
@@ -113,17 +106,6 @@ const componentiSiemens = [
   },
 ];
 
-const normalizeChecklist = (rawChecklist = {}) => {
-  const normalized = {};
-  for (const voce of Object.keys(rawChecklist)) {
-    const valore = rawChecklist[voce];
-    normalized[voce] =
-      typeof valore === 'object' && valore !== null && 'fatto' in valore
-        ? valore
-        : { fatto: !!valore, utente: null, timestamp: null };
-  }
-  return normalized;
-};
 // ===== COMPONENTE PRINCIPALE =====
 function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
@@ -136,15 +118,13 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
   const [mostraDettagliSpunte, setMostraDettagliSpunte] = useState(true);
   const [immagini, setImmagini] = useState([]);
   const [immagineSelezionata, setImmagineSelezionata] = useState(null);
-
+  const [tagSuggeriti, setTagSuggeriti] = useState([]);
+  const [suggestionsVisibili, setSuggestionsVisibili] = useState([]);
+  const [filtroTag, setFiltroTag] = useState('');
+  const [cursorPos, setCursorPos] = useState(null);
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
-  const [allegati, setAllegati] = useState([]);
-  const FILE_BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
 
   // ===== FUNZIONI DI UTILITÀ =====
-  const { suggestionsVisibili, filtroTag, cursorPos, handleNoteChange, clearSuggestions } =
-    useTagAutocomplete({ enabled: editable });
-
   const autoResizeTextarea = () => {
     const el = textareaRef.current;
     if (el) {
@@ -152,30 +132,25 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
       el.style.height = `${el.scrollHeight}px`;
     }
   };
+  const normalizeChecklist = (rawChecklist) => {
+    const normalized = {};
+    for (const voce of Object.keys(rawChecklist)) {
+      const valore = rawChecklist[voce];
+      normalized[voce] =
+        typeof valore === 'object' && valore !== null && 'fatto' in valore
+          ? valore
+          : { fatto: !!valore, utente: null, timestamp: null };
+    }
+    return normalized;
+  };
 
   // ===== HOOK: FORM =====
   const [form, setForm] = useState({
     titolo: scheda?.intestazione?.titolo || '',
-    RevSoftware: scheda?.intestazione?.RevSoftware || '',
-    RevMacchina: scheda?.intestazione?.RevMacchina || '',
     RevSchema: scheda?.intestazione?.RevSchema || '',
     checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
     note: scheda?.note || '',
   });
-  useEffect(() => {
-    if (!scheda) return;
-
-    setForm({
-      titolo: scheda?.intestazione?.titolo || '',
-      RevSoftware: scheda?.intestazione?.RevSoftware || '',
-      RevMacchina: scheda?.intestazione?.RevMacchina || '',
-      RevSchema: scheda?.intestazione?.RevSchema || '',
-      checklist: normalizeChecklist(scheda?.contenuto?.checklist || {}),
-      note: scheda?.note || '',
-    });
-
-    clearSuggestions?.();
-  }, [scheda?.id, scheda?.scheda_id]);
 
   // ===== EVENTI / HANDLERS =====
   const toggleVoce = (voce) => {
@@ -207,31 +182,14 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    const id = scheda?.id || scheda?.scheda_id;
-    if (!file || !id) return;
-
+    const file = e.target.files[0];
+    if (!file) return;
     try {
-      await uploadImmagineScheda(file, id);
-      const nuoveImmagini = await getImmaginiScheda(id);
+      await uploadImmagineScheda(file, scheda?.id || scheda?.scheda_id);
+      const nuoveImmagini = await getImmaginiScheda(scheda?.id || scheda?.scheda_id);
       setImmagini(nuoveImmagini);
-      e.target.value = ''; // reset input
     } catch (error) {
       console.error('Errore durante l’upload:', error);
-    }
-  };
-  const handleAllegatoChange = async (e) => {
-    const file = e.target.files?.[0];
-    const id = scheda?.id || scheda?.scheda_id;
-    if (!file || !id) return;
-
-    try {
-      await uploadAllegatoScheda(file, id);
-      const nuoviAllegati = await getAllegatiScheda(id);
-      setAllegati(nuoviAllegati);
-      e.target.value = '';
-    } catch (error) {
-      console.error('Errore durante upload allegato:', error);
     }
   };
 
@@ -240,55 +198,71 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
-    const schedaId = scheda?.id || scheda?.scheda_id;
-    const u = getAuthUser();
-    const token = u?.token || sessionStorage.getItem('token') || localStorage.getItem('token');
-
-    if (!token) {
-      console.warn('Token mancante: fai login di nuovo o controlla getAuthUser()');
-      return;
-    }
-    if (!schedaId) {
-      console.warn('Scheda id mancante, impossibile salvare tags');
-      return;
-    }
-
+  const handleSubmit = () => {
     const datiPerBackend = {
       intestazione: {
         titolo: form.titolo,
-        RevSoftware: form.RevSoftware,
-        RevMacchina: form.RevMacchina,
         RevSchema: form.RevSchema,
       },
       contenuto: { checklist: form.checklist },
       note: form.note,
       allegati_standard: [],
       risorsa_id: userId,
-      descrizione: 'Modifica effettuata da interfaccia messa servizio',
+      descrizione: 'Modifica effettuata da interfaccia sviluppo',
     };
 
-    try {
-      const maybePromise = onSave?.(datiPerBackend);
-      if (maybePromise && typeof maybePromise.then === 'function') {
-        await maybePromise;
+    const tagRegex = /#(\w+)/g;
+    const tagSet = new Set();
+    let match;
+    while ((match = tagRegex.exec(form.note)) !== null) {
+      tagSet.add(match[1]);
+    }
+    const tags = Array.from(tagSet);
+
+    onSave(datiPerBackend);
+
+    if (tags.length > 0) {
+      fetch('https://commesseunserver.eu/api/schedeTecniche/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheda_id: scheda?.id || scheda?.scheda_id, tags }),
+      }).catch((err) => console.error('Errore salvataggio tag:', err));
+    }
+  };
+
+  const tagNomeLower = (t) => String(t?.nome || '').toLowerCase();
+  const tagFullLower = (t) => `${t?.prefisso || ''}_${t?.nome || ''}`.toLowerCase();
+
+  const handleNoteChange = (e) => {
+    const testo = e.target.value;
+    const pos = e.target.selectionStart;
+
+    setForm((prev) => ({ ...prev, note: testo }));
+    setCursorPos(pos);
+
+    const testoPrima = testo.substring(0, pos);
+    const match = testoPrima.match(/#([a-zA-Z0-9_]+)?$/); // prende anche vuoto dopo #
+
+    if (match) {
+      const raw = (match[1] || '').toLowerCase(); // quello che hai scritto dopo #
+
+      // ✅ se non hai ancora scritto nulla dopo #, mostra i primi 5
+      if (!raw) {
+        setSuggestionsVisibili(tagSuggeriti.slice(0, 5));
+        setFiltroTag('');
+        return;
       }
 
-      const names = extractHashtagsLower(form.note);
-
-      // ✅ SEMPRE, anche se [] -> così pulisce
-      await updateTagsByNames(schedaId, names, token);
-    } catch (err) {
-      console.error('Errore salvataggio scheda/tag:', {
-        status: err?.response?.status,
-        data: err?.response?.data,
-        message: err?.message,
-      });
-      alert(
-        err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          `Errore salvataggio (status ${err?.response?.status || '?'})`
+      const isFull = raw.includes('_'); // se l'utente scrive "sw_pi"
+      const filtra = tagSuggeriti.filter((t) =>
+        (isFull ? tagFullLower(t) : tagNomeLower(t)).startsWith(raw)
       );
+
+      setSuggestionsVisibili(filtra.slice(0, 5));
+      setFiltroTag(match[1] || '');
+    } else {
+      setSuggestionsVisibili([]);
+      setFiltroTag('');
     }
   };
 
@@ -324,26 +298,20 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
 
   // ===== EFFECTS =====
   useEffect(() => {
-    const id = scheda?.id || scheda?.scheda_id;
-
-    if (!id) {
-      setImmagini([]);
-      setAllegati([]);
-      return;
+    if (scheda?.id || scheda?.scheda_id) {
+      const id = scheda.id || scheda.scheda_id;
+      getImmaginiScheda(id)
+        .then(setImmagini)
+        .catch((err) => console.error('Errore nel caricamento immagini:', err));
     }
-
-    getImmaginiScheda(id)
-      .then(setImmagini)
-      .catch((err) => console.error('Errore nel caricamento immagini:', err));
-
-    getAllegatiScheda(id)
-      .then(setAllegati)
-      .catch((err) => console.error('Errore nel caricamento allegati:', err));
   }, [scheda]);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => autoResizeTextarea());
-    return () => cancelAnimationFrame(raf);
+    getTagSuggeriti().then(setTagSuggeriti);
+  }, []);
+
+  useEffect(() => {
+    autoResizeTextarea();
   }, [form.note]);
 
   // ===== FUNZIONI DI RENDER SUPPORTO =====
@@ -564,46 +532,49 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
         {/* NOTE */}
         <div className="note-page">
           <h1 className="note-title">Note</h1>
+
           <textarea
             name="note"
             className="w-w note-textarea"
             ref={textareaRef}
             value={form.note}
-            readOnly={!editable}
-            disabled={!editable}
             onChange={(e) => {
-              const testo = e.target.value;
-              const pos = e.target.selectionStart;
-
-              setForm((prev) => ({ ...prev, note: testo }));
-              handleNoteChange(testo, pos);
+              handleNoteChange(e);
               autoResizeTextarea();
             }}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') clearSuggestions?.();
-            }}
+            readOnly={!editable}
           />
 
           <div className="w-w note-print">{form.note}</div>
-          {/* Suggerimenti tag visibili sotto il campo note */}
-          {editable && (
-            <TagSuggestions
-              visible={suggestionsVisibili.length > 0}
-              suggestions={suggestionsVisibili}
-              noteText={form.note}
-              cursorPos={cursorPos}
-              filtroTag={filtroTag}
-              onPick={(nuovoTesto) => {
-                setForm((prev) => ({ ...prev, note: nuovoTesto }));
-                clearSuggestions?.();
-                requestAnimationFrame(() => {
-                  autoResizeTextarea();
-                  textareaRef.current?.focus();
-                });
-              }}
-            />
-          )}
         </div>
+
+        {/* Suggerimenti tag visibili sotto il campo note */}
+        {editable && suggestionsVisibili.length > 0 && (
+          <ul className="tag-suggestions">
+            {suggestionsVisibili.map((t) => (
+              <li
+                key={t.id}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  if (cursorPos == null) return;
+
+                  const testo = form.note;
+                  const inizio = testo.lastIndexOf(`#${filtroTag}`, cursorPos);
+                  if (inizio === -1) return;
+
+                  const fine = inizio + filtroTag.length + 1; // include '#'
+                  const nuovoTesto =
+                    testo.substring(0, inizio) + `#${t.nome} ` + testo.substring(fine);
+
+                  setForm((prev) => ({ ...prev, note: nuovoTesto }));
+                  setSuggestionsVisibili([]);
+                }}
+              >
+                #{t.nome} <span style={{ opacity: 0.6, marginLeft: 6 }}></span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Fine pdfRef: da qui in poi NON incluso nel PDF */}
@@ -626,22 +597,21 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
         </div>
       )}
 
+      {/* Sezione immagini + pulsanti */}
       <div className="flex-column-center">
-        {/* ✅ IMMAGINI */}
         <h1>IMMAGINI</h1>
         {editable && <input type="file" className="container w-fit" onChange={handleFileChange} />}
-        <h1 style={{ marginTop: 10 }}>immagini caricate</h1>
         <div
           className="container w-fit"
           style={{ border: 'solid 1px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}
         >
           {immagini.map((img, index) => (
-            <div key={img.id || index} style={{ position: 'relative' }}>
+            <div key={index} style={{ position: 'relative' }}>
               <img
-                src={`${FILE_BASE_URL}${img.url}`}
+                src={`https://commesseunserver.eu${img.url}`}
                 alt={`Immagine ${index + 1}`}
                 style={{ width: '150px', height: 'auto', borderRadius: '8px', cursor: 'pointer' }}
-                onClick={() => setImmagineSelezionata(`${FILE_BASE_URL}${img.url}`)}
+                onClick={() => setImmagineSelezionata(`https://commesseunserver.eu${img.url}`)}
               />
               {editable && (
                 <button
@@ -654,7 +624,6 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                     }
                   }}
                   style={{
-                    position: 'absolute',
                     top: 0,
                     right: 0,
                     background: 'red',
@@ -672,74 +641,18 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
               )}
             </div>
           ))}
-          {immagini.length === 0 && (
-            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessuna immagine.</div>
-          )}
         </div>
-        {/* ✅ ALLEGATI */}
-        <h1 style={{ marginTop: 20 }}>ALLEGATI</h1>
+
+        {/* Pulsanti PDF e Salva */}
+        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
+          Scarica PDF
+        </button>
         {editable && (
-          <input type="file" className="container w-fit" onChange={handleAllegatoChange} />
+          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
+            Salva
+          </button>
         )}
-        <h1 style={{ marginTop: 10 }}>file caricati</h1>
-        <div
-          className="container w-fit"
-          style={{ border: 'solid 1px', display: 'flex', flexDirection: 'column', gap: '8px' }}
-        >
-          {allegati.map((a) => {
-            const url = `${FILE_BASE_URL}${a.url}`;
-            const label = a.original_name || a.nome_file || 'allegato';
 
-            return (
-              <div
-                key={a.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '12px',
-                  padding: '6px 10px',
-                  color: 'white',
-                }}
-              >
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    color: 'white',
-                  }}
-                >
-                  {label}
-                </a>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <a className="btn btn--blue btn--pill" href={url} download>
-                    Download
-                  </a>
-
-                  {editable && (
-                    <button
-                      className="btn btn--danger btn--pill"
-                      onClick={async () => {
-                        try {
-                          await deleteAllegatoScheda(a.id);
-                          setAllegati((prev) => prev.filter((x) => x.id !== a.id));
-                        } catch (error) {
-                          console.error('Errore eliminazione allegato:', error);
-                        }
-                      }}
-                    >
-                      Elimina
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          {allegati.length === 0 && (
-            <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessun allegato.</div>
-          )}
-        </div>
         {/* Immagine ingrandita (modal) */}
         {immagineSelezionata && (
           <div
@@ -749,7 +662,7 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: 'rgba(0,0,0)',
+              backgroundColor: 'rgba(0,0,0,0.8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -760,18 +673,9 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
             <img
               src={immagineSelezionata}
               alt="Ingrandita"
-              style={{ maxHeight: '70%', maxWidth: '70%', borderRadius: '12px' }}
+              style={{ maxHeight: '90%', maxWidth: '90%', borderRadius: '12px' }}
             />
           </div>
-        )}
-        {/* Pulsanti PDF e Salva */}
-        <button onClick={handleDownloadPdf} className="btn btn--blue w-200 btn--pill">
-          Scarica PDF
-        </button>
-        {editable && (
-          <button className="btn btn--blue w-200 btn--pill" onClick={handleSubmit}>
-            Salva
-          </button>
         )}
       </div>
     </div>

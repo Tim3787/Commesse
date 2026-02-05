@@ -141,3 +141,29 @@ export const updateTagsScheda = async (schedaId, tagIds) => {
   const res = await apiClient.put(`/api/schedeTecniche/${schedaId}/tags`, { tagIds });
   return res.data; // {success:true}
 };
+export const uploadAllegatoScheda = async (file, scheda_id) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('scheda_id', scheda_id);
+
+  const response = await apiClient.post('/api/upload/upload-file', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data; // { success:true, url, filename, id... }
+};
+
+export const getAllegatiScheda = async (scheda_id) => {
+  try {
+    const response = await apiClient.get(`/api/upload/allegati/${scheda_id}`);
+    return response.data.allegati || [];
+  } catch (error) {
+    console.error('Errore nel recupero allegati:', error);
+    return [];
+  }
+};
+
+export const deleteAllegatoScheda = async (allegatoId) => {
+  const res = await apiClient.delete(`/api/schedeTecniche/allegati/${allegatoId}`);
+  return res.data;
+};
