@@ -36,11 +36,34 @@ import { faEyeSlash, faCalendarWeek, faCalendar } from '@fortawesome/free-solid-
 // Context
 import { useAppData } from '../context/AppDataContext';
 
+// ===============================
+// TRELLO - Custom Field CABL.QE
+// ===============================
+const CABL_QE_FIELD_ID = '65ef5b6d6ae903ac005fbcd5';
+
+const CABL_QE_OPTIONS = {
+  '65ef5b6dfcc0407e301c445f': '2G',
+  '65ef5b6df014b6c2360eccdf': 'LABEX x UL',
+  '65ef5b6e945a6aeb18a3ac12': 'OYSTER',
+  '65ef5b6e075858f66112d706': 'PHOENIX',
+  '65ef5b6ed1474c64a307af56': 'UNITECH',
+  '66477925dacbc0adb9b042fc': 'Lux cablaggi',
+};
+
+function getCablQeValueFromCard(card) {
+  const item = (card?.customFieldItems || []).find((i) => i.idCustomField === CABL_QE_FIELD_ID);
+
+  if (!item?.idValue) return null;
+
+  return CABL_QE_OPTIONS[item.idValue] ?? null;
+}
+
 /**
  * Componente StatoAvanzamentoReparti
  * Visualizza lo stato di avanzamento delle commesse per un reparto specifico,
  * integrando dati provenienti dal backend e dalla board Trello.
  */
+
 function StatoAvanzamentoReparti() {
   // ----------------------------------------------------------------
   // Configurazione per i reparti (definita direttamente nel componente)
@@ -784,7 +807,7 @@ function StatoAvanzamentoReparti() {
       .filter((value, index, self) => self.indexOf(value) === index);
     setSuggestionsTipoMacchina(tipoSuggs);
   }, [commesse]);
-
+  const showCablQe = cablQe && (RepartoName === 'elettrico' || RepartoName === 'tecnico elettrico');
   // ----------------------------------------------------------------
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
@@ -821,6 +844,8 @@ function StatoAvanzamentoReparti() {
       const trelloNumero = extractCommessaNumber(card.name);
       return commessa.numero_commessa === trelloNumero;
     });
+
+    const cablQe = trelloCard ? getCablQeValueFromCard(trelloCard) : null; // ✅
 
     // Recupera il nome della lista di Trello a cui appartiene la card
     const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : 'N/A';

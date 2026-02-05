@@ -3,17 +3,20 @@ import axios from 'axios';
 // Funzione per ottenere le schede di una board
 export const getBoardCards = async (boardId) => {
   try {
-    const response = await axios.get(
-      `https://api.trello.com/1/boards/${boardId}/cards`,
+    const response = await axios.get(`https://api.trello.com/1/boards/${boardId}/cards`, {
+      params: {
+        key: process.env.REACT_APP_TRELLO_API_KEY,
+        token: process.env.REACT_APP_TRELLO_TOKEN,
 
-      {
-        params: {
-          key: process.env.REACT_APP_TRELLO_API_KEY,
-          token: process.env.REACT_APP_TRELLO_TOKEN,
-        },
-      }
-    );
-    return response.data; // Restituisce i dati della risposta
+        // ✅ IMPORTANTI
+        customFieldItems: true,
+
+        // ✅ opzionale ma utile: limita i campi per non scaricare mezzo mondo
+        fields: 'name,idList,due,labels,badges,shortUrl,dateLastActivity,desc',
+      },
+    });
+
+    return response.data;
   } catch (error) {
     console.error('Errore durante il recupero delle schede:', error);
     throw error;

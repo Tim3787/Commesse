@@ -41,6 +41,27 @@ import { faEyeSlash, faCalendarWeek, faCalendar } from '@fortawesome/free-solid-
 
 // Context
 import { useAppData } from '../context/AppDataContext';
+// ===============================
+// TRELLO - Custom Field CABL.QE
+// ===============================
+const CABL_QE_FIELD_ID = '6151ec04d4c4264d55da92fc';
+
+const CABL_QE_OPTIONS = {
+  '6151ec192eac9155feda469d': '2G',
+  '6462772030551d5d614be8b1': 'LABEX x UL',
+  '6151ec13facfff407c4fad7b': 'OYSTER',
+  '6151f515b21e6f05e6306e40': 'PHOENIX',
+  '642d2f77a3b8825979485a99': 'UNITECH',
+  '6647791d074a39d04fd88711': 'Lux cablaggi',
+};
+
+function getCablQeValueFromCard(card) {
+  const item = (card?.customFieldItems || []).find((i) => i.idCustomField === CABL_QE_FIELD_ID);
+
+  if (!item?.idValue) return null;
+
+  return CABL_QE_OPTIONS[item.idValue] ?? null;
+}
 
 /**
  * Componente StatoAvanzamentoReparti
@@ -681,6 +702,50 @@ function StatoAvanzamentoReparti() {
         text: 'Bm in preparazione',
         showText: true,
       },
+      {
+        otherReparto: 'elettrico',
+        whenStates: ['Macchina in cablaggio'],
+        icon: iconDev,
+        title: 'Macchina in cablaggio',
+        text: 'Macchina in cablaggio',
+        showText: true,
+      },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: ['Bm pronto'],
+        icon: iconDev,
+        title: 'BM pronto',
+        text: 'BM pronto',
+        showText: true,
+      },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: ['Macchina in collaudo'],
+        icon: iconDev,
+        title: 'Collaudo elettrico',
+        text: 'Collaudo elettrico',
+        showText: true,
+      },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: ['Macchina in smontaggio'],
+        icon: iconDev,
+        title: 'Macchina in smontaggio',
+        text: 'Macchina in smontaggio',
+        showText: true,
+      },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: ['Completate'],
+        icon: iconDone,
+        title: 'Elettrico completato',
+        text: 'Elettrico completato',
+        showText: true,
+      },
 
       /* MECCANICO */
       {
@@ -693,10 +758,10 @@ function StatoAvanzamentoReparti() {
       },
       {
         otherReparto: 'meccanico',
-        whenStates: ['Montaggio completato', ' Smontaggio programmato', ' Smontaggio completato'],
+        whenStates: [' Smontaggio completato'],
         icon: iconOk,
-        title: 'Montaggio completato',
-        text: 'Montaggio completato',
+        title: 'Smontaggio completato',
+        text: 'Smontaggio completato',
         showText: true,
       },
     ],
@@ -1431,6 +1496,9 @@ function StatoAvanzamentoReparti() {
       return commessa.numero_commessa === trelloNumero;
     });
 
+    const cablQe = trelloCard ? getCablQeValueFromCard(trelloCard) : null; // ✅
+    console.log('DBG CABL.QE filtro', { RepartoName, cablQe });
+
     // Recupera il nome della lista di Trello a cui appartiene la card
     const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : 'N/A';
 
@@ -1545,6 +1613,16 @@ function StatoAvanzamentoReparti() {
                 {it.icon && <img src={it.icon} className="reparto-indicator-icon" alt={it.title} />}
               </div>
             ))}
+
+            {cablQe && (
+              <span
+                className="reparto-indicator-badge"
+                style={{ background: 'rgba(76, 214, 248, 0.32)' }}
+                title={`CABL.QE: ${cablQe}`}
+              >
+                Quadro elettrico: {cablQe}
+              </span>
+            )}
           </div>
 
           {/* badge veloci (solo icone) in compact */}
