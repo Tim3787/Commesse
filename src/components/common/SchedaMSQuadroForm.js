@@ -15,6 +15,8 @@ import useTagAutocomplete from '../common/useTagAutocomplete';
 import TagSuggestions from '../common/TagSuggestions';
 import { extractHashtagsLower } from '../common/tagUtils';
 
+import AllegatoPreviewModal from '../popup/AllegatoPreviewModal';
+
 // ===== DATI STATICI / CONFIG =====
 
 const vociChecklist1 = [
@@ -140,6 +142,8 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
   const [isVisibleInfo, setIsVisibleInfo] = useState(false);
   const [allegati, setAllegati] = useState([]);
   const FILE_BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewAllegato, setPreviewAllegato] = useState(null);
 
   // ===== FUNZIONI DI UTILITÀ =====
   const { suggestionsVisibili, filtroTag, cursorPos, handleNoteChange, clearSuggestions } =
@@ -702,23 +706,31 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'white',
                 }}
               >
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    color: 'white',
-                  }}
-                >
+                <a href={url} target="_blank" rel="noreferrer" style={{ color: 'white' }}>
                   {label}
                 </a>
+
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn btn--shiny btn--pill"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPreviewAllegato({ ...a, absoluteUrl: url, label });
+                      setPreviewOpen(true);
+                    }}
+                  >
+                    Preview
+                  </button>
+
                   <a className="btn btn--blue btn--pill" href={url} download>
                     Download
                   </a>
 
                   {editable && (
                     <button
+                      type="button"
                       className="btn btn--danger btn--pill"
                       onClick={async () => {
                         try {
@@ -740,6 +752,14 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
             <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessun allegato.</div>
           )}
         </div>
+        <AllegatoPreviewModal
+          open={previewOpen}
+          allegato={previewAllegato}
+          onClose={() => {
+            setPreviewOpen(false);
+            setPreviewAllegato(null);
+          }}
+        />
         {/* Immagine ingrandita (modal) */}
         {immagineSelezionata && (
           <div

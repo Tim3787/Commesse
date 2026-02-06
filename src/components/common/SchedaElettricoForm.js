@@ -15,6 +15,8 @@ import {
   deleteAllegatoScheda,
 } from '../services/API/schedeTecniche-api';
 
+import AllegatoPreviewModal from '../popup/AllegatoPreviewModal';
+
 const normalizeChecklist = (rawChecklist = {}) => {
   const normalized = {};
   for (const voce of Object.keys(rawChecklist)) {
@@ -63,6 +65,8 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
   const [immagineSelezionata, setImmagineSelezionata] = useState(null);
   const [allegati, setAllegati] = useState([]);
   const FILE_BASE_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewAllegato, setPreviewAllegato] = useState(null);
 
   // --- PERMESSO: solo il creatore può modificare intestazione + note ---
   const createdBy = (scheda?.creato_da_nome || '').trim();
@@ -558,23 +562,31 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   color: 'white',
                 }}
               >
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    color: 'white',
-                  }}
-                >
+                <a href={url} target="_blank" rel="noreferrer" style={{ color: 'white' }}>
                   {label}
                 </a>
+
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn btn--shiny btn--pill"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPreviewAllegato({ ...a, absoluteUrl: url, label });
+                      setPreviewOpen(true);
+                    }}
+                  >
+                    Preview
+                  </button>
+
                   <a className="btn btn--blue btn--pill" href={url} download>
                     Download
                   </a>
 
                   {editable && (
                     <button
+                      type="button"
                       className="btn btn--danger btn--pill"
                       onClick={async () => {
                         try {
@@ -596,6 +608,14 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
             <div style={{ opacity: 0.6, padding: '8px 10px' }}>Nessun allegato.</div>
           )}
         </div>
+        <AllegatoPreviewModal
+          open={previewOpen}
+          allegato={previewAllegato}
+          onClose={() => {
+            setPreviewOpen(false);
+            setPreviewAllegato(null);
+          }}
+        />
         {/* Immagine ingrandita (modal) */}
         {immagineSelezionata && (
           <div
