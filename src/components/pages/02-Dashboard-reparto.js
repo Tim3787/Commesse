@@ -846,7 +846,10 @@ function DashboardReparto() {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            onDoubleClick={onDoubleClick}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              onDoubleClick();
+            }}
             data-tooltip-id={`tooltip-${activity.id}`}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -880,7 +883,10 @@ function DashboardReparto() {
         ref={drag}
         className={`activity ${activityClass} ${isDragging ? 'is-dragging' : ''}`}
         style={{ opacity: isDragging ? 0.5 : 1, cursor: 'move', minWidth: '150px' }}
-        onDoubleClick={onDoubleClick}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onDoubleClick();
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           e.stopPropagation();

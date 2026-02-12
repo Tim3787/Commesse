@@ -90,11 +90,14 @@ function AfterSalesQuickPopup({ onClose }) {
   return (
     <div className="popup" style={{ minWidth: '1000px', justifyContent: 'center' }}>
       <div className="popup-background" onClick={onClose} />
-      <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Nuova richiesta After Sales</h2>
-
+      <div
+        className="popup-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '1000px', justifyContent: 'center' }}
+      >
         <form onSubmit={handleSubmit}>
           <div className="flex-column-center">
+            <h2>Nuova richiesta a support</h2>
             <label>Commessa:</label>
             <input
               type="text"

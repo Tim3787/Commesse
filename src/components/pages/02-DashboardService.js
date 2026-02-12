@@ -104,7 +104,9 @@ function DashboardService() {
   const getActivitiesForLaneAndDaySimple = (lane, day) => {
     const isoDay = normalizeDate(day).toISOString().split('T')[0];
     return filteredActivities.filter((act) => {
-      if (Number(act.lane || 1) !== Number(lane)) return false;
+      if (act.lane == null) return false; // ✅ QUI
+      if (Number(act.lane) !== Number(lane)) return false;
+
       const dates = getActivityDates(act).map((d) => d.toISOString().split('T')[0]);
       return dates.includes(isoDay);
     });
@@ -335,11 +337,15 @@ function DashboardService() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    const data = (res.data || []).map((a) => ({
-      ...a,
-      lane: Number(a.lane || a.riga || a.service_lane || 1),
-      note: a.note ?? a.notes ?? a.nota ?? null,
-    }));
+    const data = (res.data || []).map((a) => {
+      const isAfterSales = Number(a.risorsa_id) === AFTERSALES_RISORSA_ID;
+
+      return {
+        ...a,
+        lane: isAfterSales ? null : Number(a.lane || a.riga || a.service_lane || 1),
+        note: a.note ?? a.notes ?? a.nota ?? null,
+      };
+    });
 
     setActivities(data);
   };
@@ -490,15 +496,13 @@ function DashboardService() {
     const isoDay = normalizeDate(day).toISOString().split('T')[0];
 
     return filteredActivities.filter((act) => {
-      // lane match
-      if (Number(act.lane || 1) !== Number(lane)) return false;
+      if (act.lane == null) return false; // ✅ QUI
+      if (Number(act.lane) !== Number(lane)) return false;
 
-      // giorno match (usa la stessa logica durata/weekend)
       const activityDates = getActivityDates(act).map((d) => d.toISOString().split('T')[0]);
       return activityDates.includes(isoDay);
     });
   };
-
   // === CELL PER LANE (con DnD + doppio click + click) ===
   function LaneCell({ lane, day, activitiesInCell }) {
     const normalizedDay = normalizeDate(day);
@@ -526,27 +530,32 @@ function DashboardService() {
       <td
         ref={drop}
         className={cellClasses}
-        onDoubleClick={() => {
-          // crea nuova activity dentro lane
-          if (activitiesInCell.length === 0) {
-            setFormData((p) => ({
-              ...p,
-              reparto_id: SERVICE_REPARTO_ID,
-              risorsa_id: SERVICE_ONLINE_RISORSA_ID,
-              attivita_id: SERVICE_ONLINE_ATTIVITA_ID,
-              data_inizio: toLocalISOString(normalizedDay),
-              durata: 1,
-              stato: '',
-              descrizione: '',
-              note: '',
-              includedWeekends: [],
-              lane, // 👈 fondamentale
-            }));
-            setIsEditing(false);
-            setShowPopup(true);
-          } else {
-            toast.warn('Cella già occupata.');
+        onDoubleClick={(e) => {
+          // se hai cliccato direttamente su un blocco activity, ci pensa lui
+          if (e.target.closest?.('.activity')) return;
+
+          // ✅ se la cella è occupata, apri l’attività invece di warn
+          if (activitiesInCell.length > 0) {
+            handleActivityClick(activitiesInCell[0]);
+            return;
           }
+
+          // ✅ altrimenti crea nuova
+          setFormData((p) => ({
+            ...p,
+            reparto_id: SERVICE_REPARTO_ID,
+            risorsa_id: SERVICE_ONLINE_RISORSA_ID,
+            attivita_id: SERVICE_ONLINE_ATTIVITA_ID,
+            data_inizio: toLocalISOString(normalizedDay),
+            durata: 1,
+            stato: '',
+            descrizione: '',
+            note: '',
+            includedWeekends: [],
+            lane,
+          }));
+          setIsEditing(false);
+          setShowPopup(true);
         }}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -873,7 +882,10 @@ function DashboardService() {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            onDoubleClick={onDoubleClick}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              onDoubleClick();
+            }}
             data-tooltip-id={`tooltip-${activity.id}`}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -912,7 +924,10 @@ function DashboardService() {
           cursor: 'move',
           minWidth: '150px',
         }}
-        onDoubleClick={onDoubleClick}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onDoubleClick();
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           e.stopPropagation();

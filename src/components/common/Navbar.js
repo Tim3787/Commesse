@@ -145,7 +145,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       },
       { to: '/visualizzazione-attivita', label: "ATTIVITA'", icon: faTasks },
       { to: '/Notifications', label: 'NOTIFICHE', icon: faBell },
-      { action: 'afterSales', label: 'AFTER SALES', icon: faTools },
+      { action: 'afterSales', label: 'RICHIESTA SUPPORT', icon: faTools },
       { to: '/Dashboard', label: 'BACHECA', icon: faUser },
       { to: '/PrenotazioneSale', label: 'PRENOTAZIONE SALE RIUNIONI', icon: faBusinessTime },
     ],
