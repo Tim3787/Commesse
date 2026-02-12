@@ -677,6 +677,14 @@ function DashboardService() {
       setLoadingActivities((prev) => ({ ...prev, [activityId]: false }));
     }
   };
+  useEffect(() => {
+    const onReload = async () => {
+      await handleReloadActivities(); // oppure fetchServiceCalendar()
+    };
+
+    window.addEventListener('service:reload', onReload);
+    return () => window.removeEventListener('service:reload', onReload);
+  }, [currentMonth]); // o [] se handleReloadActivities non cambia
 
   // ========================================================
   // GESTIONE DEL DRAG & DROP
@@ -806,6 +814,22 @@ function DashboardService() {
     }
   };
 
+  const AFTERSALES_RISORSA_ID = 98;
+
+  const getAfterSalesForDay = (day) => {
+    const isoDay = normalizeDate(day).toISOString().split('T')[0];
+
+    return filteredActivities.filter((act) => {
+      if (Number(act.risorsa_id) !== AFTERSALES_RISORSA_ID) return false;
+
+      // se durata 1 basta questo:
+      const start = normalizeDate(act.data_inizio).toISOString().split('T')[0];
+      return start === isoDay;
+
+      // se un domani vuoi durata > 1, riusi getActivityDates(act)
+    });
+  };
+
   // ========================================================
   // COMPONENTE: DraggableActivity
   // Rappresenta un'attività trascinabile con due modalità di visualizzazione
@@ -906,7 +930,7 @@ function DashboardService() {
         {/* HEADER sempre visibile */}
         <div className="flex-column-center">
           <strong>{activity.numero_commessa}</strong>
-
+          {activity.cliente}
           {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
             <span className="warning-icon" title="Nota presente nell'attività completata">
               <svg
@@ -1316,6 +1340,24 @@ function DashboardService() {
                       </th>
                     );
                   })}
+                </tr>
+                <tr>
+                  <td style={{ minWidth: 120 }}>
+                    <strong>After Sales</strong>
+                  </td>
+
+                  {daysInMonth.map((day) => (
+                    <td key={`af-${day.toISOString()}`}>
+                      {getAfterSalesForDay(day).map((activity) => (
+                        <DraggableActivity
+                          key={activity.id}
+                          activity={activity}
+                          onDoubleClick={() => handleActivityClick(activity)}
+                          viewMode={activityViewMode}
+                        />
+                      ))}
+                    </td>
+                  ))}
                 </tr>
               </thead>
               <tbody>

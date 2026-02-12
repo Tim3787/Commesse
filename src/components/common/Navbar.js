@@ -4,6 +4,7 @@ import '../style/Navbar.css';
 import apiClient from '../config/axiosConfig';
 import { CSSTransition } from 'react-transition-group';
 import CommessaDettagli from '../popup/CommessaDettagli';
+import AfterSalesQuickPopup from '../popup/AfterSalesQuickPopup';
 import { CommesseByTag } from '../services/API/commesse-api';
 
 // import ChatGPTChatbot from "../assets/ChatGPTChatbot";
@@ -51,7 +52,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [activeUserSubmenu, setActiveUserSubmenu] = useState(null);
   // Stato per il sottomenu nella sezione manager
   const [activeManagerSubmenu, setActiveManagerSubmenu] = useState(null);
-
+  const [showAfterSales, setShowAfterSales] = useState(false);
   //const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -144,6 +145,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       },
       { to: '/visualizzazione-attivita', label: "ATTIVITA'", icon: faTasks },
       { to: '/Notifications', label: 'NOTIFICHE', icon: faBell },
+      { action: 'afterSales', label: 'AFTER SALES', icon: faTools },
       { to: '/Dashboard', label: 'BACHECA', icon: faUser },
       { to: '/PrenotazioneSale', label: 'PRENOTAZIONE SALE RIUNIONI', icon: faBusinessTime },
     ],
@@ -268,6 +270,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
         ) : (
           <>
             {navLinks.user.map((link, index) => {
+              // se ha submenu → comportamento già esistente
               if (link.submenu) {
                 return (
                   <li key={index} className="dropdown-menu-item">
@@ -279,12 +282,34 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
                         setActiveUserSubmenu(link.submenu);
                       }}
                     >
-                      <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}{' '}
+                      <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
                       <FontAwesomeIcon icon={faChevronRight} className="submenu-icon" />
                     </a>
                   </li>
                 );
               }
+
+              // ✅ SE È AFTER SALES → APRI POPUP
+              if (link.action === 'afterSales') {
+                return (
+                  <li key={index} className="dropdown-menu-item">
+                    <a
+                      href="#"
+                      className="nav-list"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveMenu(null);
+                        setActiveUserSubmenu(null);
+                        setShowAfterSales(true); // ⭐ apre popup
+                      }}
+                    >
+                      <FontAwesomeIcon icon={link.icon} className="menu-icon" /> {link.label}
+                    </a>
+                  </li>
+                );
+              }
+
+              // comportamento normale link router
               return (
                 <li key={index} className="dropdown-menu-item">
                   <Link to={link.to} className="nav-list" onClick={() => setActiveMenu(null)}>
@@ -293,6 +318,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
                 </li>
               );
             })}
+
             <li className="dropdown-menu-item">
               <a
                 href="#"
@@ -612,6 +638,7 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
       {selectedCommessa && (
         <CommessaDettagli commessa={selectedCommessa} onClose={closeSearchPopup} />
       )}
+      {showAfterSales && <AfterSalesQuickPopup onClose={() => setShowAfterSales(false)} />}
     </>
   );
 }

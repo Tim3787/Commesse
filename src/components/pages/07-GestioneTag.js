@@ -17,7 +17,7 @@ function GestioneTag() {
   // filtri
   const [filtroSearch, setFiltroSearch] = useState('');
   const [filtroReparto, setFiltroReparto] = useState('');
-  const [soloAttivi, setSoloAttivi] = useState(true);
+  const [soloAttivi, setSoloAttivi] = useState(false);
 
   // form
   const [formData, setFormData] = useState({
@@ -31,23 +31,27 @@ function GestioneTag() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+  const to01 = (v, def = 1) => {
+    if (v === undefined || v === null) return def;
+    return Number(v) === 1 || v === true ? 1 : 0;
+  };
 
   const loadData = async () => {
     try {
       setLoading(true);
 
-      // qui chiamiamo /schedeTecniche/tag (lookup) per caricare la lista
-      // Se vuoi vedere anche i disattivi, la lookup attuale filtra attivo=1.
-      // Quindi per la pagina gestione conviene usare /api/tags (admin).
-      // PER ORA facciamo fallback: carica solo attivi.
       const data = await fetchTags({
         reparto: filtroReparto || undefined,
         includeGlobal: 1,
         search: filtroSearch || undefined,
       });
 
-      // se vuoi gestire anche inattivi, serve endpoint admin che non filtra attivo=1
-      setTags(data);
+      const normalized = (data || []).map((t) => ({
+        ...t,
+        attivo: to01(t.attivo, 1), // sempre 0/1
+      }));
+
+      setTags(normalized); // ✅ SOLO QUESTO
     } catch (err) {
       console.error('Errore nel caricamento tag:', err);
       toast.error('Errore nel caricamento tag.');
@@ -100,7 +104,7 @@ function GestioneTag() {
         reparto: formData.reparto === '' ? null : formData.reparto,
         colore: formData.colore || '#cccccc',
         descrizione: formData.descrizione || null,
-        attivo: formData.attivo,
+        attivo: formData.attivo ? 1 : 0, // ✅ QUI
       };
 
       if (isEditing && editId) {
@@ -128,35 +132,52 @@ function GestioneTag() {
       reparto: item.reparto || '',
       colore: item.colore || '#cccccc',
       descrizione: item.descrizione || '',
-      attivo: item.attivo === 1 || item.attivo === true,
+      attivo: to01(item.attivo, 1) === 1, // ✅
     });
     setIsEditing(true);
     setEditId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const normalizeReparto = (value) => {
+    if (value === '' || value === undefined) return null;
+    return value;
+  };
+
   const handleToggleAttivo = async (item) => {
+    const isAttivo = to01(item.attivo, 1) === 1;
+    const nextAttivo = isAttivo ? 0 : 1;
+
     try {
       setLoading(true);
+
       await updateTag(item.id, {
-        nome: item.nome,
-        prefisso: item.prefisso,
-        reparto: item.reparto,
-        colore: item.colore,
-        descrizione: item.descrizione,
-        attivo: !(Number(item.attivo) === 1),
+        nome: (item.nome ?? '').trim(),
+        prefisso: (item.prefisso ?? '').trim().toUpperCase(),
+        reparto: normalizeReparto(item.reparto),
+        colore: item.colore || '#cccccc',
+        descrizione: item.descrizione || null,
+        attivo: nextAttivo,
       });
-      toast.success(Number(item.attivo) === 1 ? 'Tag disattivato.' : 'Tag riattivato.');
-      await loadData();
+
+      toast.success(isAttivo ? 'Tag disattivato.' : 'Tag riattivato.');
+
+      setTags((prev) => prev.map((t) => (t.id === item.id ? { ...t, attivo: nextAttivo } : t)));
     } catch (err) {
-      console.error('Errore toggle attivo:', err);
-      toast.error("Errore durante l'aggiornamento dello stato.");
+      console.error('Errore toggle attivo:', err?.response?.status, err?.response?.data || err);
+      toast.error(err?.response?.data?.message || "Errore durante l'aggiornamento dello stato.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleHardDelete = async (item) => {
+    // (facoltativo) se vuoi impedire delete su attivi:
+    // if (isAttivo) {
+    //   toast.error('Disattiva il tag prima di eliminarlo definitivamente.');
+    //   return;
+    // }
+
     const first = window.confirm(
       `ATTENZIONE: vuoi ELIMINARE DEFINITIVAMENTE il tag "${item.prefisso} ${item.nome}"?`
     );
@@ -169,7 +190,9 @@ function GestioneTag() {
       setLoading(true);
       await deleteTag(item.id);
       toast.success('Tag eliminato definitivamente.');
-      await loadData();
+
+      // ✅ aggiorna subito la UI
+      setTags((prev) => prev.filter((t) => t.id !== item.id));
     } catch (err) {
       console.error('Errore hard delete tag:', err);
       toast.error("Errore durante l'eliminazione definitiva del tag.");
@@ -185,7 +208,8 @@ function GestioneTag() {
 
     const matchReparto = !filtroReparto || t.reparto === filtroReparto || t.reparto === null;
 
-    const matchAttivo = !soloAttivi || Number(t.attivo ?? 1) === 1; // se endpoint non manda attivo, assume 1
+    const matchAttivo = !soloAttivi || to01(t.attivo, 1) === 1;
+
     return matchSearch && matchReparto && matchAttivo;
   });
 
@@ -350,51 +374,53 @@ function GestioneTag() {
                   <td colSpan="6">Nessun tag trovato.</td>
                 </tr>
               ) : (
-                filtered.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.prefisso}</td>
-                    <td>{item.nome}</td>
-                    <td>{item.reparto ?? 'Globale'}</td>
-                    <td>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          width: 18,
-                          height: 18,
-                          borderRadius: 4,
-                          background: item.colore || '#cccccc',
-                          border: '1px solid rgba(0,0,0,0.2)',
-                        }}
-                      />
-                    </td>
-                    <td>{Number(item.attivo ?? 1) === 1 ? 'Sì' : 'No'}</td>
+                filtered.map((item) => {
+                  const isActive = to01(item.attivo, 1) === 1;
 
-                    <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <button
-                        className="btn w-100 btn--warning btn--pill"
-                        onClick={() => handleEdit(item)}
-                      >
-                        Modifica
-                      </button>
+                  return (
+                    <tr key={item.id}>
+                      <td>{item.prefisso}</td>
+                      <td>{item.nome}</td>
+                      <td>{item.reparto ?? 'Globale'}</td>
+                      <td>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            width: 18,
+                            height: 18,
+                            borderRadius: 4,
+                            background: item.colore || '#cccccc',
+                            border: '1px solid rgba(0,0,0,0.2)',
+                          }}
+                        />
+                      </td>
+                      <td>{isActive ? 'Sì' : 'No'}</td>
 
-                      <button
-                        className={`btn w-100 btn--pill ${Number(item.attivo ?? 1) === 1 ? 'btn--danger' : 'btn--blue'}`}
-                        onClick={() => handleToggleAttivo(item)}
-                      >
-                        {Number(item.attivo ?? 1) === 1 ? 'Disattiva' : 'Riattiva'}
-                      </button>
+                      <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          className="btn w-100 btn--warning btn--pill"
+                          onClick={() => handleEdit(item)}
+                        >
+                          Modifica
+                        </button>
 
-                      {Number(item.attivo ?? 1) !== 1 && (
+                        <button
+                          className={`btn w-100 btn--pill ${isActive ? 'btn--danger' : 'btn--blue'}`}
+                          onClick={() => handleToggleAttivo(item)}
+                        >
+                          {isActive ? 'Disattiva' : 'Riattiva'}
+                        </button>
+
                         <button
                           className="btn w-100 btn--danger btn--pill"
                           onClick={() => handleHardDelete(item)}
                         >
                           Elimina
                         </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

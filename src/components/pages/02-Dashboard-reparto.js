@@ -37,7 +37,7 @@ function DashboardReparto() {
   const { reparto } = useParams();
   const { RepartoID, RepartoName } = repartoConfig[reparto] || {};
   const SERVICE_ONLINE_RISORSA_ID = 52;
-
+  const AFTERSALES_RISORSA_ID = 98;
   // ----------------------------
   // Stati del componente
   // ----------------------------
@@ -183,7 +183,8 @@ function DashboardReparto() {
         // Filtra le risorse appartenenti al reparto corrente
         const filteredResources = resourcesResponse.data
           .filter((r) => Number(r.reparto_id) === RepartoID)
-          .filter((r) => !(reparto === 'service' && Number(r.id) === SERVICE_ONLINE_RISORSA_ID));
+          .filter((r) => !(reparto === 'service' && Number(r.id) === SERVICE_ONLINE_RISORSA_ID))
+          .filter((r) => !(reparto === 'service' && Number(r.id) === AFTERSALES_RISORSA_ID));
 
         setResources(filteredResources);
 
@@ -895,7 +896,16 @@ function DashboardReparto() {
         }}
       >
         <div className="flex-column-center">
-          <strong> {activity.numero_commessa}</strong>
+          <strong
+            data-tooltip-id={`cliente-${activity.id}`}
+            data-tooltip-content={
+              activity.cliente ? `Cliente: ${activity.cliente}` : 'Cliente non disponibile'
+            }
+            style={{ cursor: 'help' }}
+          >
+            {activity.numero_commessa}
+          </strong>
+          <Tooltip id={`cliente-${activity.id}`} place="top" style={{ zIndex: 9999 }} />
           {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
             <span className="warning-icon" title="Nota presente nell'attività completata">
               <svg
