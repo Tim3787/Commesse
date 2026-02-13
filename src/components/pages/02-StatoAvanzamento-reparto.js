@@ -1548,21 +1548,6 @@ function StatoAvanzamentoReparti() {
       ? getDateCustomFieldFromCard(trelloCard, CF_DATA_PRESUNTO_RITIRO)
       : null;
 
-    console.log('DBG card', trelloCard?.id, trelloCard?.name);
-    console.log('DBG customFieldItems', trelloCard?.customFieldItems);
-    if (trelloCard?.customFieldItems?.length) {
-      console.table(
-        trelloCard.customFieldItems.map((x) => ({
-          idCustomField: x.idCustomField,
-          idValue: x.idValue,
-          date: x.value?.date || '',
-          text: x.value?.text || '',
-          number: x.value?.number || '',
-          checked: x.value?.checked || '',
-        }))
-      );
-    }
-
     const cablQe = trelloCard ? getCablQeValueFromCard(trelloCard) : null; // ✅
 
     // Recupera il nome della lista di Trello a cui appartiene la card
