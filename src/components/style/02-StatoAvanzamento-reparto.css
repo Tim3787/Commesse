@@ -237,7 +237,9 @@
   background: rgba(255, 255, 255, 0.322);
   font-size: 12px;
   line-height: 1;
-  white-space: nowrap;
+
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .reparto-indicator-icon {

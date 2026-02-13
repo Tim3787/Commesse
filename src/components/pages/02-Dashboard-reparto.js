@@ -902,16 +902,16 @@ function DashboardReparto() {
         }}
       >
         <div className="flex-column-center">
-          <strong
+          {/*  <strong
             data-tooltip-id={`cliente-${activity.id}`}
             data-tooltip-content={
               activity.cliente ? `Cliente: ${activity.cliente}` : 'Cliente non disponibile'
             }
             style={{ cursor: 'help' }}
-          >
-            {activity.numero_commessa}
-          </strong>
-          <Tooltip id={`cliente-${activity.id}`} place="top" style={{ zIndex: 9999 }} />
+          >*/}
+          <strong>{activity.numero_commessa}</strong>
+          {activity.cliente}
+          {/*  <Tooltip id={`cliente-${activity.id}`} place="top" style={{ zIndex: 9999 }} />*/}
           {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
             <span className="warning-icon" title="Nota presente nell'attività completata">
               <svg
