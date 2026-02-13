@@ -16,6 +16,7 @@ import SchedaSpecificheForm from '../common/SchedaSpecificheForm';
 import SchedaElettricoForm from '../common/SchedaElettricoForm';
 import SchedaRevElettricheForm from '../common/SchedaRevElettricheForm';
 import SchedaAppuntiForm from '../common/SchedaAppuntiForm.js';
+import SchedaAssistenzaForm from '../common/SchedaAssistenzaForm.js';
 
 import { fetchCurrentUser } from '../services/API/utenti-api';
 
@@ -63,6 +64,7 @@ function SchedaTecnica({
     7: SchedaSpecificheForm,
     9: SchedaRevElettricheForm,
     10: SchedaAppuntiForm,
+    11: SchedaAssistenzaForm,
   };
 
   const tipoIdToNome = useMemo(() => {
