@@ -12,7 +12,7 @@ export const getBoardCards = async (boardId) => {
         customFieldItems: true,
 
         // ✅ opzionale ma utile: limita i campi per non scaricare mezzo mondo
-        fields: 'name,idList,due,labels,badges,shortUrl,dateLastActivity,desc',
+        fields: 'id,name,idList,due,labels,badges,shortUrl,dateLastActivity,desc',
       },
     });
 

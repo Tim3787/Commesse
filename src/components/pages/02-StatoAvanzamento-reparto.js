@@ -62,6 +62,25 @@ function getCablQeValueFromCard(card) {
 
   return CABL_QE_OPTIONS[item.idValue] ?? null;
 }
+// ===============================
+// TRELLO - Custom Fields DATE
+// ===============================
+const CF_DATA_SMONTAGGIO = '65fafa683dff5f0d8e1d3691';
+const CF_DATA_SPEDIZIONE = '69330d3df034fb3e8e42daac';
+const CF_DATA_PRESUNTO_RITIRO = '691371775d69e792c9ee183a';
+
+function getDateCustomFieldFromCard(card, customFieldId) {
+  const item = (card?.customFieldItems || []).find((i) => i.idCustomField === customFieldId);
+
+  const iso = item?.value?.date;
+  if (!iso) return null;
+
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 /**
  * Componente StatoAvanzamentoReparti
@@ -432,18 +451,42 @@ function StatoAvanzamentoReparti() {
       /* ELETTRICO */
       {
         otherReparto: 'elettrico',
-        whenStates: ['Macchina in cablaggio'],
+        whenStates: ['Macchina in cablaggio', 'Cablaggio iniziato'],
         icon: iconDev,
         title: 'Macchina in cablaggio',
         text: 'Macchina in cablaggio',
         showText: true,
       },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: [' Prep. scheda lavoro'],
+        icon: iconDev,
+        title: 'Elettrico in preparazione',
+        text: 'Elettrico in preparazione',
+        showText: true,
+      },
+
       {
         otherReparto: 'elettrico',
         whenStates: ['Bm in preparazione'],
         icon: iconDev,
         title: 'Bm in preparazione',
         text: 'Bm in preparazione',
+        showText: true,
+      },
+
+      {
+        otherReparto: 'elettrico',
+        whenStates: [
+          'Completate',
+          'Macchina in smontaggio',
+          'Macchina in collaudo',
+          'Cablaggio terminato',
+        ],
+        icon: iconDone,
+        title: 'Elettrico completato',
+        text: 'Elettrico completato',
         showText: true,
       },
 
@@ -1495,9 +1538,32 @@ function StatoAvanzamentoReparti() {
       const trelloNumero = extractCommessaNumber(card.name);
       return commessa.numero_commessa === trelloNumero;
     });
+    const trelloDataSmontaggio = trelloCard
+      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_SMONTAGGIO)
+      : null;
+    const trelloDataSpedizione = trelloCard
+      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_SPEDIZIONE)
+      : null;
+    const trelloDataPresuntoRitiro = trelloCard
+      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_PRESUNTO_RITIRO)
+      : null;
+
+    console.log('DBG card', trelloCard?.id, trelloCard?.name);
+    console.log('DBG customFieldItems', trelloCard?.customFieldItems);
+    if (trelloCard?.customFieldItems?.length) {
+      console.table(
+        trelloCard.customFieldItems.map((x) => ({
+          idCustomField: x.idCustomField,
+          idValue: x.idValue,
+          date: x.value?.date || '',
+          text: x.value?.text || '',
+          number: x.value?.number || '',
+          checked: x.value?.checked || '',
+        }))
+      );
+    }
 
     const cablQe = trelloCard ? getCablQeValueFromCard(trelloCard) : null; // ✅
-    console.log('DBG CABL.QE filtro', { RepartoName, cablQe });
 
     // Recupera il nome della lista di Trello a cui appartiene la card
     const trelloListName = trelloCard ? getListNameById(trelloCard.idList) : 'N/A';
@@ -1622,6 +1688,22 @@ function StatoAvanzamentoReparti() {
               >
                 Quadro elettrico: {cablQe}
               </span>
+            )}
+            {trelloDataSmontaggio && (
+              <div className="reparto-indicator-text">
+                Data smontaggio (Trello): {trelloDataSmontaggio}
+              </div>
+            )}
+
+            {trelloDataSpedizione && (
+              <div className="reparto-indicator-text">
+                Data spedizione (Trello): {trelloDataSpedizione}
+              </div>
+            )}
+            {trelloDataPresuntoRitiro && (
+              <div className="reparto-indicator-text">
+                Data presunto ritiro (Trello): {trelloDataPresuntoRitiro}
+              </div>
             )}
           </div>
 
