@@ -62,12 +62,36 @@ function getCablQeValueFromCard(card) {
 
   return CABL_QE_OPTIONS[item.idValue] ?? null;
 }
+
 // ===============================
-// TRELLO - Custom Fields DATE
+// TRELLO - Custom Fields DATE (per board)
 // ===============================
-const CF_DATA_SMONTAGGIO = '65fafa683dff5f0d8e1d3691';
-const CF_DATA_SPEDIZIONE = '69330d3df034fb3e8e42daac';
-const CF_DATA_PRESUNTO_RITIRO = '691371775d69e792c9ee183a';
+const TRELLO_CF_BY_BOARD = {
+  // SOFTWARE board
+  '606e8f6e25edb789343d0871': {
+    DATA_SMONTAGGIO: '65fafa683dff5f0d8e1d3691',
+    DATA_SPEDIZIONE: '69330d3df034fb3e8e42daac',
+    DATA_PRESUNTO_RITIRO: '691371775d69e792c9ee183a',
+  },
+
+  // MECCANICO board
+  '607528abaa92290566c9407c': {
+    DATA_SMONTAGGIO: '691442189b2013cffec7b495',
+    DATA_SPEDIZIONE: '69330d2ed27219e35a9f32bd',
+    DATA_PRESUNTO_RITIRO: '6913716a14a3e33d677f43da',
+  },
+
+  // ELETTRICO board
+  '606efd4d2898f5705163448f': {
+    DATA_SMONTAGGIO: '65fafa1124687993190db9ee',
+    DATA_SPEDIZIONE: '69330d3ff35eb5a44e262278',
+    DATA_PRESUNTO_RITIRO: '69137179e3fdae18947a12a1',
+  },
+};
+
+function getBoardCustomFieldId(boardId, key) {
+  return TRELLO_CF_BY_BOARD?.[boardId]?.[key] || null;
+}
 
 function getDateCustomFieldFromCard(card, customFieldId) {
   const item = (card?.customFieldItems || []).find((i) => i.idCustomField === customFieldId);
@@ -1538,15 +1562,32 @@ function StatoAvanzamentoReparti() {
       const trelloNumero = extractCommessaNumber(card.name);
       return commessa.numero_commessa === trelloNumero;
     });
-    const trelloDataSmontaggio = trelloCard
-      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_SMONTAGGIO)
-      : null;
-    const trelloDataSpedizione = trelloCard
-      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_SPEDIZIONE)
-      : null;
-    const trelloDataPresuntoRitiro = trelloCard
-      ? getDateCustomFieldFromCard(trelloCard, CF_DATA_PRESUNTO_RITIRO)
-      : null;
+    const CF_SMONTAGGIO = getBoardCustomFieldId(boardId, 'DATA_SMONTAGGIO');
+    const CF_SPEDIZIONE = getBoardCustomFieldId(boardId, 'DATA_SPEDIZIONE');
+    const CF_RITIRO = getBoardCustomFieldId(boardId, 'DATA_PRESUNTO_RITIRO');
+
+    const trelloDataSmontaggio =
+      trelloCard && CF_SMONTAGGIO ? getDateCustomFieldFromCard(trelloCard, CF_SMONTAGGIO) : null;
+
+    const trelloDataSpedizione =
+      trelloCard && CF_SPEDIZIONE ? getDateCustomFieldFromCard(trelloCard, CF_SPEDIZIONE) : null;
+
+    const trelloDataPresuntoRitiro =
+      trelloCard && CF_RITIRO ? getDateCustomFieldFromCard(trelloCard, CF_RITIRO) : null;
+    console.log('DBG card', trelloCard?.id, trelloCard?.name);
+    console.log('DBG customFieldItems', trelloCard?.customFieldItems);
+    if (trelloCard?.customFieldItems?.length) {
+      console.table(
+        trelloCard.customFieldItems.map((x) => ({
+          idCustomField: x.idCustomField,
+          idValue: x.idValue,
+          date: x.value?.date || '',
+          text: x.value?.text || '',
+          number: x.value?.number || '',
+          checked: x.value?.checked || '',
+        }))
+      );
+    }
 
     const cablQe = trelloCard ? getCablQeValueFromCard(trelloCard) : null; // ✅
 
