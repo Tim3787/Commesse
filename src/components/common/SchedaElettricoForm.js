@@ -446,7 +446,6 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   disabled={!editable || form.checklist?.[voce]?.na}
                 />
 
-                {voce}
                 <button
                   type="button"
                   className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
@@ -455,7 +454,7 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                 >
                   N/A
                 </button>
-
+                {voce}
                 <div
                   style={{
                     marginTop: '5px',
@@ -491,7 +490,6 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   disabled={!editable || form.checklist?.[voce]?.na}
                 />
 
-                {voce}
                 <button
                   type="button"
                   className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
@@ -500,7 +498,7 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                 >
                   N/A
                 </button>
-
+                {voce}
                 <div
                   style={{
                     marginTop: '5px',
@@ -536,7 +534,6 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   disabled={!editable || form.checklist?.[voce]?.na}
                 />
 
-                {voce}
                 <button
                   type="button"
                   className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
@@ -545,7 +542,7 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                 >
                   N/A
                 </button>
-
+                {voce}
                 <div
                   style={{
                     marginTop: '5px',
