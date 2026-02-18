@@ -82,17 +82,28 @@ const vociChecklist8 = [
   'Archiviare tutto sul server',
 ];
 
-const normalizeChecklist = (rawChecklist = {}) => {
+const normalizeChecklist = (rawChecklist) => {
   const normalized = {};
-  for (const voce of Object.keys(rawChecklist)) {
+  for (const voce of Object.keys(rawChecklist || {})) {
     const valore = rawChecklist[voce];
-    normalized[voce] =
-      typeof valore === 'object' && valore !== null && 'fatto' in valore
-        ? valore
-        : { fatto: !!valore, utente: null, timestamp: null };
+
+    if (typeof valore === 'object' && valore !== null && ('fatto' in valore || 'na' in valore)) {
+      normalized[voce] = {
+        fatto: !!valore.fatto,
+        na: !!valore.na,
+        utente: valore.utente ?? null,
+        timestamp: valore.timestamp ?? null,
+      };
+    } else {
+      normalized[voce] = { fatto: !!valore, na: false, utente: null, timestamp: null };
+    }
+
+    // regola: se na=true allora fatto=false (coerenza)
+    if (normalized[voce].na) normalized[voce].fatto = false;
   }
   return normalized;
 };
+
 // ===== COMPONENTE PRINCIPALE =====
 function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, username }) {
   // ===== HOOK: REFS =====
@@ -149,24 +160,61 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
   }, [scheda?.id, scheda?.scheda_id]);
 
   // ===== EVENTI / HANDLERS =====
+
   const toggleVoce = (voce) => {
     setForm((prev) => {
       const voceCorrente = prev.checklist[voce] || {
         fatto: false,
+        na: false,
         utente: null,
         timestamp: null,
       };
+
+      // blocca se N/A attivo
+      if (voceCorrente.na) return prev;
+
+      // blocca se spuntato da altro utente
       if (voceCorrente.fatto && voceCorrente.utente !== username) return prev;
 
       const nuovoStato = !voceCorrente.fatto;
+
       return {
         ...prev,
         checklist: {
           ...prev.checklist,
           [voce]: {
             fatto: nuovoStato,
+            na: false,
             utente: nuovoStato ? username : null,
             timestamp: nuovoStato ? new Date().toISOString() : null,
+          },
+        },
+      };
+    });
+  };
+  const toggleNA = (voce) => {
+    setForm((prev) => {
+      const voceCorrente = prev.checklist[voce] || {
+        fatto: false,
+        na: false,
+        utente: null,
+        timestamp: null,
+      };
+
+      // blocca se già spuntato da altro utente
+      if (voceCorrente.fatto && voceCorrente.utente !== username) return prev;
+
+      const nuovoNA = !voceCorrente.na;
+
+      return {
+        ...prev,
+        checklist: {
+          ...prev.checklist,
+          [voce]: {
+            fatto: false,
+            na: nuovoNA,
+            utente: nuovoNA ? username : null,
+            timestamp: nuovoNA ? new Date().toISOString() : null,
           },
         },
       };
@@ -383,8 +431,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -394,10 +450,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -413,8 +475,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -424,10 +494,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -443,8 +519,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -454,10 +538,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -473,8 +563,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -484,10 +582,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -503,8 +607,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -514,10 +626,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -533,8 +651,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -544,10 +670,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -563,8 +695,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -574,10 +714,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -593,8 +739,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                 type="checkbox"
                 checked={form.checklist?.[voce]?.fatto || false}
                 onChange={() => toggleVoce(voce)}
-                disabled={!editable}
+                disabled={!editable || form.checklist?.[voce]?.na}
               />
+              <button
+                type="button"
+                className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                disabled={!editable}
+                onClick={() => toggleNA(voce)}
+              >
+                N/A
+              </button>
               {voce}
               <div
                 style={{
@@ -604,10 +758,16 @@ function SchedaCollaudoForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>

@@ -482,15 +482,23 @@ function CalendarioAttivita() {
               </select>
 
               {/* ✅ Filtri autocomplete */}
-              <div className="suggestion-wrapper w-200">
-                <input
-                  type="text"
-                  placeholder="Filtra per commessa"
-                  value={filters.commessa}
-                  onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
-                  onFocus={() => setShowCommessaSuggestions(true)}
-                  className="w-200"
-                />
+              <div className="suggestion-wrapper w-200 ">
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Filtra per commessa"
+                    value={filters.commessa}
+                    onChange={(e) => setFilters({ ...filters, commessa: e.target.value })}
+                    onFocus={() => {
+                      setShowCommessaSuggestions(true);
+                    }}
+                    className="w-200"
+                  />
+
+                  {suggestionsCommessa.includes(filters.commessa) && (
+                    <span className="input-check">✔</span>
+                  )}
+                </div>
                 {showCommessaSuggestions && suggestionsCommessa.length > 0 && (
                   <ul className="suggestions-list w-200">
                     {suggestionsCommessa

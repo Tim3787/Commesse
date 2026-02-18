@@ -41,6 +41,27 @@
   max-height: 600px;
   pointer-events: auto;
 }
+.input-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.input-wrapper input {
+  padding-right: 28px;
+}
+
+.input-check {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #146da8;
+  font-weight: bold;
+  pointer-events: none;
+}
+.input-wrapper.match input {
+  border: 2px solid #146da8;
+}
 
 /* ==========================
    DRAG: ghost pulito

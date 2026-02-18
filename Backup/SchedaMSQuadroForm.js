@@ -429,10 +429,16 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -459,10 +465,16 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -489,10 +501,16 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>
@@ -519,10 +537,16 @@ function SchedaMSQuadroForm({ scheda, commessa, onSave, userId, editable, userna
                   color: 'darkgray',
                 }}
               >
-                {mostraDettagliSpunte &&
-                form.checklist?.[voce]?.fatto &&
-                form.checklist[voce].utente
-                  ? `-  Spuntato da ${form.checklist[voce].utente} il ${new Date(form.checklist[voce].timestamp).toLocaleString()}`
+                {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                  ? form.checklist?.[voce]?.na
+                    ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                        form.checklist[voce].timestamp
+                      ).toLocaleString('it-IT')}`
+                    : form.checklist?.[voce]?.fatto
+                      ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : ''
                   : ''}
               </div>
             </label>

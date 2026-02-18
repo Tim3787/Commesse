@@ -99,45 +99,48 @@ function AfterSalesQuickPopup({ onClose }) {
           <div className="flex-column-center">
             <h2>Nuova richiesta a support</h2>
             <label>Commessa:</label>
-            <input
-              type="text"
-              value={commessaSearch || ''}
-              placeholder="Cerca per numero commessa"
-              className="w-400"
-              onFocus={() => {
-                if (!formData.commessa_id && commessaSearch.length >= 2) {
-                  const filtered = commesse.filter((c) =>
-                    String(c.numero_commessa).toLowerCase().includes(commessaSearch.toLowerCase())
-                  );
-                  setSuggestedCommesse(filtered);
-                }
-              }}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                setCommessaSearch(inputValue);
-
-                const match = commesse.find(
-                  (c) => String(c.numero_commessa).toLowerCase() === inputValue.toLowerCase()
-                );
-
-                if (match) {
-                  setFormData((p) => ({ ...p, commessa_id: match.commessa_id || match.id }));
-                  setSuggestedCommesse([]);
-                } else {
-                  setFormData((p) => ({ ...p, commessa_id: '' }));
-
-                  if (inputValue.length >= 2) {
+            <div className={`input-wrapper w-400 ${formData.commessa_id ? 'match' : ''}`}>
+              <input
+                type="text"
+                value={commessaSearch || ''}
+                placeholder="Cerca per numero commessa"
+                className="w-400"
+                onFocus={() => {
+                  if (!formData.commessa_id && commessaSearch.length >= 2) {
                     const filtered = commesse.filter((c) =>
-                      String(c.numero_commessa).toLowerCase().includes(inputValue.toLowerCase())
+                      String(c.numero_commessa).toLowerCase().includes(commessaSearch.toLowerCase())
                     );
                     setSuggestedCommesse(filtered);
-                  } else {
-                    setSuggestedCommesse([]);
                   }
-                }
-              }}
-            />
+                }}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  setCommessaSearch(inputValue);
 
+                  const match = commesse.find(
+                    (c) => String(c.numero_commessa).toLowerCase() === inputValue.toLowerCase()
+                  );
+
+                  if (match) {
+                    setFormData((p) => ({ ...p, commessa_id: match.commessa_id || match.id }));
+                    setSuggestedCommesse([]);
+                  } else {
+                    setFormData((p) => ({ ...p, commessa_id: '' }));
+
+                    if (inputValue.length >= 2) {
+                      const filtered = commesse.filter((c) =>
+                        String(c.numero_commessa).toLowerCase().includes(inputValue.toLowerCase())
+                      );
+                      setSuggestedCommesse(filtered);
+                    } else {
+                      setSuggestedCommesse([]);
+                    }
+                  }
+                }}
+              />
+
+              {formData.commessa_id && <span className="input-check">✔</span>}
+            </div>
             {suggestedCommesse.length > 0 && (
               <ul
                 className="suggestions-list w-400"

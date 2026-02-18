@@ -266,17 +266,22 @@ function SchedeTecnicheTable() {
               </button>
               <h3>Filtri</h3>
               <div className="suggestion-wrapper w-200">
-                <input
-                  type="text"
-                  placeholder="Cerca per Numero Commessa"
-                  value={commessaFilter}
-                  onChange={(e) => {
-                    setCommessaFilter(e.target.value);
-                    setShowFiltroSuggestions(true);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-200"
-                />
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Cerca per Numero Commessa"
+                    value={commessaFilter}
+                    onChange={(e) => {
+                      setCommessaFilter(e.target.value);
+                      setShowFiltroSuggestions(true);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-200"
+                  />
+                  {suggestionsCommessa.includes(commessaFilter) && (
+                    <span className="input-check">✔</span>
+                  )}
+                </div>
                 {showFiltroSuggestions && (
                   <ul className="suggestions-list w-200">
                     {suggestionsCommessa

@@ -382,17 +382,24 @@ function VisualizzaAttivita() {
           <div className="flex-column-center" style={{ marginRight: '10px' }}>
             <h1>SCEGLI UNA COMMESSA</h1>
             <div className="suggestion-wrapper w-200 ">
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <input
-                  type="text"
-                  value={numeroCommessa}
-                  onChange={(e) => {
-                    setNumeroCommessa(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  placeholder="Inserisci numero commessa"
-                  className="w-200"
-                />
+              <div className="input-wrapper">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={numeroCommessa}
+                    onChange={(e) => {
+                      setNumeroCommessa(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    placeholder="Inserisci numero commessa"
+                    className="w-200"
+                  />
+                  {filteredSuggestions.some(
+                    (s) =>
+                      String(s.numero_commessa).trim().toLowerCase() ===
+                      numeroCommessa.trim().toLowerCase()
+                  ) && <span className="input-check">✔</span>}
+                </div>
                 {/* Se ci sono suggerimenti, mostra il box dei suggerimenti */}
                 {numeroCommessa && filteredSuggestions.length > 0 && showSuggestions && (
                   <ul className="suggestions-list w-200" ref={suggestionsRef}>

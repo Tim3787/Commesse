@@ -222,63 +222,69 @@ function AttivitaCrea({
           <form onSubmit={handleSubmit}>
             <div className="flex-column-center">
               <label>Commessa:</label>
-              <input
-                type="text"
-                name="commessa_id"
-                value={commessaSearch || ''}
-                onFocus={() => {
-                  if (commessaSearch.length >= 2 && !formData.commessa_id) {
-                    const filtered = commesse.filter((c) =>
-                      String(c.numero_commessa).toLowerCase().includes(commessaSearch.toLowerCase())
-                    );
-                    setSuggestedCommesse(filtered);
-                  }
-                }}
-                onChange={(e) => {
-                  const inputValue = e.target.value;
-                  setCommessaSearch(inputValue);
-
-                  // Trova la commessa esatta
-                  const match = commesse.find(
-                    (c) => String(c.numero_commessa).toLowerCase() === inputValue.toLowerCase()
-                  );
-
-                  if (match) {
-                    setFormData((prev) => ({
-                      ...prev,
-                      commessa_id: match.commessa_id || match.id,
-                    }));
-                    setSuggestedCommesse([]); // ✅ chiude suggerimenti se match esatto
-                  } else {
-                    setFormData((prev) => ({
-                      ...prev,
-                      commessa_id: '',
-                    }));
-
-                    // ✅ mostra suggerimenti solo se input >= 2 caratteri
-                    if (inputValue.length >= 2) {
+              <div className={`input-wrapper w-400 ${formData.commessa_id ? 'match' : ''}`}>
+                <input
+                  type="text"
+                  name="commessa_id"
+                  value={commessaSearch || ''}
+                  onFocus={() => {
+                    if (commessaSearch.length >= 2 && !formData.commessa_id) {
                       const filtered = commesse.filter((c) =>
-                        String(c.numero_commessa).toLowerCase().includes(inputValue.toLowerCase())
+                        String(c.numero_commessa)
+                          .toLowerCase()
+                          .includes(commessaSearch.toLowerCase())
                       );
                       setSuggestedCommesse(filtered);
-                    } else {
-                      setSuggestedCommesse([]);
                     }
-                  }
-                }}
-                placeholder="Cerca per numero commessa"
-                className="w-400"
-              />
+                  }}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    setCommessaSearch(inputValue);
 
-              {suggestedCommesse.length > 0 && (
-                <ul className="suggestions-list w-400" ref={suggestionsRef}>
-                  {suggestedCommesse.map((commessa) => (
-                    <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
-                      {commessa.numero_commessa}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    // Trova la commessa esatta
+                    const match = commesse.find(
+                      (c) => String(c.numero_commessa).toLowerCase() === inputValue.toLowerCase()
+                    );
+
+                    if (match) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        commessa_id: match.commessa_id || match.id,
+                      }));
+                      setSuggestedCommesse([]); // ✅ chiude suggerimenti se match esatto
+                    } else {
+                      setFormData((prev) => ({
+                        ...prev,
+                        commessa_id: '',
+                      }));
+
+                      // ✅ mostra suggerimenti solo se input >= 2 caratteri
+                      if (inputValue.length >= 2) {
+                        const filtered = commesse.filter((c) =>
+                          String(c.numero_commessa).toLowerCase().includes(inputValue.toLowerCase())
+                        );
+                        setSuggestedCommesse(filtered);
+                      } else {
+                        setSuggestedCommesse([]);
+                      }
+                    }
+                  }}
+                  placeholder="Cerca per numero commessa"
+                  className="w-400"
+                />
+
+                {suggestedCommesse.length > 0 && (
+                  <ul className="suggestions-list w-400" ref={suggestionsRef}>
+                    {suggestedCommesse.map((commessa) => (
+                      <li key={commessa.id} onClick={() => handleSelectCommessa(commessa)}>
+                        {commessa.numero_commessa}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {/* ICONA MATCH */}
+                {formData.commessa_id && <span className="input-check">✔</span>}
+              </div>
             </div>
             <div className="flex-column-center">
               <label>Reparto:</label>

@@ -457,6 +457,22 @@ thead {
 .pdf-exporting .only-print {
   display: block !important;
 }
+.btn-na {
+  margin-left: 5px;
+  margin-right: 10px;
+  padding: 2px 8px;
+  border: 1px solid #aaa;
+  border-radius: 999px;
+  background: #f3f3f3;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-na.on {
+  background: #d45353;
+  border-color: #dd5a5a;
+  font-weight: 700;
+}
 
 /* SOLO STAMPA BROWSER */
 @media print {

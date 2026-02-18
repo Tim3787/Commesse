@@ -463,14 +463,19 @@ function VisualizzazioneCommesseM() {
           </div>
           <div className="burger-menu-content">
             <div className="suggestion-wrapper w-200 ">
-              <input
-                type="text"
-                placeholder="Cerca per Numero Commessa"
-                value={commessaFilter}
-                onChange={handleCommessaChange}
-                onClick={(e) => e.stopPropagation()}
-                className="w-200"
-              />
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  placeholder="Cerca per Numero Commessa"
+                  value={commessaFilter}
+                  onChange={handleCommessaChange}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-200"
+                />
+                {suggestionsCommessa.includes(commessaFilter) && (
+                  <span className="input-check">✔</span>
+                )}
+              </div>
               {showCommessaSuggestions && (
                 <ul className="suggestions-list w-200">
                   {suggestionsCommessa

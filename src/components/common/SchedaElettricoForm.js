@@ -17,14 +17,24 @@ import {
 
 import AllegatoPreviewModal from '../popup/AllegatoPreviewModal';
 
-const normalizeChecklist = (rawChecklist = {}) => {
+const normalizeChecklist = (rawChecklist) => {
   const normalized = {};
-  for (const voce of Object.keys(rawChecklist)) {
+  for (const voce of Object.keys(rawChecklist || {})) {
     const valore = rawChecklist[voce];
-    normalized[voce] =
-      typeof valore === 'object' && valore !== null && 'fatto' in valore
-        ? valore
-        : { fatto: !!valore, utente: null, timestamp: null };
+
+    if (typeof valore === 'object' && valore !== null && ('fatto' in valore || 'na' in valore)) {
+      normalized[voce] = {
+        fatto: !!valore.fatto,
+        na: !!valore.na,
+        utente: valore.utente ?? null,
+        timestamp: valore.timestamp ?? null,
+      };
+    } else {
+      normalized[voce] = { fatto: !!valore, na: false, utente: null, timestamp: null };
+    }
+
+    // regola: se na=true allora fatto=false (coerenza)
+    if (normalized[voce].na) normalized[voce].fatto = false;
   }
   return normalized;
 };
@@ -124,11 +134,15 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
     setForm((prev) => {
       const voceCorrente = prev.checklist[voce] || {
         fatto: false,
+        na: false,
         utente: null,
         timestamp: null,
       };
 
-      // blocca lo "spunta" se è stato spuntato da un altro utente
+      // blocca se N/A attivo
+      if (voceCorrente.na) return prev;
+
+      // blocca se spuntato da altro utente
       if (voceCorrente.fatto && voceCorrente.utente !== username) return prev;
 
       const nuovoStato = !voceCorrente.fatto;
@@ -139,6 +153,7 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
           ...prev.checklist,
           [voce]: {
             fatto: nuovoStato,
+            na: false,
             utente: nuovoStato ? username : null,
             timestamp: nuovoStato ? new Date().toISOString() : null,
           },
@@ -146,6 +161,35 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
       };
     });
   };
+  const toggleNA = (voce) => {
+    setForm((prev) => {
+      const voceCorrente = prev.checklist[voce] || {
+        fatto: false,
+        na: false,
+        utente: null,
+        timestamp: null,
+      };
+
+      // blocca se già spuntato da altro utente
+      if (voceCorrente.fatto && voceCorrente.utente !== username) return prev;
+
+      const nuovoNA = !voceCorrente.na;
+
+      return {
+        ...prev,
+        checklist: {
+          ...prev.checklist,
+          [voce]: {
+            fatto: false,
+            na: nuovoNA,
+            utente: nuovoNA ? username : null,
+            timestamp: nuovoNA ? new Date().toISOString() : null,
+          },
+        },
+      };
+    });
+  };
+
   useEffect(() => {
     if (!scheda) return;
 
@@ -399,9 +443,19 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   type="checkbox"
                   checked={form.checklist?.[voce]?.fatto || false}
                   onChange={() => toggleVoce(voce)}
-                  disabled={!editable}
+                  disabled={!editable || form.checklist?.[voce]?.na}
                 />
+
                 {voce}
+                <button
+                  type="button"
+                  className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                  disabled={!editable}
+                  onClick={() => toggleNA(voce)}
+                >
+                  N/A
+                </button>
+
                 <div
                   style={{
                     marginTop: '5px',
@@ -410,12 +464,16 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                     color: 'darkgray',
                   }}
                 >
-                  {mostraDettagliSpunte &&
-                  form.checklist?.[voce]?.fatto &&
-                  form.checklist[voce].utente
-                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                        form.checklist[voce].timestamp
-                      ).toLocaleString('it-IT')}`
+                  {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                    ? form.checklist?.[voce]?.na
+                      ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : form.checklist?.[voce]?.fatto
+                        ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                            form.checklist[voce].timestamp
+                          ).toLocaleString('it-IT')}`
+                        : ''
                     : ''}
                 </div>
               </label>
@@ -430,9 +488,19 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   type="checkbox"
                   checked={form.checklist?.[voce]?.fatto || false}
                   onChange={() => toggleVoce(voce)}
-                  disabled={!editable}
+                  disabled={!editable || form.checklist?.[voce]?.na}
                 />
+
                 {voce}
+                <button
+                  type="button"
+                  className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                  disabled={!editable}
+                  onClick={() => toggleNA(voce)}
+                >
+                  N/A
+                </button>
+
                 <div
                   style={{
                     marginTop: '5px',
@@ -441,12 +509,16 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                     color: 'darkgray',
                   }}
                 >
-                  {mostraDettagliSpunte &&
-                  form.checklist?.[voce]?.fatto &&
-                  form.checklist[voce].utente
-                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                        form.checklist[voce].timestamp
-                      ).toLocaleString('it-IT')}`
+                  {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                    ? form.checklist?.[voce]?.na
+                      ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : form.checklist?.[voce]?.fatto
+                        ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                            form.checklist[voce].timestamp
+                          ).toLocaleString('it-IT')}`
+                        : ''
                     : ''}
                 </div>
               </label>
@@ -461,9 +533,19 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                   type="checkbox"
                   checked={form.checklist?.[voce]?.fatto || false}
                   onChange={() => toggleVoce(voce)}
-                  disabled={!editable}
+                  disabled={!editable || form.checklist?.[voce]?.na}
                 />
+
                 {voce}
+                <button
+                  type="button"
+                  className={`btn-na ${form.checklist?.[voce]?.na ? 'on' : ''}`}
+                  disabled={!editable}
+                  onClick={() => toggleNA(voce)}
+                >
+                  N/A
+                </button>
+
                 <div
                   style={{
                     marginTop: '5px',
@@ -472,12 +554,16 @@ function SchedaElettricoForm({ scheda, commessa, onSave, userId, editable, usern
                     color: 'darkgray',
                   }}
                 >
-                  {mostraDettagliSpunte &&
-                  form.checklist?.[voce]?.fatto &&
-                  form.checklist[voce].utente
-                    ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
-                        form.checklist[voce].timestamp
-                      ).toLocaleString('it-IT')}`
+                  {mostraDettagliSpunte && form.checklist?.[voce]?.utente
+                    ? form.checklist?.[voce]?.na
+                      ? `- N/A impostato da ${form.checklist[voce].utente} il ${new Date(
+                          form.checklist[voce].timestamp
+                        ).toLocaleString('it-IT')}`
+                      : form.checklist?.[voce]?.fatto
+                        ? `- Spuntato da ${form.checklist[voce].utente} il ${new Date(
+                            form.checklist[voce].timestamp
+                          ).toLocaleString('it-IT')}`
+                        : ''
                     : ''}
                 </div>
               </label>
