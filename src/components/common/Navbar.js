@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../style/Navbar.css';
 import apiClient from '../config/axiosConfig';
 import { CSSTransition } from 'react-transition-group';
 import CommessaDettagli from '../popup/CommessaDettagli';
 import AfterSalesQuickPopup from '../popup/AfterSalesQuickPopup';
-import { CommesseByTag } from '../services/API/commesse-api';
+
+import { autocompleteTags, fetchCommesseByTag } from '../services/API/tag-api';
 
 // import ChatGPTChatbot from "../assets/ChatGPTChatbot";
 
@@ -57,8 +58,19 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [commesseList, setCommesseList] = useState([]);
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [selectedCommessa, setSelectedCommessa] = useState(null);
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedTag, setSelectedTag] = useState(null);
+
+  const wrapperRef = useRef(null);
+  const debounceRef = useRef(null);
+
+  const isTagMode = searchValue.trim().startsWith('#');
+  const closeSearchPopup = () => {
+    setSelectedCommessa(null);
+  };
 
   // -------------------------------------------------------------------
   // Polling delle notifiche non lette (ogni 60 secondi)
@@ -431,7 +443,19 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
   };
 
   const toggleSearchDropdown = () => {
-    setIsSearchOpen((prev) => !prev);
+    setIsSearchOpen((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setSearchValue('');
+        setSuggestions([]);
+        setSelectedTag(null);
+        setLoading(false);
+      }
+
+      return next;
+    });
+
     setActiveMenu(null);
     setIsNotificationOpen(false);
   };
@@ -442,40 +466,164 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
     setIsSearchOpen(false);
   };
 
-  const handleSearchInputChange = async (e) => {
-    const value = e.target.value.trim();
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
     setSearchValue(value);
+  };
+  useEffect(() => {
+    clearTimeout(debounceRef.current);
 
-    if (value === '') {
-      setSearchSuggestions([]);
+    if (!isSearchOpen) return;
+
+    const value = searchValue.trim();
+
+    if (!value) {
+      setSuggestions([]);
+      setSelectedTag(null);
+      setLoading(false);
       return;
     }
 
-    // Se il valore inizia con #
-    if (value.startsWith('#')) {
+    debounceRef.current = setTimeout(async () => {
       try {
-        const commesseByTag = await CommesseByTag(value);
-        setSearchSuggestions(commesseByTag);
-      } catch (error) {
-        console.error('Errore nella ricerca per tag:', error);
-      }
-    } else {
-      const lowerValue = value.toLowerCase();
-      const suggestionsFiltered = commesseList.filter((c) => {
-        const numero = c.numero_commessa?.toString().toLowerCase() || '';
-        const cliente = c.cliente?.toLowerCase() || '';
-        const numeri = numero.match(/\d+/)?.[0] || '';
-        return numeri.startsWith(lowerValue) || cliente.includes(lowerValue);
-      });
+        setLoading(true);
 
-      setSearchSuggestions(suggestionsFiltered);
+        // =========================
+        // MODALITÀ TAG
+        // =========================
+        if (value.startsWith('#')) {
+          const cleanTagQuery = value.replace(/^#/, '').trim();
+
+          // se è già selezionato un tag esatto, non rifare autocomplete
+          if (selectedTag && value.toLowerCase() === `#${selectedTag.nome}`.toLowerCase()) {
+            setLoading(false);
+            return;
+          }
+
+          const tagResults = await autocompleteTags({
+            q: cleanTagQuery,
+            includeGlobal: 1,
+            limit: 10,
+          });
+
+          setSuggestions(
+            (tagResults || []).map((tag) => ({
+              type: 'tag',
+              id: tag.id,
+              nome: tag.nome,
+              label: tag.label || `#${tag.nome}`,
+              prefisso: tag.prefisso,
+              reparto: tag.reparto,
+              colore: tag.colore,
+              schedeCount: tag.schedeCount || 0,
+              commesseCount: tag.commesseCount || 0,
+            }))
+          );
+
+          setSelectedTag(null);
+          setLoading(false);
+          return;
+        }
+
+        // =========================
+        // MODALITÀ NORMALE
+        // =========================
+        setSelectedTag(null);
+
+        const lowerValue = value.toLowerCase();
+
+        const suggestionsFiltered = commesseList
+          .filter((c) => {
+            const numero = c.numero_commessa?.toString().toLowerCase() || '';
+            const cliente = c.cliente?.toLowerCase() || '';
+            const numeri = numero.match(/\d+/)?.[0] || '';
+
+            return numeri.startsWith(lowerValue) || cliente.includes(lowerValue);
+          })
+          .map((c) => ({
+            type: 'commessa',
+            id: c.id,
+            numero_commessa: c.numero_commessa,
+            cliente: c.cliente,
+            raw: c,
+          }));
+
+        setSuggestions(suggestionsFiltered);
+        setLoading(false);
+      } catch (error) {
+        console.error('Errore nella ricerca navbar:', error);
+        setSuggestions([]);
+        setLoading(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [searchValue, commesseList, isSearchOpen, selectedTag]);
+
+  const handleSelectTag = async (tagItem) => {
+    try {
+      setLoading(true);
+      setSearchValue(`#${tagItem.nome}`);
+      setSelectedTag(tagItem);
+
+      const commesse = await fetchCommesseByTag({ tagId: tagItem.id });
+      console.log('TAG CLICCATO:', tagItem);
+      console.log('COMMESSE TROVATE:', commesse);
+      setSuggestions(
+        (commesse || []).map((item) => ({
+          type: 'commessaByTag',
+          commessa_id: item.commessa_id,
+          numero_commessa: item.numero_commessa,
+          cliente: item.cliente,
+          schedeCount: item.schedeCount || 0,
+          ultimaModifica: item.ultimaModifica,
+          tag: item.tag,
+          raw: item,
+        }))
+      );
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Errore selezione tag:', error);
+      setSuggestions([]);
+      setLoading(false);
     }
   };
 
-  const closeSearchPopup = () => {
-    setSelectedCommessa(null);
-  };
+  const handleSuggestionClick = async (item) => {
+    if (item.type === 'tag') {
+      await handleSelectTag(item);
+      return;
+    }
 
+    if (item.type === 'commessa') {
+      setSelectedCommessa(item.raw || item);
+      setIsSearchOpen(false);
+      setSearchValue('');
+      setSuggestions([]);
+      setSelectedTag(null);
+      return;
+    }
+
+    if (item.type === 'commessaByTag') {
+      const commessaCompleta =
+        commesseList.find((c) => c.id === item.commessa_id) ||
+        commesseList.find(
+          (c) => String(c.numero_commessa).trim() === String(item.numero_commessa).trim()
+        );
+
+      if (!commessaCompleta) {
+        console.error('Commessa completa non trovata in commesseList:', item);
+        return;
+      }
+
+      setSelectedCommessa(commessaCompleta);
+      setIsSearchOpen(false);
+      setSearchValue('');
+      setSuggestions([]);
+      setSelectedTag(null);
+    }
+  };
   // -------------------------------------------------------------------
   // Rendering del componente
   // -------------------------------------------------------------------
@@ -601,36 +749,97 @@ function Navbar({ isAuthenticated, userRole, handleLogout }) {
 
       {/* Dropdown di ricerca */}
       <CSSTransition in={isSearchOpen} timeout={300} classNames="dropdown" unmountOnExit>
-        <div className="search-dropdown">
+        <div className="search-dropdown" ref={wrapperRef}>
           <input
             type="text"
-            placeholder="Inserisci commessa o cliente"
+            placeholder="Inserisci commessa, cliente o #tag"
             value={searchValue}
             onChange={handleSearchInputChange}
             className="w-400"
           />
-          {searchSuggestions.length > 0 && (
+
+          {loading ? (
+            <div className="search-loading">Caricamento...</div>
+          ) : suggestions.length > 0 ? (
             <ul className="search-suggestions">
-              {[...searchSuggestions]
+              {selectedTag ? (
+                <li className="search-suggestions-title">Commesse con #{selectedTag.nome}</li>
+              ) : isTagMode ? (
+                <li className="search-suggestions-title">Tag:</li>
+              ) : (
+                <li className="search-suggestions-title">Commesse:</li>
+              )}
+
+              {[...suggestions]
                 .sort((a, b) => {
-                  const getNum = (val) => parseInt(val.numero_commessa.replace(/[^0-9]/g, ''), 10);
-                  return getNum(b) - getNum(a);
+                  if (a.type === 'tag' || b.type === 'tag') return 0;
+
+                  const getNum = (val) =>
+                    parseInt(String(val || '').replace(/[^0-9]/g, ''), 10) || 0;
+
+                  return getNum(b.numero_commessa) - getNum(a.numero_commessa);
                 })
-                .map((sugg) => (
-                  <li
-                    key={sugg.commessa_id}
-                    onClick={() => {
-                      setSelectedCommessa(sugg);
-                      setIsSearchOpen(false);
-                      setSearchValue('');
-                      setSearchSuggestions([]);
-                    }}
-                  >
-                    {sugg.numero_commessa} - {sugg.cliente}
-                  </li>
-                ))}
+                .map((sugg, index) => {
+                  if (sugg.type === 'tag') {
+                    return (
+                      <li
+                        key={`tag-${sugg.id}-${index}`}
+                        className="search-suggestion-item"
+                        onClick={() => handleSuggestionClick(sugg)}
+                      >
+                        <div className="search-main-row">
+                          <span
+                            className="tag-color-dot"
+                            style={{ backgroundColor: sugg.colore || '#999' }}
+                          />
+                          <span className="tag-prefisso-badge">{sugg.prefisso}</span>
+                          <span>{sugg.label}</span>
+                        </div>
+                        <div className="search-sub-row">
+                          {sugg.reparto || 'globale'} · {sugg.commesseCount} commesse ·{' '}
+                          {sugg.schedeCount} schede
+                        </div>
+                      </li>
+                    );
+                  }
+
+                  if (sugg.type === 'commessaByTag') {
+                    return (
+                      <li
+                        key={`commessa-by-tag-${sugg.commessa_id}-${index}`}
+                        className="search-suggestion-item"
+                        onClick={() => handleSuggestionClick(sugg)}
+                      >
+                        <div className="search-main-row">
+                          {sugg.numero_commessa} - {sugg.cliente}
+                        </div>
+                        <div className="search-sub-row">
+                          {sugg.schedeCount} schede con {sugg.tag?.label || `#${selectedTag?.nome}`}
+                        </div>
+                      </li>
+                    );
+                  }
+
+                  return (
+                    <li
+                      key={`commessa-${sugg.id}-${index}`}
+                      className="search-suggestion-item"
+                      onClick={() => handleSuggestionClick(sugg)}
+                    >
+                      {sugg.numero_commessa} - {sugg.cliente}
+                    </li>
+                  );
+                })}
             </ul>
-          )}
+          ) : searchValue.trim() ? (
+            <div className="search-empty">
+              {selectedTag
+                ? `Nessuna commessa trovata per #${selectedTag.nome}`
+                : isTagMode
+                  ? 'Nessun tag trovato'
+                  : 'Nessuna commessa trovata'}
+            </div>
+          ) : null}
         </div>
       </CSSTransition>
 

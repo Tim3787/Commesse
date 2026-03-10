@@ -18,9 +18,43 @@ export async function updateTagsScheda(schedaId, tagIds) {
   return data;
 }
 
-// --- CRUD tag (se li metti in un router dedicato /api/tags) ---
-// Se invece vuoi farli passare da /schedeTecniche, dimmelo e cambio i path.
+// =========================
+// RICERCA TAG PER NAVBAR
+// =========================
 
+// GET /api/tags/autocomplete?q=press&reparto=software&includeGlobal=1&limit=10
+export async function autocompleteTags(params = {}) {
+  const cleanParams = {
+    ...params,
+    q: params.q ? String(params.q).replace(/^#/, '').trim() : '',
+  };
+
+  const { data } = await apiClient.get('/api/tags/autocomplete', {
+    params: cleanParams,
+  });
+
+  return data;
+}
+
+// GET /api/tags/commesse-by-tag?tag=pressore_inverter
+// oppure /api/tags/commesse-by-tag?tagId=9
+export async function fetchCommesseByTag({ tag, tagId } = {}) {
+  const params = {};
+
+  if (tagId) {
+    params.tagId = tagId;
+  } else if (tag) {
+    params.tag = String(tag).replace(/^#/, '').trim();
+  }
+
+  const { data } = await apiClient.get('/api/tags/commesse-by-tag', {
+    params,
+  });
+
+  return data;
+}
+
+// --- CRUD tag ---
 export async function createTag(payload) {
   const { data } = await apiClient.post('/api/tags', payload);
   return data;
