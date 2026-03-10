@@ -739,6 +739,40 @@ function StatoAvanzamentoReparti() {
     setSuggestionsTipoMacchina(tipoSuggs);
   }, [commesse]);
 
+  function DropStateGrid({ columnOrder, repartoId, onDropCommessa }) {
+    return (
+      <div className="drop-state-grid">
+        {columnOrder.map((stato) => (
+          <DropStateCard
+            key={stato.id}
+            stato={stato}
+            repartoId={repartoId}
+            onDropCommessa={onDropCommessa}
+          />
+        ))}
+      </div>
+    );
+  }
+  function DropStateCard({ stato, repartoId, onDropCommessa }) {
+    const [{ isOver, canDrop }, drop] = useDrop(() => ({
+      accept: 'COMMESSA',
+      drop: (item) => onDropCommessa(item.commessaId, repartoId, stato.id),
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+        canDrop: monitor.canDrop(),
+      }),
+    }));
+
+    return (
+      <div
+        ref={drop}
+        className={`drop-state-card ${isOver ? 'is-over' : ''} ${canDrop ? 'can-drop' : ''}`}
+      >
+        <div className="drop-state-card-title">{stato.nome_stato}</div>
+      </div>
+    );
+  }
+
   // ----------------------------------------------------------------
   // Componente Interno: DraggableCommessa
   // Rappresenta una card commessa trascinabile.
@@ -755,10 +789,19 @@ function StatoAvanzamentoReparti() {
     const [{ isDragging }, drag, preview] = useDrag(
       () => ({
         type: 'COMMESSA',
-        item: { commessaId: commessa.commessa_id, repartoId }, // ✅ oggetto fisso, NO setState qui
+        item: { commessaId: commessa.commessa_id, repartoId },
         collect: (monitor) => ({
           isDragging: monitor.isDragging(),
         }),
+        end: (item, monitor) => {
+          const didDrop = monitor.didDrop();
+
+          setDraggingCommessaId(null);
+
+          if (!didDrop) {
+            setMovingCommessa(null);
+          }
+        },
       }),
       [commessa.commessa_id, repartoId]
     );
@@ -1168,23 +1211,26 @@ function StatoAvanzamentoReparti() {
 
   const tableHeaderRef = React.useRef(null);
 
-  function CustomDragLayer({ commesse }) {
+  function CustomDragLayer({ commesse, draggingCommessaId }) {
     const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
       item: monitor.getItem(),
-      currentOffset: monitor.getClientOffset(), // ✅ segue il mouse
+      currentOffset: monitor.getClientOffset(),
       isDragging: monitor.isDragging(),
     }));
 
+    // ✅ se la UI drag è stata chiusa (ESC o fine drag), nascondi subito il ghost
+    if (!draggingCommessaId) return null;
+
     if (!isDragging || !currentOffset || !item?.commessaId) return null;
 
-    const c = commesse.find((x) => x.commessa_id === item.commessaId);
+    const c = commesse.find((x) => Number(x.commessa_id) === Number(item.commessaId));
     if (!c) return null;
 
     const style = {
       position: 'fixed',
       pointerEvents: 'none',
       zIndex: 10000,
-      left: currentOffset.x + 0,
+      left: currentOffset.x,
       top: currentOffset.y - 50,
     };
 
@@ -1200,15 +1246,25 @@ function StatoAvanzamentoReparti() {
 
   function DragStateWatcher({ onEnd }) {
     const isDragging = useDragLayer((monitor) => monitor.isDragging());
+    const wasDraggingRef = React.useRef(false);
 
     useEffect(() => {
-      if (!isDragging) onEnd(); // ✅ finito o cancellato (ESC compreso)
+      if (isDragging) {
+        wasDraggingRef.current = true;
+        return;
+      }
+
+      if (!isDragging && wasDraggingRef.current) {
+        wasDraggingRef.current = false;
+        onEnd();
+      }
     }, [isDragging, onEnd]);
 
     useEffect(() => {
       const onKey = (e) => {
-        if (e.key === 'Escape') onEnd(); // ✅ fallback extra
+        if (e.key === 'Escape') onEnd();
       };
+
       window.addEventListener('keydown', onKey);
       return () => window.removeEventListener('keydown', onKey);
     }, [onEnd]);
@@ -1452,50 +1508,65 @@ function StatoAvanzamentoReparti() {
         }`}
       >
         <DndProvider backend={HTML5Backend}>
-          <DragStateWatcher onEnd={() => setDraggingCommessaId(null)} />
-          <CustomDragLayer commesse={commesse} />
-          <div className="mh-80  ">
-            <table>
-              <thead ref={tableHeaderRef}>
-                <tr>
-                  {columnOrder.map((stato, index) => (
-                    <DraggableColumn
-                      key={stato.id}
-                      id={stato.id}
-                      index={index}
-                      moveColumn={moveColumn}
-                    >
-                      {stato.nome_stato}
-                    </DraggableColumn>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {columnOrder.map((stato) => (
-                    <td key={stato.id}>
-                      <DropZone
-                        stato={stato}
-                        repartoId={RepartoID}
-                        viewMode={commessaViewMode}
-                        commesse={filteredCommesse.filter((commessa) =>
-                          commessa.stati_avanzamento.some(
-                            (reparto) =>
-                              Number(reparto.reparto_id) === Number(RepartoID) &&
-                              reparto.stati_disponibili.some(
-                                (s) => Number(s.stato_id) === Number(stato.id) && s.isActive
-                              )
-                          )
-                        )}
-                        activities={activities}
-                        resources={resources}
-                        draggingCommessaId={draggingCommessaId}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+          <DragStateWatcher
+            onEnd={() => {
+              setDraggingCommessaId(null);
+              setMovingCommessa(null);
+            }}
+          />
+
+          <CustomDragLayer commesse={commesse} draggingCommessaId={draggingCommessaId} />
+          <div className="mh-80">
+            {draggingCommessaId ? (
+              <DropStateGrid
+                columnOrder={columnOrder}
+                repartoId={RepartoID}
+                onDropCommessa={handleActivityDrop}
+              />
+            ) : (
+              <table>
+                <thead ref={tableHeaderRef}>
+                  <tr>
+                    {columnOrder.map((stato, index) => (
+                      <DraggableColumn
+                        key={stato.id}
+                        id={stato.id}
+                        index={index}
+                        moveColumn={moveColumn}
+                      >
+                        {stato.nome_stato}
+                      </DraggableColumn>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {columnOrder.map((stato) => (
+                      <td key={stato.id}>
+                        <DropZone
+                          stato={stato}
+                          repartoId={RepartoID}
+                          viewMode={commessaViewMode}
+                          commesse={filteredCommesse.filter((commessa) =>
+                            commessa.stati_avanzamento.some(
+                              (reparto) =>
+                                Number(reparto.reparto_id) === Number(RepartoID) &&
+                                reparto.stati_disponibili.some(
+                                  (s) => Number(s.stato_id) === Number(stato.id) && s.isActive
+                                )
+                            )
+                          )}
+                          activities={activities}
+                          resources={resources}
+                          draggingCommessaId={draggingCommessaId}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
             {selectedCommessa && (
               <CommessaDettagli commessa={selectedCommessa} onClose={handleClosePopup} />
             )}
