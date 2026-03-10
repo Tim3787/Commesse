@@ -15,7 +15,7 @@ import { Tooltip } from 'react-tooltip';
 
 // Import per la navigazione e la configurazione del reparto
 import { useParams } from 'react-router-dom';
-import repartoConfig from '../config/repartoConfig';
+import { repartoConfig } from '../config/repartoConfig';
 import { getDaysInMonth } from '../assets/date';
 
 // Import API per le attività e le note
