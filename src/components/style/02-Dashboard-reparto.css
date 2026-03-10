@@ -22,25 +22,44 @@
   text-decoration-color: #01c3f3;
 }
 
-/* Di default nascosti */
-.activity .activity-hover-actions,
-.activity .activity-hover-notes {
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition:
-    opacity 560ms ease,
-    max-height 560ms ease;
+.activity-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-/* Aperto SOLO se hover E NON dragging */
-.activity:hover:not(.is-dragging) .activity-hover-actions,
-.activity:hover:not(.is-dragging) .activity-hover-notes {
-  opacity: 1;
-  max-height: 600px;
-  pointer-events: auto;
+.activity-header-main {
+  flex: 1;
+  min-width: 0;
 }
+
+.activity-expand-btn {
+  border: 0;
+  background: rgba(234, 234, 253, 0.438);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  min-width: 90%;
+  height: 18px;
+}
+
+.activity-expand-btn:hover {
+  background: rgba(88, 169, 245, 0.795);
+}
+
+.activity-details--closed {
+  display: none;
+}
+
+.activity-details--open {
+  display: block;
+  margin-top: 8px;
+}
+
 .input-wrapper {
   position: relative;
   display: inline-block;

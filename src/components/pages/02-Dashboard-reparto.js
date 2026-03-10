@@ -53,6 +53,14 @@ function DashboardReparto() {
   const [attivitaConReparto, setAttivitaConReparto] = useState([]); // Attività definite per reparto
   const [selectedServiceResource, setSelectedServiceResource] = useState(null); // Risorsa del service selezionata
   const [activityViewMode, setActivityViewMode] = useState('full'); // Modalità di visualizzazione: "full" o "compact"
+  const [expandedActivities, setExpandedActivities] = useState({});
+
+  const toggleActivityExpanded = (activityId) => {
+    setExpandedActivities((prev) => ({
+      ...prev,
+      [activityId]: !prev[activityId],
+    }));
+  };
 
   const [formData, setFormData] = useState({
     commessa_id: '',
@@ -795,6 +803,8 @@ function DashboardReparto() {
             activity={activity}
             onDoubleClick={() => onActivityClick(activity)}
             viewMode={viewMode}
+            isExpanded={!!expandedActivities[activity.id]}
+            onToggleExpanded={() => toggleActivityExpanded(activity.id)}
           />
         ))}
       </td>
@@ -805,7 +815,7 @@ function DashboardReparto() {
   // COMPONENTE: DraggableActivity
   // Rappresenta un'attività trascinabile con due modalità di visualizzazione
   // ========================================================
-  function DraggableActivity({ activity, onDoubleClick, viewMode }) {
+  function DraggableActivity({ activity, onDoubleClick, viewMode, isExpanded, onToggleExpanded }) {
     const [{ isDragging }, drag] = useDrag(() => ({
       type: 'ACTIVITY',
       canDrag: () => movingActivityId !== activity.id,
@@ -814,6 +824,16 @@ function DashboardReparto() {
         isDragging: !!monitor.isDragging(),
       }),
     }));
+    const hasWarningNote = activity.stato === 2 && activity.note && !isClosedNote(activity.note);
+
+    const hasVisibleStatus = ViewStato;
+    const hasVisibleServiceDescription =
+      activity.reparto?.toLowerCase() === 'service' && !!(activity.descrizione_attivita || '');
+    const hasVisibleButtons = ViewButtons && (activity.stato === 0 || activity.stato === 1);
+    const hasVisibleNotes = ViewNote && hasWarningNote;
+
+    const hasExpandableDetails =
+      hasVisibleStatus || hasVisibleServiceDescription || hasVisibleButtons || hasVisibleNotes;
 
     const activityClass =
       activity.stato === 0
@@ -901,125 +921,139 @@ function DashboardReparto() {
           });
         }}
       >
-        <div className="flex-column-center">
-          {/*  <strong
-            data-tooltip-id={`cliente-${activity.id}`}
-            data-tooltip-content={
-              activity.cliente ? `Cliente: ${activity.cliente}` : 'Cliente non disponibile'
-            }
-            style={{ cursor: 'help' }}
-          >*/}
-          <strong>{activity.numero_commessa}</strong>
-          {activity.cliente}
-          {/*  <Tooltip id={`cliente-${activity.id}`} place="top" style={{ zIndex: 9999 }} />*/}
-          {activity.stato === 2 && activity.note && !isClosedNote(activity.note) && (
-            <span className="warning-icon" title="Nota presente nell'attività completata">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="#e60000"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
-              </svg>
-            </span>
-          )}
-        </div>
+        <div className="activity-header-top">
+          <div className="activity-header-main">
+            <div className="flex-column-center">
+              <strong>{activity.numero_commessa}</strong>
+              <div>{activity.cliente || '-'}</div>
 
-        <strong>Attività: {activity.nome_attivita}</strong>
-        <br />
+              {hasWarningNote && (
+                <span className="warning-icon" title="Nota presente nell'attività completata">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="#e60000"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-15h2v6h-2zm0 8h2v2h-2z" />
+                  </svg>
+                </span>
+              )}
+            </div>
 
-        <div className="activity-hover-actions">
-          {ViewStato && (
-            <strong>
-              Stato:{' '}
-              {activity.stato === 0
-                ? 'Non iniziata'
-                : activity.stato === 1
-                  ? 'Iniziata'
-                  : 'Completata'}
-            </strong>
-          )}
-
-          <br />
-          {activity.reparto?.toLowerCase() === 'service' && (
-            <>
-              <br />
-              <strong>Descrizione: {activity.descrizione_attivita || ''}</strong>
-              <br />
-            </>
-          )}
-          <div className="flex-column-center" style={{ marginTop: '5px' }}>
-            {ViewButtons && activity.stato === 1 && (
-              <>
-                <button
-                  className="btn w-100 btn--complete btn--pill"
-                  onClick={() => updateActivityStatus(activity.id, 2)}
-                  disabled={loadingActivities[activity.id]}
-                >
-                  {loadingActivities[activity.id] ? 'Caricamento...' : 'Completa'}
-                </button>
-                <button
-                  className="btn w-100 btn--danger btn--pill"
-                  onClick={() => handleDelete(activity.id)}
-                >
-                  Elimina attività
-                </button>
-              </>
-            )}
-
-            {ViewButtons && activity.stato === 0 && (
-              <>
-                <button
-                  className="btn w-100 btn--start btn--pill"
-                  onClick={() => updateActivityStatus(activity.id, 1)}
-                  disabled={loadingActivities[activity.id]}
-                >
-                  {loadingActivities[activity.id] ? 'Caricamento...' : 'Inizia'}
-                </button>
-
-                <button
-                  className="btn w-100 btn--complete btn--pill"
-                  onClick={() => updateActivityStatus(activity.id, 2)}
-                  disabled={loadingActivities[activity.id]}
-                >
-                  {loadingActivities[activity.id] ? 'Caricamento...' : 'Completa'}
-                </button>
-
-                <button
-                  className="btn w-100 btn--danger btn--pill"
-                  onClick={() => handleDelete(activity.id)}
-                >
-                  Elimina attività
-                </button>
-              </>
-            )}
+            <strong>Attività: {activity.nome_attivita}</strong>
           </div>
         </div>
+        <div className=" row center" style={{ paddingTop: '10px' }}>
+          {hasExpandableDetails && (
+            <button
+              type="button"
+              className="activity-expand-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleExpanded();
+              }}
+              title={isExpanded ? 'Comprimi dettagli' : 'Espandi dettagli'}
+            >
+              {isExpanded ? '▴' : '▾'}
+            </button>
+          )}
+        </div>
+        {hasExpandableDetails && (
+          <div
+            className={`activity-details ${
+              isExpanded ? 'activity-details--open' : 'activity-details--closed'
+            }`}
+          >
+            {ViewStato && (
+              <strong>
+                Stato:{' '}
+                {activity.stato === 0
+                  ? 'Non iniziata'
+                  : activity.stato === 1
+                    ? 'Iniziata'
+                    : 'Completata'}
+              </strong>
+            )}
 
-        <div className="activity-hover-notes">
-          <div className="flex-column-center">
-            {ViewNote && activity.note && !isClosedNote(activity.note) && (
+            {activity.reparto?.toLowerCase() === 'service' && (
               <>
-                <div className="note">Note: {activity.note}</div>
-
-                <button
-                  className="btn btn--pill btn--warning w-100"
-                  onClick={() => closeNote(activity.id)}
-                >
-                  Chiudi nota
-                </button>
-                <button
-                  className="btn w-100 btn--danger btn--pill"
-                  onClick={() => deleteNote(activity.id)}
-                >
-                  Elimina Nota
-                </button>
+                <br />
+                <strong>Descrizione: {activity.descrizione_attivita || ''}</strong>
               </>
             )}
+
+            <div className="flex-column-center" style={{ marginTop: '5px' }}>
+              {ViewButtons && activity.stato === 1 && (
+                <>
+                  <button
+                    className="btn w-100 btn--complete btn--pill"
+                    onClick={() => updateActivityStatus(activity.id, 2)}
+                    disabled={loadingActivities[activity.id]}
+                  >
+                    {loadingActivities[activity.id] ? 'Caricamento...' : 'Completa'}
+                  </button>
+                  <button
+                    className="btn w-100 btn--danger btn--pill"
+                    onClick={() => handleDelete(activity.id)}
+                  >
+                    Elimina attività
+                  </button>
+                </>
+              )}
+
+              {ViewButtons && activity.stato === 0 && (
+                <>
+                  <button
+                    className="btn w-100 btn--start btn--pill"
+                    onClick={() => updateActivityStatus(activity.id, 1)}
+                    disabled={loadingActivities[activity.id]}
+                  >
+                    {loadingActivities[activity.id] ? 'Caricamento...' : 'Inizia'}
+                  </button>
+
+                  <button
+                    className="btn w-100 btn--complete btn--pill"
+                    onClick={() => updateActivityStatus(activity.id, 2)}
+                    disabled={loadingActivities[activity.id]}
+                  >
+                    {loadingActivities[activity.id] ? 'Caricamento...' : 'Completa'}
+                  </button>
+
+                  <button
+                    className="btn w-100 btn--danger btn--pill"
+                    onClick={() => handleDelete(activity.id)}
+                  >
+                    Elimina attività
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="flex-column-center">
+              {ViewNote && activity.note && !isClosedNote(activity.note) && (
+                <>
+                  <div className="note">Note: {activity.note}</div>
+
+                  <button
+                    className="btn btn--pill btn--warning w-100"
+                    onClick={() => closeNote(activity.id)}
+                  >
+                    Chiudi nota
+                  </button>
+                  <button
+                    className="btn w-100 btn--danger btn--pill"
+                    onClick={() => deleteNote(activity.id)}
+                  >
+                    Elimina Nota
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
