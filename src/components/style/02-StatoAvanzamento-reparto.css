@@ -336,8 +336,13 @@
 Responsive Design
 ============================== */
 @media (max-width: 768px) {
+  .drop-state-grid {
+    gap: 8px;
+  }
+
   .drop-state-card {
-    min-height: 26px;
+    min-height: 22px;
+    padding: 5px;
   }
 
   .commessa {
