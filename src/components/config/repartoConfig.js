@@ -522,7 +522,7 @@ export const repartoIndicators = {
       whenStates: ['No software'],
       icon: iconOk,
       title: 'No software',
-      text: 'software',
+      text: 'No software',
       showText: true,
     },
 
@@ -618,7 +618,7 @@ export const repartoIndicators = {
       whenStates: ['No software'],
       icon: iconOk,
       title: 'No software',
-      text: 'software',
+      text: 'No software',
       showText: true,
     },
     {
@@ -731,7 +731,7 @@ export const repartoIndicators = {
       whenStates: ['No software'],
       icon: iconOk,
       title: 'No software',
-      text: 'software',
+      text: 'No software',
       showText: true,
     },
     {
