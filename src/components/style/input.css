@@ -21,6 +21,16 @@ option {
   border-radius: 4px;
   max-width: 100%;
 }
+.Campo {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  padding: 8px;
+  font-size: 14px;
+  border: 2px solid #146da8;
+  border-radius: 4px;
+  max-width: 100%;
+  text-align: left;
+}
 
 input:focus,
 select:focus,
@@ -96,6 +106,9 @@ Responsive Design
   select,
   textarea,
   option {
+    font-size: 10px;
+  }
+  .Campo {
     font-size: 10px;
   }
 }

@@ -213,7 +213,9 @@ function AttivitaCrea({
       setLoading(false);
     }
   };
-
+  const selectedCommessa = commesse.find(
+    (c) => String(c.commessa_id || c.id) === String(formData.commessa_id || '')
+  );
   return (
     <div className="popup">
       <div className="popup-background">
@@ -285,6 +287,15 @@ function AttivitaCrea({
                 {/* ICONA MATCH */}
                 {formData.commessa_id && <span className="input-check">✔</span>}
               </div>
+              {formData.commessa_id && selectedCommessa && (
+                <div className="flex-column-center">
+                  Cliente:
+                  <div className="input-wrapper w-400 Campo ">
+                    {selectedCommessa.cliente || '—'}
+                    <span className="input-check">✔</span>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex-column-center">
               <label>Reparto:</label>
