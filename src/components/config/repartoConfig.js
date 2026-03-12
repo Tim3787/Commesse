@@ -475,6 +475,14 @@ export const repartoIndicators = {
     /* MECCANICO */
     {
       otherReparto: 'meccanico',
+      whenStates: ['Montaggio programmato'],
+      icon: iconDev,
+      title: 'Montaggio programmato',
+      text: 'Montaggio programmato',
+      showText: true,
+    },
+    {
+      otherReparto: 'meccanico',
       whenStates: ['Montaggio in corso'],
       icon: iconDev,
       title: 'Montaggio in corso',
@@ -503,12 +511,21 @@ export const repartoIndicators = {
     },
     {
       otherReparto: 'software',
-      whenStates: ['Pronta per collaudo', 'No software'],
+      whenStates: ['Pronta per collaudo'],
       icon: iconOk,
       title: 'Software completato',
       text: 'Software completato',
       showText: true,
     },
+    {
+      otherReparto: 'software',
+      whenStates: ['No software'],
+      icon: iconOk,
+      title: 'No software',
+      text: 'software',
+      showText: true,
+    },
+
     {
       otherReparto: 'software',
       whenStates: ['Collaudo'],
@@ -555,6 +572,14 @@ export const repartoIndicators = {
     /* MECCANICO */
     {
       otherReparto: 'meccanico',
+      whenStates: ['Montaggio programmato'],
+      icon: iconDev,
+      title: 'Montaggio programmato',
+      text: 'Montaggio programmato',
+      showText: true,
+    },
+    {
+      otherReparto: 'meccanico',
       whenStates: ['Montaggio in corso'],
       icon: iconDev,
       title: 'Montaggio in corso',
@@ -582,10 +607,18 @@ export const repartoIndicators = {
     },
     {
       otherReparto: 'software',
-      whenStates: ['Pronta per collaudo', 'No software'],
+      whenStates: ['Pronta per collaudo'],
       icon: iconOk,
       title: 'Software completato',
       text: 'Software completato',
+      showText: true,
+    },
+    {
+      otherReparto: 'software',
+      whenStates: ['No software'],
+      icon: iconOk,
+      title: 'No software',
+      text: 'software',
       showText: true,
     },
     {
@@ -687,10 +720,18 @@ export const repartoIndicators = {
     },
     {
       otherReparto: 'software',
-      whenStates: ['Pronta per collaudo', 'No software'],
+      whenStates: ['Pronta per collaudo'],
       icon: iconOk,
       title: 'Software completato',
       text: 'Software completato',
+      showText: true,
+    },
+    {
+      otherReparto: 'software',
+      whenStates: ['No software'],
+      icon: iconOk,
+      title: 'No software',
+      text: 'software',
       showText: true,
     },
     {
@@ -773,6 +814,14 @@ export const repartoIndicators = {
     },
 
     /* MECCANICO */
+    {
+      otherReparto: 'meccanico',
+      whenStates: ['Montaggio programmato'],
+      icon: iconDev,
+      title: 'Montaggio programmato',
+      text: 'Montaggio programmato',
+      showText: true,
+    },
     {
       otherReparto: 'meccanico',
       whenStates: ['Montaggio in corso'],
